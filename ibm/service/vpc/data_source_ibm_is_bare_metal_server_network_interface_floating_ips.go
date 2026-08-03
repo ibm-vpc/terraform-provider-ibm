@@ -19,6 +19,16 @@ import (
 const (
 	isBareMetalServerNetworkInterface = "network_interface"
 	floatingIPId                      = "id"
+	isBMSNicFIPAuthorizedCIDR         = "authorized_cidr"
+	isBMSNicFIPAuthorizedCIDRID       = "id"
+	isBMSNicFIPAuthorizedCIDRCIDR     = "cidr"
+	isBMSNicFIPAuthorizedCIDRHref     = "href"
+	isBMSNicFIPAuthorizedCIDRName     = "name"
+	isBMSNicFIPAuthorizedCIDRResType  = "resource_type"
+	isBMSNicFIPProfile                = "profile"
+	isBMSNicFIPResourceType           = "resource_type"
+	isBMSNicFIPProfileName            = "name"
+	isBMSNicFIPProfileHref            = "href"
 )
 
 func DataSourceIBMIsBareMetalServerNetworkInterfaceFloatingIPs() *schema.Resource {
@@ -84,6 +94,69 @@ func DataSourceIBMIsBareMetalServerNetworkInterfaceFloatingIPs() *schema.Resourc
 							Computed:    true,
 							Description: "Floating IP crn",
 						},
+						isBMSNicFIPResourceType: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The resource type",
+						},
+						isBMSNicFIPAuthorizedCIDR: {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "The public address range authorized CIDR this floating IP is allocated from",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									isBMSNicFIPAuthorizedCIDRID: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The unique identifier for this public address range authorized CIDR",
+									},
+									isBMSNicFIPAuthorizedCIDRCIDR: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The public IPv4 address block, expressed in CIDR format",
+									},
+									isBMSNicFIPAuthorizedCIDRHref: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The URL for this public address range authorized CIDR",
+									},
+									isBMSNicFIPAuthorizedCIDRName: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The name for this public address range authorized CIDR",
+									},
+									isBMSNicFIPAuthorizedCIDRResType: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The resource type",
+									},
+								},
+							},
+						},
+						isBMSNicFIPProfile: {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "The profile for this floating IP",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									isBMSNicFIPProfileName: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The globally unique name for this floating IP profile",
+									},
+									isBMSNicFIPProfileHref: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The URL for this floating IP profile",
+									},
+									isBMSNicFIPResourceType: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The resource type",
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -130,6 +203,42 @@ func dataSourceIBMISBareMetalServerNetworkInterfaceFloatingIPsRead(context conte
 		}
 
 		l[floatingIPId] = *ip.ID
+
+		if ip.ResourceType != nil {
+			l[isBMSNicFIPResourceType] = *ip.ResourceType
+		}
+		if ip.AuthorizedCIDR != nil {
+			authorizedCIDRMap := map[string]interface{}{}
+			if ip.AuthorizedCIDR.ID != nil {
+				authorizedCIDRMap[isBMSNicFIPAuthorizedCIDRID] = *ip.AuthorizedCIDR.ID
+			}
+			if ip.AuthorizedCIDR.CIDR != nil {
+				authorizedCIDRMap[isBMSNicFIPAuthorizedCIDRCIDR] = *ip.AuthorizedCIDR.CIDR
+			}
+			if ip.AuthorizedCIDR.Href != nil {
+				authorizedCIDRMap[isBMSNicFIPAuthorizedCIDRHref] = *ip.AuthorizedCIDR.Href
+			}
+			if ip.AuthorizedCIDR.Name != nil {
+				authorizedCIDRMap[isBMSNicFIPAuthorizedCIDRName] = *ip.AuthorizedCIDR.Name
+			}
+			if ip.AuthorizedCIDR.ResourceType != nil {
+				authorizedCIDRMap[isBMSNicFIPAuthorizedCIDRResType] = *ip.AuthorizedCIDR.ResourceType
+			}
+			l[isBMSNicFIPAuthorizedCIDR] = []map[string]interface{}{authorizedCIDRMap}
+		}
+		if ip.Profile != nil {
+			profileMap := map[string]interface{}{}
+			if ip.Profile.Name != nil {
+				profileMap[isBMSNicFIPProfileName] = *ip.Profile.Name
+			}
+			if ip.Profile.Href != nil {
+				profileMap[isBMSNicFIPProfileHref] = *ip.Profile.Href
+			}
+			if ip.Profile.ResourceType != nil {
+				profileMap[isBMSNicFIPResourceType] = *ip.Profile.ResourceType
+			}
+			l[isBMSNicFIPProfile] = []map[string]interface{}{profileMap}
+		}
 
 		fipInfo = append(fipInfo, l)
 	}

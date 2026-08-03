@@ -18,6 +18,19 @@ import (
 	"github.com/IBM/vpc-go-sdk/vpcv1"
 )
 
+const (
+	isFloatingIPsResourceType          = "resource_type"
+	isFloatingIPsAuthorizedCIDR        = "authorized_cidr"
+	isFloatingIPsAuthorizedCIDRID      = "id"
+	isFloatingIPsAuthorizedCIDRCIDR    = "cidr"
+	isFloatingIPsAuthorizedCIDRHref    = "href"
+	isFloatingIPsAuthorizedCIDRName    = "name"
+	isFloatingIPsAuthorizedCIDRResType = "resource_type"
+	isFloatingIPsProfile               = "profile"
+	isFloatingIPsProfileName           = "name"
+	isFloatingIPsProfileHref           = "href"
+)
+
 func DataSourceIBMIsFloatingIps() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceIBMIsFloatingIpsRead,
@@ -32,6 +45,11 @@ func DataSourceIBMIsFloatingIps() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "The unique user-defined name for this floating IP.",
+			},
+			"profile_name": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Filters the collection to floating IPs with the specified profile name.",
 			},
 			"floating_ips": {
 				Type:        schema.TypeList,
@@ -211,6 +229,69 @@ func DataSourceIBMIsFloatingIps() *schema.Resource {
 							Set:         flex.ResourceIBMVPCHash,
 							Description: "List of access management tags",
 						},
+						isFloatingIPsResourceType: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The resource type",
+						},
+						isFloatingIPsAuthorizedCIDR: {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "The public address range authorized CIDR this floating IP is allocated from",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									isFloatingIPsAuthorizedCIDRID: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The unique identifier for this public address range authorized CIDR",
+									},
+									isFloatingIPsAuthorizedCIDRCIDR: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The public IPv4 address block, expressed in CIDR format",
+									},
+									isFloatingIPsAuthorizedCIDRHref: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The URL for this public address range authorized CIDR",
+									},
+									isFloatingIPsAuthorizedCIDRName: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The name for this public address range authorized CIDR",
+									},
+									isFloatingIPsAuthorizedCIDRResType: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The resource type",
+									},
+								},
+							},
+						},
+						isFloatingIPsProfile: {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "The profile for this floating IP",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									isFloatingIPsProfileName: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The globally unique name for this floating IP profile",
+									},
+									isFloatingIPsProfileHref: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The URL for this floating IP profile",
+									},
+									isFloatingIPsResourceType: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The resource type",
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -231,6 +312,10 @@ func dataSourceIBMIsFloatingIpsRead(ctx context.Context, d *schema.ResourceData,
 	if resgroupintf, ok := d.GetOk("resource_group"); ok {
 		resGroup := resgroupintf.(string)
 		floatingIPOptions.ResourceGroupID = &resGroup
+	}
+	if profileNameIntf, ok := d.GetOk("profile_name"); ok {
+		profileName := profileNameIntf.(string)
+		floatingIPOptions.ProfileName = &profileName
 	}
 	for {
 
@@ -362,6 +447,42 @@ func dataSourceFloatingIPCollectionFloatingIpsToMap(floatingIpsItem vpcv1.Floati
 			"Error on get of resource floating ip (%s) access tags: %s", d.Id(), err)
 	}
 	floatingIpsMap[isFloatingIPAccessTags] = accesstags
+
+	if floatingIpsItem.ResourceType != nil {
+		floatingIpsMap[isFloatingIPsResourceType] = *floatingIpsItem.ResourceType
+	}
+	if floatingIpsItem.AuthorizedCIDR != nil {
+		authorizedCIDRMap := map[string]interface{}{}
+		if floatingIpsItem.AuthorizedCIDR.ID != nil {
+			authorizedCIDRMap[isFloatingIPsAuthorizedCIDRID] = *floatingIpsItem.AuthorizedCIDR.ID
+		}
+		if floatingIpsItem.AuthorizedCIDR.CIDR != nil {
+			authorizedCIDRMap[isFloatingIPsAuthorizedCIDRCIDR] = *floatingIpsItem.AuthorizedCIDR.CIDR
+		}
+		if floatingIpsItem.AuthorizedCIDR.Href != nil {
+			authorizedCIDRMap[isFloatingIPsAuthorizedCIDRHref] = *floatingIpsItem.AuthorizedCIDR.Href
+		}
+		if floatingIpsItem.AuthorizedCIDR.Name != nil {
+			authorizedCIDRMap[isFloatingIPsAuthorizedCIDRName] = *floatingIpsItem.AuthorizedCIDR.Name
+		}
+		if floatingIpsItem.AuthorizedCIDR.ResourceType != nil {
+			authorizedCIDRMap[isFloatingIPsAuthorizedCIDRResType] = *floatingIpsItem.AuthorizedCIDR.ResourceType
+		}
+		floatingIpsMap[isFloatingIPsAuthorizedCIDR] = []map[string]interface{}{authorizedCIDRMap}
+	}
+	if floatingIpsItem.Profile != nil {
+		profileMap := map[string]interface{}{}
+		if floatingIpsItem.Profile.Name != nil {
+			profileMap[isFloatingIPsProfileName] = *floatingIpsItem.Profile.Name
+		}
+		if floatingIpsItem.Profile.Href != nil {
+			profileMap[isFloatingIPsProfileHref] = *floatingIpsItem.Profile.Href
+		}
+		if floatingIpsItem.Profile.ResourceType != nil {
+			profileMap[isFloatingIPsResourceType] = *floatingIpsItem.Profile.ResourceType
+		}
+		floatingIpsMap[isFloatingIPsProfile] = []map[string]interface{}{profileMap}
+	}
 
 	return floatingIpsMap
 }

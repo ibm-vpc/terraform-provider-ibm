@@ -95,6 +95,69 @@ func ResourceIBMIsInstanceNetworkInterfaceFloatingIp() *schema.Resource {
 				Computed:    true,
 				Description: "Floating IP crn",
 			},
+			isFloatingIPResourceType: {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The resource type.",
+			},
+			isFloatingIPAuthorizedCIDR: {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "The public address range authorized CIDR.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						isFloatingIPAuthorizedCIDRID: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The unique identifier for this public address range.",
+						},
+						isFloatingIPAuthorizedCIDRCIDR: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The CIDR for this public address range.",
+						},
+						isFloatingIPAuthorizedCIDRHref: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The URL for this public address range.",
+						},
+						isFloatingIPAuthorizedCIDRName: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The name for this public address range.",
+						},
+						isFloatingIPAuthorizedCIDRResType: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The resource type.",
+						},
+					},
+				},
+			},
+			isFloatingIPProfile: {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "The profile for this floating IP.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						isFloatingIPProfileName: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The name for this floating IP profile.",
+						},
+						isFloatingIPProfileHref: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The URL for this floating IP profile.",
+						},
+						isFloatingIPResourceType: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The resource type.",
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -203,6 +266,47 @@ func instanceNICFipGet(context context.Context, d *schema.ResourceData, fip *vpc
 	if ok {
 		if err = d.Set(floatingIPTarget, target.ID); err != nil {
 			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_instance_network_interface_floating_ip", "read", "set-target").GetDiag()
+		}
+	}
+	if fip.ResourceType != nil {
+		if err = d.Set(isFloatingIPResourceType, *fip.ResourceType); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_instance_network_interface_floating_ip", "read", "set-resource_type").GetDiag()
+		}
+	}
+	if fip.AuthorizedCIDR != nil {
+		authorizedCIDRMap := map[string]interface{}{}
+		if fip.AuthorizedCIDR.ID != nil {
+			authorizedCIDRMap[isFloatingIPAuthorizedCIDRID] = *fip.AuthorizedCIDR.ID
+		}
+		if fip.AuthorizedCIDR.CIDR != nil {
+			authorizedCIDRMap[isFloatingIPAuthorizedCIDRCIDR] = *fip.AuthorizedCIDR.CIDR
+		}
+		if fip.AuthorizedCIDR.Href != nil {
+			authorizedCIDRMap[isFloatingIPAuthorizedCIDRHref] = *fip.AuthorizedCIDR.Href
+		}
+		if fip.AuthorizedCIDR.Name != nil {
+			authorizedCIDRMap[isFloatingIPAuthorizedCIDRName] = *fip.AuthorizedCIDR.Name
+		}
+		if fip.AuthorizedCIDR.ResourceType != nil {
+			authorizedCIDRMap[isFloatingIPAuthorizedCIDRResType] = *fip.AuthorizedCIDR.ResourceType
+		}
+		if err = d.Set(isFloatingIPAuthorizedCIDR, []map[string]interface{}{authorizedCIDRMap}); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_instance_network_interface_floating_ip", "read", "set-authorized_cidr").GetDiag()
+		}
+	}
+	if fip.Profile != nil {
+		profileMap := map[string]interface{}{}
+		if fip.Profile.Name != nil {
+			profileMap[isFloatingIPProfileName] = *fip.Profile.Name
+		}
+		if fip.Profile.Href != nil {
+			profileMap[isFloatingIPProfileHref] = *fip.Profile.Href
+		}
+		if fip.Profile.ResourceType != nil {
+			profileMap[isFloatingIPResourceType] = *fip.Profile.ResourceType
+		}
+		if err = d.Set(isFloatingIPProfile, []map[string]interface{}{profileMap}); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_instance_network_interface_floating_ip", "read", "set-profile").GetDiag()
 		}
 	}
 	return nil

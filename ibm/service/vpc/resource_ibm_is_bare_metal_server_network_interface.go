@@ -90,6 +90,11 @@ func ResourceIBMIsBareMetalServerNetworkInterface() *schema.Resource {
 							Computed:    true,
 							Description: "The globally unique IP identifier",
 						},
+						isBareMetalServerNicResourceType: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The resource type",
+						},
 					},
 				},
 			},
@@ -776,6 +781,9 @@ func bareMetalServerNICGet(context context.Context, d *schema.ResourceData, meta
 						isBareMetalServerNicFloatingIPId: *ip.ID,
 						isBareMetalServerNicIpAddress:    *ip.Address,
 					}
+					if ip.ResourceType != nil {
+						currentIP[isBareMetalServerNicResourceType] = *ip.ResourceType
+					}
 					floatingIPList = append(floatingIPList, currentIP)
 				}
 			}
@@ -901,6 +909,9 @@ func bareMetalServerNICGet(context context.Context, d *schema.ResourceData, meta
 					currentIP := map[string]interface{}{
 						isBareMetalServerNicFloatingIPId: *ip.ID,
 						isBareMetalServerNicIpAddress:    *ip.Address,
+					}
+					if ip.ResourceType != nil {
+						currentIP[isBareMetalServerNicResourceType] = *ip.ResourceType
 					}
 					floatingIPList = append(floatingIPList, currentIP)
 				}
@@ -1031,6 +1042,9 @@ func bareMetalServerNICGet(context context.Context, d *schema.ResourceData, meta
 					currentIP := map[string]interface{}{
 						isBareMetalServerNicIpID:      *ip.ID,
 						isBareMetalServerNicIpAddress: *ip.Address,
+					}
+					if ip.ResourceType != nil {
+						currentIP[isBareMetalServerNicResourceType] = *ip.ResourceType
 					}
 					floatingIPList = append(floatingIPList, currentIP)
 				}

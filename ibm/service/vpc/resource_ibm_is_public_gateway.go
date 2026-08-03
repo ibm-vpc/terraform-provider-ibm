@@ -348,6 +348,9 @@ func resourceIBMISPublicGatewayRead(context context.Context, d *schema.ResourceD
 			"id":                             *publicGateway.FloatingIP.ID,
 			isPublicGatewayFloatingIPAddress: *publicGateway.FloatingIP.Address,
 		}
+		if publicGateway.FloatingIP.ResourceType != nil {
+			floatIP["resource_type"] = *publicGateway.FloatingIP.ResourceType
+		}
 		if err = d.Set("floating_ip", floatIP); err != nil {
 			err = fmt.Errorf("Error setting floating_ip: %s", err)
 			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_public_gateway", "read", "set-floating_ip").GetDiag()

@@ -83,6 +83,11 @@ func DataSourceIBMIsBareMetalServerNetworkInterfaces() *schema.Resource {
 										Computed:    true,
 										Description: "The unique user-defined name for this floating IP",
 									},
+									isBareMetalServerNicResourceType: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The resource type",
+									},
 								},
 							},
 						},
@@ -246,6 +251,9 @@ func dataSourceIBMISBareMetalServerNetworkInterfacesRead(context context.Context
 							isBareMetalServerNicFloatingIPId: *ip.ID,
 							isBareMetalServerNicIpAddress:    *ip.Address,
 						}
+						if ip.ResourceType != nil {
+							currentIP[isBareMetalServerNicResourceType] = *ip.ResourceType
+						}
 						floatingIPList = append(floatingIPList, currentIP)
 					}
 					l[isBareMetalServerNicFloatingIPs] = floatingIPList
@@ -313,6 +321,9 @@ func dataSourceIBMISBareMetalServerNetworkInterfacesRead(context context.Context
 							isBareMetalServerNicFloatingIPId: *ip.ID,
 							isBareMetalServerNicIpAddress:    *ip.Address,
 						}
+						if ip.ResourceType != nil {
+							currentIP[isBareMetalServerNicResourceType] = *ip.ResourceType
+						}
 						floatingIPList = append(floatingIPList, currentIP)
 					}
 					l[isBareMetalServerNicFloatingIPs] = floatingIPList
@@ -370,6 +381,9 @@ func dataSourceIBMISBareMetalServerNetworkInterfacesRead(context context.Context
 						currentIP := map[string]interface{}{
 							isBareMetalServerNicIpID:      *ip.ID,
 							isBareMetalServerNicIpAddress: *ip.Address,
+						}
+						if ip.ResourceType != nil {
+							currentIP[isBareMetalServerNicResourceType] = *ip.ResourceType
 						}
 						floatingIPList = append(floatingIPList, currentIP)
 					}

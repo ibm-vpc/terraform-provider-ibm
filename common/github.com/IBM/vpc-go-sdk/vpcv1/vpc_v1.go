@@ -15,7 +15,7 @@
  */
 
 /*
- * IBM OpenAPI SDK Code Generator Version: 3.114.0-a902401e-20260427-192904
+ * IBM OpenAPI SDK Code Generator Version: 3.96.1-5136e54a-20241108-203028
  */
 
 // Package vpcv1 : Operations and models for the VpcV1 service
@@ -38,7 +38,7 @@ import (
 // VpcV1 : The IBM Cloud Virtual Private Cloud (VPC) API can be used to programmatically provision and manage virtual
 // server instances, along with subnets, volumes, load balancers, and more.
 //
-// API Version: 2025-09-16
+// API Version: 2026-04-07
 type VpcV1 struct {
 	Service *core.BaseService
 
@@ -46,13 +46,13 @@ type VpcV1 struct {
 	// `2`.
 	Generation *int64
 
-	// The API version, in format `YYYY-MM-DD`. For the API behavior documented here, specify any date between `2025-09-16`
-	// and `2025-11-17`.
+	// The API version, in format `YYYY-MM-DD`. For the API behavior documented here, specify any date between `2026-04-07`
+	// and `2026-07-23`.
 	Version *string
 }
 
 // DefaultServiceURL is the default URL to make service requests to.
-const DefaultServiceURL = "https://us-south.iaas.cloud.ibm.com/v1"
+const DefaultServiceURL = "https://au-syd.iaas.cloud.ibm.com/v1"
 
 // DefaultServiceName is the default key used to find external configuration information.
 const DefaultServiceName = "vpc"
@@ -67,8 +67,8 @@ type VpcV1Options struct {
 	// `2`.
 	Generation *int64
 
-	// The API version, in format `YYYY-MM-DD`. For the API behavior documented here, specify any date between `2025-09-16`
-	// and `2025-11-17`.
+	// The API version, in format `YYYY-MM-DD`. For the API behavior documented here, specify any date between `2026-04-07`
+	// and `2026-07-23`.
 	Version *string
 }
 
@@ -248,12 +248,12 @@ func (vpc *VpcV1) ListBackupPoliciesWithContext(ctx context.Context, listBackupP
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListBackupPolicies")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listBackupPoliciesOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listBackupPoliciesOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListBackupPolicies")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -332,12 +332,12 @@ func (vpc *VpcV1) CreateBackupPolicyWithContext(ctx context.Context, createBacku
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateBackupPolicy")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createBackupPolicyOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range createBackupPolicyOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateBackupPolicy")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -412,12 +412,12 @@ func (vpc *VpcV1) ListBackupPolicyJobsWithContext(ctx context.Context, listBacku
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListBackupPolicyJobs")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listBackupPolicyJobsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listBackupPolicyJobsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListBackupPolicyJobs")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -509,12 +509,12 @@ func (vpc *VpcV1) GetBackupPolicyJobWithContext(ctx context.Context, getBackupPo
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetBackupPolicyJob")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getBackupPolicyJobOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getBackupPolicyJobOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetBackupPolicyJob")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -581,12 +581,12 @@ func (vpc *VpcV1) ListBackupPolicyPlansWithContext(ctx context.Context, listBack
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListBackupPolicyPlans")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listBackupPolicyPlansOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listBackupPolicyPlansOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListBackupPolicyPlans")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -663,12 +663,12 @@ func (vpc *VpcV1) CreateBackupPolicyPlanWithContext(ctx context.Context, createB
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateBackupPolicyPlan")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createBackupPolicyPlanOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range createBackupPolicyPlanOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateBackupPolicyPlan")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -773,12 +773,12 @@ func (vpc *VpcV1) DeleteBackupPolicyPlanWithContext(ctx context.Context, deleteB
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteBackupPolicyPlan")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteBackupPolicyPlanOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range deleteBackupPolicyPlanOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteBackupPolicyPlan")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -849,12 +849,12 @@ func (vpc *VpcV1) GetBackupPolicyPlanWithContext(ctx context.Context, getBackupP
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetBackupPolicyPlan")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getBackupPolicyPlanOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getBackupPolicyPlanOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetBackupPolicyPlan")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -923,12 +923,12 @@ func (vpc *VpcV1) UpdateBackupPolicyPlanWithContext(ctx context.Context, updateB
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateBackupPolicyPlan")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateBackupPolicyPlanOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range updateBackupPolicyPlanOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateBackupPolicyPlan")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -1008,12 +1008,12 @@ func (vpc *VpcV1) DeleteBackupPolicyWithContext(ctx context.Context, deleteBacku
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteBackupPolicy")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteBackupPolicyOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range deleteBackupPolicyOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteBackupPolicy")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -1083,12 +1083,12 @@ func (vpc *VpcV1) GetBackupPolicyWithContext(ctx context.Context, getBackupPolic
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetBackupPolicy")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getBackupPolicyOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getBackupPolicyOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetBackupPolicy")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -1156,12 +1156,12 @@ func (vpc *VpcV1) UpdateBackupPolicyWithContext(ctx context.Context, updateBacku
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateBackupPolicy")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateBackupPolicyOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range updateBackupPolicyOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateBackupPolicy")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -1231,12 +1231,12 @@ func (vpc *VpcV1) ListBareMetalServerProfilesWithContext(ctx context.Context, li
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListBareMetalServerProfiles")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listBareMetalServerProfilesOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listBareMetalServerProfilesOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListBareMetalServerProfiles")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -1309,12 +1309,12 @@ func (vpc *VpcV1) GetBareMetalServerProfileWithContext(ctx context.Context, getB
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetBareMetalServerProfile")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getBareMetalServerProfileOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getBareMetalServerProfileOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetBareMetalServerProfile")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -1372,12 +1372,12 @@ func (vpc *VpcV1) ListBareMetalServersWithContext(ctx context.Context, listBareM
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListBareMetalServers")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listBareMetalServersOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listBareMetalServersOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListBareMetalServers")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -1474,12 +1474,12 @@ func (vpc *VpcV1) CreateBareMetalServerWithContext(ctx context.Context, createBa
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateBareMetalServer")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createBareMetalServerOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range createBareMetalServerOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateBareMetalServer")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -1557,12 +1557,12 @@ func (vpc *VpcV1) CreateBareMetalServerConsoleAccessTokenWithContext(ctx context
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateBareMetalServerConsoleAccessToken")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createBareMetalServerConsoleAccessTokenOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range createBareMetalServerConsoleAccessTokenOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateBareMetalServerConsoleAccessToken")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -1644,12 +1644,12 @@ func (vpc *VpcV1) ListBareMetalServerDisksWithContext(ctx context.Context, listB
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListBareMetalServerDisks")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listBareMetalServerDisksOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listBareMetalServerDisksOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListBareMetalServerDisks")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -1717,12 +1717,12 @@ func (vpc *VpcV1) GetBareMetalServerDiskWithContext(ctx context.Context, getBare
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetBareMetalServerDisk")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getBareMetalServerDiskOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getBareMetalServerDiskOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetBareMetalServerDisk")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -1790,12 +1790,12 @@ func (vpc *VpcV1) UpdateBareMetalServerDiskWithContext(ctx context.Context, upda
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateBareMetalServerDisk")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateBareMetalServerDiskOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range updateBareMetalServerDiskOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateBareMetalServerDisk")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -1876,12 +1876,12 @@ func (vpc *VpcV1) ListBareMetalServerNetworkAttachmentsWithContext(ctx context.C
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListBareMetalServerNetworkAttachments")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listBareMetalServerNetworkAttachmentsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listBareMetalServerNetworkAttachmentsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListBareMetalServerNetworkAttachments")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -1956,12 +1956,12 @@ func (vpc *VpcV1) CreateBareMetalServerNetworkAttachmentWithContext(ctx context.
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateBareMetalServerNetworkAttachment")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createBareMetalServerNetworkAttachmentOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range createBareMetalServerNetworkAttachmentOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateBareMetalServerNetworkAttachment")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -2039,12 +2039,12 @@ func (vpc *VpcV1) DeleteBareMetalServerNetworkAttachmentWithContext(ctx context.
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteBareMetalServerNetworkAttachment")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteBareMetalServerNetworkAttachmentOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range deleteBareMetalServerNetworkAttachmentOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteBareMetalServerNetworkAttachment")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -2102,12 +2102,12 @@ func (vpc *VpcV1) GetBareMetalServerNetworkAttachmentWithContext(ctx context.Con
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetBareMetalServerNetworkAttachment")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getBareMetalServerNetworkAttachmentOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getBareMetalServerNetworkAttachmentOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetBareMetalServerNetworkAttachment")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -2177,12 +2177,12 @@ func (vpc *VpcV1) UpdateBareMetalServerNetworkAttachmentWithContext(ctx context.
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateBareMetalServerNetworkAttachment")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateBareMetalServerNetworkAttachmentOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range updateBareMetalServerNetworkAttachmentOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateBareMetalServerNetworkAttachment")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -2263,12 +2263,12 @@ func (vpc *VpcV1) ListBareMetalServerNetworkInterfacesWithContext(ctx context.Co
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListBareMetalServerNetworkInterfaces")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listBareMetalServerNetworkInterfacesOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listBareMetalServerNetworkInterfacesOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListBareMetalServerNetworkInterfaces")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -2349,12 +2349,12 @@ func (vpc *VpcV1) CreateBareMetalServerNetworkInterfaceWithContext(ctx context.C
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateBareMetalServerNetworkInterface")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createBareMetalServerNetworkInterfaceOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range createBareMetalServerNetworkInterfaceOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateBareMetalServerNetworkInterface")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -2435,12 +2435,12 @@ func (vpc *VpcV1) DeleteBareMetalServerNetworkInterfaceWithContext(ctx context.C
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteBareMetalServerNetworkInterface")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteBareMetalServerNetworkInterfaceOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range deleteBareMetalServerNetworkInterfaceOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteBareMetalServerNetworkInterface")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -2502,12 +2502,12 @@ func (vpc *VpcV1) GetBareMetalServerNetworkInterfaceWithContext(ctx context.Cont
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetBareMetalServerNetworkInterface")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getBareMetalServerNetworkInterfaceOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getBareMetalServerNetworkInterfaceOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetBareMetalServerNetworkInterface")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -2581,12 +2581,12 @@ func (vpc *VpcV1) UpdateBareMetalServerNetworkInterfaceWithContext(ctx context.C
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateBareMetalServerNetworkInterface")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateBareMetalServerNetworkInterfaceOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range updateBareMetalServerNetworkInterfaceOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateBareMetalServerNetworkInterface")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -2661,12 +2661,12 @@ func (vpc *VpcV1) ListBareMetalServerNetworkInterfaceFloatingIpsWithContext(ctx 
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListBareMetalServerNetworkInterfaceFloatingIps")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listBareMetalServerNetworkInterfaceFloatingIpsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listBareMetalServerNetworkInterfaceFloatingIpsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListBareMetalServerNetworkInterfaceFloatingIps")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -2735,12 +2735,12 @@ func (vpc *VpcV1) RemoveBareMetalServerNetworkInterfaceFloatingIPWithContext(ctx
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "RemoveBareMetalServerNetworkInterfaceFloatingIP")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range removeBareMetalServerNetworkInterfaceFloatingIPOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range removeBareMetalServerNetworkInterfaceFloatingIPOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "RemoveBareMetalServerNetworkInterfaceFloatingIP")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -2800,12 +2800,12 @@ func (vpc *VpcV1) GetBareMetalServerNetworkInterfaceFloatingIPWithContext(ctx co
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetBareMetalServerNetworkInterfaceFloatingIP")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getBareMetalServerNetworkInterfaceFloatingIPOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getBareMetalServerNetworkInterfaceFloatingIPOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetBareMetalServerNetworkInterfaceFloatingIP")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -2844,8 +2844,9 @@ func (vpc *VpcV1) GetBareMetalServerNetworkInterfaceFloatingIPWithContext(ctx co
 // is `true`, this replaces any existing association.
 //
 // The existing floating IP must:
-// - not be required by another resource, such as a public gateway
 // - be in the same `zone` as the bare metal server
+// - not be allocated from an `authorized_cidr`
+// - not be required by another resource, such as a public gateway
 //
 // A request body is not required, and if provided, is ignored.
 func (vpc *VpcV1) AddBareMetalServerNetworkInterfaceFloatingIP(addBareMetalServerNetworkInterfaceFloatingIPOptions *AddBareMetalServerNetworkInterfaceFloatingIPOptions) (result *FloatingIP, response *core.DetailedResponse, err error) {
@@ -2882,12 +2883,12 @@ func (vpc *VpcV1) AddBareMetalServerNetworkInterfaceFloatingIPWithContext(ctx co
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "AddBareMetalServerNetworkInterfaceFloatingIP")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range addBareMetalServerNetworkInterfaceFloatingIPOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range addBareMetalServerNetworkInterfaceFloatingIPOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "AddBareMetalServerNetworkInterfaceFloatingIP")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -2958,12 +2959,12 @@ func (vpc *VpcV1) ListBareMetalServerNetworkInterfaceIpsWithContext(ctx context.
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListBareMetalServerNetworkInterfaceIps")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listBareMetalServerNetworkInterfaceIpsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listBareMetalServerNetworkInterfaceIpsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListBareMetalServerNetworkInterfaceIps")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -3035,12 +3036,12 @@ func (vpc *VpcV1) GetBareMetalServerNetworkInterfaceIPWithContext(ctx context.Co
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetBareMetalServerNetworkInterfaceIP")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getBareMetalServerNetworkInterfaceIPOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getBareMetalServerNetworkInterfaceIPOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetBareMetalServerNetworkInterfaceIP")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -3108,12 +3109,12 @@ func (vpc *VpcV1) DeleteBareMetalServerWithContext(ctx context.Context, deleteBa
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteBareMetalServer")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteBareMetalServerOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range deleteBareMetalServerOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteBareMetalServer")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -3170,12 +3171,12 @@ func (vpc *VpcV1) GetBareMetalServerWithContext(ctx context.Context, getBareMeta
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetBareMetalServer")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getBareMetalServerOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getBareMetalServerOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetBareMetalServer")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -3246,12 +3247,12 @@ func (vpc *VpcV1) UpdateBareMetalServerWithContext(ctx context.Context, updateBa
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateBareMetalServer")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateBareMetalServerOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range updateBareMetalServerOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateBareMetalServer")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -3325,12 +3326,12 @@ func (vpc *VpcV1) UpdateFirmwareForBareMetalServerWithContext(ctx context.Contex
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateFirmwareForBareMetalServer")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateFirmwareForBareMetalServerOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range updateFirmwareForBareMetalServerOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateFirmwareForBareMetalServer")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Content-Type", "application/json")
@@ -3400,12 +3401,12 @@ func (vpc *VpcV1) GetBareMetalServerInitializationWithContext(ctx context.Contex
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetBareMetalServerInitialization")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getBareMetalServerInitializationOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getBareMetalServerInitializationOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetBareMetalServerInitialization")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -3476,12 +3477,12 @@ func (vpc *VpcV1) ReplaceBareMetalServerInitializationWithContext(ctx context.Co
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ReplaceBareMetalServerInitialization")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range replaceBareMetalServerInitializationOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range replaceBareMetalServerInitializationOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ReplaceBareMetalServerInitialization")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -3569,12 +3570,12 @@ func (vpc *VpcV1) RestartBareMetalServerWithContext(ctx context.Context, restart
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "RestartBareMetalServer")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range restartBareMetalServerOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range restartBareMetalServerOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "RestartBareMetalServer")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -3631,12 +3632,12 @@ func (vpc *VpcV1) StartBareMetalServerWithContext(ctx context.Context, startBare
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "StartBareMetalServer")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range startBareMetalServerOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range startBareMetalServerOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "StartBareMetalServer")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -3694,12 +3695,12 @@ func (vpc *VpcV1) StopBareMetalServerWithContext(ctx context.Context, stopBareMe
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "StopBareMetalServer")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range stopBareMetalServerOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range stopBareMetalServerOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "StopBareMetalServer")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Content-Type", "application/json")
@@ -3759,12 +3760,12 @@ func (vpc *VpcV1) ListClusterNetworkProfilesWithContext(ctx context.Context, lis
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListClusterNetworkProfiles")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listClusterNetworkProfilesOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listClusterNetworkProfilesOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListClusterNetworkProfiles")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -3837,12 +3838,12 @@ func (vpc *VpcV1) GetClusterNetworkProfileWithContext(ctx context.Context, getCl
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetClusterNetworkProfile")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getClusterNetworkProfileOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getClusterNetworkProfileOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetClusterNetworkProfile")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -3902,12 +3903,12 @@ func (vpc *VpcV1) ListClusterNetworksWithContext(ctx context.Context, listCluste
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListClusterNetworks")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listClusterNetworksOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listClusterNetworksOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListClusterNetworks")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -3996,12 +3997,12 @@ func (vpc *VpcV1) CreateClusterNetworkWithContext(ctx context.Context, createClu
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateClusterNetwork")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createClusterNetworkOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range createClusterNetworkOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateClusterNetwork")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -4099,12 +4100,12 @@ func (vpc *VpcV1) ListClusterNetworkInterfacesWithContext(ctx context.Context, l
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListClusterNetworkInterfaces")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listClusterNetworkInterfacesOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listClusterNetworkInterfacesOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListClusterNetworkInterfaces")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -4185,12 +4186,12 @@ func (vpc *VpcV1) CreateClusterNetworkInterfaceWithContext(ctx context.Context, 
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateClusterNetworkInterface")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createClusterNetworkInterfaceOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range createClusterNetworkInterfaceOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateClusterNetworkInterface")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -4277,12 +4278,12 @@ func (vpc *VpcV1) DeleteClusterNetworkInterfaceWithContext(ctx context.Context, 
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteClusterNetworkInterface")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteClusterNetworkInterfaceOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range deleteClusterNetworkInterfaceOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteClusterNetworkInterface")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -4353,12 +4354,12 @@ func (vpc *VpcV1) GetClusterNetworkInterfaceWithContext(ctx context.Context, get
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetClusterNetworkInterface")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getClusterNetworkInterfaceOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getClusterNetworkInterfaceOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetClusterNetworkInterface")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -4428,12 +4429,12 @@ func (vpc *VpcV1) UpdateClusterNetworkInterfaceWithContext(ctx context.Context, 
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateClusterNetworkInterface")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateClusterNetworkInterfaceOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range updateClusterNetworkInterfaceOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateClusterNetworkInterface")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -4511,12 +4512,12 @@ func (vpc *VpcV1) ListClusterNetworkSubnetsWithContext(ctx context.Context, list
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListClusterNetworkSubnets")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listClusterNetworkSubnetsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listClusterNetworkSubnetsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListClusterNetworkSubnets")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -4597,12 +4598,12 @@ func (vpc *VpcV1) CreateClusterNetworkSubnetWithContext(ctx context.Context, cre
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateClusterNetworkSubnet")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createClusterNetworkSubnetOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range createClusterNetworkSubnetOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateClusterNetworkSubnet")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -4677,12 +4678,12 @@ func (vpc *VpcV1) ListClusterNetworkSubnetReservedIpsWithContext(ctx context.Con
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListClusterNetworkSubnetReservedIps")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listClusterNetworkSubnetReservedIpsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listClusterNetworkSubnetReservedIpsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListClusterNetworkSubnetReservedIps")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -4764,12 +4765,12 @@ func (vpc *VpcV1) CreateClusterNetworkSubnetReservedIPWithContext(ctx context.Co
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateClusterNetworkSubnetReservedIP")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createClusterNetworkSubnetReservedIPOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range createClusterNetworkSubnetReservedIPOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateClusterNetworkSubnetReservedIP")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -4855,12 +4856,12 @@ func (vpc *VpcV1) DeleteClusterNetworkSubnetReservedIPWithContext(ctx context.Co
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteClusterNetworkSubnetReservedIP")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteClusterNetworkSubnetReservedIPOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range deleteClusterNetworkSubnetReservedIPOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteClusterNetworkSubnetReservedIP")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -4932,12 +4933,12 @@ func (vpc *VpcV1) GetClusterNetworkSubnetReservedIPWithContext(ctx context.Conte
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetClusterNetworkSubnetReservedIP")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getClusterNetworkSubnetReservedIPOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getClusterNetworkSubnetReservedIPOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetClusterNetworkSubnetReservedIP")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -5008,12 +5009,12 @@ func (vpc *VpcV1) UpdateClusterNetworkSubnetReservedIPWithContext(ctx context.Co
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateClusterNetworkSubnetReservedIP")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateClusterNetworkSubnetReservedIPOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range updateClusterNetworkSubnetReservedIPOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateClusterNetworkSubnetReservedIP")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -5093,12 +5094,12 @@ func (vpc *VpcV1) DeleteClusterNetworkSubnetWithContext(ctx context.Context, del
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteClusterNetworkSubnet")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteClusterNetworkSubnetOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range deleteClusterNetworkSubnetOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteClusterNetworkSubnet")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -5169,12 +5170,12 @@ func (vpc *VpcV1) GetClusterNetworkSubnetWithContext(ctx context.Context, getClu
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetClusterNetworkSubnet")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getClusterNetworkSubnetOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getClusterNetworkSubnetOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetClusterNetworkSubnet")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -5244,12 +5245,12 @@ func (vpc *VpcV1) UpdateClusterNetworkSubnetWithContext(ctx context.Context, upd
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateClusterNetworkSubnet")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateClusterNetworkSubnetOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range updateClusterNetworkSubnetOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateClusterNetworkSubnet")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -5328,12 +5329,12 @@ func (vpc *VpcV1) DeleteClusterNetworkWithContext(ctx context.Context, deleteClu
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteClusterNetwork")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteClusterNetworkOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range deleteClusterNetworkOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteClusterNetwork")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -5403,12 +5404,12 @@ func (vpc *VpcV1) GetClusterNetworkWithContext(ctx context.Context, getClusterNe
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetClusterNetwork")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getClusterNetworkOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getClusterNetworkOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetClusterNetwork")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -5477,12 +5478,12 @@ func (vpc *VpcV1) UpdateClusterNetworkWithContext(ctx context.Context, updateClu
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateClusterNetwork")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateClusterNetworkOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range updateClusterNetworkOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateClusterNetwork")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -5551,12 +5552,12 @@ func (vpc *VpcV1) ListDedicatedHostGroupsWithContext(ctx context.Context, listDe
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListDedicatedHostGroups")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listDedicatedHostGroupsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listDedicatedHostGroupsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListDedicatedHostGroups")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -5634,12 +5635,12 @@ func (vpc *VpcV1) CreateDedicatedHostGroupWithContext(ctx context.Context, creat
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateDedicatedHostGroup")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createDedicatedHostGroupOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range createDedicatedHostGroupOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateDedicatedHostGroup")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -5729,12 +5730,12 @@ func (vpc *VpcV1) DeleteDedicatedHostGroupWithContext(ctx context.Context, delet
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteDedicatedHostGroup")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteDedicatedHostGroupOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range deleteDedicatedHostGroupOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteDedicatedHostGroup")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -5791,12 +5792,12 @@ func (vpc *VpcV1) GetDedicatedHostGroupWithContext(ctx context.Context, getDedic
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetDedicatedHostGroup")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getDedicatedHostGroupOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getDedicatedHostGroupOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetDedicatedHostGroup")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -5865,12 +5866,12 @@ func (vpc *VpcV1) UpdateDedicatedHostGroupWithContext(ctx context.Context, updat
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateDedicatedHostGroup")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateDedicatedHostGroupOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range updateDedicatedHostGroupOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateDedicatedHostGroup")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -5936,12 +5937,12 @@ func (vpc *VpcV1) ListDedicatedHostProfilesWithContext(ctx context.Context, list
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListDedicatedHostProfiles")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listDedicatedHostProfilesOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listDedicatedHostProfilesOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListDedicatedHostProfiles")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -6014,12 +6015,12 @@ func (vpc *VpcV1) GetDedicatedHostProfileWithContext(ctx context.Context, getDed
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetDedicatedHostProfile")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getDedicatedHostProfileOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getDedicatedHostProfileOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetDedicatedHostProfile")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -6077,12 +6078,12 @@ func (vpc *VpcV1) ListDedicatedHostsWithContext(ctx context.Context, listDedicat
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListDedicatedHosts")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listDedicatedHostsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listDedicatedHostsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListDedicatedHosts")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -6163,12 +6164,12 @@ func (vpc *VpcV1) CreateDedicatedHostWithContext(ctx context.Context, createDedi
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateDedicatedHost")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createDedicatedHostOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range createDedicatedHostOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateDedicatedHost")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -6244,12 +6245,12 @@ func (vpc *VpcV1) ListDedicatedHostDisksWithContext(ctx context.Context, listDed
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListDedicatedHostDisks")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listDedicatedHostDisksOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listDedicatedHostDisksOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListDedicatedHostDisks")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -6317,12 +6318,12 @@ func (vpc *VpcV1) GetDedicatedHostDiskWithContext(ctx context.Context, getDedica
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetDedicatedHostDisk")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getDedicatedHostDiskOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getDedicatedHostDiskOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetDedicatedHostDisk")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -6390,12 +6391,12 @@ func (vpc *VpcV1) UpdateDedicatedHostDiskWithContext(ctx context.Context, update
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateDedicatedHostDisk")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateDedicatedHostDiskOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range updateDedicatedHostDiskOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateDedicatedHostDisk")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -6470,12 +6471,12 @@ func (vpc *VpcV1) DeleteDedicatedHostWithContext(ctx context.Context, deleteDedi
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteDedicatedHost")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteDedicatedHostOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range deleteDedicatedHostOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteDedicatedHost")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -6532,12 +6533,12 @@ func (vpc *VpcV1) GetDedicatedHostWithContext(ctx context.Context, getDedicatedH
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetDedicatedHost")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getDedicatedHostOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getDedicatedHostOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetDedicatedHost")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -6606,12 +6607,12 @@ func (vpc *VpcV1) UpdateDedicatedHostWithContext(ctx context.Context, updateDedi
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateDedicatedHost")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateDedicatedHostOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range updateDedicatedHostOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateDedicatedHost")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -6681,12 +6682,12 @@ func (vpc *VpcV1) ListEndpointGatewaysWithContext(ctx context.Context, listEndpo
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListEndpointGateways")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listEndpointGatewaysOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listEndpointGatewaysOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListEndpointGateways")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -6778,12 +6779,12 @@ func (vpc *VpcV1) CreateEndpointGatewayWithContext(ctx context.Context, createEn
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateEndpointGateway")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createEndpointGatewayOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range createEndpointGatewayOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateEndpointGateway")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -6879,12 +6880,12 @@ func (vpc *VpcV1) ListEndpointGatewayIpsWithContext(ctx context.Context, listEnd
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListEndpointGatewayIps")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listEndpointGatewayIpsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listEndpointGatewayIpsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListEndpointGatewayIps")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -6962,12 +6963,12 @@ func (vpc *VpcV1) RemoveEndpointGatewayIPWithContext(ctx context.Context, remove
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "RemoveEndpointGatewayIP")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range removeEndpointGatewayIPOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range removeEndpointGatewayIPOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "RemoveEndpointGatewayIP")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -7025,12 +7026,12 @@ func (vpc *VpcV1) GetEndpointGatewayIPWithContext(ctx context.Context, getEndpoi
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetEndpointGatewayIP")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getEndpointGatewayIPOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getEndpointGatewayIPOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetEndpointGatewayIP")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -7101,12 +7102,12 @@ func (vpc *VpcV1) AddEndpointGatewayIPWithContext(ctx context.Context, addEndpoi
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "AddEndpointGatewayIP")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range addEndpointGatewayIPOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range addEndpointGatewayIPOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "AddEndpointGatewayIP")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -7180,12 +7181,12 @@ func (vpc *VpcV1) ListEndpointGatewayResourceBindingsWithContext(ctx context.Con
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListEndpointGatewayResourceBindings")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listEndpointGatewayResourceBindingsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listEndpointGatewayResourceBindingsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListEndpointGatewayResourceBindings")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -7264,12 +7265,12 @@ func (vpc *VpcV1) CreateEndpointGatewayResourceBindingWithContext(ctx context.Co
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateEndpointGatewayResourceBinding")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createEndpointGatewayResourceBindingOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range createEndpointGatewayResourceBindingOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateEndpointGatewayResourceBinding")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -7352,12 +7353,12 @@ func (vpc *VpcV1) DeleteEndpointGatewayResourceBindingWithContext(ctx context.Co
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteEndpointGatewayResourceBinding")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteEndpointGatewayResourceBindingOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range deleteEndpointGatewayResourceBindingOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteEndpointGatewayResourceBinding")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -7415,12 +7416,12 @@ func (vpc *VpcV1) GetEndpointGatewayResourceBindingWithContext(ctx context.Conte
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetEndpointGatewayResourceBinding")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getEndpointGatewayResourceBindingOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getEndpointGatewayResourceBindingOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetEndpointGatewayResourceBinding")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -7490,12 +7491,12 @@ func (vpc *VpcV1) UpdateEndpointGatewayResourceBindingWithContext(ctx context.Co
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateEndpointGatewayResourceBinding")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateEndpointGatewayResourceBindingOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range updateEndpointGatewayResourceBindingOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateEndpointGatewayResourceBinding")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -7576,12 +7577,12 @@ func (vpc *VpcV1) DeleteEndpointGatewayWithContext(ctx context.Context, deleteEn
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteEndpointGateway")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteEndpointGatewayOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range deleteEndpointGatewayOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteEndpointGateway")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -7638,12 +7639,12 @@ func (vpc *VpcV1) GetEndpointGatewayWithContext(ctx context.Context, getEndpoint
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetEndpointGateway")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getEndpointGatewayOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getEndpointGatewayOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetEndpointGateway")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -7712,12 +7713,12 @@ func (vpc *VpcV1) UpdateEndpointGatewayWithContext(ctx context.Context, updateEn
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateEndpointGateway")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateEndpointGatewayOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range updateEndpointGatewayOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateEndpointGateway")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -7783,12 +7784,12 @@ func (vpc *VpcV1) ListFloatingIPProfilesWithContext(ctx context.Context, listFlo
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListFloatingIPProfiles")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listFloatingIPProfilesOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listFloatingIPProfilesOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListFloatingIPProfiles")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -7861,12 +7862,12 @@ func (vpc *VpcV1) GetFloatingIPProfileWithContext(ctx context.Context, getFloati
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetFloatingIPProfile")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getFloatingIPProfileOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getFloatingIPProfileOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetFloatingIPProfile")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -7925,12 +7926,12 @@ func (vpc *VpcV1) ListFloatingIpsWithContext(ctx context.Context, listFloatingIp
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListFloatingIps")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listFloatingIpsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listFloatingIpsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListFloatingIps")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -8020,12 +8021,12 @@ func (vpc *VpcV1) CreateFloatingIPWithContext(ctx context.Context, createFloatin
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateFloatingIP")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createFloatingIPOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range createFloatingIPOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateFloatingIP")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -8116,12 +8117,12 @@ func (vpc *VpcV1) DeleteFloatingIPWithContext(ctx context.Context, deleteFloatin
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteFloatingIP")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteFloatingIPOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range deleteFloatingIPOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteFloatingIP")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -8178,12 +8179,12 @@ func (vpc *VpcV1) GetFloatingIPWithContext(ctx context.Context, getFloatingIPOpt
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetFloatingIP")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getFloatingIPOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getFloatingIPOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetFloatingIP")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -8250,12 +8251,12 @@ func (vpc *VpcV1) UpdateFloatingIPWithContext(ctx context.Context, updateFloatin
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateFloatingIP")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateFloatingIPOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range updateFloatingIPOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateFloatingIP")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -8323,12 +8324,12 @@ func (vpc *VpcV1) ListFlowLogCollectorsWithContext(ctx context.Context, listFlow
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListFlowLogCollectors")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listFlowLogCollectorsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listFlowLogCollectorsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListFlowLogCollectors")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -8420,12 +8421,12 @@ func (vpc *VpcV1) CreateFlowLogCollectorWithContext(ctx context.Context, createF
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateFlowLogCollector")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createFlowLogCollectorOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range createFlowLogCollectorOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateFlowLogCollector")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -8517,12 +8518,12 @@ func (vpc *VpcV1) DeleteFlowLogCollectorWithContext(ctx context.Context, deleteF
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteFlowLogCollector")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteFlowLogCollectorOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range deleteFlowLogCollectorOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteFlowLogCollector")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -8579,12 +8580,12 @@ func (vpc *VpcV1) GetFlowLogCollectorWithContext(ctx context.Context, getFlowLog
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetFlowLogCollector")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getFlowLogCollectorOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getFlowLogCollectorOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetFlowLogCollector")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -8653,12 +8654,12 @@ func (vpc *VpcV1) UpdateFlowLogCollectorWithContext(ctx context.Context, updateF
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateFlowLogCollector")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateFlowLogCollectorOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range updateFlowLogCollectorOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateFlowLogCollector")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -8727,12 +8728,12 @@ func (vpc *VpcV1) ListRegionsWithContext(ctx context.Context, listRegionsOptions
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListRegions")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listRegionsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listRegionsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListRegions")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -8799,12 +8800,12 @@ func (vpc *VpcV1) GetRegionWithContext(ctx context.Context, getRegionOptions *Ge
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetRegion")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getRegionOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getRegionOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetRegion")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -8872,12 +8873,12 @@ func (vpc *VpcV1) ListRegionZonesWithContext(ctx context.Context, listRegionZone
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListRegionZones")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listRegionZonesOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listRegionZonesOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListRegionZones")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -8945,12 +8946,12 @@ func (vpc *VpcV1) GetRegionZoneWithContext(ctx context.Context, getRegionZoneOpt
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetRegionZone")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getRegionZoneOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getRegionZoneOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetRegionZone")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -9009,12 +9010,12 @@ func (vpc *VpcV1) ListImagesWithContext(ctx context.Context, listImagesOptions *
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListImages")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listImagesOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listImagesOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListImages")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -9104,12 +9105,12 @@ func (vpc *VpcV1) CreateImageWithContext(ctx context.Context, createImageOptions
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateImage")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createImageOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range createImageOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateImage")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -9187,12 +9188,12 @@ func (vpc *VpcV1) DeleteImageWithContext(ctx context.Context, deleteImageOptions
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteImage")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteImageOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range deleteImageOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteImage")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -9249,12 +9250,12 @@ func (vpc *VpcV1) GetImageWithContext(ctx context.Context, getImageOptions *GetI
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetImage")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getImageOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getImageOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetImage")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -9323,12 +9324,12 @@ func (vpc *VpcV1) UpdateImageWithContext(ctx context.Context, updateImageOptions
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateImage")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateImageOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range updateImageOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateImage")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -9404,12 +9405,12 @@ func (vpc *VpcV1) ListImageBareMetalServerProfilesWithContext(ctx context.Contex
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListImageBareMetalServerProfiles")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listImageBareMetalServerProfilesOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listImageBareMetalServerProfilesOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListImageBareMetalServerProfiles")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -9490,12 +9491,12 @@ func (vpc *VpcV1) DeprecateImageWithContext(ctx context.Context, deprecateImageO
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeprecateImage")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deprecateImageOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range deprecateImageOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeprecateImage")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -9554,12 +9555,12 @@ func (vpc *VpcV1) ListImageInstanceProfilesWithContext(ctx context.Context, list
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListImageInstanceProfiles")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listImageInstanceProfilesOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listImageInstanceProfilesOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListImageInstanceProfiles")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -9641,12 +9642,12 @@ func (vpc *VpcV1) ObsoleteImageWithContext(ctx context.Context, obsoleteImageOpt
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ObsoleteImage")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range obsoleteImageOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range obsoleteImageOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ObsoleteImage")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -9708,12 +9709,12 @@ func (vpc *VpcV1) ListImageExportJobsWithContext(ctx context.Context, listImageE
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListImageExportJobs")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listImageExportJobsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listImageExportJobsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListImageExportJobs")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -9786,12 +9787,12 @@ func (vpc *VpcV1) CreateImageExportJobWithContext(ctx context.Context, createIma
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateImageExportJob")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createImageExportJobOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range createImageExportJobOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateImageExportJob")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -9878,12 +9879,12 @@ func (vpc *VpcV1) DeleteImageExportJobWithContext(ctx context.Context, deleteIma
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteImageExportJob")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteImageExportJobOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range deleteImageExportJobOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteImageExportJob")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -9941,12 +9942,12 @@ func (vpc *VpcV1) GetImageExportJobWithContext(ctx context.Context, getImageExpo
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetImageExportJob")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getImageExportJobOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getImageExportJobOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetImageExportJob")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -10016,12 +10017,12 @@ func (vpc *VpcV1) UpdateImageExportJobWithContext(ctx context.Context, updateIma
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateImageExportJob")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateImageExportJobOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range updateImageExportJobOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateImageExportJob")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -10086,12 +10087,12 @@ func (vpc *VpcV1) ListOperatingSystemsWithContext(ctx context.Context, listOpera
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListOperatingSystems")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listOperatingSystemsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listOperatingSystemsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListOperatingSystems")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -10164,12 +10165,12 @@ func (vpc *VpcV1) GetOperatingSystemWithContext(ctx context.Context, getOperatin
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetOperatingSystem")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getOperatingSystemOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getOperatingSystemOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetOperatingSystem")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -10227,12 +10228,12 @@ func (vpc *VpcV1) ListInstanceGroupsWithContext(ctx context.Context, listInstanc
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListInstanceGroups")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listInstanceGroupsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listInstanceGroupsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListInstanceGroups")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -10301,12 +10302,12 @@ func (vpc *VpcV1) CreateInstanceGroupWithContext(ctx context.Context, createInst
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateInstanceGroup")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createInstanceGroupOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range createInstanceGroupOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateInstanceGroup")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -10406,12 +10407,12 @@ func (vpc *VpcV1) DeleteInstanceGroupWithContext(ctx context.Context, deleteInst
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteInstanceGroup")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteInstanceGroupOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range deleteInstanceGroupOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteInstanceGroup")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -10468,12 +10469,12 @@ func (vpc *VpcV1) GetInstanceGroupWithContext(ctx context.Context, getInstanceGr
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetInstanceGroup")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getInstanceGroupOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getInstanceGroupOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetInstanceGroup")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -10541,12 +10542,12 @@ func (vpc *VpcV1) UpdateInstanceGroupWithContext(ctx context.Context, updateInst
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateInstanceGroup")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateInstanceGroupOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range updateInstanceGroupOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateInstanceGroup")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -10620,12 +10621,12 @@ func (vpc *VpcV1) DeleteInstanceGroupLoadBalancerWithContext(ctx context.Context
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteInstanceGroupLoadBalancer")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteInstanceGroupLoadBalancerOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range deleteInstanceGroupLoadBalancerOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteInstanceGroupLoadBalancer")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -10682,12 +10683,12 @@ func (vpc *VpcV1) ListInstanceGroupManagersWithContext(ctx context.Context, list
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListInstanceGroupManagers")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listInstanceGroupManagersOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listInstanceGroupManagersOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListInstanceGroupManagers")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -10760,12 +10761,12 @@ func (vpc *VpcV1) CreateInstanceGroupManagerWithContext(ctx context.Context, cre
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateInstanceGroupManager")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createInstanceGroupManagerOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range createInstanceGroupManagerOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateInstanceGroupManager")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -10840,12 +10841,12 @@ func (vpc *VpcV1) DeleteInstanceGroupManagerWithContext(ctx context.Context, del
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteInstanceGroupManager")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteInstanceGroupManagerOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range deleteInstanceGroupManagerOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteInstanceGroupManager")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -10903,12 +10904,12 @@ func (vpc *VpcV1) GetInstanceGroupManagerWithContext(ctx context.Context, getIns
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetInstanceGroupManager")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getInstanceGroupManagerOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getInstanceGroupManagerOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetInstanceGroupManager")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -10976,12 +10977,12 @@ func (vpc *VpcV1) UpdateInstanceGroupManagerWithContext(ctx context.Context, upd
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateInstanceGroupManager")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateInstanceGroupManagerOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range updateInstanceGroupManagerOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateInstanceGroupManager")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -11056,12 +11057,12 @@ func (vpc *VpcV1) ListInstanceGroupManagerActionsWithContext(ctx context.Context
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListInstanceGroupManagerActions")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listInstanceGroupManagerActionsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listInstanceGroupManagerActionsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListInstanceGroupManagerActions")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -11135,12 +11136,12 @@ func (vpc *VpcV1) CreateInstanceGroupManagerActionWithContext(ctx context.Contex
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateInstanceGroupManagerAction")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createInstanceGroupManagerActionOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range createInstanceGroupManagerActionOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateInstanceGroupManagerAction")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -11216,12 +11217,12 @@ func (vpc *VpcV1) DeleteInstanceGroupManagerActionWithContext(ctx context.Contex
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteInstanceGroupManagerAction")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteInstanceGroupManagerActionOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range deleteInstanceGroupManagerActionOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteInstanceGroupManagerAction")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -11280,12 +11281,12 @@ func (vpc *VpcV1) GetInstanceGroupManagerActionWithContext(ctx context.Context, 
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetInstanceGroupManagerAction")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getInstanceGroupManagerActionOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getInstanceGroupManagerActionOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetInstanceGroupManagerAction")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -11354,12 +11355,12 @@ func (vpc *VpcV1) UpdateInstanceGroupManagerActionWithContext(ctx context.Contex
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateInstanceGroupManagerAction")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateInstanceGroupManagerActionOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range updateInstanceGroupManagerActionOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateInstanceGroupManagerAction")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -11434,12 +11435,12 @@ func (vpc *VpcV1) ListInstanceGroupManagerPoliciesWithContext(ctx context.Contex
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListInstanceGroupManagerPolicies")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listInstanceGroupManagerPoliciesOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listInstanceGroupManagerPoliciesOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListInstanceGroupManagerPolicies")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -11513,12 +11514,12 @@ func (vpc *VpcV1) CreateInstanceGroupManagerPolicyWithContext(ctx context.Contex
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateInstanceGroupManagerPolicy")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createInstanceGroupManagerPolicyOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range createInstanceGroupManagerPolicyOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateInstanceGroupManagerPolicy")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -11594,12 +11595,12 @@ func (vpc *VpcV1) DeleteInstanceGroupManagerPolicyWithContext(ctx context.Contex
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteInstanceGroupManagerPolicy")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteInstanceGroupManagerPolicyOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range deleteInstanceGroupManagerPolicyOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteInstanceGroupManagerPolicy")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -11658,12 +11659,12 @@ func (vpc *VpcV1) GetInstanceGroupManagerPolicyWithContext(ctx context.Context, 
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetInstanceGroupManagerPolicy")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getInstanceGroupManagerPolicyOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getInstanceGroupManagerPolicyOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetInstanceGroupManagerPolicy")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -11732,12 +11733,12 @@ func (vpc *VpcV1) UpdateInstanceGroupManagerPolicyWithContext(ctx context.Contex
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateInstanceGroupManagerPolicy")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateInstanceGroupManagerPolicyOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range updateInstanceGroupManagerPolicyOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateInstanceGroupManagerPolicy")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -11812,12 +11813,12 @@ func (vpc *VpcV1) DeleteInstanceGroupMembershipsWithContext(ctx context.Context,
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteInstanceGroupMemberships")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteInstanceGroupMembershipsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range deleteInstanceGroupMembershipsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteInstanceGroupMemberships")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -11874,12 +11875,12 @@ func (vpc *VpcV1) ListInstanceGroupMembershipsWithContext(ctx context.Context, l
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListInstanceGroupMemberships")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listInstanceGroupMembershipsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listInstanceGroupMembershipsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListInstanceGroupMemberships")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -11954,12 +11955,12 @@ func (vpc *VpcV1) DeleteInstanceGroupMembershipWithContext(ctx context.Context, 
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteInstanceGroupMembership")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteInstanceGroupMembershipOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range deleteInstanceGroupMembershipOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteInstanceGroupMembership")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -12017,12 +12018,12 @@ func (vpc *VpcV1) GetInstanceGroupMembershipWithContext(ctx context.Context, get
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetInstanceGroupMembership")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getInstanceGroupMembershipOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getInstanceGroupMembershipOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetInstanceGroupMembership")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -12090,12 +12091,12 @@ func (vpc *VpcV1) UpdateInstanceGroupMembershipWithContext(ctx context.Context, 
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateInstanceGroupMembership")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateInstanceGroupMembershipOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range updateInstanceGroupMembershipOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateInstanceGroupMembership")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -12160,12 +12161,12 @@ func (vpc *VpcV1) ListInstanceTemplatesWithContext(ctx context.Context, listInst
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListInstanceTemplates")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listInstanceTemplatesOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listInstanceTemplatesOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListInstanceTemplates")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -12232,12 +12233,12 @@ func (vpc *VpcV1) CreateInstanceTemplateWithContext(ctx context.Context, createI
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateInstanceTemplate")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createInstanceTemplateOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range createInstanceTemplateOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateInstanceTemplate")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -12311,12 +12312,12 @@ func (vpc *VpcV1) DeleteInstanceTemplateWithContext(ctx context.Context, deleteI
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteInstanceTemplate")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteInstanceTemplateOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range deleteInstanceTemplateOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteInstanceTemplate")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -12373,12 +12374,12 @@ func (vpc *VpcV1) GetInstanceTemplateWithContext(ctx context.Context, getInstanc
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetInstanceTemplate")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getInstanceTemplateOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getInstanceTemplateOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetInstanceTemplate")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -12447,12 +12448,12 @@ func (vpc *VpcV1) UpdateInstanceTemplateWithContext(ctx context.Context, updateI
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateInstanceTemplate")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateInstanceTemplateOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range updateInstanceTemplateOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateInstanceTemplate")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -12518,12 +12519,12 @@ func (vpc *VpcV1) ListInstanceProfilesWithContext(ctx context.Context, listInsta
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListInstanceProfiles")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listInstanceProfilesOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listInstanceProfilesOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListInstanceProfiles")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -12596,12 +12597,12 @@ func (vpc *VpcV1) GetInstanceProfileWithContext(ctx context.Context, getInstance
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetInstanceProfile")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getInstanceProfileOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getInstanceProfileOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetInstanceProfile")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -12659,12 +12660,12 @@ func (vpc *VpcV1) ListInstancesWithContext(ctx context.Context, listInstancesOpt
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListInstances")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listInstancesOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listInstancesOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListInstances")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -12801,12 +12802,12 @@ func (vpc *VpcV1) CreateInstanceWithContext(ctx context.Context, createInstanceO
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateInstance")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createInstanceOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range createInstanceOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateInstance")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -12884,12 +12885,12 @@ func (vpc *VpcV1) DeleteInstanceWithContext(ctx context.Context, deleteInstanceO
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteInstance")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteInstanceOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range deleteInstanceOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteInstance")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	if deleteInstanceOptions.IfMatch != nil {
@@ -12949,12 +12950,12 @@ func (vpc *VpcV1) GetInstanceWithContext(ctx context.Context, getInstanceOptions
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetInstance")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getInstanceOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getInstanceOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetInstance")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -13025,12 +13026,12 @@ func (vpc *VpcV1) UpdateInstanceWithContext(ctx context.Context, updateInstanceO
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateInstance")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateInstanceOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range updateInstanceOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateInstance")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -13108,12 +13109,12 @@ func (vpc *VpcV1) GetInstanceInitializationWithContext(ctx context.Context, getI
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetInstanceInitialization")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getInstanceInitializationOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getInstanceInitializationOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetInstanceInitialization")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -13141,6 +13142,82 @@ func (vpc *VpcV1) GetInstanceInitializationWithContext(ctx context.Context, getI
 			return
 		}
 		response.Result = result
+	}
+
+	return
+}
+
+// CreateInstanceReinitialization : Reinitialize an instance
+// This request reinitializes an instance with the information in a provided instance reinitialize prototype object. The
+// instance must be stopped. Upon successful reinitiatilization, the instance will be started automatically. Capacity
+// may not be available for the instance to become `running`.
+//
+// Instances provisioned from a `catalog_offering` cannot be reinitialized.
+//
+// This operation cannot be reversed. The previous initialization data will be fully replaced, the current boot volume
+// will be destroyed and replaced, any local disks will be wiped, and the boot volume attachment identifier will change.
+func (vpc *VpcV1) CreateInstanceReinitialization(createInstanceReinitializationOptions *CreateInstanceReinitializationOptions) (response *core.DetailedResponse, err error) {
+	response, err = vpc.CreateInstanceReinitializationWithContext(context.Background(), createInstanceReinitializationOptions)
+	err = core.RepurposeSDKProblem(err, "")
+	return
+}
+
+// CreateInstanceReinitializationWithContext is an alternate form of the CreateInstanceReinitialization method which supports a Context parameter
+func (vpc *VpcV1) CreateInstanceReinitializationWithContext(ctx context.Context, createInstanceReinitializationOptions *CreateInstanceReinitializationOptions) (response *core.DetailedResponse, err error) {
+	err = core.ValidateNotNil(createInstanceReinitializationOptions, "createInstanceReinitializationOptions cannot be nil")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "unexpected-nil-param", common.GetComponentInfo())
+		return
+	}
+	err = core.ValidateStruct(createInstanceReinitializationOptions, "createInstanceReinitializationOptions")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "struct-validation-error", common.GetComponentInfo())
+		return
+	}
+
+	pathParamsMap := map[string]string{
+		"id": *createInstanceReinitializationOptions.ID,
+	}
+
+	builder := core.NewRequestBuilder(core.POST)
+	builder = builder.WithContext(ctx)
+	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
+	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/instances/{id}/reinitialize`, pathParamsMap)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "url-resolve-error", common.GetComponentInfo())
+		return
+	}
+
+	for headerName, headerValue := range createInstanceReinitializationOptions.Headers {
+		builder.AddHeader(headerName, headerValue)
+	}
+
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateInstanceReinitialization")
+	for headerName, headerValue := range sdkHeaders {
+		builder.AddHeader(headerName, headerValue)
+	}
+	builder.AddHeader("Content-Type", "application/json")
+
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+
+	_, err = builder.SetBodyContentJSON(createInstanceReinitializationOptions.InstanceReinitializePrototype)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "set-json-body-error", common.GetComponentInfo())
+		return
+	}
+
+	request, err := builder.Build()
+	if err != nil {
+		err = core.SDKErrorf(err, "", "build-error", common.GetComponentInfo())
+		return
+	}
+
+	response, err = vpc.Service.Request(request, nil)
+	if err != nil {
+		core.EnrichHTTPProblem(err, "create_instance_reinitialization", getServiceComponentInfo())
+		err = core.SDKErrorf(err, "", "http-request-err", common.GetComponentInfo())
+		return
 	}
 
 	return
@@ -13181,12 +13258,12 @@ func (vpc *VpcV1) CreateInstanceActionWithContext(ctx context.Context, createIns
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateInstanceAction")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createInstanceActionOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range createInstanceActionOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateInstanceAction")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -13268,12 +13345,12 @@ func (vpc *VpcV1) ListInstanceClusterNetworkAttachmentsWithContext(ctx context.C
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListInstanceClusterNetworkAttachments")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listInstanceClusterNetworkAttachmentsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listInstanceClusterNetworkAttachmentsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListInstanceClusterNetworkAttachments")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -13350,12 +13427,12 @@ func (vpc *VpcV1) CreateClusterNetworkAttachmentWithContext(ctx context.Context,
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateClusterNetworkAttachment")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createClusterNetworkAttachmentOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range createClusterNetworkAttachmentOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateClusterNetworkAttachment")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -13443,12 +13520,12 @@ func (vpc *VpcV1) DeleteInstanceClusterNetworkAttachmentWithContext(ctx context.
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteInstanceClusterNetworkAttachment")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteInstanceClusterNetworkAttachmentOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range deleteInstanceClusterNetworkAttachmentOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteInstanceClusterNetworkAttachment")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -13516,12 +13593,12 @@ func (vpc *VpcV1) GetInstanceClusterNetworkAttachmentWithContext(ctx context.Con
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetInstanceClusterNetworkAttachment")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getInstanceClusterNetworkAttachmentOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getInstanceClusterNetworkAttachmentOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetInstanceClusterNetworkAttachment")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -13591,12 +13668,12 @@ func (vpc *VpcV1) UpdateInstanceClusterNetworkAttachmentWithContext(ctx context.
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateInstanceClusterNetworkAttachment")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateInstanceClusterNetworkAttachmentOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range updateInstanceClusterNetworkAttachmentOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateInstanceClusterNetworkAttachment")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -13673,12 +13750,12 @@ func (vpc *VpcV1) CreateInstanceConsoleAccessTokenWithContext(ctx context.Contex
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateInstanceConsoleAccessToken")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createInstanceConsoleAccessTokenOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range createInstanceConsoleAccessTokenOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateInstanceConsoleAccessToken")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -13761,12 +13838,12 @@ func (vpc *VpcV1) ListInstanceDisksWithContext(ctx context.Context, listInstance
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListInstanceDisks")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listInstanceDisksOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listInstanceDisksOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListInstanceDisks")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -13834,12 +13911,12 @@ func (vpc *VpcV1) GetInstanceDiskWithContext(ctx context.Context, getInstanceDis
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetInstanceDisk")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getInstanceDiskOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getInstanceDiskOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetInstanceDisk")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -13907,12 +13984,12 @@ func (vpc *VpcV1) UpdateInstanceDiskWithContext(ctx context.Context, updateInsta
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateInstanceDisk")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateInstanceDiskOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range updateInstanceDiskOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateInstanceDisk")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -13991,12 +14068,12 @@ func (vpc *VpcV1) ListInstanceNetworkAttachmentsWithContext(ctx context.Context,
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListInstanceNetworkAttachments")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listInstanceNetworkAttachmentsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listInstanceNetworkAttachmentsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListInstanceNetworkAttachments")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -14065,12 +14142,12 @@ func (vpc *VpcV1) CreateInstanceNetworkAttachmentWithContext(ctx context.Context
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateInstanceNetworkAttachment")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createInstanceNetworkAttachmentOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range createInstanceNetworkAttachmentOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateInstanceNetworkAttachment")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -14155,12 +14232,12 @@ func (vpc *VpcV1) DeleteInstanceNetworkAttachmentWithContext(ctx context.Context
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteInstanceNetworkAttachment")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteInstanceNetworkAttachmentOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range deleteInstanceNetworkAttachmentOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteInstanceNetworkAttachment")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -14218,12 +14295,12 @@ func (vpc *VpcV1) GetInstanceNetworkAttachmentWithContext(ctx context.Context, g
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetInstanceNetworkAttachment")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getInstanceNetworkAttachmentOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getInstanceNetworkAttachmentOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetInstanceNetworkAttachment")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -14293,12 +14370,12 @@ func (vpc *VpcV1) UpdateInstanceNetworkAttachmentWithContext(ctx context.Context
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateInstanceNetworkAttachment")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateInstanceNetworkAttachmentOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range updateInstanceNetworkAttachmentOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateInstanceNetworkAttachment")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -14379,12 +14456,12 @@ func (vpc *VpcV1) ListInstanceNetworkInterfacesWithContext(ctx context.Context, 
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListInstanceNetworkInterfaces")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listInstanceNetworkInterfacesOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listInstanceNetworkInterfacesOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListInstanceNetworkInterfaces")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -14458,12 +14535,12 @@ func (vpc *VpcV1) CreateInstanceNetworkInterfaceWithContext(ctx context.Context,
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateInstanceNetworkInterface")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createInstanceNetworkInterfaceOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range createInstanceNetworkInterfaceOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateInstanceNetworkInterface")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -14561,12 +14638,12 @@ func (vpc *VpcV1) DeleteInstanceNetworkInterfaceWithContext(ctx context.Context,
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteInstanceNetworkInterface")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteInstanceNetworkInterfaceOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range deleteInstanceNetworkInterfaceOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteInstanceNetworkInterface")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -14628,12 +14705,12 @@ func (vpc *VpcV1) GetInstanceNetworkInterfaceWithContext(ctx context.Context, ge
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetInstanceNetworkInterface")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getInstanceNetworkInterfaceOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getInstanceNetworkInterfaceOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetInstanceNetworkInterface")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -14707,12 +14784,12 @@ func (vpc *VpcV1) UpdateInstanceNetworkInterfaceWithContext(ctx context.Context,
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateInstanceNetworkInterface")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateInstanceNetworkInterfaceOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range updateInstanceNetworkInterfaceOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateInstanceNetworkInterface")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -14787,12 +14864,12 @@ func (vpc *VpcV1) ListInstanceNetworkInterfaceFloatingIpsWithContext(ctx context
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListInstanceNetworkInterfaceFloatingIps")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listInstanceNetworkInterfaceFloatingIpsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listInstanceNetworkInterfaceFloatingIpsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListInstanceNetworkInterfaceFloatingIps")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -14861,12 +14938,12 @@ func (vpc *VpcV1) RemoveInstanceNetworkInterfaceFloatingIPWithContext(ctx contex
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "RemoveInstanceNetworkInterfaceFloatingIP")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range removeInstanceNetworkInterfaceFloatingIPOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range removeInstanceNetworkInterfaceFloatingIPOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "RemoveInstanceNetworkInterfaceFloatingIP")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -14926,12 +15003,12 @@ func (vpc *VpcV1) GetInstanceNetworkInterfaceFloatingIPWithContext(ctx context.C
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetInstanceNetworkInterfaceFloatingIP")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getInstanceNetworkInterfaceFloatingIPOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getInstanceNetworkInterfaceFloatingIPOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetInstanceNetworkInterfaceFloatingIP")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -14969,8 +15046,9 @@ func (vpc *VpcV1) GetInstanceNetworkInterfaceFloatingIPWithContext(ctx context.C
 // existing association.
 //
 // The existing floating IP must:
-// - not be required by another resource, such as a public gateway
 // - be in the same `zone` as the instance
+// - not be allocated from an `authorized_cidr`
+// - not be required by another resource, such as a public gateway
 //
 // A request body is not required, and if provided, is ignored.
 func (vpc *VpcV1) AddInstanceNetworkInterfaceFloatingIP(addInstanceNetworkInterfaceFloatingIPOptions *AddInstanceNetworkInterfaceFloatingIPOptions) (result *FloatingIP, response *core.DetailedResponse, err error) {
@@ -15007,12 +15085,12 @@ func (vpc *VpcV1) AddInstanceNetworkInterfaceFloatingIPWithContext(ctx context.C
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "AddInstanceNetworkInterfaceFloatingIP")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range addInstanceNetworkInterfaceFloatingIPOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range addInstanceNetworkInterfaceFloatingIPOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "AddInstanceNetworkInterfaceFloatingIP")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -15083,12 +15161,12 @@ func (vpc *VpcV1) ListInstanceNetworkInterfaceIpsWithContext(ctx context.Context
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListInstanceNetworkInterfaceIps")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listInstanceNetworkInterfaceIpsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listInstanceNetworkInterfaceIpsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListInstanceNetworkInterfaceIps")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -15166,12 +15244,12 @@ func (vpc *VpcV1) GetInstanceNetworkInterfaceIPWithContext(ctx context.Context, 
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetInstanceNetworkInterfaceIP")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getInstanceNetworkInterfaceIPOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getInstanceNetworkInterfaceIPOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetInstanceNetworkInterfaceIP")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -15194,6 +15272,237 @@ func (vpc *VpcV1) GetInstanceNetworkInterfaceIPWithContext(ctx context.Context, 
 	}
 	if rawResponse != nil {
 		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalReservedIP)
+		if err != nil {
+			err = core.SDKErrorf(err, "", "unmarshal-resp-error", common.GetComponentInfo())
+			return
+		}
+		response.Result = result
+	}
+
+	return
+}
+
+// ListInstanceSoftwareAttachments : List instance software attachments associated with an instance
+// This request lists software attachments associated with an instance.
+//
+// The instance software attachments will be sorted by their `created_at` property values, with newest instance software
+// attachments first. Software attachments with identical
+// `created_at` property values will in turn be sorted by ascending `name` property values.
+func (vpc *VpcV1) ListInstanceSoftwareAttachments(listInstanceSoftwareAttachmentsOptions *ListInstanceSoftwareAttachmentsOptions) (result *InstanceSoftwareAttachmentCollection, response *core.DetailedResponse, err error) {
+	result, response, err = vpc.ListInstanceSoftwareAttachmentsWithContext(context.Background(), listInstanceSoftwareAttachmentsOptions)
+	err = core.RepurposeSDKProblem(err, "")
+	return
+}
+
+// ListInstanceSoftwareAttachmentsWithContext is an alternate form of the ListInstanceSoftwareAttachments method which supports a Context parameter
+func (vpc *VpcV1) ListInstanceSoftwareAttachmentsWithContext(ctx context.Context, listInstanceSoftwareAttachmentsOptions *ListInstanceSoftwareAttachmentsOptions) (result *InstanceSoftwareAttachmentCollection, response *core.DetailedResponse, err error) {
+	err = core.ValidateNotNil(listInstanceSoftwareAttachmentsOptions, "listInstanceSoftwareAttachmentsOptions cannot be nil")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "unexpected-nil-param", common.GetComponentInfo())
+		return
+	}
+	err = core.ValidateStruct(listInstanceSoftwareAttachmentsOptions, "listInstanceSoftwareAttachmentsOptions")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "struct-validation-error", common.GetComponentInfo())
+		return
+	}
+
+	pathParamsMap := map[string]string{
+		"instance_id": *listInstanceSoftwareAttachmentsOptions.InstanceID,
+	}
+
+	builder := core.NewRequestBuilder(core.GET)
+	builder = builder.WithContext(ctx)
+	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
+	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/instances/{instance_id}/software_attachments`, pathParamsMap)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "url-resolve-error", common.GetComponentInfo())
+		return
+	}
+
+	for headerName, headerValue := range listInstanceSoftwareAttachmentsOptions.Headers {
+		builder.AddHeader(headerName, headerValue)
+	}
+
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListInstanceSoftwareAttachments")
+	for headerName, headerValue := range sdkHeaders {
+		builder.AddHeader(headerName, headerValue)
+	}
+	builder.AddHeader("Accept", "application/json")
+
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+
+	request, err := builder.Build()
+	if err != nil {
+		err = core.SDKErrorf(err, "", "build-error", common.GetComponentInfo())
+		return
+	}
+
+	var rawResponse map[string]json.RawMessage
+	response, err = vpc.Service.Request(request, &rawResponse)
+	if err != nil {
+		core.EnrichHTTPProblem(err, "list_instance_software_attachments", getServiceComponentInfo())
+		err = core.SDKErrorf(err, "", "http-request-err", common.GetComponentInfo())
+		return
+	}
+	if rawResponse != nil {
+		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalInstanceSoftwareAttachmentCollection)
+		if err != nil {
+			err = core.SDKErrorf(err, "", "unmarshal-resp-error", common.GetComponentInfo())
+			return
+		}
+		response.Result = result
+	}
+
+	return
+}
+
+// GetInstanceSoftwareAttachment : Retrieve an instance software attachment
+// This request retrieves a single instance software attachment specified by identifier in the URL.
+func (vpc *VpcV1) GetInstanceSoftwareAttachment(getInstanceSoftwareAttachmentOptions *GetInstanceSoftwareAttachmentOptions) (result *InstanceSoftwareAttachment, response *core.DetailedResponse, err error) {
+	result, response, err = vpc.GetInstanceSoftwareAttachmentWithContext(context.Background(), getInstanceSoftwareAttachmentOptions)
+	err = core.RepurposeSDKProblem(err, "")
+	return
+}
+
+// GetInstanceSoftwareAttachmentWithContext is an alternate form of the GetInstanceSoftwareAttachment method which supports a Context parameter
+func (vpc *VpcV1) GetInstanceSoftwareAttachmentWithContext(ctx context.Context, getInstanceSoftwareAttachmentOptions *GetInstanceSoftwareAttachmentOptions) (result *InstanceSoftwareAttachment, response *core.DetailedResponse, err error) {
+	err = core.ValidateNotNil(getInstanceSoftwareAttachmentOptions, "getInstanceSoftwareAttachmentOptions cannot be nil")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "unexpected-nil-param", common.GetComponentInfo())
+		return
+	}
+	err = core.ValidateStruct(getInstanceSoftwareAttachmentOptions, "getInstanceSoftwareAttachmentOptions")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "struct-validation-error", common.GetComponentInfo())
+		return
+	}
+
+	pathParamsMap := map[string]string{
+		"instance_id": *getInstanceSoftwareAttachmentOptions.InstanceID,
+		"id":          *getInstanceSoftwareAttachmentOptions.ID,
+	}
+
+	builder := core.NewRequestBuilder(core.GET)
+	builder = builder.WithContext(ctx)
+	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
+	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/instances/{instance_id}/software_attachments/{id}`, pathParamsMap)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "url-resolve-error", common.GetComponentInfo())
+		return
+	}
+
+	for headerName, headerValue := range getInstanceSoftwareAttachmentOptions.Headers {
+		builder.AddHeader(headerName, headerValue)
+	}
+
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetInstanceSoftwareAttachment")
+	for headerName, headerValue := range sdkHeaders {
+		builder.AddHeader(headerName, headerValue)
+	}
+	builder.AddHeader("Accept", "application/json")
+
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+
+	request, err := builder.Build()
+	if err != nil {
+		err = core.SDKErrorf(err, "", "build-error", common.GetComponentInfo())
+		return
+	}
+
+	var rawResponse map[string]json.RawMessage
+	response, err = vpc.Service.Request(request, &rawResponse)
+	if err != nil {
+		core.EnrichHTTPProblem(err, "get_instance_software_attachment", getServiceComponentInfo())
+		err = core.SDKErrorf(err, "", "http-request-err", common.GetComponentInfo())
+		return
+	}
+	if rawResponse != nil {
+		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalInstanceSoftwareAttachment)
+		if err != nil {
+			err = core.SDKErrorf(err, "", "unmarshal-resp-error", common.GetComponentInfo())
+			return
+		}
+		response.Result = result
+	}
+
+	return
+}
+
+// UpdateInstanceSoftwareAttachment : Update an instance software attachment
+// This request updates an instance software attachment with the information provided in an instance software attachment
+// patch object. The instance software attachment patch object is structured in the same way as a retrieved instance
+// software attachment and needs to contain only the information to be updated.
+func (vpc *VpcV1) UpdateInstanceSoftwareAttachment(updateInstanceSoftwareAttachmentOptions *UpdateInstanceSoftwareAttachmentOptions) (result *InstanceSoftwareAttachment, response *core.DetailedResponse, err error) {
+	result, response, err = vpc.UpdateInstanceSoftwareAttachmentWithContext(context.Background(), updateInstanceSoftwareAttachmentOptions)
+	err = core.RepurposeSDKProblem(err, "")
+	return
+}
+
+// UpdateInstanceSoftwareAttachmentWithContext is an alternate form of the UpdateInstanceSoftwareAttachment method which supports a Context parameter
+func (vpc *VpcV1) UpdateInstanceSoftwareAttachmentWithContext(ctx context.Context, updateInstanceSoftwareAttachmentOptions *UpdateInstanceSoftwareAttachmentOptions) (result *InstanceSoftwareAttachment, response *core.DetailedResponse, err error) {
+	err = core.ValidateNotNil(updateInstanceSoftwareAttachmentOptions, "updateInstanceSoftwareAttachmentOptions cannot be nil")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "unexpected-nil-param", common.GetComponentInfo())
+		return
+	}
+	err = core.ValidateStruct(updateInstanceSoftwareAttachmentOptions, "updateInstanceSoftwareAttachmentOptions")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "struct-validation-error", common.GetComponentInfo())
+		return
+	}
+
+	pathParamsMap := map[string]string{
+		"instance_id": *updateInstanceSoftwareAttachmentOptions.InstanceID,
+		"id":          *updateInstanceSoftwareAttachmentOptions.ID,
+	}
+
+	builder := core.NewRequestBuilder(core.PATCH)
+	builder = builder.WithContext(ctx)
+	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
+	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/instances/{instance_id}/software_attachments/{id}`, pathParamsMap)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "url-resolve-error", common.GetComponentInfo())
+		return
+	}
+
+	for headerName, headerValue := range updateInstanceSoftwareAttachmentOptions.Headers {
+		builder.AddHeader(headerName, headerValue)
+	}
+
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateInstanceSoftwareAttachment")
+	for headerName, headerValue := range sdkHeaders {
+		builder.AddHeader(headerName, headerValue)
+	}
+	builder.AddHeader("Accept", "application/json")
+	builder.AddHeader("Content-Type", "application/merge-patch+json")
+
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+
+	_, err = builder.SetBodyContentJSON(updateInstanceSoftwareAttachmentOptions.InstanceSoftwareAttachmentPatch)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "set-json-body-error", common.GetComponentInfo())
+		return
+	}
+
+	request, err := builder.Build()
+	if err != nil {
+		err = core.SDKErrorf(err, "", "build-error", common.GetComponentInfo())
+		return
+	}
+
+	var rawResponse map[string]json.RawMessage
+	response, err = vpc.Service.Request(request, &rawResponse)
+	if err != nil {
+		core.EnrichHTTPProblem(err, "update_instance_software_attachment", getServiceComponentInfo())
+		err = core.SDKErrorf(err, "", "http-request-err", common.GetComponentInfo())
+		return
+	}
+	if rawResponse != nil {
+		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalInstanceSoftwareAttachment)
 		if err != nil {
 			err = core.SDKErrorf(err, "", "unmarshal-resp-error", common.GetComponentInfo())
 			return
@@ -15240,12 +15549,12 @@ func (vpc *VpcV1) ListInstanceVolumeAttachmentsWithContext(ctx context.Context, 
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListInstanceVolumeAttachments")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listInstanceVolumeAttachmentsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listInstanceVolumeAttachmentsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListInstanceVolumeAttachments")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -15315,12 +15624,12 @@ func (vpc *VpcV1) CreateInstanceVolumeAttachmentWithContext(ctx context.Context,
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateInstanceVolumeAttachment")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createInstanceVolumeAttachmentOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range createInstanceVolumeAttachmentOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateInstanceVolumeAttachment")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -15406,12 +15715,12 @@ func (vpc *VpcV1) DeleteInstanceVolumeAttachmentWithContext(ctx context.Context,
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteInstanceVolumeAttachment")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteInstanceVolumeAttachmentOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range deleteInstanceVolumeAttachmentOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteInstanceVolumeAttachment")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -15469,12 +15778,12 @@ func (vpc *VpcV1) GetInstanceVolumeAttachmentWithContext(ctx context.Context, ge
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetInstanceVolumeAttachment")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getInstanceVolumeAttachmentOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getInstanceVolumeAttachmentOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetInstanceVolumeAttachment")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -15544,12 +15853,12 @@ func (vpc *VpcV1) UpdateInstanceVolumeAttachmentWithContext(ctx context.Context,
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateInstanceVolumeAttachment")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateInstanceVolumeAttachmentOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range updateInstanceVolumeAttachmentOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateInstanceVolumeAttachment")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -15615,12 +15924,12 @@ func (vpc *VpcV1) ListKeysWithContext(ctx context.Context, listKeysOptions *List
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListKeys")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listKeysOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listKeysOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListKeys")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -15694,12 +16003,12 @@ func (vpc *VpcV1) CreateKeyWithContext(ctx context.Context, createKeyOptions *Cr
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateKey")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createKeyOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range createKeyOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateKey")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -15786,12 +16095,12 @@ func (vpc *VpcV1) DeleteKeyWithContext(ctx context.Context, deleteKeyOptions *De
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteKey")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteKeyOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range deleteKeyOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteKey")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -15848,12 +16157,12 @@ func (vpc *VpcV1) GetKeyWithContext(ctx context.Context, getKeyOptions *GetKeyOp
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetKey")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getKeyOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getKeyOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetKey")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -15920,12 +16229,12 @@ func (vpc *VpcV1) UpdateKeyWithContext(ctx context.Context, updateKeyOptions *Up
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateKey")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateKeyOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range updateKeyOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateKey")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -15991,12 +16300,12 @@ func (vpc *VpcV1) ListLoadBalancerProfilesWithContext(ctx context.Context, listL
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListLoadBalancerProfiles")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listLoadBalancerProfilesOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listLoadBalancerProfilesOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListLoadBalancerProfiles")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -16069,12 +16378,12 @@ func (vpc *VpcV1) GetLoadBalancerProfileWithContext(ctx context.Context, getLoad
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetLoadBalancerProfile")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getLoadBalancerProfileOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getLoadBalancerProfileOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetLoadBalancerProfile")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -16132,12 +16441,12 @@ func (vpc *VpcV1) ListLoadBalancersWithContext(ctx context.Context, listLoadBala
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListLoadBalancers")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listLoadBalancersOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listLoadBalancersOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListLoadBalancers")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -16206,12 +16515,12 @@ func (vpc *VpcV1) CreateLoadBalancerWithContext(ctx context.Context, createLoadB
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateLoadBalancer")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createLoadBalancerOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range createLoadBalancerOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateLoadBalancer")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -16323,12 +16632,12 @@ func (vpc *VpcV1) DeleteLoadBalancerWithContext(ctx context.Context, deleteLoadB
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteLoadBalancer")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteLoadBalancerOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range deleteLoadBalancerOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteLoadBalancer")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	if deleteLoadBalancerOptions.IfMatch != nil {
@@ -16388,12 +16697,12 @@ func (vpc *VpcV1) GetLoadBalancerWithContext(ctx context.Context, getLoadBalance
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetLoadBalancer")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getLoadBalancerOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getLoadBalancerOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetLoadBalancer")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -16462,12 +16771,12 @@ func (vpc *VpcV1) UpdateLoadBalancerWithContext(ctx context.Context, updateLoadB
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateLoadBalancer")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateLoadBalancerOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range updateLoadBalancerOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateLoadBalancer")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -16544,12 +16853,12 @@ func (vpc *VpcV1) GetLoadBalancerStatisticsWithContext(ctx context.Context, getL
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetLoadBalancerStatistics")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getLoadBalancerStatisticsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getLoadBalancerStatisticsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetLoadBalancerStatistics")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -16616,12 +16925,12 @@ func (vpc *VpcV1) ListLoadBalancerListenersWithContext(ctx context.Context, list
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListLoadBalancerListeners")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listLoadBalancerListenersOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listLoadBalancerListenersOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListLoadBalancerListeners")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -16688,12 +16997,12 @@ func (vpc *VpcV1) CreateLoadBalancerListenerWithContext(ctx context.Context, cre
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateLoadBalancerListener")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createLoadBalancerListenerOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range createLoadBalancerListenerOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateLoadBalancerListener")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -16711,6 +17020,9 @@ func (vpc *VpcV1) CreateLoadBalancerListenerWithContext(ctx context.Context, cre
 	}
 	if createLoadBalancerListenerOptions.CertificateInstance != nil {
 		body["certificate_instance"] = createLoadBalancerListenerOptions.CertificateInstance
+	}
+	if createLoadBalancerListenerOptions.ClientAuthentication != nil {
+		body["client_authentication"] = createLoadBalancerListenerOptions.ClientAuthentication
 	}
 	if createLoadBalancerListenerOptions.ConnectionLimit != nil {
 		body["connection_limit"] = createLoadBalancerListenerOptions.ConnectionLimit
@@ -16803,12 +17115,12 @@ func (vpc *VpcV1) DeleteLoadBalancerListenerWithContext(ctx context.Context, del
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteLoadBalancerListener")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteLoadBalancerListenerOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range deleteLoadBalancerListenerOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteLoadBalancerListener")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -16866,12 +17178,12 @@ func (vpc *VpcV1) GetLoadBalancerListenerWithContext(ctx context.Context, getLoa
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetLoadBalancerListener")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getLoadBalancerListenerOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getLoadBalancerListenerOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetLoadBalancerListener")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -16939,12 +17251,12 @@ func (vpc *VpcV1) UpdateLoadBalancerListenerWithContext(ctx context.Context, upd
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateLoadBalancerListener")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateLoadBalancerListenerOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range updateLoadBalancerListenerOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateLoadBalancerListener")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -17020,12 +17332,12 @@ func (vpc *VpcV1) ListLoadBalancerListenerPoliciesWithContext(ctx context.Contex
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListLoadBalancerListenerPolicies")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listLoadBalancerListenerPoliciesOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listLoadBalancerListenerPoliciesOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListLoadBalancerListenerPolicies")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -17095,12 +17407,12 @@ func (vpc *VpcV1) CreateLoadBalancerListenerPolicyWithContext(ctx context.Contex
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateLoadBalancerListenerPolicy")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createLoadBalancerListenerPolicyOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range createLoadBalancerListenerPolicyOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateLoadBalancerListenerPolicy")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -17192,12 +17504,12 @@ func (vpc *VpcV1) DeleteLoadBalancerListenerPolicyWithContext(ctx context.Contex
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteLoadBalancerListenerPolicy")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteLoadBalancerListenerPolicyOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range deleteLoadBalancerListenerPolicyOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteLoadBalancerListenerPolicy")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -17256,12 +17568,12 @@ func (vpc *VpcV1) GetLoadBalancerListenerPolicyWithContext(ctx context.Context, 
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetLoadBalancerListenerPolicy")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getLoadBalancerListenerPolicyOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getLoadBalancerListenerPolicyOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetLoadBalancerListenerPolicy")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -17331,12 +17643,12 @@ func (vpc *VpcV1) UpdateLoadBalancerListenerPolicyWithContext(ctx context.Contex
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateLoadBalancerListenerPolicy")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateLoadBalancerListenerPolicyOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range updateLoadBalancerListenerPolicyOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateLoadBalancerListenerPolicy")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -17412,12 +17724,12 @@ func (vpc *VpcV1) ListLoadBalancerListenerPolicyRulesWithContext(ctx context.Con
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListLoadBalancerListenerPolicyRules")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listLoadBalancerListenerPolicyRulesOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listLoadBalancerListenerPolicyRulesOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListLoadBalancerListenerPolicyRules")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -17486,12 +17798,12 @@ func (vpc *VpcV1) CreateLoadBalancerListenerPolicyRuleWithContext(ctx context.Co
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateLoadBalancerListenerPolicyRule")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createLoadBalancerListenerPolicyRuleOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range createLoadBalancerListenerPolicyRuleOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateLoadBalancerListenerPolicyRule")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -17581,12 +17893,12 @@ func (vpc *VpcV1) DeleteLoadBalancerListenerPolicyRuleWithContext(ctx context.Co
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteLoadBalancerListenerPolicyRule")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteLoadBalancerListenerPolicyRuleOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range deleteLoadBalancerListenerPolicyRuleOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteLoadBalancerListenerPolicyRule")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -17646,12 +17958,12 @@ func (vpc *VpcV1) GetLoadBalancerListenerPolicyRuleWithContext(ctx context.Conte
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetLoadBalancerListenerPolicyRule")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getLoadBalancerListenerPolicyRuleOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getLoadBalancerListenerPolicyRuleOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetLoadBalancerListenerPolicyRule")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -17721,12 +18033,12 @@ func (vpc *VpcV1) UpdateLoadBalancerListenerPolicyRuleWithContext(ctx context.Co
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateLoadBalancerListenerPolicyRule")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateLoadBalancerListenerPolicyRuleOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range updateLoadBalancerListenerPolicyRuleOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateLoadBalancerListenerPolicyRule")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -17800,12 +18112,12 @@ func (vpc *VpcV1) ListLoadBalancerPoolsWithContext(ctx context.Context, listLoad
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListLoadBalancerPools")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listLoadBalancerPoolsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listLoadBalancerPoolsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListLoadBalancerPools")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -17872,12 +18184,12 @@ func (vpc *VpcV1) CreateLoadBalancerPoolWithContext(ctx context.Context, createL
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateLoadBalancerPool")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createLoadBalancerPoolOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range createLoadBalancerPoolOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateLoadBalancerPool")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -17896,6 +18208,9 @@ func (vpc *VpcV1) CreateLoadBalancerPoolWithContext(ctx context.Context, createL
 	if createLoadBalancerPoolOptions.Protocol != nil {
 		body["protocol"] = createLoadBalancerPoolOptions.Protocol
 	}
+	if createLoadBalancerPoolOptions.ClientAuthentication != nil {
+		body["client_authentication"] = createLoadBalancerPoolOptions.ClientAuthentication
+	}
 	if createLoadBalancerPoolOptions.FailsafePolicy != nil {
 		body["failsafe_policy"] = createLoadBalancerPoolOptions.FailsafePolicy
 	}
@@ -17907,6 +18222,9 @@ func (vpc *VpcV1) CreateLoadBalancerPoolWithContext(ctx context.Context, createL
 	}
 	if createLoadBalancerPoolOptions.ProxyProtocol != nil {
 		body["proxy_protocol"] = createLoadBalancerPoolOptions.ProxyProtocol
+	}
+	if createLoadBalancerPoolOptions.ServerAuthentication != nil {
+		body["server_authentication"] = createLoadBalancerPoolOptions.ServerAuthentication
 	}
 	if createLoadBalancerPoolOptions.SessionPersistence != nil {
 		body["session_persistence"] = createLoadBalancerPoolOptions.SessionPersistence
@@ -17978,12 +18296,12 @@ func (vpc *VpcV1) DeleteLoadBalancerPoolWithContext(ctx context.Context, deleteL
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteLoadBalancerPool")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteLoadBalancerPoolOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range deleteLoadBalancerPoolOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteLoadBalancerPool")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -18041,12 +18359,12 @@ func (vpc *VpcV1) GetLoadBalancerPoolWithContext(ctx context.Context, getLoadBal
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetLoadBalancerPool")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getLoadBalancerPoolOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getLoadBalancerPoolOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetLoadBalancerPool")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -18114,16 +18432,19 @@ func (vpc *VpcV1) UpdateLoadBalancerPoolWithContext(ctx context.Context, updateL
 		return
 	}
 
+	for headerName, headerValue := range updateLoadBalancerPoolOptions.Headers {
+		builder.AddHeader(headerName, headerValue)
+	}
+
 	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateLoadBalancerPool")
 	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
-
-	for headerName, headerValue := range updateLoadBalancerPoolOptions.Headers {
-		builder.AddHeader(headerName, headerValue)
-	}
 	builder.AddHeader("Accept", "application/json")
 	builder.AddHeader("Content-Type", "application/merge-patch+json")
+	if updateLoadBalancerPoolOptions.IfMatch != nil {
+		builder.AddHeader("If-Match", fmt.Sprint(*updateLoadBalancerPoolOptions.IfMatch))
+	}
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
@@ -18194,12 +18515,12 @@ func (vpc *VpcV1) ListLoadBalancerPoolMembersWithContext(ctx context.Context, li
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListLoadBalancerPoolMembers")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listLoadBalancerPoolMembersOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listLoadBalancerPoolMembersOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListLoadBalancerPoolMembers")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -18269,12 +18590,12 @@ func (vpc *VpcV1) CreateLoadBalancerPoolMemberWithContext(ctx context.Context, c
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateLoadBalancerPoolMember")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createLoadBalancerPoolMemberOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range createLoadBalancerPoolMemberOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateLoadBalancerPoolMember")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -18360,12 +18681,12 @@ func (vpc *VpcV1) ReplaceLoadBalancerPoolMembersWithContext(ctx context.Context,
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ReplaceLoadBalancerPoolMembers")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range replaceLoadBalancerPoolMembersOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range replaceLoadBalancerPoolMembersOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ReplaceLoadBalancerPoolMembers")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -18445,12 +18766,12 @@ func (vpc *VpcV1) DeleteLoadBalancerPoolMemberWithContext(ctx context.Context, d
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteLoadBalancerPoolMember")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteLoadBalancerPoolMemberOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range deleteLoadBalancerPoolMemberOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteLoadBalancerPoolMember")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -18509,12 +18830,12 @@ func (vpc *VpcV1) GetLoadBalancerPoolMemberWithContext(ctx context.Context, getL
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetLoadBalancerPoolMember")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getLoadBalancerPoolMemberOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getLoadBalancerPoolMemberOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetLoadBalancerPoolMember")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -18583,12 +18904,12 @@ func (vpc *VpcV1) UpdateLoadBalancerPoolMemberWithContext(ctx context.Context, u
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateLoadBalancerPoolMember")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateLoadBalancerPoolMemberOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range updateLoadBalancerPoolMemberOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateLoadBalancerPoolMember")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -18656,12 +18977,12 @@ func (vpc *VpcV1) ListNetworkAclsWithContext(ctx context.Context, listNetworkAcl
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListNetworkAcls")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listNetworkAclsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listNetworkAclsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListNetworkAcls")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -18735,12 +19056,12 @@ func (vpc *VpcV1) CreateNetworkACLWithContext(ctx context.Context, createNetwork
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateNetworkACL")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createNetworkACLOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range createNetworkACLOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateNetworkACL")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -18815,12 +19136,12 @@ func (vpc *VpcV1) DeleteNetworkACLWithContext(ctx context.Context, deleteNetwork
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteNetworkACL")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteNetworkACLOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range deleteNetworkACLOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteNetworkACL")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -18877,12 +19198,12 @@ func (vpc *VpcV1) GetNetworkACLWithContext(ctx context.Context, getNetworkACLOpt
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetNetworkACL")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getNetworkACLOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getNetworkACLOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetNetworkACL")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -18949,12 +19270,12 @@ func (vpc *VpcV1) UpdateNetworkACLWithContext(ctx context.Context, updateNetwork
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateNetworkACL")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateNetworkACLOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range updateNetworkACLOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateNetworkACL")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -19029,12 +19350,12 @@ func (vpc *VpcV1) ListNetworkACLRulesWithContext(ctx context.Context, listNetwor
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListNetworkACLRules")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listNetworkACLRulesOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listNetworkACLRulesOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListNetworkACLRules")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -19111,12 +19432,12 @@ func (vpc *VpcV1) CreateNetworkACLRuleWithContext(ctx context.Context, createNet
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateNetworkACLRule")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createNetworkACLRuleOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range createNetworkACLRuleOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateNetworkACLRule")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -19191,12 +19512,12 @@ func (vpc *VpcV1) DeleteNetworkACLRuleWithContext(ctx context.Context, deleteNet
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteNetworkACLRule")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteNetworkACLRuleOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range deleteNetworkACLRuleOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteNetworkACLRule")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -19254,12 +19575,12 @@ func (vpc *VpcV1) GetNetworkACLRuleWithContext(ctx context.Context, getNetworkAC
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetNetworkACLRule")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getNetworkACLRuleOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getNetworkACLRuleOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetNetworkACLRule")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -19329,12 +19650,12 @@ func (vpc *VpcV1) UpdateNetworkACLRuleWithContext(ctx context.Context, updateNet
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateNetworkACLRule")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateNetworkACLRuleOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range updateNetworkACLRuleOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateNetworkACLRule")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -19399,12 +19720,12 @@ func (vpc *VpcV1) ListPlacementGroupsWithContext(ctx context.Context, listPlacem
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListPlacementGroups")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listPlacementGroupsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listPlacementGroupsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListPlacementGroups")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -19473,12 +19794,12 @@ func (vpc *VpcV1) CreatePlacementGroupWithContext(ctx context.Context, createPla
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreatePlacementGroup")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createPlacementGroupOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range createPlacementGroupOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreatePlacementGroup")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -19563,12 +19884,12 @@ func (vpc *VpcV1) DeletePlacementGroupWithContext(ctx context.Context, deletePla
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeletePlacementGroup")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deletePlacementGroupOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range deletePlacementGroupOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeletePlacementGroup")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -19625,12 +19946,12 @@ func (vpc *VpcV1) GetPlacementGroupWithContext(ctx context.Context, getPlacement
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetPlacementGroup")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getPlacementGroupOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getPlacementGroupOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetPlacementGroup")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -19698,12 +20019,12 @@ func (vpc *VpcV1) UpdatePlacementGroupWithContext(ctx context.Context, updatePla
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdatePlacementGroup")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updatePlacementGroupOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range updatePlacementGroupOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdatePlacementGroup")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -19775,12 +20096,12 @@ func (vpc *VpcV1) ListPrivatePathServiceGatewaysWithContext(ctx context.Context,
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListPrivatePathServiceGateways")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listPrivatePathServiceGatewaysOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listPrivatePathServiceGatewaysOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListPrivatePathServiceGateways")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -19854,12 +20175,12 @@ func (vpc *VpcV1) CreatePrivatePathServiceGatewayWithContext(ctx context.Context
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreatePrivatePathServiceGateway")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createPrivatePathServiceGatewayOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range createPrivatePathServiceGatewayOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreatePrivatePathServiceGateway")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -19953,12 +20274,12 @@ func (vpc *VpcV1) DeletePrivatePathServiceGatewayWithContext(ctx context.Context
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeletePrivatePathServiceGateway")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deletePrivatePathServiceGatewayOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range deletePrivatePathServiceGatewayOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeletePrivatePathServiceGateway")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -20015,12 +20336,12 @@ func (vpc *VpcV1) GetPrivatePathServiceGatewayWithContext(ctx context.Context, g
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetPrivatePathServiceGateway")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getPrivatePathServiceGatewayOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getPrivatePathServiceGatewayOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetPrivatePathServiceGateway")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -20089,12 +20410,12 @@ func (vpc *VpcV1) UpdatePrivatePathServiceGatewayWithContext(ctx context.Context
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdatePrivatePathServiceGateway")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updatePrivatePathServiceGatewayOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range updatePrivatePathServiceGatewayOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdatePrivatePathServiceGateway")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -20173,12 +20494,12 @@ func (vpc *VpcV1) ListPrivatePathServiceGatewayAccountPoliciesWithContext(ctx co
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListPrivatePathServiceGatewayAccountPolicies")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listPrivatePathServiceGatewayAccountPoliciesOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listPrivatePathServiceGatewayAccountPoliciesOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListPrivatePathServiceGatewayAccountPolicies")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -20255,12 +20576,12 @@ func (vpc *VpcV1) CreatePrivatePathServiceGatewayAccountPolicyWithContext(ctx co
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreatePrivatePathServiceGatewayAccountPolicy")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createPrivatePathServiceGatewayAccountPolicyOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range createPrivatePathServiceGatewayAccountPolicyOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreatePrivatePathServiceGatewayAccountPolicy")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -20343,12 +20664,12 @@ func (vpc *VpcV1) DeletePrivatePathServiceGatewayAccountPolicyWithContext(ctx co
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeletePrivatePathServiceGatewayAccountPolicy")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deletePrivatePathServiceGatewayAccountPolicyOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range deletePrivatePathServiceGatewayAccountPolicyOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeletePrivatePathServiceGatewayAccountPolicy")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -20406,12 +20727,12 @@ func (vpc *VpcV1) GetPrivatePathServiceGatewayAccountPolicyWithContext(ctx conte
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetPrivatePathServiceGatewayAccountPolicy")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getPrivatePathServiceGatewayAccountPolicyOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getPrivatePathServiceGatewayAccountPolicyOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetPrivatePathServiceGatewayAccountPolicy")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -20481,12 +20802,12 @@ func (vpc *VpcV1) UpdatePrivatePathServiceGatewayAccountPolicyWithContext(ctx co
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdatePrivatePathServiceGatewayAccountPolicy")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updatePrivatePathServiceGatewayAccountPolicyOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range updatePrivatePathServiceGatewayAccountPolicyOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdatePrivatePathServiceGatewayAccountPolicy")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -20567,12 +20888,12 @@ func (vpc *VpcV1) ListPrivatePathServiceGatewayEndpointGatewayBindingsWithContex
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListPrivatePathServiceGatewayEndpointGatewayBindings")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listPrivatePathServiceGatewayEndpointGatewayBindingsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listPrivatePathServiceGatewayEndpointGatewayBindingsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListPrivatePathServiceGatewayEndpointGatewayBindings")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -20652,12 +20973,12 @@ func (vpc *VpcV1) GetPrivatePathServiceGatewayEndpointGatewayBindingWithContext(
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetPrivatePathServiceGatewayEndpointGatewayBinding")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getPrivatePathServiceGatewayEndpointGatewayBindingOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getPrivatePathServiceGatewayEndpointGatewayBindingOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetPrivatePathServiceGatewayEndpointGatewayBinding")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -20726,12 +21047,12 @@ func (vpc *VpcV1) DenyPrivatePathServiceGatewayEndpointGatewayBindingWithContext
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DenyPrivatePathServiceGatewayEndpointGatewayBinding")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range denyPrivatePathServiceGatewayEndpointGatewayBindingOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range denyPrivatePathServiceGatewayEndpointGatewayBindingOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DenyPrivatePathServiceGatewayEndpointGatewayBinding")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Content-Type", "application/json")
@@ -20801,12 +21122,12 @@ func (vpc *VpcV1) PermitPrivatePathServiceGatewayEndpointGatewayBindingWithConte
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "PermitPrivatePathServiceGatewayEndpointGatewayBinding")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range permitPrivatePathServiceGatewayEndpointGatewayBindingOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range permitPrivatePathServiceGatewayEndpointGatewayBindingOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "PermitPrivatePathServiceGatewayEndpointGatewayBinding")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Content-Type", "application/json")
@@ -20874,12 +21195,12 @@ func (vpc *VpcV1) PublishPrivatePathServiceGatewayWithContext(ctx context.Contex
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "PublishPrivatePathServiceGateway")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range publishPrivatePathServiceGatewayOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range publishPrivatePathServiceGatewayOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "PublishPrivatePathServiceGateway")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -20939,12 +21260,12 @@ func (vpc *VpcV1) RevokeAccountForPrivatePathServiceGatewayWithContext(ctx conte
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "RevokeAccountForPrivatePathServiceGateway")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range revokeAccountForPrivatePathServiceGatewayOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range revokeAccountForPrivatePathServiceGatewayOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "RevokeAccountForPrivatePathServiceGateway")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Content-Type", "application/json")
@@ -21014,12 +21335,12 @@ func (vpc *VpcV1) UnpublishPrivatePathServiceGatewayWithContext(ctx context.Cont
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UnpublishPrivatePathServiceGateway")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range unpublishPrivatePathServiceGatewayOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range unpublishPrivatePathServiceGatewayOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UnpublishPrivatePathServiceGateway")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -21042,20 +21363,20 @@ func (vpc *VpcV1) UnpublishPrivatePathServiceGatewayWithContext(ctx context.Cont
 	return
 }
 
-// ListPublicAddressRangeAuthorizedCIDRs : List public address range authorized CIDRs
+// ListPublicAddressRangeAuthorizedCidrs : List public address range authorized CIDRs
 // This request lists public address range authorized CIDRs available in the region. An authorized CIDR specifies a
 // contiguous block of public IP addresses authorized for allocating public address ranges from.
 //
 // The authorized CIDRs will be sorted by ascending `cidr` property values.
-func (vpc *VpcV1) ListPublicAddressRangeAuthorizedCIDRs(listPublicAddressRangeAuthorizedCIDRsOptions *ListPublicAddressRangeAuthorizedCIDRsOptions) (result *PublicAddressRangeAuthorizedCIDRCollection, response *core.DetailedResponse, err error) {
-	result, response, err = vpc.ListPublicAddressRangeAuthorizedCIDRsWithContext(context.Background(), listPublicAddressRangeAuthorizedCIDRsOptions)
+func (vpc *VpcV1) ListPublicAddressRangeAuthorizedCidrs(listPublicAddressRangeAuthorizedCidrsOptions *ListPublicAddressRangeAuthorizedCidrsOptions) (result *PublicAddressRangeAuthorizedCIDRCollection, response *core.DetailedResponse, err error) {
+	result, response, err = vpc.ListPublicAddressRangeAuthorizedCidrsWithContext(context.Background(), listPublicAddressRangeAuthorizedCidrsOptions)
 	err = core.RepurposeSDKProblem(err, "")
 	return
 }
 
-// ListPublicAddressRangeAuthorizedCIDRsWithContext is an alternate form of the ListPublicAddressRangeAuthorizedCIDRs method which supports a Context parameter
-func (vpc *VpcV1) ListPublicAddressRangeAuthorizedCIDRsWithContext(ctx context.Context, listPublicAddressRangeAuthorizedCIDRsOptions *ListPublicAddressRangeAuthorizedCIDRsOptions) (result *PublicAddressRangeAuthorizedCIDRCollection, response *core.DetailedResponse, err error) {
-	err = core.ValidateStruct(listPublicAddressRangeAuthorizedCIDRsOptions, "listPublicAddressRangeAuthorizedCIDRsOptions")
+// ListPublicAddressRangeAuthorizedCidrsWithContext is an alternate form of the ListPublicAddressRangeAuthorizedCidrs method which supports a Context parameter
+func (vpc *VpcV1) ListPublicAddressRangeAuthorizedCidrsWithContext(ctx context.Context, listPublicAddressRangeAuthorizedCidrsOptions *ListPublicAddressRangeAuthorizedCidrsOptions) (result *PublicAddressRangeAuthorizedCIDRCollection, response *core.DetailedResponse, err error) {
+	err = core.ValidateStruct(listPublicAddressRangeAuthorizedCidrsOptions, "listPublicAddressRangeAuthorizedCidrsOptions")
 	if err != nil {
 		err = core.SDKErrorf(err, "", "struct-validation-error", common.GetComponentInfo())
 		return
@@ -21070,29 +21391,29 @@ func (vpc *VpcV1) ListPublicAddressRangeAuthorizedCIDRsWithContext(ctx context.C
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListPublicAddressRangeAuthorizedCIDRs")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listPublicAddressRangeAuthorizedCidrsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listPublicAddressRangeAuthorizedCIDRsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListPublicAddressRangeAuthorizedCidrs")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
-	if listPublicAddressRangeAuthorizedCIDRsOptions.Start != nil {
-		builder.AddQuery("start", fmt.Sprint(*listPublicAddressRangeAuthorizedCIDRsOptions.Start))
+	if listPublicAddressRangeAuthorizedCidrsOptions.Start != nil {
+		builder.AddQuery("start", fmt.Sprint(*listPublicAddressRangeAuthorizedCidrsOptions.Start))
 	}
-	if listPublicAddressRangeAuthorizedCIDRsOptions.Limit != nil {
-		builder.AddQuery("limit", fmt.Sprint(*listPublicAddressRangeAuthorizedCIDRsOptions.Limit))
+	if listPublicAddressRangeAuthorizedCidrsOptions.Limit != nil {
+		builder.AddQuery("limit", fmt.Sprint(*listPublicAddressRangeAuthorizedCidrsOptions.Limit))
 	}
-	if listPublicAddressRangeAuthorizedCIDRsOptions.AllocationProfileFamily != nil {
-		builder.AddQuery("allocation.profile_family", fmt.Sprint(*listPublicAddressRangeAuthorizedCIDRsOptions.AllocationProfileFamily))
+	if listPublicAddressRangeAuthorizedCidrsOptions.AllocationProfileFamily != nil {
+		builder.AddQuery("allocation.profile_family", fmt.Sprint(*listPublicAddressRangeAuthorizedCidrsOptions.AllocationProfileFamily))
 	}
-	if listPublicAddressRangeAuthorizedCIDRsOptions.AvailabilityMode != nil {
-		builder.AddQuery("availability_mode", fmt.Sprint(*listPublicAddressRangeAuthorizedCIDRsOptions.AvailabilityMode))
+	if listPublicAddressRangeAuthorizedCidrsOptions.AvailabilityMode != nil {
+		builder.AddQuery("availability_mode", fmt.Sprint(*listPublicAddressRangeAuthorizedCidrsOptions.AvailabilityMode))
 	}
 
 	request, err := builder.Build()
@@ -21157,12 +21478,12 @@ func (vpc *VpcV1) ListPublicAddressRangeAuthorizedCIDRAllocationsWithContext(ctx
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListPublicAddressRangeAuthorizedCIDRAllocations")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listPublicAddressRangeAuthorizedCIDRAllocationsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listPublicAddressRangeAuthorizedCIDRAllocationsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListPublicAddressRangeAuthorizedCIDRAllocations")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -21239,12 +21560,12 @@ func (vpc *VpcV1) GetPublicAddressRangeAuthorizedCIDRAllocationWithContext(ctx c
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetPublicAddressRangeAuthorizedCIDRAllocation")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getPublicAddressRangeAuthorizedCIDRAllocationOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getPublicAddressRangeAuthorizedCIDRAllocationOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetPublicAddressRangeAuthorizedCIDRAllocation")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -21311,12 +21632,12 @@ func (vpc *VpcV1) GetPublicAddressRangeAuthorizedCIDRWithContext(ctx context.Con
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetPublicAddressRangeAuthorizedCIDR")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getPublicAddressRangeAuthorizedCIDROptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getPublicAddressRangeAuthorizedCIDROptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetPublicAddressRangeAuthorizedCIDR")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -21375,12 +21696,12 @@ func (vpc *VpcV1) ListPublicAddressRangeProfilesWithContext(ctx context.Context,
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListPublicAddressRangeProfiles")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listPublicAddressRangeProfilesOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listPublicAddressRangeProfilesOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListPublicAddressRangeProfiles")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -21453,12 +21774,12 @@ func (vpc *VpcV1) GetPublicAddressRangeProfileWithContext(ctx context.Context, g
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetPublicAddressRangeProfile")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getPublicAddressRangeProfileOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getPublicAddressRangeProfileOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetPublicAddressRangeProfile")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -21523,12 +21844,12 @@ func (vpc *VpcV1) ListPublicAddressRangesWithContext(ctx context.Context, listPu
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListPublicAddressRanges")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listPublicAddressRangesOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listPublicAddressRangesOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListPublicAddressRanges")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -21605,12 +21926,12 @@ func (vpc *VpcV1) CreatePublicAddressRangeWithContext(ctx context.Context, creat
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreatePublicAddressRange")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createPublicAddressRangeOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range createPublicAddressRangeOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreatePublicAddressRange")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -21685,12 +22006,12 @@ func (vpc *VpcV1) DeletePublicAddressRangeWithContext(ctx context.Context, delet
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeletePublicAddressRange")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deletePublicAddressRangeOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range deletePublicAddressRangeOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeletePublicAddressRange")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -21757,12 +22078,12 @@ func (vpc *VpcV1) GetPublicAddressRangeWithContext(ctx context.Context, getPubli
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetPublicAddressRange")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getPublicAddressRangeOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getPublicAddressRangeOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetPublicAddressRange")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -21831,12 +22152,12 @@ func (vpc *VpcV1) UpdatePublicAddressRangeWithContext(ctx context.Context, updat
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdatePublicAddressRange")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updatePublicAddressRangeOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range updatePublicAddressRangeOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdatePublicAddressRange")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -21903,12 +22224,12 @@ func (vpc *VpcV1) ListPublicGatewaysWithContext(ctx context.Context, listPublicG
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListPublicGateways")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listPublicGatewaysOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listPublicGatewaysOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListPublicGateways")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -21985,12 +22306,12 @@ func (vpc *VpcV1) CreatePublicGatewayWithContext(ctx context.Context, createPubl
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreatePublicGateway")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createPublicGatewayOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range createPublicGatewayOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreatePublicGateway")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -22082,12 +22403,12 @@ func (vpc *VpcV1) DeletePublicGatewayWithContext(ctx context.Context, deletePubl
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeletePublicGateway")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deletePublicGatewayOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range deletePublicGatewayOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeletePublicGateway")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -22144,12 +22465,12 @@ func (vpc *VpcV1) GetPublicGatewayWithContext(ctx context.Context, getPublicGate
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetPublicGateway")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getPublicGatewayOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getPublicGatewayOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetPublicGateway")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -22216,12 +22537,12 @@ func (vpc *VpcV1) UpdatePublicGatewayWithContext(ctx context.Context, updatePubl
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdatePublicGateway")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updatePublicGatewayOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range updatePublicGatewayOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdatePublicGateway")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -22290,12 +22611,12 @@ func (vpc *VpcV1) ListReservationsWithContext(ctx context.Context, listReservati
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListReservations")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listReservationsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listReservationsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListReservations")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -22380,12 +22701,12 @@ func (vpc *VpcV1) CreateReservationWithContext(ctx context.Context, createReserv
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateReservation")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createReservationOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range createReservationOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateReservation")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -22482,12 +22803,12 @@ func (vpc *VpcV1) DeleteReservationWithContext(ctx context.Context, deleteReserv
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteReservation")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteReservationOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range deleteReservationOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteReservation")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -22554,12 +22875,12 @@ func (vpc *VpcV1) GetReservationWithContext(ctx context.Context, getReservationO
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetReservation")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getReservationOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getReservationOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetReservation")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -22627,12 +22948,12 @@ func (vpc *VpcV1) UpdateReservationWithContext(ctx context.Context, updateReserv
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateReservation")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateReservationOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range updateReservationOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateReservation")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -22706,12 +23027,12 @@ func (vpc *VpcV1) ActivateReservationWithContext(ctx context.Context, activateRe
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ActivateReservation")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range activateReservationOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range activateReservationOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ActivateReservation")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -22761,12 +23082,12 @@ func (vpc *VpcV1) ListSecurityGroupsWithContext(ctx context.Context, listSecurit
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListSecurityGroups")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listSecurityGroupsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listSecurityGroupsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListSecurityGroups")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -22850,12 +23171,12 @@ func (vpc *VpcV1) CreateSecurityGroupWithContext(ctx context.Context, createSecu
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateSecurityGroup")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createSecurityGroupOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range createSecurityGroupOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateSecurityGroup")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -22943,12 +23264,12 @@ func (vpc *VpcV1) DeleteSecurityGroupWithContext(ctx context.Context, deleteSecu
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteSecurityGroup")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteSecurityGroupOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range deleteSecurityGroupOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteSecurityGroup")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -23005,12 +23326,12 @@ func (vpc *VpcV1) GetSecurityGroupWithContext(ctx context.Context, getSecurityGr
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetSecurityGroup")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getSecurityGroupOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getSecurityGroupOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetSecurityGroup")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -23079,12 +23400,12 @@ func (vpc *VpcV1) UpdateSecurityGroupWithContext(ctx context.Context, updateSecu
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateSecurityGroup")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateSecurityGroupOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range updateSecurityGroupOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateSecurityGroup")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -23159,12 +23480,12 @@ func (vpc *VpcV1) ListSecurityGroupRulesWithContext(ctx context.Context, listSec
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListSecurityGroupRules")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listSecurityGroupRulesOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listSecurityGroupRulesOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListSecurityGroupRules")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -23236,12 +23557,12 @@ func (vpc *VpcV1) CreateSecurityGroupRuleWithContext(ctx context.Context, create
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateSecurityGroupRule")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createSecurityGroupRuleOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range createSecurityGroupRuleOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateSecurityGroupRule")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -23317,12 +23638,12 @@ func (vpc *VpcV1) DeleteSecurityGroupRuleWithContext(ctx context.Context, delete
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteSecurityGroupRule")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteSecurityGroupRuleOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range deleteSecurityGroupRuleOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteSecurityGroupRule")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -23380,12 +23701,12 @@ func (vpc *VpcV1) GetSecurityGroupRuleWithContext(ctx context.Context, getSecuri
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetSecurityGroupRule")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getSecurityGroupRuleOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getSecurityGroupRuleOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetSecurityGroupRule")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -23455,12 +23776,12 @@ func (vpc *VpcV1) UpdateSecurityGroupRuleWithContext(ctx context.Context, update
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateSecurityGroupRule")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateSecurityGroupRuleOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range updateSecurityGroupRuleOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateSecurityGroupRule")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -23534,12 +23855,12 @@ func (vpc *VpcV1) ListSecurityGroupTargetsWithContext(ctx context.Context, listS
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListSecurityGroupTargets")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listSecurityGroupTargetsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listSecurityGroupTargetsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListSecurityGroupTargets")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -23624,12 +23945,12 @@ func (vpc *VpcV1) DeleteSecurityGroupTargetBindingWithContext(ctx context.Contex
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteSecurityGroupTargetBinding")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteSecurityGroupTargetBindingOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range deleteSecurityGroupTargetBindingOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteSecurityGroupTargetBinding")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -23688,12 +24009,12 @@ func (vpc *VpcV1) GetSecurityGroupTargetWithContext(ctx context.Context, getSecu
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetSecurityGroupTarget")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getSecurityGroupTargetOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getSecurityGroupTargetOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetSecurityGroupTarget")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -23771,12 +24092,12 @@ func (vpc *VpcV1) CreateSecurityGroupTargetBindingWithContext(ctx context.Contex
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateSecurityGroupTargetBinding")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createSecurityGroupTargetBindingOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range createSecurityGroupTargetBindingOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateSecurityGroupTargetBinding")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -23835,12 +24156,12 @@ func (vpc *VpcV1) ListShareProfilesWithContext(ctx context.Context, listSharePro
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListShareProfiles")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listShareProfilesOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listShareProfilesOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListShareProfiles")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -23916,12 +24237,12 @@ func (vpc *VpcV1) GetShareProfileWithContext(ctx context.Context, getShareProfil
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetShareProfile")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getShareProfileOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getShareProfileOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetShareProfile")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -23979,12 +24300,12 @@ func (vpc *VpcV1) ListSharesWithContext(ctx context.Context, listSharesOptions *
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListShares")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listSharesOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listSharesOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListShares")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -24069,12 +24390,12 @@ func (vpc *VpcV1) CreateShareWithContext(ctx context.Context, createShareOptions
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateShare")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createShareOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range createShareOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateShare")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -24154,12 +24475,12 @@ func (vpc *VpcV1) DeleteShareWithContext(ctx context.Context, deleteShareOptions
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteShare")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteShareOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range deleteShareOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteShare")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -24229,12 +24550,12 @@ func (vpc *VpcV1) GetShareWithContext(ctx context.Context, getShareOptions *GetS
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetShare")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getShareOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getShareOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetShare")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -24302,12 +24623,12 @@ func (vpc *VpcV1) UpdateShareWithContext(ctx context.Context, updateShareOptions
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateShare")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateShareOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range updateShareOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateShare")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -24387,12 +24708,12 @@ func (vpc *VpcV1) ListShareAccessorBindingsWithContext(ctx context.Context, list
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListShareAccessorBindings")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listShareAccessorBindingsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listShareAccessorBindingsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListShareAccessorBindings")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -24466,12 +24787,12 @@ func (vpc *VpcV1) DeleteShareAccessorBindingWithContext(ctx context.Context, del
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteShareAccessorBinding")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteShareAccessorBindingOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range deleteShareAccessorBindingOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteShareAccessorBinding")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -24529,12 +24850,12 @@ func (vpc *VpcV1) GetShareAccessorBindingWithContext(ctx context.Context, getSha
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetShareAccessorBinding")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getShareAccessorBindingOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getShareAccessorBindingOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetShareAccessorBinding")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -24606,12 +24927,12 @@ func (vpc *VpcV1) FailoverShareWithContext(ctx context.Context, failoverShareOpt
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "FailoverShare")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range failoverShareOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range failoverShareOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "FailoverShare")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Content-Type", "application/json")
@@ -24685,12 +25006,12 @@ func (vpc *VpcV1) ListShareMountTargetsWithContext(ctx context.Context, listShar
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListShareMountTargets")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listShareMountTargetsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listShareMountTargetsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListShareMountTargets")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -24769,12 +25090,12 @@ func (vpc *VpcV1) CreateShareMountTargetWithContext(ctx context.Context, createS
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateShareMountTarget")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createShareMountTargetOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range createShareMountTargetOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateShareMountTarget")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -24852,12 +25173,12 @@ func (vpc *VpcV1) DeleteShareMountTargetWithContext(ctx context.Context, deleteS
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteShareMountTarget")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteShareMountTargetOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range deleteShareMountTargetOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteShareMountTarget")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -24925,12 +25246,12 @@ func (vpc *VpcV1) GetShareMountTargetWithContext(ctx context.Context, getShareMo
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetShareMountTarget")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getShareMountTargetOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getShareMountTargetOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetShareMountTarget")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -25000,12 +25321,12 @@ func (vpc *VpcV1) UpdateShareMountTargetWithContext(ctx context.Context, updateS
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateShareMountTarget")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateShareMountTargetOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range updateShareMountTargetOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateShareMountTarget")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -25082,12 +25403,12 @@ func (vpc *VpcV1) ListShareSnapshotsWithContext(ctx context.Context, listShareSn
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListShareSnapshots")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listShareSnapshotsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listShareSnapshotsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListShareSnapshots")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -25181,12 +25502,12 @@ func (vpc *VpcV1) CreateShareSnapshotWithContext(ctx context.Context, createShar
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateShareSnapshot")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createShareSnapshotOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range createShareSnapshotOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateShareSnapshot")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -25279,12 +25600,12 @@ func (vpc *VpcV1) DeleteShareSnapshotWithContext(ctx context.Context, deleteShar
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteShareSnapshot")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteShareSnapshotOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range deleteShareSnapshotOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteShareSnapshot")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -25352,12 +25673,12 @@ func (vpc *VpcV1) GetShareSnapshotWithContext(ctx context.Context, getShareSnaps
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetShareSnapshot")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getShareSnapshotOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getShareSnapshotOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetShareSnapshot")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -25427,12 +25748,12 @@ func (vpc *VpcV1) UpdateShareSnapshotWithContext(ctx context.Context, updateShar
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateShareSnapshot")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateShareSnapshotOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range updateShareSnapshotOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateShareSnapshot")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -25513,12 +25834,12 @@ func (vpc *VpcV1) DeleteShareSourceWithContext(ctx context.Context, deleteShareS
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteShareSource")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteShareSourceOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range deleteShareSourceOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteShareSource")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -25576,12 +25897,12 @@ func (vpc *VpcV1) GetShareSourceWithContext(ctx context.Context, getShareSourceO
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetShareSource")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getShareSourceOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getShareSourceOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetShareSource")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -25640,12 +25961,12 @@ func (vpc *VpcV1) ListSnapshotConsistencyGroupsWithContext(ctx context.Context, 
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListSnapshotConsistencyGroups")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listSnapshotConsistencyGroupsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listSnapshotConsistencyGroupsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListSnapshotConsistencyGroups")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -25669,6 +25990,9 @@ func (vpc *VpcV1) ListSnapshotConsistencyGroupsWithContext(ctx context.Context, 
 	}
 	if listSnapshotConsistencyGroupsOptions.BackupPolicyPlanID != nil {
 		builder.AddQuery("backup_policy_plan.id", fmt.Sprint(*listSnapshotConsistencyGroupsOptions.BackupPolicyPlanID))
+	}
+	if listSnapshotConsistencyGroupsOptions.BackupPolicyJobID != nil {
+		builder.AddQuery("backup_policy_job.id", fmt.Sprint(*listSnapshotConsistencyGroupsOptions.BackupPolicyJobID))
 	}
 
 	request, err := builder.Build()
@@ -25728,12 +26052,12 @@ func (vpc *VpcV1) CreateSnapshotConsistencyGroupWithContext(ctx context.Context,
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateSnapshotConsistencyGroup")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createSnapshotConsistencyGroupOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range createSnapshotConsistencyGroupOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateSnapshotConsistencyGroup")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -25808,12 +26132,12 @@ func (vpc *VpcV1) DeleteSnapshotConsistencyGroupWithContext(ctx context.Context,
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteSnapshotConsistencyGroup")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteSnapshotConsistencyGroupOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range deleteSnapshotConsistencyGroupOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteSnapshotConsistencyGroup")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -25880,12 +26204,12 @@ func (vpc *VpcV1) GetSnapshotConsistencyGroupWithContext(ctx context.Context, ge
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetSnapshotConsistencyGroup")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getSnapshotConsistencyGroupOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getSnapshotConsistencyGroupOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetSnapshotConsistencyGroup")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -25954,12 +26278,12 @@ func (vpc *VpcV1) UpdateSnapshotConsistencyGroupWithContext(ctx context.Context,
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateSnapshotConsistencyGroup")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateSnapshotConsistencyGroupOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range updateSnapshotConsistencyGroupOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateSnapshotConsistencyGroup")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -26032,12 +26356,12 @@ func (vpc *VpcV1) DeleteSnapshotsWithContext(ctx context.Context, deleteSnapshot
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteSnapshots")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteSnapshotsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range deleteSnapshotsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteSnapshots")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -26087,12 +26411,12 @@ func (vpc *VpcV1) ListSnapshotsWithContext(ctx context.Context, listSnapshotsOpt
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListSnapshots")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listSnapshotsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listSnapshotsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListSnapshots")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -26222,12 +26546,12 @@ func (vpc *VpcV1) CreateSnapshotWithContext(ctx context.Context, createSnapshotO
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateSnapshot")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createSnapshotOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range createSnapshotOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateSnapshot")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -26301,12 +26625,12 @@ func (vpc *VpcV1) DeleteSnapshotWithContext(ctx context.Context, deleteSnapshotO
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteSnapshot")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteSnapshotOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range deleteSnapshotOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteSnapshot")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	if deleteSnapshotOptions.IfMatch != nil {
@@ -26366,12 +26690,12 @@ func (vpc *VpcV1) GetSnapshotWithContext(ctx context.Context, getSnapshotOptions
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetSnapshot")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getSnapshotOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getSnapshotOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetSnapshot")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -26439,12 +26763,12 @@ func (vpc *VpcV1) UpdateSnapshotWithContext(ctx context.Context, updateSnapshotO
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateSnapshot")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateSnapshotOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range updateSnapshotOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateSnapshot")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -26521,12 +26845,12 @@ func (vpc *VpcV1) ListSnapshotClonesWithContext(ctx context.Context, listSnapsho
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListSnapshotClones")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listSnapshotClonesOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listSnapshotClonesOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListSnapshotClones")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -26595,12 +26919,12 @@ func (vpc *VpcV1) DeleteSnapshotCloneWithContext(ctx context.Context, deleteSnap
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteSnapshotClone")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteSnapshotCloneOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range deleteSnapshotCloneOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteSnapshotClone")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -26658,12 +26982,12 @@ func (vpc *VpcV1) GetSnapshotCloneWithContext(ctx context.Context, getSnapshotCl
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetSnapshotClone")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getSnapshotCloneOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getSnapshotCloneOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetSnapshotClone")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -26732,12 +27056,12 @@ func (vpc *VpcV1) CreateSnapshotCloneWithContext(ctx context.Context, createSnap
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateSnapshotClone")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createSnapshotCloneOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range createSnapshotCloneOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateSnapshotClone")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -26807,12 +27131,12 @@ func (vpc *VpcV1) ListSnapshotInstanceProfilesWithContext(ctx context.Context, l
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListSnapshotInstanceProfiles")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listSnapshotInstanceProfilesOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listSnapshotInstanceProfilesOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListSnapshotInstanceProfiles")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -26877,12 +27201,12 @@ func (vpc *VpcV1) ListSubnetsWithContext(ctx context.Context, listSubnetsOptions
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListSubnets")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listSubnetsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listSubnetsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListSubnets")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -26974,12 +27298,12 @@ func (vpc *VpcV1) CreateSubnetWithContext(ctx context.Context, createSubnetOptio
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateSubnet")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createSubnetOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range createSubnetOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateSubnet")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -27057,12 +27381,12 @@ func (vpc *VpcV1) DeleteSubnetWithContext(ctx context.Context, deleteSubnetOptio
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteSubnet")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteSubnetOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range deleteSubnetOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteSubnet")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -27119,12 +27443,12 @@ func (vpc *VpcV1) GetSubnetWithContext(ctx context.Context, getSubnetOptions *Ge
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetSubnet")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getSubnetOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getSubnetOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetSubnet")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -27192,12 +27516,12 @@ func (vpc *VpcV1) UpdateSubnetWithContext(ctx context.Context, updateSubnetOptio
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateSubnet")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateSubnetOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range updateSubnetOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateSubnet")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -27271,12 +27595,12 @@ func (vpc *VpcV1) GetSubnetNetworkACLWithContext(ctx context.Context, getSubnetN
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetSubnetNetworkACL")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getSubnetNetworkACLOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getSubnetNetworkACLOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetSubnetNetworkACL")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -27343,12 +27667,12 @@ func (vpc *VpcV1) ReplaceSubnetNetworkACLWithContext(ctx context.Context, replac
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ReplaceSubnetNetworkACL")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range replaceSubnetNetworkACLOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range replaceSubnetNetworkACLOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ReplaceSubnetNetworkACL")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -27422,12 +27746,12 @@ func (vpc *VpcV1) UnsetSubnetPublicGatewayWithContext(ctx context.Context, unset
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UnsetSubnetPublicGateway")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range unsetSubnetPublicGatewayOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range unsetSubnetPublicGatewayOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UnsetSubnetPublicGateway")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -27484,12 +27808,12 @@ func (vpc *VpcV1) GetSubnetPublicGatewayWithContext(ctx context.Context, getSubn
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetSubnetPublicGateway")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getSubnetPublicGatewayOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getSubnetPublicGatewayOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetSubnetPublicGateway")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -27557,12 +27881,12 @@ func (vpc *VpcV1) SetSubnetPublicGatewayWithContext(ctx context.Context, setSubn
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "SetSubnetPublicGateway")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range setSubnetPublicGatewayOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range setSubnetPublicGatewayOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "SetSubnetPublicGateway")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -27636,12 +27960,12 @@ func (vpc *VpcV1) GetSubnetRoutingTableWithContext(ctx context.Context, getSubne
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetSubnetRoutingTable")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getSubnetRoutingTableOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getSubnetRoutingTableOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetSubnetRoutingTable")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -27711,12 +28035,12 @@ func (vpc *VpcV1) ReplaceSubnetRoutingTableWithContext(ctx context.Context, repl
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ReplaceSubnetRoutingTable")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range replaceSubnetRoutingTableOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range replaceSubnetRoutingTableOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ReplaceSubnetRoutingTable")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -27791,12 +28115,12 @@ func (vpc *VpcV1) ListSubnetReservedIpsWithContext(ctx context.Context, listSubn
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListSubnetReservedIps")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listSubnetReservedIpsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listSubnetReservedIpsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListSubnetReservedIps")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -27885,12 +28209,12 @@ func (vpc *VpcV1) CreateSubnetReservedIPWithContext(ctx context.Context, createS
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateSubnetReservedIP")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createSubnetReservedIPOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range createSubnetReservedIPOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateSubnetReservedIP")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -27982,12 +28306,12 @@ func (vpc *VpcV1) DeleteSubnetReservedIPWithContext(ctx context.Context, deleteS
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteSubnetReservedIP")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteSubnetReservedIPOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range deleteSubnetReservedIPOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteSubnetReservedIP")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -28045,12 +28369,12 @@ func (vpc *VpcV1) GetSubnetReservedIPWithContext(ctx context.Context, getSubnetR
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetSubnetReservedIP")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getSubnetReservedIPOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getSubnetReservedIPOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetSubnetReservedIP")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -28121,12 +28445,12 @@ func (vpc *VpcV1) UpdateSubnetReservedIPWithContext(ctx context.Context, updateS
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateSubnetReservedIP")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateSubnetReservedIPOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range updateSubnetReservedIPOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateSubnetReservedIP")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -28196,12 +28520,12 @@ func (vpc *VpcV1) ListVirtualNetworkInterfacesWithContext(ctx context.Context, l
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVirtualNetworkInterfaces")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listVirtualNetworkInterfacesOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listVirtualNetworkInterfacesOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVirtualNetworkInterfaces")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -28275,12 +28599,12 @@ func (vpc *VpcV1) CreateVirtualNetworkInterfaceWithContext(ctx context.Context, 
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateVirtualNetworkInterface")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createVirtualNetworkInterfaceOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range createVirtualNetworkInterfaceOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateVirtualNetworkInterface")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -28387,12 +28711,12 @@ func (vpc *VpcV1) DeleteVirtualNetworkInterfacesWithContext(ctx context.Context,
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteVirtualNetworkInterfaces")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteVirtualNetworkInterfacesOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range deleteVirtualNetworkInterfacesOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteVirtualNetworkInterfaces")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -28462,12 +28786,12 @@ func (vpc *VpcV1) GetVirtualNetworkInterfaceWithContext(ctx context.Context, get
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVirtualNetworkInterface")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getVirtualNetworkInterfaceOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getVirtualNetworkInterfaceOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVirtualNetworkInterface")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -28536,12 +28860,12 @@ func (vpc *VpcV1) UpdateVirtualNetworkInterfaceWithContext(ctx context.Context, 
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateVirtualNetworkInterface")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateVirtualNetworkInterfaceOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range updateVirtualNetworkInterfaceOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateVirtualNetworkInterface")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -28618,12 +28942,12 @@ func (vpc *VpcV1) ListNetworkInterfaceFloatingIpsWithContext(ctx context.Context
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListNetworkInterfaceFloatingIps")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listNetworkInterfaceFloatingIpsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listNetworkInterfaceFloatingIpsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListNetworkInterfaceFloatingIps")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -28700,12 +29024,12 @@ func (vpc *VpcV1) RemoveNetworkInterfaceFloatingIPWithContext(ctx context.Contex
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "RemoveNetworkInterfaceFloatingIP")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range removeNetworkInterfaceFloatingIPOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range removeNetworkInterfaceFloatingIPOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "RemoveNetworkInterfaceFloatingIP")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -28764,12 +29088,12 @@ func (vpc *VpcV1) GetNetworkInterfaceFloatingIPWithContext(ctx context.Context, 
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetNetworkInterfaceFloatingIP")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getNetworkInterfaceFloatingIPOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getNetworkInterfaceFloatingIPOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetNetworkInterfaceFloatingIP")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -28852,12 +29176,12 @@ func (vpc *VpcV1) AddNetworkInterfaceFloatingIPWithContext(ctx context.Context, 
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "AddNetworkInterfaceFloatingIP")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range addNetworkInterfaceFloatingIPOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range addNetworkInterfaceFloatingIPOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "AddNetworkInterfaceFloatingIP")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -28924,12 +29248,12 @@ func (vpc *VpcV1) ListVirtualNetworkInterfaceIpsWithContext(ctx context.Context,
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVirtualNetworkInterfaceIps")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listVirtualNetworkInterfaceIpsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listVirtualNetworkInterfaceIpsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVirtualNetworkInterfaceIps")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -29009,12 +29333,12 @@ func (vpc *VpcV1) RemoveVirtualNetworkInterfaceIPWithContext(ctx context.Context
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "RemoveVirtualNetworkInterfaceIP")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range removeVirtualNetworkInterfaceIPOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range removeVirtualNetworkInterfaceIPOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "RemoveVirtualNetworkInterfaceIP")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -29073,12 +29397,12 @@ func (vpc *VpcV1) GetVirtualNetworkInterfaceIPWithContext(ctx context.Context, g
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVirtualNetworkInterfaceIP")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getVirtualNetworkInterfaceIPOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getVirtualNetworkInterfaceIPOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVirtualNetworkInterfaceIP")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -29150,12 +29474,12 @@ func (vpc *VpcV1) AddVirtualNetworkInterfaceIPWithContext(ctx context.Context, a
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "AddVirtualNetworkInterfaceIP")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range addVirtualNetworkInterfaceIPOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range addVirtualNetworkInterfaceIPOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "AddVirtualNetworkInterfaceIP")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -29214,12 +29538,12 @@ func (vpc *VpcV1) ListVolumeProfilesWithContext(ctx context.Context, listVolumeP
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVolumeProfiles")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listVolumeProfilesOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listVolumeProfilesOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVolumeProfiles")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -29292,12 +29616,12 @@ func (vpc *VpcV1) GetVolumeProfileWithContext(ctx context.Context, getVolumeProf
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVolumeProfile")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getVolumeProfileOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getVolumeProfileOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVolumeProfile")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -29356,12 +29680,12 @@ func (vpc *VpcV1) ListVolumesWithContext(ctx context.Context, listVolumesOptions
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVolumes")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listVolumesOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listVolumesOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVolumes")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -29455,12 +29779,12 @@ func (vpc *VpcV1) CreateVolumeWithContext(ctx context.Context, createVolumeOptio
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateVolume")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createVolumeOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range createVolumeOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateVolume")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -29535,12 +29859,12 @@ func (vpc *VpcV1) DeleteVolumeWithContext(ctx context.Context, deleteVolumeOptio
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteVolume")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteVolumeOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range deleteVolumeOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteVolume")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	if deleteVolumeOptions.IfMatch != nil {
@@ -29600,12 +29924,12 @@ func (vpc *VpcV1) GetVolumeWithContext(ctx context.Context, getVolumeOptions *Ge
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVolume")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getVolumeOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getVolumeOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVolume")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -29673,12 +29997,12 @@ func (vpc *VpcV1) UpdateVolumeWithContext(ctx context.Context, updateVolumeOptio
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateVolume")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateVolumeOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range updateVolumeOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateVolume")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -29758,12 +30082,12 @@ func (vpc *VpcV1) ListVolumeInstanceProfilesWithContext(ctx context.Context, lis
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVolumeInstanceProfiles")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listVolumeInstanceProfilesOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listVolumeInstanceProfilesOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVolumeInstanceProfiles")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -29843,12 +30167,12 @@ func (vpc *VpcV1) ListVolumeJobsWithContext(ctx context.Context, listVolumeJobsO
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVolumeJobs")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listVolumeJobsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listVolumeJobsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVolumeJobs")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -29921,12 +30245,12 @@ func (vpc *VpcV1) CreateVolumeJobWithContext(ctx context.Context, createVolumeJo
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateVolumeJob")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createVolumeJobOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range createVolumeJobOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateVolumeJob")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -30008,12 +30332,12 @@ func (vpc *VpcV1) DeleteVolumeJobWithContext(ctx context.Context, deleteVolumeJo
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteVolumeJob")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteVolumeJobOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range deleteVolumeJobOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteVolumeJob")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -30071,12 +30395,12 @@ func (vpc *VpcV1) GetVolumeJobWithContext(ctx context.Context, getVolumeJobOptio
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVolumeJob")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getVolumeJobOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getVolumeJobOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVolumeJob")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -30145,12 +30469,12 @@ func (vpc *VpcV1) UpdateVolumeJobWithContext(ctx context.Context, updateVolumeJo
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateVolumeJob")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateVolumeJobOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range updateVolumeJobOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateVolumeJob")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -30225,12 +30549,12 @@ func (vpc *VpcV1) CancelVolumeJobWithContext(ctx context.Context, cancelVolumeJo
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CancelVolumeJob")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range cancelVolumeJobOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range cancelVolumeJobOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CancelVolumeJob")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -30290,12 +30614,12 @@ func (vpc *VpcV1) ListVpcsWithContext(ctx context.Context, listVpcsOptions *List
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVpcs")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listVpcsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listVpcsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVpcs")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -30376,12 +30700,12 @@ func (vpc *VpcV1) CreateVPCWithContext(ctx context.Context, createVPCOptions *Cr
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateVPC")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createVPCOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range createVPCOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateVPC")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -30481,12 +30805,12 @@ func (vpc *VpcV1) DeleteVPCWithContext(ctx context.Context, deleteVPCOptions *De
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteVPC")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteVPCOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range deleteVPCOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteVPC")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	if deleteVPCOptions.IfMatch != nil {
@@ -30546,12 +30870,12 @@ func (vpc *VpcV1) GetVPCWithContext(ctx context.Context, getVPCOptions *GetVPCOp
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVPC")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getVPCOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getVPCOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVPC")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -30619,12 +30943,12 @@ func (vpc *VpcV1) UpdateVPCWithContext(ctx context.Context, updateVPCOptions *Up
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateVPC")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateVPCOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range updateVPCOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateVPC")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -30702,12 +31026,12 @@ func (vpc *VpcV1) GetVPCDefaultNetworkACLWithContext(ctx context.Context, getVPC
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVPCDefaultNetworkACL")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getVPCDefaultNetworkACLOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getVPCDefaultNetworkACLOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVPCDefaultNetworkACL")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -30776,12 +31100,12 @@ func (vpc *VpcV1) GetVPCDefaultRoutingTableWithContext(ctx context.Context, getV
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVPCDefaultRoutingTable")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getVPCDefaultRoutingTableOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getVPCDefaultRoutingTableOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVPCDefaultRoutingTable")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -30849,12 +31173,12 @@ func (vpc *VpcV1) GetVPCDefaultSecurityGroupWithContext(ctx context.Context, get
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVPCDefaultSecurityGroup")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getVPCDefaultSecurityGroupOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getVPCDefaultSecurityGroupOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVPCDefaultSecurityGroup")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -30921,12 +31245,12 @@ func (vpc *VpcV1) ListVPCAddressPrefixesWithContext(ctx context.Context, listVPC
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVPCAddressPrefixes")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listVPCAddressPrefixesOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listVPCAddressPrefixesOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVPCAddressPrefixes")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -31000,12 +31324,12 @@ func (vpc *VpcV1) CreateVPCAddressPrefixWithContext(ctx context.Context, createV
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateVPCAddressPrefix")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createVPCAddressPrefixOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range createVPCAddressPrefixOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateVPCAddressPrefix")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -31094,12 +31418,12 @@ func (vpc *VpcV1) DeleteVPCAddressPrefixWithContext(ctx context.Context, deleteV
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteVPCAddressPrefix")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteVPCAddressPrefixOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range deleteVPCAddressPrefixOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteVPCAddressPrefix")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -31157,12 +31481,12 @@ func (vpc *VpcV1) GetVPCAddressPrefixWithContext(ctx context.Context, getVPCAddr
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVPCAddressPrefix")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getVPCAddressPrefixOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getVPCAddressPrefixOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVPCAddressPrefix")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -31231,12 +31555,12 @@ func (vpc *VpcV1) UpdateVPCAddressPrefixWithContext(ctx context.Context, updateV
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateVPCAddressPrefix")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateVPCAddressPrefixOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range updateVPCAddressPrefixOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateVPCAddressPrefix")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -31322,12 +31646,12 @@ func (vpc *VpcV1) ListVPCDnsResolutionBindingsWithContext(ctx context.Context, l
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVPCDnsResolutionBindings")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listVPCDnsResolutionBindingsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listVPCDnsResolutionBindingsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVPCDnsResolutionBindings")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -31438,12 +31762,12 @@ func (vpc *VpcV1) CreateVPCDnsResolutionBindingWithContext(ctx context.Context, 
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateVPCDnsResolutionBinding")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createVPCDnsResolutionBindingOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range createVPCDnsResolutionBindingOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateVPCDnsResolutionBinding")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -31528,12 +31852,12 @@ func (vpc *VpcV1) DeleteVPCDnsResolutionBindingWithContext(ctx context.Context, 
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteVPCDnsResolutionBinding")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteVPCDnsResolutionBindingOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range deleteVPCDnsResolutionBindingOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteVPCDnsResolutionBinding")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -31601,12 +31925,12 @@ func (vpc *VpcV1) GetVPCDnsResolutionBindingWithContext(ctx context.Context, get
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVPCDnsResolutionBinding")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getVPCDnsResolutionBindingOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getVPCDnsResolutionBindingOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVPCDnsResolutionBinding")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -31676,12 +32000,12 @@ func (vpc *VpcV1) UpdateVPCDnsResolutionBindingWithContext(ctx context.Context, 
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateVPCDnsResolutionBinding")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateVPCDnsResolutionBindingOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range updateVPCDnsResolutionBindingOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateVPCDnsResolutionBinding")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -31760,12 +32084,12 @@ func (vpc *VpcV1) ListVPCRoutesWithContext(ctx context.Context, listVPCRoutesOpt
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVPCRoutes")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listVPCRoutesOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listVPCRoutesOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVPCRoutes")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -31820,7 +32144,7 @@ func (vpc *VpcV1) CreateVPCRoute(createVPCRouteOptions *CreateVPCRouteOptions) (
 
 // CreateVPCRouteWithContext is an alternate form of the CreateVPCRoute method which supports a Context parameter
 // Deprecated: this method is deprecated and may be removed in a future release.
-func (vpc *VpcV1) CreateVPCRouteWithContext(ctx context.Context, createVPCRouteOptions *CreateVPCRouteOptions) (result *Route, response *core.DetailedResponse, err error) {
+func (vpc *VpcV1) CreateVPCRouteWithContext(ctx context.Context, createVPCRouteOptions *CreateVPCRouteOptions) (result *CreateVPCRouteResponse, response *core.DetailedResponse, err error) {
 	core.GetLogger().Warn("A deprecated operation has been invoked: CreateVPCRoute")
 	err = core.ValidateNotNil(createVPCRouteOptions, "createVPCRouteOptions cannot be nil")
 	if err != nil {
@@ -31846,12 +32170,12 @@ func (vpc *VpcV1) CreateVPCRouteWithContext(ctx context.Context, createVPCRouteO
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateVPCRoute")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createVPCRouteOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range createVPCRouteOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateVPCRoute")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -31902,7 +32226,7 @@ func (vpc *VpcV1) CreateVPCRouteWithContext(ctx context.Context, createVPCRouteO
 		return
 	}
 	if rawResponse != nil {
-		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalRoute)
+		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalCreateVPCRouteResponse)
 		if err != nil {
 			err = core.SDKErrorf(err, "", "unmarshal-resp-error", common.GetComponentInfo())
 			return
@@ -31951,12 +32275,12 @@ func (vpc *VpcV1) DeleteVPCRouteWithContext(ctx context.Context, deleteVPCRouteO
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteVPCRoute")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteVPCRouteOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range deleteVPCRouteOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteVPCRoute")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -31982,7 +32306,7 @@ func (vpc *VpcV1) DeleteVPCRouteWithContext(ctx context.Context, deleteVPCRouteO
 // GetVPCRoute : Retrieve a VPC route
 // This request retrieves a single route specified by the identifier in the URL.
 // Deprecated: this method is deprecated and may be removed in a future release.
-func (vpc *VpcV1) GetVPCRoute(getVPCRouteOptions *GetVPCRouteOptions) (result *Route, response *core.DetailedResponse, err error) {
+func (vpc *VpcV1) GetVPCRoute(getVPCRouteOptions *GetVPCRouteOptions) (result *GetVPCRouteResponse, response *core.DetailedResponse, err error) {
 	result, response, err = vpc.GetVPCRouteWithContext(context.Background(), getVPCRouteOptions)
 	err = core.RepurposeSDKProblem(err, "")
 	return
@@ -31990,7 +32314,7 @@ func (vpc *VpcV1) GetVPCRoute(getVPCRouteOptions *GetVPCRouteOptions) (result *R
 
 // GetVPCRouteWithContext is an alternate form of the GetVPCRoute method which supports a Context parameter
 // Deprecated: this method is deprecated and may be removed in a future release.
-func (vpc *VpcV1) GetVPCRouteWithContext(ctx context.Context, getVPCRouteOptions *GetVPCRouteOptions) (result *Route, response *core.DetailedResponse, err error) {
+func (vpc *VpcV1) GetVPCRouteWithContext(ctx context.Context, getVPCRouteOptions *GetVPCRouteOptions) (result *GetVPCRouteResponse, response *core.DetailedResponse, err error) {
 	core.GetLogger().Warn("A deprecated operation has been invoked: GetVPCRoute")
 	err = core.ValidateNotNil(getVPCRouteOptions, "getVPCRouteOptions cannot be nil")
 	if err != nil {
@@ -32017,12 +32341,12 @@ func (vpc *VpcV1) GetVPCRouteWithContext(ctx context.Context, getVPCRouteOptions
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVPCRoute")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getVPCRouteOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getVPCRouteOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVPCRoute")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -32044,7 +32368,7 @@ func (vpc *VpcV1) GetVPCRouteWithContext(ctx context.Context, getVPCRouteOptions
 		return
 	}
 	if rawResponse != nil {
-		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalRoute)
+		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalGetVPCRouteResponse)
 		if err != nil {
 			err = core.SDKErrorf(err, "", "unmarshal-resp-error", common.GetComponentInfo())
 			return
@@ -32059,7 +32383,7 @@ func (vpc *VpcV1) GetVPCRouteWithContext(ctx context.Context, getVPCRouteOptions
 // This request updates a route with the information in a provided route patch. The route patch object is structured in
 // the same way as a retrieved route and contains only the information to be updated.
 // Deprecated: this method is deprecated and may be removed in a future release.
-func (vpc *VpcV1) UpdateVPCRoute(updateVPCRouteOptions *UpdateVPCRouteOptions) (result *Route, response *core.DetailedResponse, err error) {
+func (vpc *VpcV1) UpdateVPCRoute(updateVPCRouteOptions *UpdateVPCRouteOptions) (result *UpdateVPCRouteResponse, response *core.DetailedResponse, err error) {
 	result, response, err = vpc.UpdateVPCRouteWithContext(context.Background(), updateVPCRouteOptions)
 	err = core.RepurposeSDKProblem(err, "")
 	return
@@ -32067,7 +32391,7 @@ func (vpc *VpcV1) UpdateVPCRoute(updateVPCRouteOptions *UpdateVPCRouteOptions) (
 
 // UpdateVPCRouteWithContext is an alternate form of the UpdateVPCRoute method which supports a Context parameter
 // Deprecated: this method is deprecated and may be removed in a future release.
-func (vpc *VpcV1) UpdateVPCRouteWithContext(ctx context.Context, updateVPCRouteOptions *UpdateVPCRouteOptions) (result *Route, response *core.DetailedResponse, err error) {
+func (vpc *VpcV1) UpdateVPCRouteWithContext(ctx context.Context, updateVPCRouteOptions *UpdateVPCRouteOptions) (result *UpdateVPCRouteResponse, response *core.DetailedResponse, err error) {
 	core.GetLogger().Warn("A deprecated operation has been invoked: UpdateVPCRoute")
 	err = core.ValidateNotNil(updateVPCRouteOptions, "updateVPCRouteOptions cannot be nil")
 	if err != nil {
@@ -32094,12 +32418,12 @@ func (vpc *VpcV1) UpdateVPCRouteWithContext(ctx context.Context, updateVPCRouteO
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateVPCRoute")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateVPCRouteOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range updateVPCRouteOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateVPCRoute")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -32128,7 +32452,7 @@ func (vpc *VpcV1) UpdateVPCRouteWithContext(ctx context.Context, updateVPCRouteO
 		return
 	}
 	if rawResponse != nil {
-		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalRoute)
+		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalUpdateVPCRouteResponse)
 		if err != nil {
 			err = core.SDKErrorf(err, "", "unmarshal-resp-error", common.GetComponentInfo())
 			return
@@ -32176,12 +32500,12 @@ func (vpc *VpcV1) ListVPCRoutingTablesWithContext(ctx context.Context, listVPCRo
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVPCRoutingTables")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listVPCRoutingTablesOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listVPCRoutingTablesOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVPCRoutingTables")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -32261,12 +32585,12 @@ func (vpc *VpcV1) CreateVPCRoutingTableWithContext(ctx context.Context, createVP
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateVPCRoutingTable")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createVPCRoutingTableOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range createVPCRoutingTableOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateVPCRoutingTable")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -32367,12 +32691,12 @@ func (vpc *VpcV1) DeleteVPCRoutingTableWithContext(ctx context.Context, deleteVP
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteVPCRoutingTable")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteVPCRoutingTableOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range deleteVPCRoutingTableOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteVPCRoutingTable")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	if deleteVPCRoutingTableOptions.IfMatch != nil {
@@ -32433,12 +32757,12 @@ func (vpc *VpcV1) GetVPCRoutingTableWithContext(ctx context.Context, getVPCRouti
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVPCRoutingTable")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getVPCRoutingTableOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getVPCRoutingTableOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVPCRoutingTable")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -32507,12 +32831,12 @@ func (vpc *VpcV1) UpdateVPCRoutingTableWithContext(ctx context.Context, updateVP
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateVPCRoutingTable")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateVPCRoutingTableOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range updateVPCRoutingTableOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateVPCRoutingTable")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -32594,12 +32918,12 @@ func (vpc *VpcV1) ListVPCRoutingTableRoutesWithContext(ctx context.Context, list
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVPCRoutingTableRoutes")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listVPCRoutingTableRoutesOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listVPCRoutingTableRoutesOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVPCRoutingTableRoutes")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -32674,12 +32998,12 @@ func (vpc *VpcV1) CreateVPCRoutingTableRouteWithContext(ctx context.Context, cre
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateVPCRoutingTableRoute")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createVPCRoutingTableRouteOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range createVPCRoutingTableRouteOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateVPCRoutingTableRoute")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -32778,12 +33102,12 @@ func (vpc *VpcV1) DeleteVPCRoutingTableRouteWithContext(ctx context.Context, del
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteVPCRoutingTableRoute")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteVPCRoutingTableRouteOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range deleteVPCRoutingTableRouteOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteVPCRoutingTableRoute")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -32842,12 +33166,12 @@ func (vpc *VpcV1) GetVPCRoutingTableRouteWithContext(ctx context.Context, getVPC
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVPCRoutingTableRoute")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getVPCRoutingTableRouteOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getVPCRoutingTableRouteOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVPCRoutingTableRoute")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -32918,12 +33242,12 @@ func (vpc *VpcV1) UpdateVPCRoutingTableRouteWithContext(ctx context.Context, upd
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateVPCRoutingTableRoute")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateVPCRoutingTableRouteOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range updateVPCRoutingTableRouteOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateVPCRoutingTableRoute")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -32988,12 +33312,12 @@ func (vpc *VpcV1) ListIkePoliciesWithContext(ctx context.Context, listIkePolicie
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListIkePolicies")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listIkePoliciesOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listIkePoliciesOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListIkePolicies")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -33062,12 +33386,12 @@ func (vpc *VpcV1) CreateIkePolicyWithContext(ctx context.Context, createIkePolic
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateIkePolicy")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createIkePolicyOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range createIkePolicyOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateIkePolicy")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -33077,17 +33401,26 @@ func (vpc *VpcV1) CreateIkePolicyWithContext(ctx context.Context, createIkePolic
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
 
 	body := make(map[string]interface{})
+	if createIkePolicyOptions.IkeVersion != nil {
+		body["ike_version"] = createIkePolicyOptions.IkeVersion
+	}
 	if createIkePolicyOptions.AuthenticationAlgorithm != nil {
 		body["authentication_algorithm"] = createIkePolicyOptions.AuthenticationAlgorithm
+	}
+	if createIkePolicyOptions.AuthenticationAlgorithms != nil {
+		body["authentication_algorithms"] = createIkePolicyOptions.AuthenticationAlgorithms
 	}
 	if createIkePolicyOptions.DhGroup != nil {
 		body["dh_group"] = createIkePolicyOptions.DhGroup
 	}
+	if createIkePolicyOptions.DhGroups != nil {
+		body["dh_groups"] = createIkePolicyOptions.DhGroups
+	}
 	if createIkePolicyOptions.EncryptionAlgorithm != nil {
 		body["encryption_algorithm"] = createIkePolicyOptions.EncryptionAlgorithm
 	}
-	if createIkePolicyOptions.IkeVersion != nil {
-		body["ike_version"] = createIkePolicyOptions.IkeVersion
+	if createIkePolicyOptions.EncryptionAlgorithms != nil {
+		body["encryption_algorithms"] = createIkePolicyOptions.EncryptionAlgorithms
 	}
 	if createIkePolicyOptions.KeyLifetime != nil {
 		body["key_lifetime"] = createIkePolicyOptions.KeyLifetime
@@ -33164,12 +33497,12 @@ func (vpc *VpcV1) DeleteIkePolicyWithContext(ctx context.Context, deleteIkePolic
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteIkePolicy")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteIkePolicyOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range deleteIkePolicyOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteIkePolicy")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -33226,12 +33559,12 @@ func (vpc *VpcV1) GetIkePolicyWithContext(ctx context.Context, getIkePolicyOptio
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetIkePolicy")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getIkePolicyOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getIkePolicyOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetIkePolicy")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -33298,12 +33631,12 @@ func (vpc *VpcV1) UpdateIkePolicyWithContext(ctx context.Context, updateIkePolic
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateIkePolicy")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateIkePolicyOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range updateIkePolicyOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateIkePolicy")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -33377,12 +33710,12 @@ func (vpc *VpcV1) ListIkePolicyConnectionsWithContext(ctx context.Context, listI
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListIkePolicyConnections")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listIkePolicyConnectionsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listIkePolicyConnectionsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListIkePolicyConnections")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -33446,12 +33779,12 @@ func (vpc *VpcV1) ListIpsecPoliciesWithContext(ctx context.Context, listIpsecPol
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListIpsecPolicies")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listIpsecPoliciesOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listIpsecPoliciesOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListIpsecPolicies")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -33520,12 +33853,12 @@ func (vpc *VpcV1) CreateIpsecPolicyWithContext(ctx context.Context, createIpsecP
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateIpsecPolicy")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createIpsecPolicyOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range createIpsecPolicyOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateIpsecPolicy")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -33538,17 +33871,26 @@ func (vpc *VpcV1) CreateIpsecPolicyWithContext(ctx context.Context, createIpsecP
 	if createIpsecPolicyOptions.AuthenticationAlgorithm != nil {
 		body["authentication_algorithm"] = createIpsecPolicyOptions.AuthenticationAlgorithm
 	}
+	if createIpsecPolicyOptions.AuthenticationAlgorithms != nil {
+		body["authentication_algorithms"] = createIpsecPolicyOptions.AuthenticationAlgorithms
+	}
 	if createIpsecPolicyOptions.EncryptionAlgorithm != nil {
 		body["encryption_algorithm"] = createIpsecPolicyOptions.EncryptionAlgorithm
 	}
-	if createIpsecPolicyOptions.Pfs != nil {
-		body["pfs"] = createIpsecPolicyOptions.Pfs
+	if createIpsecPolicyOptions.EncryptionAlgorithms != nil {
+		body["encryption_algorithms"] = createIpsecPolicyOptions.EncryptionAlgorithms
 	}
 	if createIpsecPolicyOptions.KeyLifetime != nil {
 		body["key_lifetime"] = createIpsecPolicyOptions.KeyLifetime
 	}
 	if createIpsecPolicyOptions.Name != nil {
 		body["name"] = createIpsecPolicyOptions.Name
+	}
+	if createIpsecPolicyOptions.Pfs != nil {
+		body["pfs"] = createIpsecPolicyOptions.Pfs
+	}
+	if createIpsecPolicyOptions.PfsGroups != nil {
+		body["pfs_groups"] = createIpsecPolicyOptions.PfsGroups
 	}
 	if createIpsecPolicyOptions.ResourceGroup != nil {
 		body["resource_group"] = createIpsecPolicyOptions.ResourceGroup
@@ -33619,12 +33961,12 @@ func (vpc *VpcV1) DeleteIpsecPolicyWithContext(ctx context.Context, deleteIpsecP
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteIpsecPolicy")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteIpsecPolicyOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range deleteIpsecPolicyOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteIpsecPolicy")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -33681,12 +34023,12 @@ func (vpc *VpcV1) GetIpsecPolicyWithContext(ctx context.Context, getIpsecPolicyO
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetIpsecPolicy")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getIpsecPolicyOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getIpsecPolicyOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetIpsecPolicy")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -33753,12 +34095,12 @@ func (vpc *VpcV1) UpdateIpsecPolicyWithContext(ctx context.Context, updateIpsecP
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateIpsecPolicy")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateIpsecPolicyOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range updateIpsecPolicyOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateIpsecPolicy")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -33832,12 +34174,12 @@ func (vpc *VpcV1) ListIpsecPolicyConnectionsWithContext(ctx context.Context, lis
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListIpsecPolicyConnections")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listIpsecPolicyConnectionsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listIpsecPolicyConnectionsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListIpsecPolicyConnections")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -33901,12 +34243,12 @@ func (vpc *VpcV1) ListVPNGatewaysWithContext(ctx context.Context, listVPNGateway
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVPNGateways")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listVPNGatewaysOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listVPNGatewaysOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVPNGateways")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -33984,12 +34326,12 @@ func (vpc *VpcV1) CreateVPNGatewayWithContext(ctx context.Context, createVPNGate
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateVPNGateway")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createVPNGatewayOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range createVPNGatewayOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateVPNGateway")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -34065,12 +34407,12 @@ func (vpc *VpcV1) DeleteVPNGatewayWithContext(ctx context.Context, deleteVPNGate
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteVPNGateway")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteVPNGatewayOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range deleteVPNGatewayOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteVPNGateway")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -34127,12 +34469,12 @@ func (vpc *VpcV1) GetVPNGatewayWithContext(ctx context.Context, getVPNGatewayOpt
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVPNGateway")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getVPNGatewayOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getVPNGatewayOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVPNGateway")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -34199,12 +34541,12 @@ func (vpc *VpcV1) UpdateVPNGatewayWithContext(ctx context.Context, updateVPNGate
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateVPNGateway")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateVPNGatewayOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range updateVPNGatewayOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateVPNGateway")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -34244,31 +34586,31 @@ func (vpc *VpcV1) UpdateVPNGatewayWithContext(ctx context.Context, updateVPNGate
 	return
 }
 
-// ListVPNGatewayAdvertisedCIDRs : List advertised CIDRs for a VPN gateway
+// ListVPNGatewayAdvertisedCidrs : List advertised CIDRs for a VPN gateway
 // This request lists advertised CIDRs for a VPN gateway.
 //
 // This request is only supported for route mode VPN gateways.
-func (vpc *VpcV1) ListVPNGatewayAdvertisedCIDRs(listVPNGatewayAdvertisedCIDRsOptions *ListVPNGatewayAdvertisedCIDRsOptions) (result *VPNGatewayAdvertisedCIDRCollection, response *core.DetailedResponse, err error) {
-	result, response, err = vpc.ListVPNGatewayAdvertisedCIDRsWithContext(context.Background(), listVPNGatewayAdvertisedCIDRsOptions)
+func (vpc *VpcV1) ListVPNGatewayAdvertisedCidrs(listVPNGatewayAdvertisedCidrsOptions *ListVPNGatewayAdvertisedCidrsOptions) (result *VPNGatewayAdvertisedCIDRCollection, response *core.DetailedResponse, err error) {
+	result, response, err = vpc.ListVPNGatewayAdvertisedCidrsWithContext(context.Background(), listVPNGatewayAdvertisedCidrsOptions)
 	err = core.RepurposeSDKProblem(err, "")
 	return
 }
 
-// ListVPNGatewayAdvertisedCIDRsWithContext is an alternate form of the ListVPNGatewayAdvertisedCIDRs method which supports a Context parameter
-func (vpc *VpcV1) ListVPNGatewayAdvertisedCIDRsWithContext(ctx context.Context, listVPNGatewayAdvertisedCIDRsOptions *ListVPNGatewayAdvertisedCIDRsOptions) (result *VPNGatewayAdvertisedCIDRCollection, response *core.DetailedResponse, err error) {
-	err = core.ValidateNotNil(listVPNGatewayAdvertisedCIDRsOptions, "listVPNGatewayAdvertisedCIDRsOptions cannot be nil")
+// ListVPNGatewayAdvertisedCidrsWithContext is an alternate form of the ListVPNGatewayAdvertisedCidrs method which supports a Context parameter
+func (vpc *VpcV1) ListVPNGatewayAdvertisedCidrsWithContext(ctx context.Context, listVPNGatewayAdvertisedCidrsOptions *ListVPNGatewayAdvertisedCidrsOptions) (result *VPNGatewayAdvertisedCIDRCollection, response *core.DetailedResponse, err error) {
+	err = core.ValidateNotNil(listVPNGatewayAdvertisedCidrsOptions, "listVPNGatewayAdvertisedCidrsOptions cannot be nil")
 	if err != nil {
 		err = core.SDKErrorf(err, "", "unexpected-nil-param", common.GetComponentInfo())
 		return
 	}
-	err = core.ValidateStruct(listVPNGatewayAdvertisedCIDRsOptions, "listVPNGatewayAdvertisedCIDRsOptions")
+	err = core.ValidateStruct(listVPNGatewayAdvertisedCidrsOptions, "listVPNGatewayAdvertisedCidrsOptions")
 	if err != nil {
 		err = core.SDKErrorf(err, "", "struct-validation-error", common.GetComponentInfo())
 		return
 	}
 
 	pathParamsMap := map[string]string{
-		"vpn_gateway_id": *listVPNGatewayAdvertisedCIDRsOptions.VPNGatewayID,
+		"vpn_gateway_id": *listVPNGatewayAdvertisedCidrsOptions.VPNGatewayID,
 	}
 
 	builder := core.NewRequestBuilder(core.GET)
@@ -34280,12 +34622,12 @@ func (vpc *VpcV1) ListVPNGatewayAdvertisedCIDRsWithContext(ctx context.Context, 
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVPNGatewayAdvertisedCIDRs")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listVPNGatewayAdvertisedCidrsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listVPNGatewayAdvertisedCIDRsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVPNGatewayAdvertisedCidrs")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -34355,12 +34697,12 @@ func (vpc *VpcV1) RemoveVPNGatewayAdvertisedCIDRWithContext(ctx context.Context,
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "RemoveVPNGatewayAdvertisedCIDR")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range removeVPNGatewayAdvertisedCIDROptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range removeVPNGatewayAdvertisedCIDROptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "RemoveVPNGatewayAdvertisedCIDR")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -34420,12 +34762,12 @@ func (vpc *VpcV1) CheckVPNGatewayAdvertisedCIDRWithContext(ctx context.Context, 
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CheckVPNGatewayAdvertisedCIDR")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range checkVPNGatewayAdvertisedCIDROptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range checkVPNGatewayAdvertisedCIDROptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CheckVPNGatewayAdvertisedCIDR")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -34486,12 +34828,12 @@ func (vpc *VpcV1) AddVPNGatewayAdvertisedCIDRWithContext(ctx context.Context, ad
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "AddVPNGatewayAdvertisedCIDR")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range addVPNGatewayAdvertisedCIDROptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range addVPNGatewayAdvertisedCIDROptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "AddVPNGatewayAdvertisedCIDR")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -34548,12 +34890,12 @@ func (vpc *VpcV1) ListVPNGatewayConnectionsWithContext(ctx context.Context, list
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVPNGatewayConnections")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listVPNGatewayConnectionsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listVPNGatewayConnectionsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVPNGatewayConnections")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -34629,12 +34971,12 @@ func (vpc *VpcV1) CreateVPNGatewayConnectionWithContext(ctx context.Context, cre
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateVPNGatewayConnection")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createVPNGatewayConnectionOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range createVPNGatewayConnectionOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateVPNGatewayConnection")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -34710,12 +35052,12 @@ func (vpc *VpcV1) DeleteVPNGatewayConnectionWithContext(ctx context.Context, del
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteVPNGatewayConnection")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteVPNGatewayConnectionOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range deleteVPNGatewayConnectionOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteVPNGatewayConnection")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	if deleteVPNGatewayConnectionOptions.IfMatch != nil {
@@ -34776,12 +35118,12 @@ func (vpc *VpcV1) GetVPNGatewayConnectionWithContext(ctx context.Context, getVPN
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVPNGatewayConnection")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getVPNGatewayConnectionOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getVPNGatewayConnectionOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVPNGatewayConnection")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -34849,12 +35191,12 @@ func (vpc *VpcV1) UpdateVPNGatewayConnectionWithContext(ctx context.Context, upd
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateVPNGatewayConnection")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateVPNGatewayConnectionOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range updateVPNGatewayConnectionOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateVPNGatewayConnection")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -34897,32 +35239,32 @@ func (vpc *VpcV1) UpdateVPNGatewayConnectionWithContext(ctx context.Context, upd
 	return
 }
 
-// ListVPNGatewayConnectionsLocalCIDRs : List local CIDRs for a VPN gateway connection
+// ListVPNGatewayConnectionsLocalCidrs : List local CIDRs for a VPN gateway connection
 // This request lists local CIDRs for a VPN gateway connection.
 //
 // This request is only supported for policy mode VPN gateways.
-func (vpc *VpcV1) ListVPNGatewayConnectionsLocalCIDRs(listVPNGatewayConnectionsLocalCIDRsOptions *ListVPNGatewayConnectionsLocalCIDRsOptions) (result *VPNGatewayConnectionCIDRs, response *core.DetailedResponse, err error) {
-	result, response, err = vpc.ListVPNGatewayConnectionsLocalCIDRsWithContext(context.Background(), listVPNGatewayConnectionsLocalCIDRsOptions)
+func (vpc *VpcV1) ListVPNGatewayConnectionsLocalCidrs(listVPNGatewayConnectionsLocalCidrsOptions *ListVPNGatewayConnectionsLocalCidrsOptions) (result *VPNGatewayConnectionCidRs, response *core.DetailedResponse, err error) {
+	result, response, err = vpc.ListVPNGatewayConnectionsLocalCidrsWithContext(context.Background(), listVPNGatewayConnectionsLocalCidrsOptions)
 	err = core.RepurposeSDKProblem(err, "")
 	return
 }
 
-// ListVPNGatewayConnectionsLocalCIDRsWithContext is an alternate form of the ListVPNGatewayConnectionsLocalCIDRs method which supports a Context parameter
-func (vpc *VpcV1) ListVPNGatewayConnectionsLocalCIDRsWithContext(ctx context.Context, listVPNGatewayConnectionsLocalCIDRsOptions *ListVPNGatewayConnectionsLocalCIDRsOptions) (result *VPNGatewayConnectionCIDRs, response *core.DetailedResponse, err error) {
-	err = core.ValidateNotNil(listVPNGatewayConnectionsLocalCIDRsOptions, "listVPNGatewayConnectionsLocalCIDRsOptions cannot be nil")
+// ListVPNGatewayConnectionsLocalCidrsWithContext is an alternate form of the ListVPNGatewayConnectionsLocalCidrs method which supports a Context parameter
+func (vpc *VpcV1) ListVPNGatewayConnectionsLocalCidrsWithContext(ctx context.Context, listVPNGatewayConnectionsLocalCidrsOptions *ListVPNGatewayConnectionsLocalCidrsOptions) (result *VPNGatewayConnectionCidRs, response *core.DetailedResponse, err error) {
+	err = core.ValidateNotNil(listVPNGatewayConnectionsLocalCidrsOptions, "listVPNGatewayConnectionsLocalCidrsOptions cannot be nil")
 	if err != nil {
 		err = core.SDKErrorf(err, "", "unexpected-nil-param", common.GetComponentInfo())
 		return
 	}
-	err = core.ValidateStruct(listVPNGatewayConnectionsLocalCIDRsOptions, "listVPNGatewayConnectionsLocalCIDRsOptions")
+	err = core.ValidateStruct(listVPNGatewayConnectionsLocalCidrsOptions, "listVPNGatewayConnectionsLocalCidrsOptions")
 	if err != nil {
 		err = core.SDKErrorf(err, "", "struct-validation-error", common.GetComponentInfo())
 		return
 	}
 
 	pathParamsMap := map[string]string{
-		"vpn_gateway_id": *listVPNGatewayConnectionsLocalCIDRsOptions.VPNGatewayID,
-		"id":             *listVPNGatewayConnectionsLocalCIDRsOptions.ID,
+		"vpn_gateway_id": *listVPNGatewayConnectionsLocalCidrsOptions.VPNGatewayID,
+		"id":             *listVPNGatewayConnectionsLocalCidrsOptions.ID,
 	}
 
 	builder := core.NewRequestBuilder(core.GET)
@@ -34934,12 +35276,12 @@ func (vpc *VpcV1) ListVPNGatewayConnectionsLocalCIDRsWithContext(ctx context.Con
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVPNGatewayConnectionsLocalCIDRs")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listVPNGatewayConnectionsLocalCidrsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listVPNGatewayConnectionsLocalCIDRsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVPNGatewayConnectionsLocalCidrs")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -34961,7 +35303,7 @@ func (vpc *VpcV1) ListVPNGatewayConnectionsLocalCIDRsWithContext(ctx context.Con
 		return
 	}
 	if rawResponse != nil {
-		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalVPNGatewayConnectionCIDRs)
+		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalVPNGatewayConnectionCidRs)
 		if err != nil {
 			err = core.SDKErrorf(err, "", "unmarshal-resp-error", common.GetComponentInfo())
 			return
@@ -35010,12 +35352,12 @@ func (vpc *VpcV1) RemoveVPNGatewayConnectionsLocalCIDRWithContext(ctx context.Co
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "RemoveVPNGatewayConnectionsLocalCIDR")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range removeVPNGatewayConnectionsLocalCIDROptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range removeVPNGatewayConnectionsLocalCIDROptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "RemoveVPNGatewayConnectionsLocalCIDR")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -35076,12 +35418,12 @@ func (vpc *VpcV1) CheckVPNGatewayConnectionsLocalCIDRWithContext(ctx context.Con
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CheckVPNGatewayConnectionsLocalCIDR")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range checkVPNGatewayConnectionsLocalCIDROptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range checkVPNGatewayConnectionsLocalCIDROptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CheckVPNGatewayConnectionsLocalCIDR")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -35143,12 +35485,12 @@ func (vpc *VpcV1) AddVPNGatewayConnectionsLocalCIDRWithContext(ctx context.Conte
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "AddVPNGatewayConnectionsLocalCIDR")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range addVPNGatewayConnectionsLocalCIDROptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range addVPNGatewayConnectionsLocalCIDROptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "AddVPNGatewayConnectionsLocalCIDR")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -35171,32 +35513,32 @@ func (vpc *VpcV1) AddVPNGatewayConnectionsLocalCIDRWithContext(ctx context.Conte
 	return
 }
 
-// ListVPNGatewayConnectionsPeerCIDRs : List peer CIDRs for a VPN gateway connection
+// ListVPNGatewayConnectionsPeerCidrs : List peer CIDRs for a VPN gateway connection
 // This request lists peer CIDRs for a VPN gateway connection.
 //
 // This request is only supported for policy mode VPN gateways.
-func (vpc *VpcV1) ListVPNGatewayConnectionsPeerCIDRs(listVPNGatewayConnectionsPeerCIDRsOptions *ListVPNGatewayConnectionsPeerCIDRsOptions) (result *VPNGatewayConnectionCIDRs, response *core.DetailedResponse, err error) {
-	result, response, err = vpc.ListVPNGatewayConnectionsPeerCIDRsWithContext(context.Background(), listVPNGatewayConnectionsPeerCIDRsOptions)
+func (vpc *VpcV1) ListVPNGatewayConnectionsPeerCidrs(listVPNGatewayConnectionsPeerCidrsOptions *ListVPNGatewayConnectionsPeerCidrsOptions) (result *VPNGatewayConnectionCidRs, response *core.DetailedResponse, err error) {
+	result, response, err = vpc.ListVPNGatewayConnectionsPeerCidrsWithContext(context.Background(), listVPNGatewayConnectionsPeerCidrsOptions)
 	err = core.RepurposeSDKProblem(err, "")
 	return
 }
 
-// ListVPNGatewayConnectionsPeerCIDRsWithContext is an alternate form of the ListVPNGatewayConnectionsPeerCIDRs method which supports a Context parameter
-func (vpc *VpcV1) ListVPNGatewayConnectionsPeerCIDRsWithContext(ctx context.Context, listVPNGatewayConnectionsPeerCIDRsOptions *ListVPNGatewayConnectionsPeerCIDRsOptions) (result *VPNGatewayConnectionCIDRs, response *core.DetailedResponse, err error) {
-	err = core.ValidateNotNil(listVPNGatewayConnectionsPeerCIDRsOptions, "listVPNGatewayConnectionsPeerCIDRsOptions cannot be nil")
+// ListVPNGatewayConnectionsPeerCidrsWithContext is an alternate form of the ListVPNGatewayConnectionsPeerCidrs method which supports a Context parameter
+func (vpc *VpcV1) ListVPNGatewayConnectionsPeerCidrsWithContext(ctx context.Context, listVPNGatewayConnectionsPeerCidrsOptions *ListVPNGatewayConnectionsPeerCidrsOptions) (result *VPNGatewayConnectionCidRs, response *core.DetailedResponse, err error) {
+	err = core.ValidateNotNil(listVPNGatewayConnectionsPeerCidrsOptions, "listVPNGatewayConnectionsPeerCidrsOptions cannot be nil")
 	if err != nil {
 		err = core.SDKErrorf(err, "", "unexpected-nil-param", common.GetComponentInfo())
 		return
 	}
-	err = core.ValidateStruct(listVPNGatewayConnectionsPeerCIDRsOptions, "listVPNGatewayConnectionsPeerCIDRsOptions")
+	err = core.ValidateStruct(listVPNGatewayConnectionsPeerCidrsOptions, "listVPNGatewayConnectionsPeerCidrsOptions")
 	if err != nil {
 		err = core.SDKErrorf(err, "", "struct-validation-error", common.GetComponentInfo())
 		return
 	}
 
 	pathParamsMap := map[string]string{
-		"vpn_gateway_id": *listVPNGatewayConnectionsPeerCIDRsOptions.VPNGatewayID,
-		"id":             *listVPNGatewayConnectionsPeerCIDRsOptions.ID,
+		"vpn_gateway_id": *listVPNGatewayConnectionsPeerCidrsOptions.VPNGatewayID,
+		"id":             *listVPNGatewayConnectionsPeerCidrsOptions.ID,
 	}
 
 	builder := core.NewRequestBuilder(core.GET)
@@ -35208,12 +35550,12 @@ func (vpc *VpcV1) ListVPNGatewayConnectionsPeerCIDRsWithContext(ctx context.Cont
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVPNGatewayConnectionsPeerCIDRs")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listVPNGatewayConnectionsPeerCidrsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listVPNGatewayConnectionsPeerCIDRsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVPNGatewayConnectionsPeerCidrs")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -35235,7 +35577,7 @@ func (vpc *VpcV1) ListVPNGatewayConnectionsPeerCIDRsWithContext(ctx context.Cont
 		return
 	}
 	if rawResponse != nil {
-		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalVPNGatewayConnectionCIDRs)
+		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalVPNGatewayConnectionCidRs)
 		if err != nil {
 			err = core.SDKErrorf(err, "", "unmarshal-resp-error", common.GetComponentInfo())
 			return
@@ -35284,12 +35626,12 @@ func (vpc *VpcV1) RemoveVPNGatewayConnectionsPeerCIDRWithContext(ctx context.Con
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "RemoveVPNGatewayConnectionsPeerCIDR")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range removeVPNGatewayConnectionsPeerCIDROptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range removeVPNGatewayConnectionsPeerCIDROptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "RemoveVPNGatewayConnectionsPeerCIDR")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -35350,12 +35692,12 @@ func (vpc *VpcV1) CheckVPNGatewayConnectionsPeerCIDRWithContext(ctx context.Cont
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CheckVPNGatewayConnectionsPeerCIDR")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range checkVPNGatewayConnectionsPeerCIDROptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range checkVPNGatewayConnectionsPeerCIDROptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CheckVPNGatewayConnectionsPeerCIDR")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -35417,12 +35759,12 @@ func (vpc *VpcV1) AddVPNGatewayConnectionsPeerCIDRWithContext(ctx context.Contex
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "AddVPNGatewayConnectionsPeerCIDR")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range addVPNGatewayConnectionsPeerCIDROptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range addVPNGatewayConnectionsPeerCIDROptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "AddVPNGatewayConnectionsPeerCIDR")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -35482,12 +35824,12 @@ func (vpc *VpcV1) ListVPNGatewayServiceConnectionsWithContext(ctx context.Contex
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVPNGatewayServiceConnections")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listVPNGatewayServiceConnectionsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listVPNGatewayServiceConnectionsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVPNGatewayServiceConnections")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -35561,12 +35903,12 @@ func (vpc *VpcV1) GetVPNGatewayServiceConnectionWithContext(ctx context.Context,
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVPNGatewayServiceConnection")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getVPNGatewayServiceConnectionOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getVPNGatewayServiceConnectionOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVPNGatewayServiceConnection")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -35624,12 +35966,12 @@ func (vpc *VpcV1) ListVPNServersWithContext(ctx context.Context, listVPNServersO
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVPNServers")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listVPNServersOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listVPNServersOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVPNServers")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -35707,12 +36049,12 @@ func (vpc *VpcV1) CreateVPNServerWithContext(ctx context.Context, createVPNServe
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateVPNServer")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createVPNServerOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range createVPNServerOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateVPNServer")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -35823,12 +36165,12 @@ func (vpc *VpcV1) DeleteVPNServerWithContext(ctx context.Context, deleteVPNServe
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteVPNServer")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteVPNServerOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range deleteVPNServerOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteVPNServer")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	if deleteVPNServerOptions.IfMatch != nil {
@@ -35888,12 +36230,12 @@ func (vpc *VpcV1) GetVPNServerWithContext(ctx context.Context, getVPNServerOptio
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVPNServer")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getVPNServerOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getVPNServerOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVPNServer")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -35961,12 +36303,12 @@ func (vpc *VpcV1) UpdateVPNServerWithContext(ctx context.Context, updateVPNServe
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateVPNServer")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateVPNServerOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range updateVPNServerOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateVPNServer")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -36044,12 +36386,12 @@ func (vpc *VpcV1) GetVPNServerClientConfigurationWithContext(ctx context.Context
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVPNServerClientConfiguration")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getVPNServerClientConfigurationOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getVPNServerClientConfigurationOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVPNServerClientConfiguration")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "text/plain")
@@ -36108,12 +36450,12 @@ func (vpc *VpcV1) ListVPNServerClientsWithContext(ctx context.Context, listVPNSe
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVPNServerClients")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listVPNServerClientsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listVPNServerClientsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVPNServerClients")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -36192,12 +36534,12 @@ func (vpc *VpcV1) DeleteVPNServerClientWithContext(ctx context.Context, deleteVP
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteVPNServerClient")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteVPNServerClientOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range deleteVPNServerClientOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteVPNServerClient")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -36255,12 +36597,12 @@ func (vpc *VpcV1) GetVPNServerClientWithContext(ctx context.Context, getVPNServe
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVPNServerClient")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getVPNServerClientOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getVPNServerClientOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVPNServerClient")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -36330,12 +36672,12 @@ func (vpc *VpcV1) DisconnectVPNClientWithContext(ctx context.Context, disconnect
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DisconnectVPNClient")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range disconnectVPNClientOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range disconnectVPNClientOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DisconnectVPNClient")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -36394,12 +36736,12 @@ func (vpc *VpcV1) ListVPNServerRoutesWithContext(ctx context.Context, listVPNSer
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVPNServerRoutes")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listVPNServerRoutesOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range listVPNServerRoutesOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVPNServerRoutes")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -36477,12 +36819,12 @@ func (vpc *VpcV1) CreateVPNServerRouteWithContext(ctx context.Context, createVPN
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateVPNServerRoute")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createVPNServerRouteOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range createVPNServerRouteOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateVPNServerRoute")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -36567,12 +36909,12 @@ func (vpc *VpcV1) DeleteVPNServerRouteWithContext(ctx context.Context, deleteVPN
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteVPNServerRoute")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteVPNServerRouteOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range deleteVPNServerRouteOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteVPNServerRoute")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -36630,12 +36972,12 @@ func (vpc *VpcV1) GetVPNServerRouteWithContext(ctx context.Context, getVPNServer
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVPNServerRoute")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getVPNServerRouteOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range getVPNServerRouteOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVPNServerRoute")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -36704,12 +37046,12 @@ func (vpc *VpcV1) UpdateVPNServerRouteWithContext(ctx context.Context, updateVPN
 		return
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateVPNServerRoute")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateVPNServerRouteOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	for headerName, headerValue := range updateVPNServerRouteOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateVPNServerRoute")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -36749,7 +37091,7 @@ func (vpc *VpcV1) UpdateVPNServerRouteWithContext(ctx context.Context, updateVPN
 	return
 }
 func getServiceComponentInfo() *core.ProblemComponent {
-	return core.NewProblemComponent(DefaultServiceName, "2025-09-16")
+	return core.NewProblemComponent(DefaultServiceName, "2026-04-07")
 }
 
 // AccountIdentity : Identifies an account by a unique property.
@@ -37911,6 +38253,55 @@ func (resp *BackupPolicyJobCollection) GetNextStart() (*string, error) {
 		return nil, nil
 	}
 	return start, nil
+}
+
+// BackupPolicyJobReference : BackupPolicyJobReference struct
+type BackupPolicyJobReference struct {
+	// If present, this property indicates the referenced resource has been deleted, and provides
+	// some supplementary information.
+	Deleted *Deleted `json:"deleted,omitempty"`
+
+	// The URL for this backup policy job.
+	Href *string `json:"href" validate:"required"`
+
+	// The unique identifier for this backup policy job.
+	ID *string `json:"id" validate:"required"`
+
+	// The resource type.
+	ResourceType *string `json:"resource_type" validate:"required"`
+}
+
+// Constants associated with the BackupPolicyJobReference.ResourceType property.
+// The resource type.
+const (
+	BackupPolicyJobReferenceResourceTypeBackupPolicyJobConst = "backup_policy_job"
+)
+
+// UnmarshalBackupPolicyJobReference unmarshals an instance of BackupPolicyJobReference from the specified map of raw messages.
+func UnmarshalBackupPolicyJobReference(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(BackupPolicyJobReference)
+	err = core.UnmarshalModel(m, "deleted", &obj.Deleted, UnmarshalDeleted)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "deleted-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "href-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "id-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "resource_type-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
 }
 
 // BackupPolicyJobSource : The source this backup was created from (may be
@@ -40186,12 +40577,13 @@ type BareMetalServerInitializationPrototype struct {
 	// cloud-init vendor data. For cloud-init enabled images, these keys will also be added as SSH authorized keys for the
 	// [default user](https://cloud.ibm.com/docs/vpc?topic=vpc-vsi_is_connecting_linux#determining-default-user-account).
 	//
-	// For Windows images, at least one key must be specified, and one will be selected to encrypt the administrator
-	// password. Keys are optional for other images, but if no keys are specified, the bare metal server will be
-	// inaccessible unless the specified image provides another means of access.
+	// For Windows images, at least one SSH key of type `rsa` must be specified. One of the provided keys is selected to
+	// encrypt the administrator password. SSH keys are optional for other images; however, if no keys are specified, the
+	// bare metal server will be inaccessible unless the selected image provides an alternative access mechanism.
 	Keys []KeyIdentityIntf `json:"keys" validate:"required"`
 
-	// The user data to be made available when initializing the bare metal server.
+	// The [user data](https://cloud.ibm.com/docs/vpc?topic=vpc-user-data) to make available when setting up the bare metal
+	// server.
 	UserData *string `json:"user_data,omitempty"`
 }
 
@@ -44021,7 +44413,7 @@ func UnmarshalCatalogOfferingVersionReference(m map[string]json.RawMessage, resu
 
 // CertificateInstanceIdentity : Identifies a certificate instance by a unique property.
 // Models which "extend" this model:
-// - CertificateInstanceIdentityByCRN
+// - CertificateInstanceIdentityCertificateInstanceIdentityByCRN
 type CertificateInstanceIdentity struct {
 	// The CRN for this certificate instance.
 	CRN *string `json:"crn,omitempty"`
@@ -47285,6 +47677,11 @@ type CreateFloatingIPOptions struct {
 	// - a virtual network interface with `enable_infrastructure_nat` set to `true`
 	//
 	// If `address` is specified and the floating IP will be allocated from a public address
+	// range authorized CIDR, the target cannot be:
+	// - an instance network interface
+	// - a bare metal server network interface
+	//
+	// If `address` is specified and the floating IP will be allocated from a public address
 	// range authorized CIDR with an `availability_mode` value of `zonal`, the target must reside
 	// in the same `zone` as the authorized CIDR.
 	Target FloatingIPTargetPrototypeIntf `json:"target,omitempty"`
@@ -47430,17 +47827,62 @@ func (options *CreateFlowLogCollectorOptions) SetHeaders(param map[string]string
 
 // CreateIkePolicyOptions : The CreateIkePolicy options.
 type CreateIkePolicyOptions struct {
-	// The authentication algorithm.
-	AuthenticationAlgorithm *string `json:"authentication_algorithm" validate:"required"`
-
-	// The Diffie-Hellman group.
-	DhGroup *int64 `json:"dh_group" validate:"required"`
-
-	// The encryption algorithm.
-	EncryptionAlgorithm *string `json:"encryption_algorithm" validate:"required"`
-
 	// The IKE protocol version.
 	IkeVersion *int64 `json:"ike_version" validate:"required"`
+
+	// The authentication algorithm.
+	//
+	// `authentication_algorithm` has been deprecated. Use `authentication_algorithms` instead.
+	//
+	// If  specified, `authentication_algorithms` must not be specified.
+	// Deprecated: this field is deprecated and may be removed in a future release.
+	AuthenticationAlgorithm *string `json:"authentication_algorithm,omitempty"`
+
+	// The authentication algorithms to use for IKE Negotiation.
+	//
+	// If specified, `authentication_algorithm` must not be specified.
+	//
+	// If the IKE policy's `ike_version` is `1`, this array must contain exactly one algorithm.
+	//
+	// The order of the algorithms in this array indicates their priority for negotiation, with each algorithm having
+	// priority over the one after it.
+	AuthenticationAlgorithms []string `json:"authentication_algorithms,omitempty"`
+
+	// The Diffie-Hellman group.
+	//
+	// `dh_group` has been deprecated. Use `dh_groups` instead.
+	//
+	// If  specified, `dh_groups` must not be specified.
+	// Deprecated: this field is deprecated and may be removed in a future release.
+	DhGroup *int64 `json:"dh_group,omitempty"`
+
+	// The Diffie-Hellman groups to use for IKE negotiation.
+	//
+	// If  specified, `dh_group` must not be specified.
+	//
+	// If the IKE policy's `ike_version` is `1`, this array must contain exactly one algorithm.
+	//
+	// The order of the Diffie-Hellman groups in this array indicates their priority for negotiation, with each
+	// Diffie-Hellman group having priority over the one after it.
+	DhGroups []int64 `json:"dh_groups,omitempty"`
+
+	// The encryption algorithm.
+	//
+	// `encryption_algorithm` has been deprecated. Use `encryption_algorithms` instead.
+	//
+	// If  specified, `encryption_algorithms` must not be specified.
+	// Deprecated: this field is deprecated and may be removed in a future release.
+	EncryptionAlgorithm *string `json:"encryption_algorithm,omitempty"`
+
+	// The encryption algorithms to use for IKE Negotiation.
+	//
+	// If  specified, `encryption_algorithm` must not be specified.
+	//
+	// If the IKE policy's `ike_version` is `1`, this array must contain exactly one algorithm.
+	//
+	// The order of the algorithms in this array indicates their priority for negotiation, with each algorithm having
+	// priority over the one after it.
+	EncryptionAlgorithms []string `json:"encryption_algorithms,omitempty"`
 
 	// The key lifetime in seconds.
 	KeyLifetime *int64 `json:"key_lifetime,omitempty"`
@@ -47459,51 +47901,91 @@ type CreateIkePolicyOptions struct {
 
 // Constants associated with the CreateIkePolicyOptions.AuthenticationAlgorithm property.
 // The authentication algorithm.
+//
+// `authentication_algorithm` has been deprecated. Use `authentication_algorithms` instead.
+//
+// If  specified, `authentication_algorithms` must not be specified.
 const (
 	CreateIkePolicyOptionsAuthenticationAlgorithmSha256Const = "sha256"
 	CreateIkePolicyOptionsAuthenticationAlgorithmSha384Const = "sha384"
 	CreateIkePolicyOptionsAuthenticationAlgorithmSha512Const = "sha512"
 )
 
+// Constants associated with the CreateIkePolicyOptions.AuthenticationAlgorithms property.
+const (
+	CreateIkePolicyOptionsAuthenticationAlgorithmsSha256Const = "sha256"
+	CreateIkePolicyOptionsAuthenticationAlgorithmsSha384Const = "sha384"
+	CreateIkePolicyOptionsAuthenticationAlgorithmsSha512Const = "sha512"
+)
+
 // Constants associated with the CreateIkePolicyOptions.EncryptionAlgorithm property.
 // The encryption algorithm.
+//
+// `encryption_algorithm` has been deprecated. Use `encryption_algorithms` instead.
+//
+// If  specified, `encryption_algorithms` must not be specified.
 const (
 	CreateIkePolicyOptionsEncryptionAlgorithmAes128Const = "aes128"
 	CreateIkePolicyOptionsEncryptionAlgorithmAes192Const = "aes192"
 	CreateIkePolicyOptionsEncryptionAlgorithmAes256Const = "aes256"
 )
 
+// Constants associated with the CreateIkePolicyOptions.EncryptionAlgorithms property.
+const (
+	CreateIkePolicyOptionsEncryptionAlgorithmsAes128Const = "aes128"
+	CreateIkePolicyOptionsEncryptionAlgorithmsAes192Const = "aes192"
+	CreateIkePolicyOptionsEncryptionAlgorithmsAes256Const = "aes256"
+)
+
 // NewCreateIkePolicyOptions : Instantiate CreateIkePolicyOptions
-func (*VpcV1) NewCreateIkePolicyOptions(authenticationAlgorithm string, dhGroup int64, encryptionAlgorithm string, ikeVersion int64) *CreateIkePolicyOptions {
+func (*VpcV1) NewCreateIkePolicyOptions(ikeVersion int64) *CreateIkePolicyOptions {
 	return &CreateIkePolicyOptions{
-		AuthenticationAlgorithm: core.StringPtr(authenticationAlgorithm),
-		DhGroup:                 core.Int64Ptr(dhGroup),
-		EncryptionAlgorithm:     core.StringPtr(encryptionAlgorithm),
-		IkeVersion:              core.Int64Ptr(ikeVersion),
+		IkeVersion: core.Int64Ptr(ikeVersion),
 	}
-}
-
-// SetAuthenticationAlgorithm : Allow user to set AuthenticationAlgorithm
-func (_options *CreateIkePolicyOptions) SetAuthenticationAlgorithm(authenticationAlgorithm string) *CreateIkePolicyOptions {
-	_options.AuthenticationAlgorithm = core.StringPtr(authenticationAlgorithm)
-	return _options
-}
-
-// SetDhGroup : Allow user to set DhGroup
-func (_options *CreateIkePolicyOptions) SetDhGroup(dhGroup int64) *CreateIkePolicyOptions {
-	_options.DhGroup = core.Int64Ptr(dhGroup)
-	return _options
-}
-
-// SetEncryptionAlgorithm : Allow user to set EncryptionAlgorithm
-func (_options *CreateIkePolicyOptions) SetEncryptionAlgorithm(encryptionAlgorithm string) *CreateIkePolicyOptions {
-	_options.EncryptionAlgorithm = core.StringPtr(encryptionAlgorithm)
-	return _options
 }
 
 // SetIkeVersion : Allow user to set IkeVersion
 func (_options *CreateIkePolicyOptions) SetIkeVersion(ikeVersion int64) *CreateIkePolicyOptions {
 	_options.IkeVersion = core.Int64Ptr(ikeVersion)
+	return _options
+}
+
+// SetAuthenticationAlgorithm : Allow user to set AuthenticationAlgorithm
+// Deprecated: this method is deprecated and may be removed in a future release.
+func (_options *CreateIkePolicyOptions) SetAuthenticationAlgorithm(authenticationAlgorithm string) *CreateIkePolicyOptions {
+	_options.AuthenticationAlgorithm = core.StringPtr(authenticationAlgorithm)
+	return _options
+}
+
+// SetAuthenticationAlgorithms : Allow user to set AuthenticationAlgorithms
+func (_options *CreateIkePolicyOptions) SetAuthenticationAlgorithms(authenticationAlgorithms []string) *CreateIkePolicyOptions {
+	_options.AuthenticationAlgorithms = authenticationAlgorithms
+	return _options
+}
+
+// SetDhGroup : Allow user to set DhGroup
+// Deprecated: this method is deprecated and may be removed in a future release.
+func (_options *CreateIkePolicyOptions) SetDhGroup(dhGroup int64) *CreateIkePolicyOptions {
+	_options.DhGroup = core.Int64Ptr(dhGroup)
+	return _options
+}
+
+// SetDhGroups : Allow user to set DhGroups
+func (_options *CreateIkePolicyOptions) SetDhGroups(dhGroups []int64) *CreateIkePolicyOptions {
+	_options.DhGroups = dhGroups
+	return _options
+}
+
+// SetEncryptionAlgorithm : Allow user to set EncryptionAlgorithm
+// Deprecated: this method is deprecated and may be removed in a future release.
+func (_options *CreateIkePolicyOptions) SetEncryptionAlgorithm(encryptionAlgorithm string) *CreateIkePolicyOptions {
+	_options.EncryptionAlgorithm = core.StringPtr(encryptionAlgorithm)
+	return _options
+}
+
+// SetEncryptionAlgorithms : Allow user to set EncryptionAlgorithms
+func (_options *CreateIkePolicyOptions) SetEncryptionAlgorithms(encryptionAlgorithms []string) *CreateIkePolicyOptions {
+	_options.EncryptionAlgorithms = encryptionAlgorithms
 	return _options
 }
 
@@ -48150,6 +48632,44 @@ func (options *CreateInstanceOptions) SetHeaders(param map[string]string) *Creat
 	return options
 }
 
+// CreateInstanceReinitializationOptions : The CreateInstanceReinitialization options.
+type CreateInstanceReinitializationOptions struct {
+	// The instance identifier.
+	ID *string `json:"id" validate:"required,ne="`
+
+	// The instance reinitialize prototype object.
+	InstanceReinitializePrototype InstanceReinitializePrototypeIntf `json:"InstanceReinitializePrototype" validate:"required"`
+
+	// Allows users to set headers on API requests.
+	Headers map[string]string
+}
+
+// NewCreateInstanceReinitializationOptions : Instantiate CreateInstanceReinitializationOptions
+func (*VpcV1) NewCreateInstanceReinitializationOptions(id string, instanceReinitializePrototype InstanceReinitializePrototypeIntf) *CreateInstanceReinitializationOptions {
+	return &CreateInstanceReinitializationOptions{
+		ID:                            core.StringPtr(id),
+		InstanceReinitializePrototype: instanceReinitializePrototype,
+	}
+}
+
+// SetID : Allow user to set ID
+func (_options *CreateInstanceReinitializationOptions) SetID(id string) *CreateInstanceReinitializationOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
+}
+
+// SetInstanceReinitializePrototype : Allow user to set InstanceReinitializePrototype
+func (_options *CreateInstanceReinitializationOptions) SetInstanceReinitializePrototype(instanceReinitializePrototype InstanceReinitializePrototypeIntf) *CreateInstanceReinitializationOptions {
+	_options.InstanceReinitializePrototype = instanceReinitializePrototype
+	return _options
+}
+
+// SetHeaders : Allow user to set Headers
+func (options *CreateInstanceReinitializationOptions) SetHeaders(param map[string]string) *CreateInstanceReinitializationOptions {
+	options.Headers = param
+	return options
+}
+
 // CreateInstanceTemplateOptions : The CreateInstanceTemplate options.
 type CreateInstanceTemplateOptions struct {
 	// The instance template prototype object.
@@ -48238,26 +48758,57 @@ func (options *CreateInstanceVolumeAttachmentOptions) SetHeaders(param map[strin
 
 // CreateIpsecPolicyOptions : The CreateIpsecPolicy options.
 type CreateIpsecPolicyOptions struct {
-	// The authentication algorithm
+	// The authentication algorithm.
+	//
+	// `authentication_algorithm` has been deprecated. Use `authentication_algorithms` instead.
+	//
+	// If specified, `authentication_algorithms` must not be specified.
 	//
 	// Must be `disabled` if and only if the `encryption_algorithm` is `aes128gcm16`,
 	// `aes192gcm16`, or `aes256gcm16`
 	//
 	// The `md5` and `sha1` algorithms have been deprecated.
-	AuthenticationAlgorithm *string `json:"authentication_algorithm" validate:"required"`
+	// Deprecated: this field is deprecated and may be removed in a future release.
+	AuthenticationAlgorithm *string `json:"authentication_algorithm,omitempty"`
 
-	// The encryption algorithm
+	// The authentication algorithms to use for IPsec negotiation.
+	//
+	// If specified, `authentication_algorithm` must not be specified.
+	//
+	// Must be `["disabled"]` when `encryption_algorithms` has only combined-mode algorithms
+	// (`aes128gcm16`, `aes192gcm16`, and `aes256gcm16`).
+	//
+	// The `md5` and `sha1` algorithms have been deprecated.
+	//
+	// The order of the algorithms in this array indicates their priority for negotiation, with each algorithm having
+	// priority over the one after it.
+	AuthenticationAlgorithms []string `json:"authentication_algorithms,omitempty"`
+
+	// The encryption algorithm.
+	//
+	// `encryption_algorithm` has been deprecated. Use `encryption_algorithms` instead.
+	//
+	// If specified, `encryption_algorithms` must not be specified.
 	//
 	// The `authentication_algorithm` must be `disabled` if and only if
 	// `encryption_algorithm` is `aes128gcm16`, `aes192gcm16`, or `aes256gcm16`
 	//
 	// The `triple_des` algorithm has been deprecated.
-	EncryptionAlgorithm *string `json:"encryption_algorithm" validate:"required"`
+	// Deprecated: this field is deprecated and may be removed in a future release.
+	EncryptionAlgorithm *string `json:"encryption_algorithm,omitempty"`
 
-	// The Perfect Forward Secrecy group.
+	// The encryption algorithms to use for IPsec negotiation.
 	//
-	// Groups `group_2` and `group_5` have been deprecated.
-	Pfs *string `json:"pfs" validate:"required"`
+	// If specified, `encryption_algorithm` must not be specified.
+	//
+	// If only combined-mode encryption algorithms (`aes128gcm16`, `aes192gcm16`, and
+	// `aes256gcm16`) are to be used, then `authentication_algorithms` must be `["disabled"]`.
+	//
+	// The `triple_des` algorithm has been deprecated.
+	//
+	// The order of the algorithms in this array indicates their priority for negotiation, with each algorithm having
+	// priority over the one after it.
+	EncryptionAlgorithms []string `json:"encryption_algorithms,omitempty"`
 
 	// The key lifetime in seconds.
 	KeyLifetime *int64 `json:"key_lifetime,omitempty"`
@@ -48265,6 +48816,26 @@ type CreateIpsecPolicyOptions struct {
 	// The name for this IPsec policy. The name must not be used by another IPsec policy in the region. If unspecified, the
 	// name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
+
+	// The Perfect Forward Secrecy group.
+	//
+	// `pfs` has been deprecated. Use `pfs_groups` instead.
+	//
+	// If specified, `pfs_groups` must not be specified.
+	//
+	// Groups `group_2` and `group_5` have been deprecated.
+	// Deprecated: this field is deprecated and may be removed in a future release.
+	Pfs *string `json:"pfs,omitempty"`
+
+	// The Perfect Forward Secrecy groups to use for IPsec negotiation.
+	//
+	// If specified, `pfs` must not be specified.
+	//
+	// Groups `group_2` and `group_5` have been deprecated.
+	//
+	// The order of the Perfect Forward Secrecy groups in this array indicates their priority for negotiation, with each
+	// Perfect Forward Secrecy group having priority over the one after it.
+	PfsGroups []string `json:"pfs_groups,omitempty"`
 
 	// The resource group to use. If unspecified, the account's [default resource
 	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) will be used.
@@ -48275,7 +48846,11 @@ type CreateIpsecPolicyOptions struct {
 }
 
 // Constants associated with the CreateIpsecPolicyOptions.AuthenticationAlgorithm property.
-// The authentication algorithm
+// The authentication algorithm.
+//
+// `authentication_algorithm` has been deprecated. Use `authentication_algorithms` instead.
+//
+// If specified, `authentication_algorithms` must not be specified.
 //
 // Must be `disabled` if and only if the `encryption_algorithm` is `aes128gcm16`,
 // `aes192gcm16`, or `aes256gcm16`
@@ -48288,8 +48863,20 @@ const (
 	CreateIpsecPolicyOptionsAuthenticationAlgorithmSha512Const   = "sha512"
 )
 
+// Constants associated with the CreateIpsecPolicyOptions.AuthenticationAlgorithms property.
+const (
+	CreateIpsecPolicyOptionsAuthenticationAlgorithmsDisabledConst = "disabled"
+	CreateIpsecPolicyOptionsAuthenticationAlgorithmsSha256Const   = "sha256"
+	CreateIpsecPolicyOptionsAuthenticationAlgorithmsSha384Const   = "sha384"
+	CreateIpsecPolicyOptionsAuthenticationAlgorithmsSha512Const   = "sha512"
+)
+
 // Constants associated with the CreateIpsecPolicyOptions.EncryptionAlgorithm property.
-// The encryption algorithm
+// The encryption algorithm.
+//
+// `encryption_algorithm` has been deprecated. Use `encryption_algorithms` instead.
+//
+// If specified, `encryption_algorithms` must not be specified.
 //
 // The `authentication_algorithm` must be `disabled` if and only if
 // `encryption_algorithm` is `aes128gcm16`, `aes192gcm16`, or `aes256gcm16`
@@ -48304,8 +48891,22 @@ const (
 	CreateIpsecPolicyOptionsEncryptionAlgorithmAes256gcm16Const = "aes256gcm16"
 )
 
+// Constants associated with the CreateIpsecPolicyOptions.EncryptionAlgorithms property.
+const (
+	CreateIpsecPolicyOptionsEncryptionAlgorithmsAes128Const      = "aes128"
+	CreateIpsecPolicyOptionsEncryptionAlgorithmsAes128gcm16Const = "aes128gcm16"
+	CreateIpsecPolicyOptionsEncryptionAlgorithmsAes192Const      = "aes192"
+	CreateIpsecPolicyOptionsEncryptionAlgorithmsAes192gcm16Const = "aes192gcm16"
+	CreateIpsecPolicyOptionsEncryptionAlgorithmsAes256Const      = "aes256"
+	CreateIpsecPolicyOptionsEncryptionAlgorithmsAes256gcm16Const = "aes256gcm16"
+)
+
 // Constants associated with the CreateIpsecPolicyOptions.Pfs property.
 // The Perfect Forward Secrecy group.
+//
+// `pfs` has been deprecated. Use `pfs_groups` instead.
+//
+// If specified, `pfs_groups` must not be specified.
 //
 // Groups `group_2` and `group_5` have been deprecated.
 const (
@@ -48324,30 +48925,51 @@ const (
 	CreateIpsecPolicyOptionsPfsGroup31Const  = "group_31"
 )
 
+// Constants associated with the CreateIpsecPolicyOptions.PfsGroups property.
+const (
+	CreateIpsecPolicyOptionsPfsGroupsDisabledConst = "disabled"
+	CreateIpsecPolicyOptionsPfsGroupsGroup14Const  = "group_14"
+	CreateIpsecPolicyOptionsPfsGroupsGroup15Const  = "group_15"
+	CreateIpsecPolicyOptionsPfsGroupsGroup16Const  = "group_16"
+	CreateIpsecPolicyOptionsPfsGroupsGroup17Const  = "group_17"
+	CreateIpsecPolicyOptionsPfsGroupsGroup18Const  = "group_18"
+	CreateIpsecPolicyOptionsPfsGroupsGroup19Const  = "group_19"
+	CreateIpsecPolicyOptionsPfsGroupsGroup20Const  = "group_20"
+	CreateIpsecPolicyOptionsPfsGroupsGroup21Const  = "group_21"
+	CreateIpsecPolicyOptionsPfsGroupsGroup22Const  = "group_22"
+	CreateIpsecPolicyOptionsPfsGroupsGroup23Const  = "group_23"
+	CreateIpsecPolicyOptionsPfsGroupsGroup24Const  = "group_24"
+	CreateIpsecPolicyOptionsPfsGroupsGroup31Const  = "group_31"
+)
+
 // NewCreateIpsecPolicyOptions : Instantiate CreateIpsecPolicyOptions
-func (*VpcV1) NewCreateIpsecPolicyOptions(authenticationAlgorithm string, encryptionAlgorithm string, pfs string) *CreateIpsecPolicyOptions {
-	return &CreateIpsecPolicyOptions{
-		AuthenticationAlgorithm: core.StringPtr(authenticationAlgorithm),
-		EncryptionAlgorithm:     core.StringPtr(encryptionAlgorithm),
-		Pfs:                     core.StringPtr(pfs),
-	}
+func (*VpcV1) NewCreateIpsecPolicyOptions() *CreateIpsecPolicyOptions {
+	return &CreateIpsecPolicyOptions{}
 }
 
 // SetAuthenticationAlgorithm : Allow user to set AuthenticationAlgorithm
+// Deprecated: this method is deprecated and may be removed in a future release.
 func (_options *CreateIpsecPolicyOptions) SetAuthenticationAlgorithm(authenticationAlgorithm string) *CreateIpsecPolicyOptions {
 	_options.AuthenticationAlgorithm = core.StringPtr(authenticationAlgorithm)
 	return _options
 }
 
+// SetAuthenticationAlgorithms : Allow user to set AuthenticationAlgorithms
+func (_options *CreateIpsecPolicyOptions) SetAuthenticationAlgorithms(authenticationAlgorithms []string) *CreateIpsecPolicyOptions {
+	_options.AuthenticationAlgorithms = authenticationAlgorithms
+	return _options
+}
+
 // SetEncryptionAlgorithm : Allow user to set EncryptionAlgorithm
+// Deprecated: this method is deprecated and may be removed in a future release.
 func (_options *CreateIpsecPolicyOptions) SetEncryptionAlgorithm(encryptionAlgorithm string) *CreateIpsecPolicyOptions {
 	_options.EncryptionAlgorithm = core.StringPtr(encryptionAlgorithm)
 	return _options
 }
 
-// SetPfs : Allow user to set Pfs
-func (_options *CreateIpsecPolicyOptions) SetPfs(pfs string) *CreateIpsecPolicyOptions {
-	_options.Pfs = core.StringPtr(pfs)
+// SetEncryptionAlgorithms : Allow user to set EncryptionAlgorithms
+func (_options *CreateIpsecPolicyOptions) SetEncryptionAlgorithms(encryptionAlgorithms []string) *CreateIpsecPolicyOptions {
+	_options.EncryptionAlgorithms = encryptionAlgorithms
 	return _options
 }
 
@@ -48360,6 +48982,19 @@ func (_options *CreateIpsecPolicyOptions) SetKeyLifetime(keyLifetime int64) *Cre
 // SetName : Allow user to set Name
 func (_options *CreateIpsecPolicyOptions) SetName(name string) *CreateIpsecPolicyOptions {
 	_options.Name = core.StringPtr(name)
+	return _options
+}
+
+// SetPfs : Allow user to set Pfs
+// Deprecated: this method is deprecated and may be removed in a future release.
+func (_options *CreateIpsecPolicyOptions) SetPfs(pfs string) *CreateIpsecPolicyOptions {
+	_options.Pfs = core.StringPtr(pfs)
+	return _options
+}
+
+// SetPfsGroups : Allow user to set PfsGroups
+func (_options *CreateIpsecPolicyOptions) SetPfsGroups(pfsGroups []string) *CreateIpsecPolicyOptions {
+	_options.PfsGroups = pfsGroups
 	return _options
 }
 
@@ -48476,6 +49111,12 @@ type CreateLoadBalancerListenerOptions struct {
 	// The certificate instance to use for SSL termination. The listener must have a
 	// `protocol` of `https`.
 	CertificateInstance CertificateInstanceIdentityIntf `json:"certificate_instance,omitempty"`
+
+	// The client authentication to use for this listener.
+	//
+	// Supported by load balancers with `mtls_supported` set to `true`. The listener must
+	// have a `protocol` of `https`.
+	ClientAuthentication *LoadBalancerListenerClientAuthenticationPrototype `json:"client_authentication,omitempty"`
 
 	// The concurrent connection limit for the listener. If reached, incoming connections may be queued or rejected.
 	//
@@ -48604,6 +49245,12 @@ func (_options *CreateLoadBalancerListenerOptions) SetAcceptProxyProtocol(accept
 // SetCertificateInstance : Allow user to set CertificateInstance
 func (_options *CreateLoadBalancerListenerOptions) SetCertificateInstance(certificateInstance CertificateInstanceIdentityIntf) *CreateLoadBalancerListenerOptions {
 	_options.CertificateInstance = certificateInstance
+	return _options
+}
+
+// SetClientAuthentication : Allow user to set ClientAuthentication
+func (_options *CreateLoadBalancerListenerOptions) SetClientAuthentication(clientAuthentication *LoadBalancerListenerClientAuthenticationPrototype) *CreateLoadBalancerListenerOptions {
+	_options.ClientAuthentication = clientAuthentication
 	return _options
 }
 
@@ -48831,6 +49478,7 @@ const (
 	CreateLoadBalancerListenerPolicyRuleOptionsConditionContainsConst     = "contains"
 	CreateLoadBalancerListenerPolicyRuleOptionsConditionEqualsConst       = "equals"
 	CreateLoadBalancerListenerPolicyRuleOptionsConditionMatchesRegexConst = "matches_regex"
+	CreateLoadBalancerListenerPolicyRuleOptionsConditionStartsWithConst   = "starts_with"
 )
 
 // Constants associated with the CreateLoadBalancerListenerPolicyRuleOptions.Type property.
@@ -49194,6 +49842,12 @@ type CreateLoadBalancerPoolOptions struct {
 	// `https` instead of `http`. For more details, see: https://www.cloudflare.com/learning/ssl/why-is-http-not-secure.
 	Protocol *string `json:"protocol" validate:"required"`
 
+	// The client authentication to use for this pool.
+	//
+	// Supported by load balancers with `mtls_supported` set to `true`. The pool must
+	// have a `protocol` of `https`.
+	ClientAuthentication *LoadBalancerPoolClientAuthenticationPrototype `json:"client_authentication,omitempty"`
+
 	// The failsafe policy to use for this pool.
 	//
 	// If unspecified, the default failsafe policy action from the profile will be used.
@@ -49214,6 +49868,12 @@ type CreateLoadBalancerPoolOptions struct {
 	//
 	// For load balancers in the `network` family, this property must be `disabled`.
 	ProxyProtocol *string `json:"proxy_protocol,omitempty"`
+
+	// The server authentication to use for this pool.
+	//
+	// Supported by load balancers with `mtls_supported` set to `true`. The pool must
+	// have a `protocol` of `https`.
+	ServerAuthentication *LoadBalancerPoolServerAuthenticationPrototype `json:"server_authentication,omitempty"`
 
 	// The session persistence of this pool. If specified, the load balancer must have
 	// `source_ip_session_persistence_supported` set to `true` in its profile.
@@ -49297,6 +49957,12 @@ func (_options *CreateLoadBalancerPoolOptions) SetProtocol(protocol string) *Cre
 	return _options
 }
 
+// SetClientAuthentication : Allow user to set ClientAuthentication
+func (_options *CreateLoadBalancerPoolOptions) SetClientAuthentication(clientAuthentication *LoadBalancerPoolClientAuthenticationPrototype) *CreateLoadBalancerPoolOptions {
+	_options.ClientAuthentication = clientAuthentication
+	return _options
+}
+
 // SetFailsafePolicy : Allow user to set FailsafePolicy
 func (_options *CreateLoadBalancerPoolOptions) SetFailsafePolicy(failsafePolicy *LoadBalancerPoolFailsafePolicyPrototype) *CreateLoadBalancerPoolOptions {
 	_options.FailsafePolicy = failsafePolicy
@@ -49318,6 +49984,12 @@ func (_options *CreateLoadBalancerPoolOptions) SetName(name string) *CreateLoadB
 // SetProxyProtocol : Allow user to set ProxyProtocol
 func (_options *CreateLoadBalancerPoolOptions) SetProxyProtocol(proxyProtocol string) *CreateLoadBalancerPoolOptions {
 	_options.ProxyProtocol = core.StringPtr(proxyProtocol)
+	return _options
+}
+
+// SetServerAuthentication : Allow user to set ServerAuthentication
+func (_options *CreateLoadBalancerPoolOptions) SetServerAuthentication(serverAuthentication *LoadBalancerPoolServerAuthenticationPrototype) *CreateLoadBalancerPoolOptions {
+	_options.ServerAuthentication = serverAuthentication
 	return _options
 }
 
@@ -50267,6 +50939,186 @@ func (_options *CreateSubnetReservedIPOptions) SetTarget(target ReservedIPTarget
 func (options *CreateSubnetReservedIPOptions) SetHeaders(param map[string]string) *CreateSubnetReservedIPOptions {
 	options.Headers = param
 	return options
+}
+
+// CreateVPCRouteResponse : CreateVPCRouteResponse struct
+type CreateVPCRouteResponse struct {
+	// The action to perform with a packet matching the route:
+	// - `delegate`: delegate to system-provided routes
+	// - `delegate_vpc`: delegate to system-provided routes, ignoring Internet-bound routes
+	// - `deliver`: deliver the packet to the specified `next_hop`
+	// - `drop`: drop the packet
+	//
+	// The enumerated values for this property may
+	// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.
+	Action *string `json:"action" validate:"required"`
+
+	// Indicates whether this route will be advertised to the ingress sources specified by the `advertise_routes_to`
+	// routing table property.
+	Advertise *bool `json:"advertise" validate:"required"`
+
+	// The date and time that the route was created.
+	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
+
+	// If present, the resource that created the route. Routes with this property present cannot
+	// be directly deleted. All routes with an `origin` of `service` will have this property set,
+	// and future `origin` values may also have this property set.
+	Creator RouteCreatorIntf `json:"creator,omitempty"`
+
+	// The destination CIDR of the route.
+	Destination *string `json:"destination" validate:"required"`
+
+	// The URL for this route.
+	Href *string `json:"href" validate:"required"`
+
+	// The unique identifier for this route.
+	ID *string `json:"id" validate:"required"`
+
+	// The lifecycle state of the route.
+	LifecycleState *string `json:"lifecycle_state" validate:"required"`
+
+	// The name for this route. The name is unique across all routes in the routing table.
+	Name *string `json:"name" validate:"required"`
+
+	// If `action` is `deliver`, the next hop that packets will be delivered to.  For
+	// other `action` values, its `address` will be `0.0.0.0`.
+	NextHop RouteNextHopIntf `json:"next_hop" validate:"required"`
+
+	// The origin of this route:
+	// - `service`: route was directly created by a service
+	// - `user`: route was directly created by a user
+	//
+	// The enumerated values for this property may
+	// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.
+	Origin *string `json:"origin" validate:"required"`
+
+	// The priority of this route. Smaller values have higher priority.
+	//
+	// If a routing table contains multiple routes with the same `zone` and `destination`, the route with the highest
+	// priority (smallest value) is selected. If two routes have the same `destination` and `priority`, traffic is
+	// distributed between them.
+	Priority *int64 `json:"priority" validate:"required"`
+
+	// The zone the route applies to.
+	//
+	// If subnets are attached to the route's routing table, egress traffic from those
+	// subnets in this zone will be subject to this route. If this route's routing table
+	// has any of `route_direct_link_ingress`, `route_internet_ingress`,
+	// `route_transit_gateway_ingress` or `route_vpc_zone_ingress`  set to`true`, traffic
+	// from those ingress sources arriving in this zone will be subject to this route.
+	Zone *ZoneReference `json:"zone" validate:"required"`
+}
+
+// Constants associated with the CreateVPCRouteResponse.Action property.
+// The action to perform with a packet matching the route:
+// - `delegate`: delegate to system-provided routes
+// - `delegate_vpc`: delegate to system-provided routes, ignoring Internet-bound routes
+// - `deliver`: deliver the packet to the specified `next_hop`
+// - `drop`: drop the packet
+//
+// The enumerated values for this property may
+// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.
+const (
+	CreateVPCRouteResponseActionDelegateConst    = "delegate"
+	CreateVPCRouteResponseActionDelegateVPCConst = "delegate_vpc"
+	CreateVPCRouteResponseActionDeliverConst     = "deliver"
+	CreateVPCRouteResponseActionDropConst        = "drop"
+)
+
+// Constants associated with the CreateVPCRouteResponse.LifecycleState property.
+// The lifecycle state of the route.
+const (
+	CreateVPCRouteResponseLifecycleStateDeletingConst  = "deleting"
+	CreateVPCRouteResponseLifecycleStateFailedConst    = "failed"
+	CreateVPCRouteResponseLifecycleStatePendingConst   = "pending"
+	CreateVPCRouteResponseLifecycleStateStableConst    = "stable"
+	CreateVPCRouteResponseLifecycleStateSuspendedConst = "suspended"
+	CreateVPCRouteResponseLifecycleStateUpdatingConst  = "updating"
+	CreateVPCRouteResponseLifecycleStateWaitingConst   = "waiting"
+)
+
+// Constants associated with the CreateVPCRouteResponse.Origin property.
+// The origin of this route:
+// - `service`: route was directly created by a service
+// - `user`: route was directly created by a user
+//
+// The enumerated values for this property may
+// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.
+const (
+	CreateVPCRouteResponseOriginServiceConst = "service"
+	CreateVPCRouteResponseOriginUserConst    = "user"
+)
+
+// UnmarshalCreateVPCRouteResponse unmarshals an instance of CreateVPCRouteResponse from the specified map of raw messages.
+func UnmarshalCreateVPCRouteResponse(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(CreateVPCRouteResponse)
+	err = core.UnmarshalPrimitive(m, "action", &obj.Action)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "action-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "advertise", &obj.Advertise)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "advertise-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "created_at", &obj.CreatedAt)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "created_at-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "creator", &obj.Creator, UnmarshalRouteCreator)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "creator-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "destination", &obj.Destination)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "destination-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "href-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "id-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "lifecycle_state", &obj.LifecycleState)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "lifecycle_state-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "next_hop", &obj.NextHop, UnmarshalRouteNextHop)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "next_hop-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "origin", &obj.Origin)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "origin-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "priority", &obj.Priority)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "priority-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "zone", &obj.Zone, UnmarshalZoneReference)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "zone-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
 }
 
 // CreateVirtualNetworkInterfaceOptions : The CreateVirtualNetworkInterface options.
@@ -58250,10 +59102,13 @@ type FloatingIPPatch struct {
 	//
 	// The target resource must not already have a floating IP bound to it if the target
 	// resource is:
-	//
 	// - an instance network interface
 	// - a bare metal server network interface with `enable_infrastructure_nat` set to `true`
 	// - a virtual network interface with `enable_infrastructure_nat` set to `true`
+	//
+	// If the floating IP is allocated from an `authorized_cidr`, the target resource cannot be:
+	// - an instance network interface
+	// - a bare metal server network interface
 	//
 	// Specify `null` to remove an existing binding.
 	Target FloatingIPTargetPatchIntf `json:"target,omitempty"`
@@ -58662,10 +59517,13 @@ func UnmarshalFloatingIPTarget(m map[string]json.RawMessage, result interface{})
 // by another resource, such as a public gateway.
 //
 // The target resource must not already have a floating IP bound to it if the target resource is:
-//
 // - an instance network interface
 // - a bare metal server network interface with `enable_infrastructure_nat` set to `true`
 // - a virtual network interface with `enable_infrastructure_nat` set to `true`
+//
+// If the floating IP is allocated from an `authorized_cidr`, the target resource cannot be:
+// - an instance network interface
+// - a bare metal server network interface
 //
 // Specify `null` to remove an existing binding.
 // Models which "extend" this model:
@@ -58678,23 +59536,14 @@ type FloatingIPTargetPatch struct {
 	// If this bare metal server has network attachments, this network interface is a
 	// [read-only representation](https://cloud.ibm.com/docs/vpc?topic=vpc-vni-about#vni-old-api-clients) of its
 	// corresponding network attachment and its attached virtual network interface, and the identifier is that of the
-	// corresponding network attachment or the unique identifier for this instance network interface.
-	//
-	// If this instance has network attachments, this network interface is a
-	// [read-only representation](https://cloud.ibm.com/docs/vpc?topic=vpc-vni-about#vni-old-api-clients) of its
-	// corresponding network attachment and its attached virtual network interface, and the identifier is that of the
-	// corresponding network attachment or the unique identifier for this virtual network interface.
+	// corresponding network attachment.
 	ID *string `json:"id,omitempty"`
 
 	// The URL for this bare metal server network interface.
 	//
 	// If this bare metal server has network attachments, this network interface is a
 	// [read-only representation](https://cloud.ibm.com/docs/vpc?topic=vpc-vni-about#vni-old-api-clients) of its
-	// corresponding network attachment or the URL for this instance network interface.
-	//
-	// If this instance has network attachments, this network interface is a
-	// [read-only representation](https://cloud.ibm.com/docs/vpc?topic=vpc-vni-about#vni-old-api-clients) of its
-	// corresponding network attachment or the URL for this virtual network interface.
+	// corresponding network attachment.
 	Href *string `json:"href,omitempty"`
 
 	// The CRN for this virtual network interface.
@@ -58756,6 +59605,11 @@ func (floatingIPTargetPatch *FloatingIPTargetPatch) asPatch() (_patch map[string
 // - a bare metal server network interface with `enable_infrastructure_nat` set to `true`
 // - a virtual network interface with `enable_infrastructure_nat` set to `true`
 //
+// If `address` is specified and the floating IP will be allocated from a public address range authorized CIDR, the
+// target cannot be:
+// - an instance network interface
+// - a bare metal server network interface
+//
 // If `address` is specified and the floating IP will be allocated from a public address range authorized CIDR with an
 // `availability_mode` value of `zonal`, the target must reside in the same `zone` as the authorized CIDR.
 // Models which "extend" this model:
@@ -58768,23 +59622,14 @@ type FloatingIPTargetPrototype struct {
 	// If this bare metal server has network attachments, this network interface is a
 	// [read-only representation](https://cloud.ibm.com/docs/vpc?topic=vpc-vni-about#vni-old-api-clients) of its
 	// corresponding network attachment and its attached virtual network interface, and the identifier is that of the
-	// corresponding network attachment or the unique identifier for this instance network interface.
-	//
-	// If this instance has network attachments, this network interface is a
-	// [read-only representation](https://cloud.ibm.com/docs/vpc?topic=vpc-vni-about#vni-old-api-clients) of its
-	// corresponding network attachment and its attached virtual network interface, and the identifier is that of the
-	// corresponding network attachment or the unique identifier for this virtual network interface.
+	// corresponding network attachment.
 	ID *string `json:"id,omitempty"`
 
 	// The URL for this bare metal server network interface.
 	//
 	// If this bare metal server has network attachments, this network interface is a
 	// [read-only representation](https://cloud.ibm.com/docs/vpc?topic=vpc-vni-about#vni-old-api-clients) of its
-	// corresponding network attachment or the URL for this instance network interface.
-	//
-	// If this instance has network attachments, this network interface is a
-	// [read-only representation](https://cloud.ibm.com/docs/vpc?topic=vpc-vni-about#vni-old-api-clients) of its
-	// corresponding network attachment or the URL for this virtual network interface.
+	// corresponding network attachment.
 	Href *string `json:"href,omitempty"`
 
 	// The CRN for this virtual network interface.
@@ -59120,8 +59965,7 @@ type FlowLogCollectorTarget struct {
 	//
 	// If this instance has network attachments, this network interface is a
 	// [read-only representation](https://cloud.ibm.com/docs/vpc?topic=vpc-vni-about#vni-old-api-clients) of its
-	// corresponding network attachment or the URL for this virtual server instance or the URL for this subnet or the URL
-	// for this VPC or the URL for this instance network attachment or the URL for this virtual network interface.
+	// corresponding network attachment.
 	Href *string `json:"href,omitempty"`
 
 	// The unique identifier for this instance network interface.
@@ -59129,28 +59973,21 @@ type FlowLogCollectorTarget struct {
 	// If this instance has network attachments, this network interface is a
 	// [read-only representation](https://cloud.ibm.com/docs/vpc?topic=vpc-vni-about#vni-old-api-clients) of its
 	// corresponding network attachment and its attached virtual network interface, and the identifier is that of the
-	// corresponding network attachment or the unique identifier for this virtual server instance or the unique identifier
-	// for this subnet or the unique identifier for this VPC or the unique identifier for this instance network attachment
-	// or the unique identifier for this virtual network interface.
+	// corresponding network attachment.
 	ID *string `json:"id,omitempty"`
 
-	// The name for this instance network interface or the name for this virtual server instance. The name is unique across
-	// all virtual server instances in the region or the name for this subnet. The name is unique across all subnets in the
-	// VPC or the name for this VPC. The name is unique across all VPCs in the region or the name for this instance network
-	// attachment. The name is unique across all network attachments for the instance or the name for this virtual network
-	// interface. The name is unique across all virtual network interfaces in the VPC.
+	// The name for this instance network interface.
 	Name *string `json:"name,omitempty"`
 
-	// The resource type or the resource type or the resource type or the resource type or the resource type.
+	// The resource type.
 	ResourceType *string `json:"resource_type,omitempty"`
 
-	// The CRN for this virtual server instance or the CRN for this subnet or the CRN for this VPC or the CRN for this
-	// virtual network interface.
+	// The CRN for this virtual server instance.
 	CRN *string `json:"crn,omitempty"`
 }
 
 // Constants associated with the FlowLogCollectorTarget.ResourceType property.
-// The resource type or the resource type or the resource type or the resource type or the resource type.
+// The resource type.
 const (
 	FlowLogCollectorTargetResourceTypeNetworkInterfaceConst = "network_interface"
 )
@@ -59224,21 +60061,17 @@ type FlowLogCollectorTargetPrototype struct {
 	// If this instance has network attachments, this network interface is a
 	// [read-only representation](https://cloud.ibm.com/docs/vpc?topic=vpc-vni-about#vni-old-api-clients) of its
 	// corresponding network attachment and its attached virtual network interface, and the identifier is that of the
-	// corresponding network attachment or the unique identifier for this virtual server instance or the unique identifier
-	// for this subnet or the unique identifier for this VPC or the unique identifier for this virtual network interface or
-	// the unique identifier for this instance network attachment.
+	// corresponding network attachment.
 	ID *string `json:"id,omitempty"`
 
 	// The URL for this instance network interface.
 	//
 	// If this instance has network attachments, this network interface is a
 	// [read-only representation](https://cloud.ibm.com/docs/vpc?topic=vpc-vni-about#vni-old-api-clients) of its
-	// corresponding network attachment or the URL for this virtual server instance or the URL for this subnet or the URL
-	// for this VPC or the URL for this virtual network interface or the URL for this instance network attachment.
+	// corresponding network attachment.
 	Href *string `json:"href,omitempty"`
 
-	// The CRN for this virtual server instance or the CRN for this subnet or the CRN for this VPC or the CRN for this
-	// virtual network interface.
+	// The CRN for this virtual server instance.
 	CRN *string `json:"crn,omitempty"`
 }
 
@@ -60786,6 +61619,44 @@ func (options *GetInstanceProfileOptions) SetHeaders(param map[string]string) *G
 	return options
 }
 
+// GetInstanceSoftwareAttachmentOptions : The GetInstanceSoftwareAttachment options.
+type GetInstanceSoftwareAttachmentOptions struct {
+	// The virtual server instance identifier.
+	InstanceID *string `json:"instance_id" validate:"required,ne="`
+
+	// The instance software attachment identifier.
+	ID *string `json:"id" validate:"required,ne="`
+
+	// Allows users to set headers on API requests.
+	Headers map[string]string
+}
+
+// NewGetInstanceSoftwareAttachmentOptions : Instantiate GetInstanceSoftwareAttachmentOptions
+func (*VpcV1) NewGetInstanceSoftwareAttachmentOptions(instanceID string, id string) *GetInstanceSoftwareAttachmentOptions {
+	return &GetInstanceSoftwareAttachmentOptions{
+		InstanceID: core.StringPtr(instanceID),
+		ID:         core.StringPtr(id),
+	}
+}
+
+// SetInstanceID : Allow user to set InstanceID
+func (_options *GetInstanceSoftwareAttachmentOptions) SetInstanceID(instanceID string) *GetInstanceSoftwareAttachmentOptions {
+	_options.InstanceID = core.StringPtr(instanceID)
+	return _options
+}
+
+// SetID : Allow user to set ID
+func (_options *GetInstanceSoftwareAttachmentOptions) SetID(id string) *GetInstanceSoftwareAttachmentOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
+}
+
+// SetHeaders : Allow user to set Headers
+func (options *GetInstanceSoftwareAttachmentOptions) SetHeaders(param map[string]string) *GetInstanceSoftwareAttachmentOptions {
+	options.Headers = param
+	return options
+}
+
 // GetInstanceTemplateOptions : The GetInstanceTemplate options.
 type GetInstanceTemplateOptions struct {
 	// The instance template identifier.
@@ -62276,6 +63147,186 @@ func (options *GetSubnetRoutingTableOptions) SetHeaders(param map[string]string)
 	return options
 }
 
+// GetVPCRouteResponse : GetVPCRouteResponse struct
+type GetVPCRouteResponse struct {
+	// The action to perform with a packet matching the route:
+	// - `delegate`: delegate to system-provided routes
+	// - `delegate_vpc`: delegate to system-provided routes, ignoring Internet-bound routes
+	// - `deliver`: deliver the packet to the specified `next_hop`
+	// - `drop`: drop the packet
+	//
+	// The enumerated values for this property may
+	// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.
+	Action *string `json:"action" validate:"required"`
+
+	// Indicates whether this route will be advertised to the ingress sources specified by the `advertise_routes_to`
+	// routing table property.
+	Advertise *bool `json:"advertise" validate:"required"`
+
+	// The date and time that the route was created.
+	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
+
+	// If present, the resource that created the route. Routes with this property present cannot
+	// be directly deleted. All routes with an `origin` of `service` will have this property set,
+	// and future `origin` values may also have this property set.
+	Creator RouteCreatorIntf `json:"creator,omitempty"`
+
+	// The destination CIDR of the route.
+	Destination *string `json:"destination" validate:"required"`
+
+	// The URL for this route.
+	Href *string `json:"href" validate:"required"`
+
+	// The unique identifier for this route.
+	ID *string `json:"id" validate:"required"`
+
+	// The lifecycle state of the route.
+	LifecycleState *string `json:"lifecycle_state" validate:"required"`
+
+	// The name for this route. The name is unique across all routes in the routing table.
+	Name *string `json:"name" validate:"required"`
+
+	// If `action` is `deliver`, the next hop that packets will be delivered to.  For
+	// other `action` values, its `address` will be `0.0.0.0`.
+	NextHop RouteNextHopIntf `json:"next_hop" validate:"required"`
+
+	// The origin of this route:
+	// - `service`: route was directly created by a service
+	// - `user`: route was directly created by a user
+	//
+	// The enumerated values for this property may
+	// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.
+	Origin *string `json:"origin" validate:"required"`
+
+	// The priority of this route. Smaller values have higher priority.
+	//
+	// If a routing table contains multiple routes with the same `zone` and `destination`, the route with the highest
+	// priority (smallest value) is selected. If two routes have the same `destination` and `priority`, traffic is
+	// distributed between them.
+	Priority *int64 `json:"priority" validate:"required"`
+
+	// The zone the route applies to.
+	//
+	// If subnets are attached to the route's routing table, egress traffic from those
+	// subnets in this zone will be subject to this route. If this route's routing table
+	// has any of `route_direct_link_ingress`, `route_internet_ingress`,
+	// `route_transit_gateway_ingress` or `route_vpc_zone_ingress`  set to`true`, traffic
+	// from those ingress sources arriving in this zone will be subject to this route.
+	Zone *ZoneReference `json:"zone" validate:"required"`
+}
+
+// Constants associated with the GetVPCRouteResponse.Action property.
+// The action to perform with a packet matching the route:
+// - `delegate`: delegate to system-provided routes
+// - `delegate_vpc`: delegate to system-provided routes, ignoring Internet-bound routes
+// - `deliver`: deliver the packet to the specified `next_hop`
+// - `drop`: drop the packet
+//
+// The enumerated values for this property may
+// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.
+const (
+	GetVPCRouteResponseActionDelegateConst    = "delegate"
+	GetVPCRouteResponseActionDelegateVPCConst = "delegate_vpc"
+	GetVPCRouteResponseActionDeliverConst     = "deliver"
+	GetVPCRouteResponseActionDropConst        = "drop"
+)
+
+// Constants associated with the GetVPCRouteResponse.LifecycleState property.
+// The lifecycle state of the route.
+const (
+	GetVPCRouteResponseLifecycleStateDeletingConst  = "deleting"
+	GetVPCRouteResponseLifecycleStateFailedConst    = "failed"
+	GetVPCRouteResponseLifecycleStatePendingConst   = "pending"
+	GetVPCRouteResponseLifecycleStateStableConst    = "stable"
+	GetVPCRouteResponseLifecycleStateSuspendedConst = "suspended"
+	GetVPCRouteResponseLifecycleStateUpdatingConst  = "updating"
+	GetVPCRouteResponseLifecycleStateWaitingConst   = "waiting"
+)
+
+// Constants associated with the GetVPCRouteResponse.Origin property.
+// The origin of this route:
+// - `service`: route was directly created by a service
+// - `user`: route was directly created by a user
+//
+// The enumerated values for this property may
+// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.
+const (
+	GetVPCRouteResponseOriginServiceConst = "service"
+	GetVPCRouteResponseOriginUserConst    = "user"
+)
+
+// UnmarshalGetVPCRouteResponse unmarshals an instance of GetVPCRouteResponse from the specified map of raw messages.
+func UnmarshalGetVPCRouteResponse(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(GetVPCRouteResponse)
+	err = core.UnmarshalPrimitive(m, "action", &obj.Action)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "action-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "advertise", &obj.Advertise)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "advertise-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "created_at", &obj.CreatedAt)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "created_at-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "creator", &obj.Creator, UnmarshalRouteCreator)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "creator-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "destination", &obj.Destination)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "destination-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "href-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "id-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "lifecycle_state", &obj.LifecycleState)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "lifecycle_state-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "next_hop", &obj.NextHop, UnmarshalRouteNextHop)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "next_hop-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "origin", &obj.Origin)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "origin-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "priority", &obj.Priority)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "priority-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "zone", &obj.Zone, UnmarshalZoneReference)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "zone-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
 // GetVirtualNetworkInterfaceIPOptions : The GetVirtualNetworkInterfaceIP options.
 type GetVirtualNetworkInterfaceIPOptions struct {
 	// The virtual network interface identifier.
@@ -62992,7 +64043,17 @@ type IkePolicy struct {
 	//
 	// The enumerated values for this property may
 	// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.
+	//
+	// If `multiple`, the policy supports more than one authentication algorithm. Use the `authentication_algorithms`
+	// property to retrieve all supported algorithms.
+	// Deprecated: this field is deprecated and may be removed in a future release.
 	AuthenticationAlgorithm *string `json:"authentication_algorithm" validate:"required"`
+
+	// The authentication algorithms to use for IKE Negotiation.
+	//
+	// The order of the algorithms in this array indicates their priority for negotiation, with each algorithm having
+	// priority over the one after it.
+	AuthenticationAlgorithms []string `json:"authentication_algorithms" validate:"required"`
 
 	// The VPN gateway connections that use this IKE policy.
 	Connections []VPNGatewayConnectionReference `json:"connections" validate:"required"`
@@ -63003,15 +64064,35 @@ type IkePolicy struct {
 	// The Diffie-Hellman group
 	//
 	// Groups `2` and `5` have been deprecated.
+	//
+	// If `65535`, the policy supports more than one Diffie-Hellman group. Use the `dh_groups` property to retrieve all
+	// supported Diffie-Hellman groups.
+	// Deprecated: this field is deprecated and may be removed in a future release.
 	DhGroup *int64 `json:"dh_group" validate:"required"`
 
+	// The Diffie-Hellman groups to use for IKE negotiation.
+	//
+	// The order of the Diffie-Hellman groups in this array indicates their priority for negotiation, with each
+	// Diffie-Hellman group having priority over the one after it.
+	DhGroups []int64 `json:"dh_groups" validate:"required"`
+
 	// The encryption algorithm.
+	//
+	// If `multiple`, the policy supports more than one encryption algorithm. Use the `encryption_algorithms` property to
+	// retrieve all supported algorithms.
 	//
 	// The `triple_des` algorithm has been deprecated.
 	//
 	// The enumerated values for this property may
 	// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.
+	// Deprecated: this field is deprecated and may be removed in a future release.
 	EncryptionAlgorithm *string `json:"encryption_algorithm" validate:"required"`
+
+	// The encryption algorithms to use for IKE Negotiation.
+	//
+	// The order of the algorithms in this array indicates their priority for negotiation, with each algorithm having
+	// priority over the one after it.
+	EncryptionAlgorithms []string `json:"encryption_algorithms" validate:"required"`
 
 	// The URL for this IKE policy.
 	Href *string `json:"href" validate:"required"`
@@ -63048,16 +64129,30 @@ type IkePolicy struct {
 //
 // The enumerated values for this property may
 // [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.
+//
+// If `multiple`, the policy supports more than one authentication algorithm. Use the `authentication_algorithms`
+// property to retrieve all supported algorithms.
 const (
-	IkePolicyAuthenticationAlgorithmMd5Const    = "md5"
-	IkePolicyAuthenticationAlgorithmSha1Const   = "sha1"
-	IkePolicyAuthenticationAlgorithmSha256Const = "sha256"
-	IkePolicyAuthenticationAlgorithmSha384Const = "sha384"
-	IkePolicyAuthenticationAlgorithmSha512Const = "sha512"
+	IkePolicyAuthenticationAlgorithmMd5Const      = "md5"
+	IkePolicyAuthenticationAlgorithmMultipleConst = "multiple"
+	IkePolicyAuthenticationAlgorithmSha1Const     = "sha1"
+	IkePolicyAuthenticationAlgorithmSha256Const   = "sha256"
+	IkePolicyAuthenticationAlgorithmSha384Const   = "sha384"
+	IkePolicyAuthenticationAlgorithmSha512Const   = "sha512"
+)
+
+// Constants associated with the IkePolicy.AuthenticationAlgorithms property.
+const (
+	IkePolicyAuthenticationAlgorithmsSha256Const = "sha256"
+	IkePolicyAuthenticationAlgorithmsSha384Const = "sha384"
+	IkePolicyAuthenticationAlgorithmsSha512Const = "sha512"
 )
 
 // Constants associated with the IkePolicy.EncryptionAlgorithm property.
 // The encryption algorithm.
+//
+// If `multiple`, the policy supports more than one encryption algorithm. Use the `encryption_algorithms` property to
+// retrieve all supported algorithms.
 //
 // The `triple_des` algorithm has been deprecated.
 //
@@ -63067,7 +64162,15 @@ const (
 	IkePolicyEncryptionAlgorithmAes128Const    = "aes128"
 	IkePolicyEncryptionAlgorithmAes192Const    = "aes192"
 	IkePolicyEncryptionAlgorithmAes256Const    = "aes256"
+	IkePolicyEncryptionAlgorithmMultipleConst  = "multiple"
 	IkePolicyEncryptionAlgorithmTripleDesConst = "triple_des"
+)
+
+// Constants associated with the IkePolicy.EncryptionAlgorithms property.
+const (
+	IkePolicyEncryptionAlgorithmsAes128Const = "aes128"
+	IkePolicyEncryptionAlgorithmsAes192Const = "aes192"
+	IkePolicyEncryptionAlgorithmsAes256Const = "aes256"
 )
 
 // Constants associated with the IkePolicy.NegotiationMode property.
@@ -63093,6 +64196,11 @@ func UnmarshalIkePolicy(m map[string]json.RawMessage, result interface{}) (err e
 		err = core.SDKErrorf(err, "", "authentication_algorithm-error", common.GetComponentInfo())
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "authentication_algorithms", &obj.AuthenticationAlgorithms)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "authentication_algorithms-error", common.GetComponentInfo())
+		return
+	}
 	err = core.UnmarshalModel(m, "connections", &obj.Connections, UnmarshalVPNGatewayConnectionReference)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "connections-error", common.GetComponentInfo())
@@ -63108,9 +64216,19 @@ func UnmarshalIkePolicy(m map[string]json.RawMessage, result interface{}) (err e
 		err = core.SDKErrorf(err, "", "dh_group-error", common.GetComponentInfo())
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "dh_groups", &obj.DhGroups)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "dh_groups-error", common.GetComponentInfo())
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "encryption_algorithm", &obj.EncryptionAlgorithm)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "encryption_algorithm-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "encryption_algorithms", &obj.EncryptionAlgorithms)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "encryption_algorithms-error", common.GetComponentInfo())
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
@@ -63292,13 +64410,73 @@ func (resp *IkePolicyConnectionCollection) GetNextStart() (*string, error) {
 // IkePolicyPatch : IkePolicyPatch struct
 type IkePolicyPatch struct {
 	// The authentication algorithm.
+	//
+	// `authentication_algorithm` has been deprecated. Use `authentication_algorithms` instead.
+	//
+	// If specified, `authentication_algorithms` must not be specified.
+	//
+	// Updating this property will also update the
+	// `authentication_algorithms` field accordingly.
+	// Deprecated: this field is deprecated and may be removed in a future release.
 	AuthenticationAlgorithm *string `json:"authentication_algorithm,omitempty"`
 
+	// The authentication algorithms to use for IKE Negotiation.
+	//
+	// If specified, `authentication_algorithm` must not be specified.
+	//
+	// If the IKE policy's `ike_version` is `1`, this array must contain exactly one algorithm.
+	//
+	// The order of the algorithms in this array indicates their priority for negotiation, with each algorithm having
+	// priority over the one after it.
+	//
+	// Updating this property will also update the
+	// `authentication_algorithm` field accordingly.
+	AuthenticationAlgorithms []string `json:"authentication_algorithms,omitempty"`
+
 	// The Diffie-Hellman group.
+	//
+	// `dh_group` has been deprecated. Use `dh_groups` instead.
+	//
+	// If specified, `dh_groups` must not be specified.
+	//
+	// Updating this property will also update the `dh_groups` field accordingly.
+	// Deprecated: this field is deprecated and may be removed in a future release.
 	DhGroup *int64 `json:"dh_group,omitempty"`
 
+	// The Diffie-Hellman groups to use for IKE Negotiation.
+	//
+	// If specified, `dh_group` must not be specified.
+	//
+	// If the IKE policy's `ike_version` is `1`, this array must contain exactly one algorithm.
+	//
+	// The order of the Diffie-Hellman groups in this array indicates their priority for negotiation, with each
+	// Diffie-Hellman group having priority over the one after it.
+	//
+	// Updating this property will also update the `dh_group` field accordingly.
+	DhGroups []int64 `json:"dh_groups,omitempty"`
+
 	// The encryption algorithm.
+	//
+	// `encryption_algorithm` has been deprecated. Use `encryption_algorithms` instead.
+	//
+	// If specified, `encryption_algorithms` must not be specified.
+	//
+	// Updating this property will also update the
+	// `encryption_algorithms` field accordingly.
+	// Deprecated: this field is deprecated and may be removed in a future release.
 	EncryptionAlgorithm *string `json:"encryption_algorithm,omitempty"`
+
+	// The encryption algorithms to use for IKE negotiation.
+	//
+	// If specified, `encryption_algorithm` must not be specified.
+	//
+	// If the IKE policy's `ike_version` is `1`, this array must contain exactly one algorithm.
+	//
+	// The order of the algorithms in this array indicates their priority for negotiation, with each algorithm having
+	// priority over the one after it.
+	//
+	// Updating this property will also update the `encryption_algorithm` field accordingly.
+	EncryptionAlgorithms []string `json:"encryption_algorithms,omitempty"`
 
 	// The IKE protocol version.
 	IkeVersion *int64 `json:"ike_version,omitempty"`
@@ -63312,18 +64490,46 @@ type IkePolicyPatch struct {
 
 // Constants associated with the IkePolicyPatch.AuthenticationAlgorithm property.
 // The authentication algorithm.
+//
+// `authentication_algorithm` has been deprecated. Use `authentication_algorithms` instead.
+//
+// If specified, `authentication_algorithms` must not be specified.
+//
+// Updating this property will also update the
+// `authentication_algorithms` field accordingly.
 const (
 	IkePolicyPatchAuthenticationAlgorithmSha256Const = "sha256"
 	IkePolicyPatchAuthenticationAlgorithmSha384Const = "sha384"
 	IkePolicyPatchAuthenticationAlgorithmSha512Const = "sha512"
 )
 
+// Constants associated with the IkePolicyPatch.AuthenticationAlgorithms property.
+const (
+	IkePolicyPatchAuthenticationAlgorithmsSha256Const = "sha256"
+	IkePolicyPatchAuthenticationAlgorithmsSha384Const = "sha384"
+	IkePolicyPatchAuthenticationAlgorithmsSha512Const = "sha512"
+)
+
 // Constants associated with the IkePolicyPatch.EncryptionAlgorithm property.
 // The encryption algorithm.
+//
+// `encryption_algorithm` has been deprecated. Use `encryption_algorithms` instead.
+//
+// If specified, `encryption_algorithms` must not be specified.
+//
+// Updating this property will also update the
+// `encryption_algorithms` field accordingly.
 const (
 	IkePolicyPatchEncryptionAlgorithmAes128Const = "aes128"
 	IkePolicyPatchEncryptionAlgorithmAes192Const = "aes192"
 	IkePolicyPatchEncryptionAlgorithmAes256Const = "aes256"
+)
+
+// Constants associated with the IkePolicyPatch.EncryptionAlgorithms property.
+const (
+	IkePolicyPatchEncryptionAlgorithmsAes128Const = "aes128"
+	IkePolicyPatchEncryptionAlgorithmsAes192Const = "aes192"
+	IkePolicyPatchEncryptionAlgorithmsAes256Const = "aes256"
 )
 
 // UnmarshalIkePolicyPatch unmarshals an instance of IkePolicyPatch from the specified map of raw messages.
@@ -63334,14 +64540,29 @@ func UnmarshalIkePolicyPatch(m map[string]json.RawMessage, result interface{}) (
 		err = core.SDKErrorf(err, "", "authentication_algorithm-error", common.GetComponentInfo())
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "authentication_algorithms", &obj.AuthenticationAlgorithms)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "authentication_algorithms-error", common.GetComponentInfo())
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "dh_group", &obj.DhGroup)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "dh_group-error", common.GetComponentInfo())
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "dh_groups", &obj.DhGroups)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "dh_groups-error", common.GetComponentInfo())
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "encryption_algorithm", &obj.EncryptionAlgorithm)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "encryption_algorithm-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "encryption_algorithms", &obj.EncryptionAlgorithms)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "encryption_algorithms-error", common.GetComponentInfo())
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "ike_version", &obj.IkeVersion)
@@ -63369,11 +64590,20 @@ func (ikePolicyPatch *IkePolicyPatch) AsPatch() (_patch map[string]interface{}, 
 	if !core.IsNil(ikePolicyPatch.AuthenticationAlgorithm) {
 		_patch["authentication_algorithm"] = ikePolicyPatch.AuthenticationAlgorithm
 	}
+	if !core.IsNil(ikePolicyPatch.AuthenticationAlgorithms) {
+		_patch["authentication_algorithms"] = ikePolicyPatch.AuthenticationAlgorithms
+	}
 	if !core.IsNil(ikePolicyPatch.DhGroup) {
 		_patch["dh_group"] = ikePolicyPatch.DhGroup
 	}
+	if !core.IsNil(ikePolicyPatch.DhGroups) {
+		_patch["dh_groups"] = ikePolicyPatch.DhGroups
+	}
 	if !core.IsNil(ikePolicyPatch.EncryptionAlgorithm) {
 		_patch["encryption_algorithm"] = ikePolicyPatch.EncryptionAlgorithm
+	}
+	if !core.IsNil(ikePolicyPatch.EncryptionAlgorithms) {
+		_patch["encryption_algorithms"] = ikePolicyPatch.EncryptionAlgorithms
 	}
 	if !core.IsNil(ikePolicyPatch.IkeVersion) {
 		_patch["ike_version"] = ikePolicyPatch.IkeVersion
@@ -63490,13 +64720,23 @@ func (ip *IP) asPatch() (_patch map[string]interface{}) {
 
 // IPsecPolicy : IPsecPolicy struct
 type IPsecPolicy struct {
-	// The authentication algorithm
+	// The authentication algorithms.
+	//
+	// If `multiple`, the policy supports more than one authentication algorithm. Use the `authentication_algorithms`
+	// property to retrieve all supported algorithms.
 	//
 	// The `md5` and `sha1` algorithms have been deprecated
 	//
 	// The enumerated values for this property may
 	// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.
+	// Deprecated: this field is deprecated and may be removed in a future release.
 	AuthenticationAlgorithm *string `json:"authentication_algorithm" validate:"required"`
+
+	// The authentication algorithms to use for IPsec Negotiation.
+	//
+	// The order of the algorithms in this array indicates their priority for negotiation, with each algorithm having
+	// priority over the one after it.
+	AuthenticationAlgorithms []string `json:"authentication_algorithms" validate:"required"`
 
 	// The VPN gateway connections that use this IPsec policy.
 	Connections []VPNGatewayConnectionReference `json:"connections" validate:"required"`
@@ -63510,13 +64750,23 @@ type IPsecPolicy struct {
 	// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.
 	EncapsulationMode *string `json:"encapsulation_mode" validate:"required"`
 
-	// The encryption algorithm
+	// The encryption algorithm.
+	//
+	// If `multiple`, the policy supports more than one encryption algorithm. Use the `encryption_algorithms` property to
+	// retrieve all supported algorithms.
 	//
 	// The `triple_des` algorithm has been deprecated
 	//
 	// The enumerated values for this property may
 	// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.
+	// Deprecated: this field is deprecated and may be removed in a future release.
 	EncryptionAlgorithm *string `json:"encryption_algorithm" validate:"required"`
+
+	// The encryption algorithms to use for IKE Negotiation.
+	//
+	// The order of the algorithms in this array indicates their priority for negotiation, with each algorithm having
+	// priority over the one after it.
+	EncryptionAlgorithms []string `json:"encryption_algorithms" validate:"required"`
 
 	// The URL for this IPsec policy.
 	Href *string `json:"href" validate:"required"`
@@ -63530,13 +64780,23 @@ type IPsecPolicy struct {
 	// The name for this IPsec policy. The name is unique across all IPsec policies in the region.
 	Name *string `json:"name" validate:"required"`
 
-	// The Perfect Forward Secrecy group
+	// The Perfect Forward Secrecy group.
+	//
+	// If `multiple`, the policy supports more than one PFS group. Use the `pfs_groups` property to retrieve all supported
+	// PFS groups.
 	//
 	// Groups `group_2` and `group_5` have been deprecated
 	//
 	// The enumerated values for this property may
 	// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.
+	// Deprecated: this field is deprecated and may be removed in a future release.
 	Pfs *string `json:"pfs" validate:"required"`
+
+	// The Perfect Forward Secrecy groups to use for IPsec negotiation.
+	//
+	// The order of the Perfect Forward Secrecy groups in this array indicates their priority for negotiation, with each
+	// Perfect Forward Secrecy group having priority over the one after it.
+	PfsGroups []string `json:"pfs_groups" validate:"required"`
 
 	// The resource group for this IPsec policy.
 	ResourceGroup *ResourceGroupReference `json:"resource_group" validate:"required"`
@@ -63552,7 +64812,10 @@ type IPsecPolicy struct {
 }
 
 // Constants associated with the IPsecPolicy.AuthenticationAlgorithm property.
-// The authentication algorithm
+// The authentication algorithms.
+//
+// If `multiple`, the policy supports more than one authentication algorithm. Use the `authentication_algorithms`
+// property to retrieve all supported algorithms.
 //
 // # The `md5` and `sha1` algorithms have been deprecated
 //
@@ -63560,11 +64823,18 @@ type IPsecPolicy struct {
 // [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.
 const (
 	IPsecPolicyAuthenticationAlgorithmDisabledConst = "disabled"
-	IPsecPolicyAuthenticationAlgorithmMd5Const      = "md5"
-	IPsecPolicyAuthenticationAlgorithmSha1Const     = "sha1"
+	IPsecPolicyAuthenticationAlgorithmMultipleConst = "multiple"
 	IPsecPolicyAuthenticationAlgorithmSha256Const   = "sha256"
 	IPsecPolicyAuthenticationAlgorithmSha384Const   = "sha384"
 	IPsecPolicyAuthenticationAlgorithmSha512Const   = "sha512"
+)
+
+// Constants associated with the IPsecPolicy.AuthenticationAlgorithms property.
+const (
+	IPsecPolicyAuthenticationAlgorithmsDisabledConst = "disabled"
+	IPsecPolicyAuthenticationAlgorithmsSha256Const   = "sha256"
+	IPsecPolicyAuthenticationAlgorithmsSha384Const   = "sha384"
+	IPsecPolicyAuthenticationAlgorithmsSha512Const   = "sha512"
 )
 
 // Constants associated with the IPsecPolicy.EncapsulationMode property.
@@ -63577,7 +64847,10 @@ const (
 )
 
 // Constants associated with the IPsecPolicy.EncryptionAlgorithm property.
-// The encryption algorithm
+// The encryption algorithm.
+//
+// If `multiple`, the policy supports more than one encryption algorithm. Use the `encryption_algorithms` property to
+// retrieve all supported algorithms.
 //
 // The `triple_des` algorithm has been deprecated
 //
@@ -63590,11 +64863,25 @@ const (
 	IPsecPolicyEncryptionAlgorithmAes192gcm16Const = "aes192gcm16"
 	IPsecPolicyEncryptionAlgorithmAes256Const      = "aes256"
 	IPsecPolicyEncryptionAlgorithmAes256gcm16Const = "aes256gcm16"
+	IPsecPolicyEncryptionAlgorithmMultipleConst    = "multiple"
 	IPsecPolicyEncryptionAlgorithmTripleDesConst   = "triple_des"
 )
 
+// Constants associated with the IPsecPolicy.EncryptionAlgorithms property.
+const (
+	IPsecPolicyEncryptionAlgorithmsAes128Const      = "aes128"
+	IPsecPolicyEncryptionAlgorithmsAes128gcm16Const = "aes128gcm16"
+	IPsecPolicyEncryptionAlgorithmsAes192Const      = "aes192"
+	IPsecPolicyEncryptionAlgorithmsAes192gcm16Const = "aes192gcm16"
+	IPsecPolicyEncryptionAlgorithmsAes256Const      = "aes256"
+	IPsecPolicyEncryptionAlgorithmsAes256gcm16Const = "aes256gcm16"
+)
+
 // Constants associated with the IPsecPolicy.Pfs property.
-// The Perfect Forward Secrecy group
+// The Perfect Forward Secrecy group.
+//
+// If `multiple`, the policy supports more than one PFS group. Use the `pfs_groups` property to retrieve all supported
+// PFS groups.
 //
 // Groups `group_2` and `group_5` have been deprecated
 //
@@ -63616,6 +64903,24 @@ const (
 	IPsecPolicyPfsGroup24Const  = "group_24"
 	IPsecPolicyPfsGroup31Const  = "group_31"
 	IPsecPolicyPfsGroup5Const   = "group_5"
+	IPsecPolicyPfsMultipleConst = "multiple"
+)
+
+// Constants associated with the IPsecPolicy.PfsGroups property.
+const (
+	IPsecPolicyPfsGroupsDisabledConst = "disabled"
+	IPsecPolicyPfsGroupsGroup14Const  = "group_14"
+	IPsecPolicyPfsGroupsGroup15Const  = "group_15"
+	IPsecPolicyPfsGroupsGroup16Const  = "group_16"
+	IPsecPolicyPfsGroupsGroup17Const  = "group_17"
+	IPsecPolicyPfsGroupsGroup18Const  = "group_18"
+	IPsecPolicyPfsGroupsGroup19Const  = "group_19"
+	IPsecPolicyPfsGroupsGroup20Const  = "group_20"
+	IPsecPolicyPfsGroupsGroup21Const  = "group_21"
+	IPsecPolicyPfsGroupsGroup22Const  = "group_22"
+	IPsecPolicyPfsGroupsGroup23Const  = "group_23"
+	IPsecPolicyPfsGroupsGroup24Const  = "group_24"
+	IPsecPolicyPfsGroupsGroup31Const  = "group_31"
 )
 
 // Constants associated with the IPsecPolicy.ResourceType property.
@@ -63641,6 +64946,11 @@ func UnmarshalIPsecPolicy(m map[string]json.RawMessage, result interface{}) (err
 		err = core.SDKErrorf(err, "", "authentication_algorithm-error", common.GetComponentInfo())
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "authentication_algorithms", &obj.AuthenticationAlgorithms)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "authentication_algorithms-error", common.GetComponentInfo())
+		return
+	}
 	err = core.UnmarshalModel(m, "connections", &obj.Connections, UnmarshalVPNGatewayConnectionReference)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "connections-error", common.GetComponentInfo())
@@ -63659,6 +64969,11 @@ func UnmarshalIPsecPolicy(m map[string]json.RawMessage, result interface{}) (err
 	err = core.UnmarshalPrimitive(m, "encryption_algorithm", &obj.EncryptionAlgorithm)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "encryption_algorithm-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "encryption_algorithms", &obj.EncryptionAlgorithms)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "encryption_algorithms-error", common.GetComponentInfo())
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
@@ -63684,6 +64999,11 @@ func UnmarshalIPsecPolicy(m map[string]json.RawMessage, result interface{}) (err
 	err = core.UnmarshalPrimitive(m, "pfs", &obj.Pfs)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "pfs-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "pfs_groups", &obj.PfsGroups)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "pfs_groups-error", common.GetComponentInfo())
 		return
 	}
 	err = core.UnmarshalModel(m, "resource_group", &obj.ResourceGroup, UnmarshalResourceGroupReference)
@@ -63841,39 +65161,113 @@ func (resp *IPsecPolicyConnectionCollection) GetNextStart() (*string, error) {
 type IPsecPolicyPatch struct {
 	// The authentication algorithm.
 	//
+	// `authentication_algorithm` has been deprecated. Use `authentication_algorithms` instead.
+	//
+	// If specified, `authentication_algorithms` must not be specified.
+	//
 	// Must be `disabled` if and only if the `encryption_algorithm` is `aes128gcm16`,
 	// `aes192gcm16`, or `aes256gcm16`
 	//
 	// The `md5` and `sha1` algorithms have been deprecated.
+	//
+	// Updating this property will also update the
+	// `authentication_algorithms` field accordingly.
+	// Deprecated: this field is deprecated and may be removed in a future release.
 	AuthenticationAlgorithm *string `json:"authentication_algorithm,omitempty"`
 
+	// The authentication algorithms to use for IPsec negotiation.
+	//
+	// If specified, `authentication_algorithm` must not be specified.
+	//
+	// Must be `["disabled"]` when `encryption_algorithms` has only combined-mode algorithms
+	// (`aes128gcm16`, `aes192gcm16`, and `aes256gcm16`).
+	//
+	// The `md5` and `sha1` algorithms have been deprecated.
+	//
+	// The order of the algorithms in this array indicates their priority for negotiation, with each algorithm having
+	// priority over the one after it.
+	//
+	// Updating this property will also update the
+	// `authentication_algorithm` field accordingly.
+	AuthenticationAlgorithms []string `json:"authentication_algorithms,omitempty"`
+
 	// The encryption algorithm.
+	//
+	// `encryption_algorithm` has been deprecated. Use `encryption_algorithms` instead.
+	//
+	// If specified, `encryption_algorithms` must not be specified.
 	//
 	// The `authentication_algorithm` must be `disabled` if and only if
 	// `encryption_algorithm` is `aes128gcm16`, `aes192gcm16`, or `aes256gcm16`
 	//
 	// The `triple_des` algorithm has been deprecated.
+	//
+	// Updating this property will also update the
+	// `encryption_algorithms` field accordingly.
+	// Deprecated: this field is deprecated and may be removed in a future release.
 	EncryptionAlgorithm *string `json:"encryption_algorithm,omitempty"`
+
+	// The encryption algorithms to use for IPsec negotiation.
+	//
+	// If specified, `encryption_algorithm` must not be specified.
+	//
+	// If only combined-mode encryption algorithms (`aes128gcm16`, `aes192gcm16`, and
+	// `aes256gcm16`) are to be used, then `authentication_algorithms` must be `["disabled"]`.
+	//
+	// The `triple_des` algorithm has been deprecated.
+	//
+	// The order of the algorithms in this array indicates their priority for negotiation, with each algorithm having
+	// priority over the one after it.
+	//
+	// Updating this property will also update the `encryption_algorithm` field accordingly.
+	EncryptionAlgorithms []string `json:"encryption_algorithms,omitempty"`
 
 	// The key lifetime in seconds.
 	KeyLifetime *int64 `json:"key_lifetime,omitempty"`
 
-	// The name for this IPsec policy. The name must not be used by another IPsec policy in the region.
+	// The name for this IPsec policy. The name is unique across all IPsec policies in the region.
 	Name *string `json:"name,omitempty"`
 
 	// The Perfect Forward Secrecy group.
 	//
+	// `pfs` has been deprecated. Use `pfs_groups` instead.
+	//
+	// If specified, `pfs_groups` must not be specified.
+	//
 	// Groups `group_2` and `group_5` have been deprecated.
+	//
+	// Updating this property will also update the
+	// `pfs_groups` field accordingly.
+	// Deprecated: this field is deprecated and may be removed in a future release.
 	Pfs *string `json:"pfs,omitempty"`
+
+	// The Perfect Forward Secrecy groups to use for IPsec negotiation.
+	//
+	// If specified, `pfs_groups` must not be specified.
+	//
+	// Groups `group_2` and `group_5` have been deprecated.
+	//
+	// The order of the Perfect Forward Secrecy groups in this array indicates their priority for negotiation, with each
+	// Perfect Forward Secrecy group having priority over the one after it.
+	//
+	// Updating this property will also update the `pfs` field accordingly.
+	PfsGroups []string `json:"pfs_groups,omitempty"`
 }
 
 // Constants associated with the IPsecPolicyPatch.AuthenticationAlgorithm property.
 // The authentication algorithm.
 //
+// `authentication_algorithm` has been deprecated. Use `authentication_algorithms` instead.
+//
+// If specified, `authentication_algorithms` must not be specified.
+//
 // Must be `disabled` if and only if the `encryption_algorithm` is `aes128gcm16`,
 // `aes192gcm16`, or `aes256gcm16`
 //
 // The `md5` and `sha1` algorithms have been deprecated.
+//
+// Updating this property will also update the
+// `authentication_algorithms` field accordingly.
 const (
 	IPsecPolicyPatchAuthenticationAlgorithmDisabledConst = "disabled"
 	IPsecPolicyPatchAuthenticationAlgorithmSha256Const   = "sha256"
@@ -63881,13 +65275,28 @@ const (
 	IPsecPolicyPatchAuthenticationAlgorithmSha512Const   = "sha512"
 )
 
+// Constants associated with the IPsecPolicyPatch.AuthenticationAlgorithms property.
+const (
+	IPsecPolicyPatchAuthenticationAlgorithmsDisabledConst = "disabled"
+	IPsecPolicyPatchAuthenticationAlgorithmsSha256Const   = "sha256"
+	IPsecPolicyPatchAuthenticationAlgorithmsSha384Const   = "sha384"
+	IPsecPolicyPatchAuthenticationAlgorithmsSha512Const   = "sha512"
+)
+
 // Constants associated with the IPsecPolicyPatch.EncryptionAlgorithm property.
 // The encryption algorithm.
+//
+// `encryption_algorithm` has been deprecated. Use `encryption_algorithms` instead.
+//
+// If specified, `encryption_algorithms` must not be specified.
 //
 // The `authentication_algorithm` must be `disabled` if and only if
 // `encryption_algorithm` is `aes128gcm16`, `aes192gcm16`, or `aes256gcm16`
 //
 // The `triple_des` algorithm has been deprecated.
+//
+// Updating this property will also update the
+// `encryption_algorithms` field accordingly.
 const (
 	IPsecPolicyPatchEncryptionAlgorithmAes128Const      = "aes128"
 	IPsecPolicyPatchEncryptionAlgorithmAes128gcm16Const = "aes128gcm16"
@@ -63897,10 +65306,27 @@ const (
 	IPsecPolicyPatchEncryptionAlgorithmAes256gcm16Const = "aes256gcm16"
 )
 
+// Constants associated with the IPsecPolicyPatch.EncryptionAlgorithms property.
+const (
+	IPsecPolicyPatchEncryptionAlgorithmsAes128Const      = "aes128"
+	IPsecPolicyPatchEncryptionAlgorithmsAes128gcm16Const = "aes128gcm16"
+	IPsecPolicyPatchEncryptionAlgorithmsAes192Const      = "aes192"
+	IPsecPolicyPatchEncryptionAlgorithmsAes192gcm16Const = "aes192gcm16"
+	IPsecPolicyPatchEncryptionAlgorithmsAes256Const      = "aes256"
+	IPsecPolicyPatchEncryptionAlgorithmsAes256gcm16Const = "aes256gcm16"
+)
+
 // Constants associated with the IPsecPolicyPatch.Pfs property.
 // The Perfect Forward Secrecy group.
 //
+// `pfs` has been deprecated. Use `pfs_groups` instead.
+//
+// If specified, `pfs_groups` must not be specified.
+//
 // Groups `group_2` and `group_5` have been deprecated.
+//
+// Updating this property will also update the
+// `pfs_groups` field accordingly.
 const (
 	IPsecPolicyPatchPfsDisabledConst = "disabled"
 	IPsecPolicyPatchPfsGroup14Const  = "group_14"
@@ -63917,6 +65343,23 @@ const (
 	IPsecPolicyPatchPfsGroup31Const  = "group_31"
 )
 
+// Constants associated with the IPsecPolicyPatch.PfsGroups property.
+const (
+	IPsecPolicyPatchPfsGroupsDisabledConst = "disabled"
+	IPsecPolicyPatchPfsGroupsGroup14Const  = "group_14"
+	IPsecPolicyPatchPfsGroupsGroup15Const  = "group_15"
+	IPsecPolicyPatchPfsGroupsGroup16Const  = "group_16"
+	IPsecPolicyPatchPfsGroupsGroup17Const  = "group_17"
+	IPsecPolicyPatchPfsGroupsGroup18Const  = "group_18"
+	IPsecPolicyPatchPfsGroupsGroup19Const  = "group_19"
+	IPsecPolicyPatchPfsGroupsGroup20Const  = "group_20"
+	IPsecPolicyPatchPfsGroupsGroup21Const  = "group_21"
+	IPsecPolicyPatchPfsGroupsGroup22Const  = "group_22"
+	IPsecPolicyPatchPfsGroupsGroup23Const  = "group_23"
+	IPsecPolicyPatchPfsGroupsGroup24Const  = "group_24"
+	IPsecPolicyPatchPfsGroupsGroup31Const  = "group_31"
+)
+
 // UnmarshalIPsecPolicyPatch unmarshals an instance of IPsecPolicyPatch from the specified map of raw messages.
 func UnmarshalIPsecPolicyPatch(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(IPsecPolicyPatch)
@@ -63925,9 +65368,19 @@ func UnmarshalIPsecPolicyPatch(m map[string]json.RawMessage, result interface{})
 		err = core.SDKErrorf(err, "", "authentication_algorithm-error", common.GetComponentInfo())
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "authentication_algorithms", &obj.AuthenticationAlgorithms)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "authentication_algorithms-error", common.GetComponentInfo())
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "encryption_algorithm", &obj.EncryptionAlgorithm)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "encryption_algorithm-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "encryption_algorithms", &obj.EncryptionAlgorithms)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "encryption_algorithms-error", common.GetComponentInfo())
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "key_lifetime", &obj.KeyLifetime)
@@ -63945,6 +65398,11 @@ func UnmarshalIPsecPolicyPatch(m map[string]json.RawMessage, result interface{})
 		err = core.SDKErrorf(err, "", "pfs-error", common.GetComponentInfo())
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "pfs_groups", &obj.PfsGroups)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "pfs_groups-error", common.GetComponentInfo())
+		return
+	}
 	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
 	return
 }
@@ -63955,8 +65413,14 @@ func (iPsecPolicyPatch *IPsecPolicyPatch) AsPatch() (_patch map[string]interface
 	if !core.IsNil(iPsecPolicyPatch.AuthenticationAlgorithm) {
 		_patch["authentication_algorithm"] = iPsecPolicyPatch.AuthenticationAlgorithm
 	}
+	if !core.IsNil(iPsecPolicyPatch.AuthenticationAlgorithms) {
+		_patch["authentication_algorithms"] = iPsecPolicyPatch.AuthenticationAlgorithms
+	}
 	if !core.IsNil(iPsecPolicyPatch.EncryptionAlgorithm) {
 		_patch["encryption_algorithm"] = iPsecPolicyPatch.EncryptionAlgorithm
+	}
+	if !core.IsNil(iPsecPolicyPatch.EncryptionAlgorithms) {
+		_patch["encryption_algorithms"] = iPsecPolicyPatch.EncryptionAlgorithms
 	}
 	if !core.IsNil(iPsecPolicyPatch.KeyLifetime) {
 		_patch["key_lifetime"] = iPsecPolicyPatch.KeyLifetime
@@ -63966,6 +65430,9 @@ func (iPsecPolicyPatch *IPsecPolicyPatch) AsPatch() (_patch map[string]interface
 	}
 	if !core.IsNil(iPsecPolicyPatch.Pfs) {
 		_patch["pfs"] = iPsecPolicyPatch.Pfs
+	}
+	if !core.IsNil(iPsecPolicyPatch.PfsGroups) {
+		_patch["pfs_groups"] = iPsecPolicyPatch.PfsGroups
 	}
 
 	return
@@ -64351,7 +65818,11 @@ type ImageAllowedUse struct {
 	// - `gpu.count` (integer): The number of GPUs
 	// - `gpu.manufacturer` (string): The GPU manufacturer
 	// - `gpu.memory` (integer): The overall amount of GPU memory in GiB (gibibytes)
-	// - `gpu.model` (string): The GPU model.
+	// - `gpu.model` (string): The GPU model
+	// - `metadata_service.enabled` (boolean): Whether the metadata service is enabled
+	// - `metadata_service.protocol` (string): The communication protocol used for the
+	//   metadata service endpoint
+	// - `vcpu.count` (integer): The number of virtual CPUs.
 	Instance *string `json:"instance" validate:"required"`
 }
 
@@ -64401,7 +65872,11 @@ type ImageAllowedUsePatch struct {
 	// - `gpu.count` (integer): The number of GPUs
 	// - `gpu.manufacturer` (string): The GPU manufacturer
 	// - `gpu.memory` (integer): The overall amount of GPU memory in GiB (gibibytes)
-	// - `gpu.model` (string): The GPU model.
+	// - `gpu.model` (string): The GPU model
+	// - `metadata_service.enabled` (boolean): Whether the metadata service is enabled
+	// - `metadata_service.protocol` (string): The communication protocol used for the
+	//   metadata service endpoint
+	// - `vcpu.count` (integer): The number of virtual CPUs.
 	Instance *string `json:"instance,omitempty"`
 }
 
@@ -64472,7 +65947,11 @@ type ImageAllowedUsePrototype struct {
 	// - `gpu.count` (integer): The number of GPUs
 	// - `gpu.manufacturer` (string): The GPU manufacturer
 	// - `gpu.memory` (integer): The overall amount of GPU memory in GiB (gibibytes)
-	// - `gpu.model` (string): The GPU model.
+	// - `gpu.model` (string): The GPU model
+	// - `metadata_service.enabled` (boolean): Whether the metadata service is enabled
+	// - `metadata_service.protocol` (string): The communication protocol used for the
+	//   metadata service endpoint.
+	// - `vcpu.count` (integer): The number of virtual CPUs.
 	Instance *string `json:"instance,omitempty"`
 }
 
@@ -65696,6 +67175,9 @@ type Instance struct {
 	// The resource type.
 	ResourceType *string `json:"resource_type" validate:"required"`
 
+	// The software attachments for this instance.
+	SoftwareAttachments []InstanceSoftwareAttachmentReference `json:"software_attachments" validate:"required"`
+
 	// Indicates whether the state of the virtual server instance permits a start request.
 	Startable *bool `json:"startable" validate:"required"`
 
@@ -65707,6 +67189,9 @@ type Instance struct {
 
 	// The reasons for the current status (if any).
 	StatusReasons []InstanceStatusReason `json:"status_reasons" validate:"required"`
+
+	// The threads per core for this virtual server instance.
+	ThreadsPerCore *int64 `json:"threads_per_core" validate:"required"`
 
 	// The amount of bandwidth (in megabits per second) allocated exclusively to instance network attachments or instance
 	// network interfaces.
@@ -65980,6 +67465,11 @@ func UnmarshalInstance(m map[string]json.RawMessage, result interface{}) (err er
 		err = core.SDKErrorf(err, "", "resource_type-error", common.GetComponentInfo())
 		return
 	}
+	err = core.UnmarshalModel(m, "software_attachments", &obj.SoftwareAttachments, UnmarshalInstanceSoftwareAttachmentReference)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "software_attachments-error", common.GetComponentInfo())
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "startable", &obj.Startable)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "startable-error", common.GetComponentInfo())
@@ -65993,6 +67483,11 @@ func UnmarshalInstance(m map[string]json.RawMessage, result interface{}) (err er
 	err = core.UnmarshalModel(m, "status_reasons", &obj.StatusReasons, UnmarshalInstanceStatusReason)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "status_reasons-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "threads_per_core", &obj.ThreadsPerCore)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "threads_per_core-error", common.GetComponentInfo())
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "total_network_bandwidth", &obj.TotalNetworkBandwidth)
@@ -69816,6 +71311,8 @@ func UnmarshalInstanceInitializationPassword(m map[string]json.RawMessage, resul
 // InstanceLifecycleReason : InstanceLifecycleReason struct
 type InstanceLifecycleReason struct {
 	// A reason code for this lifecycle state:
+	// - `failed_licensing`: Allocation of one or more software license(s) has failed. Delete
+	//   the instance and provision it again. If the problem persists, contact IBM Support.
 	// - `failed_registration`: The instance's registration to Resource Controller has
 	//   failed. Delete the instance and provision it again. If the problem persists,
 	//   contact IBM Support.
@@ -69838,6 +71335,8 @@ type InstanceLifecycleReason struct {
 
 // Constants associated with the InstanceLifecycleReason.Code property.
 // A reason code for this lifecycle state:
+//   - `failed_licensing`: Allocation of one or more software license(s) has failed. Delete
+//     the instance and provision it again. If the problem persists, contact IBM Support.
 //   - `failed_registration`: The instance's registration to Resource Controller has
 //     failed. Delete the instance and provision it again. If the problem persists,
 //     contact IBM Support.
@@ -69850,6 +71349,7 @@ type InstanceLifecycleReason struct {
 // The enumerated values for this property may
 // [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.
 const (
+	InstanceLifecycleReasonCodeFailedLicensingConst             = "failed_licensing"
 	InstanceLifecycleReasonCodeFailedRegistrationConst          = "failed_registration"
 	InstanceLifecycleReasonCodeInternalErrorConst               = "internal_error"
 	InstanceLifecycleReasonCodePendingRegistrationConst         = "pending_registration"
@@ -70574,6 +72074,13 @@ type InstancePatch struct {
 
 	ReservationAffinity *InstanceReservationAffinityPatch `json:"reservation_affinity,omitempty"`
 
+	// The threads per core to use for this virtual server instance. Must be one of the values in the profile's
+	// `threads_per_core.values`.
+	//
+	// For this property to be changed, the virtual server instance `status` must be
+	// `stopping` or `stopped`.
+	ThreadsPerCore *int64 `json:"threads_per_core,omitempty"`
+
 	// The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes. An increase in
 	// this value will result in a corresponding decrease to
 	// `total_network_bandwidth`.
@@ -70659,6 +72166,11 @@ func UnmarshalInstancePatch(m map[string]json.RawMessage, result interface{}) (e
 		err = core.SDKErrorf(err, "", "reservation_affinity-error", common.GetComponentInfo())
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "threads_per_core", &obj.ThreadsPerCore)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "threads_per_core-error", common.GetComponentInfo())
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "total_volume_bandwidth", &obj.TotalVolumeBandwidth)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "total_volume_bandwidth-error", common.GetComponentInfo())
@@ -70707,6 +72219,9 @@ func (instancePatch *InstancePatch) AsPatch() (_patch map[string]interface{}, er
 	}
 	if !core.IsNil(instancePatch.ReservationAffinity) {
 		_patch["reservation_affinity"] = instancePatch.ReservationAffinity.asPatch()
+	}
+	if !core.IsNil(instancePatch.ThreadsPerCore) {
+		_patch["threads_per_core"] = instancePatch.ThreadsPerCore
 	}
 	if !core.IsNil(instancePatch.TotalVolumeBandwidth) {
 		_patch["total_volume_bandwidth"] = instancePatch.TotalVolumeBandwidth
@@ -70871,13 +72386,13 @@ func UnmarshalInstancePlacementTarget(m map[string]json.RawMessage, result inter
 // - InstancePlacementTargetPatchDedicatedHostIdentity
 // - InstancePlacementTargetPatchDedicatedHostGroupIdentity
 type InstancePlacementTargetPatch struct {
-	// The unique identifier for this dedicated host or the unique identifier for this dedicated host group.
+	// The unique identifier for this dedicated host.
 	ID *string `json:"id,omitempty"`
 
-	// The CRN for this dedicated host or the CRN for this dedicated host group.
+	// The CRN for this dedicated host.
 	CRN *string `json:"crn,omitempty"`
 
-	// The URL for this dedicated host or the URL for this dedicated host group.
+	// The URL for this dedicated host.
 	Href *string `json:"href,omitempty"`
 }
 
@@ -70937,14 +72452,13 @@ func (instancePlacementTargetPatch *InstancePlacementTargetPatch) asPatch() (_pa
 // - InstancePlacementTargetPrototypeDedicatedHostGroupIdentity
 // - InstancePlacementTargetPrototypePlacementGroupIdentity
 type InstancePlacementTargetPrototype struct {
-	// The unique identifier for this dedicated host or the unique identifier for this dedicated host group or the unique
-	// identifier for this placement group.
+	// The unique identifier for this dedicated host.
 	ID *string `json:"id,omitempty"`
 
-	// The CRN for this dedicated host or the CRN for this dedicated host group or the CRN for this placement group.
+	// The CRN for this dedicated host.
 	CRN *string `json:"crn,omitempty"`
 
-	// The URL for this dedicated host or the URL for this dedicated host group or the URL for this placement group.
+	// The URL for this dedicated host.
 	Href *string `json:"href,omitempty"`
 }
 
@@ -71044,6 +72558,11 @@ type InstanceProfile struct {
 
 	// The cluster network profiles that support this instance profile.
 	SupportedClusterNetworkProfiles []ClusterNetworkProfileReference `json:"supported_cluster_network_profiles" validate:"required"`
+
+	// The supported values for vcpu count for an instance with this profile.
+	SupportedVcpuCount *InstanceProfileSupportedVcpuCountEnum `json:"supported_vcpu_count" validate:"required"`
+
+	ThreadsPerCore *InstanceProfileThreadsPerCoreEnum `json:"threads_per_core" validate:"required"`
 
 	TotalVolumeBandwidth InstanceProfileVolumeBandwidthIntf `json:"total_volume_bandwidth" validate:"required"`
 
@@ -71208,6 +72727,16 @@ func UnmarshalInstanceProfile(m map[string]json.RawMessage, result interface{}) 
 	err = core.UnmarshalModel(m, "supported_cluster_network_profiles", &obj.SupportedClusterNetworkProfiles, UnmarshalClusterNetworkProfileReference)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "supported_cluster_network_profiles-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "supported_vcpu_count", &obj.SupportedVcpuCount, UnmarshalInstanceProfileSupportedVcpuCountEnum)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "supported_vcpu_count-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "threads_per_core", &obj.ThreadsPerCore, UnmarshalInstanceProfileThreadsPerCoreEnum)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "threads_per_core-error", common.GetComponentInfo())
 		return
 	}
 	err = core.UnmarshalModel(m, "total_volume_bandwidth", &obj.TotalVolumeBandwidth, UnmarshalInstanceProfileVolumeBandwidth)
@@ -72726,6 +74255,78 @@ func UnmarshalInstanceProfileSupportedSecureBootModes(m map[string]json.RawMessa
 	return
 }
 
+// InstanceProfileSupportedVcpuCountEnum : The supported values for vcpu count for an instance with this profile.
+type InstanceProfileSupportedVcpuCountEnum struct {
+	// The type for this profile field.
+	Type *string `json:"type" validate:"required"`
+
+	// The permitted values for this profile field.
+	Values []int64 `json:"values" validate:"required"`
+}
+
+// Constants associated with the InstanceProfileSupportedVcpuCountEnum.Type property.
+// The type for this profile field.
+const (
+	InstanceProfileSupportedVcpuCountEnumTypeEnumConst = "enum"
+)
+
+// UnmarshalInstanceProfileSupportedVcpuCountEnum unmarshals an instance of InstanceProfileSupportedVcpuCountEnum from the specified map of raw messages.
+func UnmarshalInstanceProfileSupportedVcpuCountEnum(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(InstanceProfileSupportedVcpuCountEnum)
+	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "type-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "values", &obj.Values)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "values-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// InstanceProfileThreadsPerCoreEnum : InstanceProfileThreadsPerCoreEnum struct
+type InstanceProfileThreadsPerCoreEnum struct {
+	// The default threads per core value for an instance with this profile.
+	Default *int64 `json:"default" validate:"required"`
+
+	// The type for this profile field.
+	Type *string `json:"type" validate:"required"`
+
+	// The permitted threads per core values for an instance with this profile.
+	Values []int64 `json:"values" validate:"required"`
+}
+
+// Constants associated with the InstanceProfileThreadsPerCoreEnum.Type property.
+// The type for this profile field.
+const (
+	InstanceProfileThreadsPerCoreEnumTypeEnumConst = "enum"
+)
+
+// UnmarshalInstanceProfileThreadsPerCoreEnum unmarshals an instance of InstanceProfileThreadsPerCoreEnum from the specified map of raw messages.
+func UnmarshalInstanceProfileThreadsPerCoreEnum(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(InstanceProfileThreadsPerCoreEnum)
+	err = core.UnmarshalPrimitive(m, "default", &obj.Default)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "default-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "type-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "values", &obj.Values)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "values-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
 // InstanceProfileVcpu : InstanceProfileVcpu struct
 // Models which "extend" this model:
 // - InstanceProfileVcpuFixed
@@ -73163,8 +74764,9 @@ type InstancePrototype struct {
 
 	// The default trusted profile configuration to use for this virtual server instance
 	//
-	// This property's value is used when provisioning the virtual server instance, but not
-	// subsequently managed. Accordingly, it is reflected as an [instance
+	// This property's value is used when provisioning the virtual server instance, and
+	// can only be changed by reinitializing the instance. Accordingly, it is reflected as
+	// an [instance
 	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization)
 	// property.
 	DefaultTrustedProfile *InstanceDefaultTrustedProfilePrototype `json:"default_trusted_profile,omitempty"`
@@ -73183,8 +74785,8 @@ type InstancePrototype struct {
 	// no keys are specified, the instance will be inaccessible unless the specified image provides another means of
 	// access.
 	//
-	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
-	// Accordingly, it is reflected as an [instance
+	// This property's value is used when provisioning the virtual server instance, and can only be changed by
+	// reinitializing the instance. Accordingly, it is reflected as an [instance
 	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	Keys []KeyIdentityIntf `json:"keys,omitempty"`
 
@@ -73218,6 +74820,12 @@ type InstancePrototype struct {
 	// The resource group to use. If unspecified, the account's [default resource
 	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) will be used.
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
+
+	// The threads per core to use for this virtual server instance. Must be one of the values in the profile's
+	// `threads_per_core.values`.
+	//
+	// If unspecified, the default threads per core from the profile will be used.
+	ThreadsPerCore *int64 `json:"threads_per_core,omitempty"`
 
 	// The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes. An increase in
 	// this value will result in a corresponding decrease to
@@ -73375,6 +74983,11 @@ func UnmarshalInstancePrototype(m map[string]json.RawMessage, result interface{}
 		err = core.SDKErrorf(err, "", "resource_group-error", common.GetComponentInfo())
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "threads_per_core", &obj.ThreadsPerCore)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "threads_per_core-error", common.GetComponentInfo())
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "total_volume_bandwidth", &obj.TotalVolumeBandwidth)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "total_volume_bandwidth-error", common.GetComponentInfo())
@@ -73499,6 +75112,87 @@ func UnmarshalInstanceReference(m map[string]json.RawMessage, result interface{}
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// InstanceReinitializePrototype : InstanceReinitializePrototype struct
+// Models which "extend" this model:
+// - InstanceReinitializePrototypeInstanceReinitializeByImage
+// - InstanceReinitializePrototypeInstanceReinitializeByVolume
+// - InstanceReinitializePrototypeInstanceReinitializeBySnapshot
+type InstanceReinitializePrototype struct {
+	// The default trusted profile configuration to use for this virtual server instance.
+	// If not specified, the instance will be reinitialized without a default trusted
+	// profile.
+	//
+	// This property's value is used when reinitializing the virtual server instance, and
+	// can only be changed by reinitializing the instance. Accordingly, it is reflected as
+	// an [instance
+	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization)
+	// property.
+	DefaultTrustedProfile *InstanceDefaultTrustedProfilePrototype `json:"default_trusted_profile,omitempty"`
+
+	// The public SSH keys for the reinitialized instance. The keys will be made available to the virtual server instance
+	// as cloud-init vendor data. For cloud-init enabled images, the keys will also be added as SSH authorized keys for the
+	// [default user]
+	// (https://cloud.ibm.com/docs/vpc?topic=vpc-vsi_is_connecting_linux#determining-default-user-account).
+	//
+	// For Windows images, only keys with a `type` value of `rsa` must be specified, and one will be selected to encrypt
+	// [the administrator password](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization). Keys are optional for
+	// other images.
+	//
+	// If no keys are specified, the instance will be reinitialized without a key.
+	Keys []KeyIdentityIntf `json:"keys,omitempty"`
+
+	// The [user data](https://cloud.ibm.com/docs/vpc?topic=vpc-user-data) to make available when setting up the virtual
+	// server instance. If not specified, the instance will be reinitialized without user data.
+	UserData *string `json:"user_data,omitempty"`
+
+	// The boot volume attachment for the virtual server instance. If not specified,
+	// a new boot volume attachment will be created.
+	BootVolumeAttachment *VolumeAttachmentPrototypeInstanceByImageContext `json:"boot_volume_attachment,omitempty"`
+
+	// The image to use when reinitializing the virtual server instance.
+	Image ImageIdentityIntf `json:"image,omitempty"`
+}
+
+func (*InstanceReinitializePrototype) isaInstanceReinitializePrototype() bool {
+	return true
+}
+
+type InstanceReinitializePrototypeIntf interface {
+	isaInstanceReinitializePrototype() bool
+}
+
+// UnmarshalInstanceReinitializePrototype unmarshals an instance of InstanceReinitializePrototype from the specified map of raw messages.
+func UnmarshalInstanceReinitializePrototype(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(InstanceReinitializePrototype)
+	err = core.UnmarshalModel(m, "default_trusted_profile", &obj.DefaultTrustedProfile, UnmarshalInstanceDefaultTrustedProfilePrototype)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "default_trusted_profile-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "keys", &obj.Keys, UnmarshalKeyIdentity)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "keys-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "user_data", &obj.UserData)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "user_data-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "boot_volume_attachment", &obj.BootVolumeAttachment, UnmarshalVolumeAttachmentPrototypeInstanceByImageContext)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "boot_volume_attachment-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "image", &obj.Image, UnmarshalImageIdentity)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "image-error", common.GetComponentInfo())
 		return
 	}
 	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
@@ -73685,6 +75379,397 @@ func UnmarshalInstanceReservationAffinityPrototype(m map[string]json.RawMessage,
 	return
 }
 
+// InstanceSoftwareAttachment : InstanceSoftwareAttachment struct
+type InstanceSoftwareAttachment struct {
+	// The [catalog](https://cloud.ibm.com/docs/account?topic=account-restrict-by-user)
+	// offering for this instance software attachment. May be absent if
+	// `software_attachment.lifecycle_state` is not `stable`.
+	CatalogOffering *InstanceSoftwareAttachmentCatalogOffering `json:"catalog_offering,omitempty"`
+
+	// The date and time that the instance software attachment was created.
+	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
+
+	// The entitlement for the licensed software for this instance software attachment.
+	Entitlement *InstanceSoftwareAttachmentEntitlement `json:"entitlement,omitempty"`
+
+	// The URL for this instance software attachment.
+	Href *string `json:"href" validate:"required"`
+
+	// The unique identifier for this instance software attachment.
+	ID *string `json:"id" validate:"required"`
+
+	// The lifecycle reasons for this instance software attachment (if any).
+	LifecycleReasons []InstanceSoftwareAttachmentLifecycleReason `json:"lifecycle_reasons" validate:"required"`
+
+	// The lifecycle state of the instance software attachment.
+	LifecycleState *string `json:"lifecycle_state" validate:"required"`
+
+	// The name for this instance software attachment. The name is unique across all instance software attachments for the
+	// instance.
+	Name *string `json:"name" validate:"required"`
+
+	OfferingInstance *InstanceSoftwareAttachmentOfferingInstance `json:"offering_instance,omitempty"`
+
+	// The resource type.
+	ResourceType *string `json:"resource_type" validate:"required"`
+}
+
+// Constants associated with the InstanceSoftwareAttachment.LifecycleState property.
+// The lifecycle state of the instance software attachment.
+const (
+	InstanceSoftwareAttachmentLifecycleStateDeletingConst  = "deleting"
+	InstanceSoftwareAttachmentLifecycleStateFailedConst    = "failed"
+	InstanceSoftwareAttachmentLifecycleStatePendingConst   = "pending"
+	InstanceSoftwareAttachmentLifecycleStateStableConst    = "stable"
+	InstanceSoftwareAttachmentLifecycleStateSuspendedConst = "suspended"
+	InstanceSoftwareAttachmentLifecycleStateUpdatingConst  = "updating"
+	InstanceSoftwareAttachmentLifecycleStateWaitingConst   = "waiting"
+)
+
+// Constants associated with the InstanceSoftwareAttachment.ResourceType property.
+// The resource type.
+const (
+	InstanceSoftwareAttachmentResourceTypeInstanceSoftwareAttachmentConst = "instance_software_attachment"
+)
+
+// UnmarshalInstanceSoftwareAttachment unmarshals an instance of InstanceSoftwareAttachment from the specified map of raw messages.
+func UnmarshalInstanceSoftwareAttachment(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(InstanceSoftwareAttachment)
+	err = core.UnmarshalModel(m, "catalog_offering", &obj.CatalogOffering, UnmarshalInstanceSoftwareAttachmentCatalogOffering)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "catalog_offering-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "created_at", &obj.CreatedAt)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "created_at-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "entitlement", &obj.Entitlement, UnmarshalInstanceSoftwareAttachmentEntitlement)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "entitlement-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "href-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "id-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "lifecycle_reasons", &obj.LifecycleReasons, UnmarshalInstanceSoftwareAttachmentLifecycleReason)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "lifecycle_reasons-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "lifecycle_state", &obj.LifecycleState)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "lifecycle_state-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "offering_instance", &obj.OfferingInstance, UnmarshalInstanceSoftwareAttachmentOfferingInstance)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "offering_instance-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "resource_type-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// InstanceSoftwareAttachmentCatalogOffering : The [catalog](https://cloud.ibm.com/docs/account?topic=account-restrict-by-user) offering for this instance software
+// attachment. May be absent if
+// `software_attachment.lifecycle_state` is not `stable`.
+type InstanceSoftwareAttachmentCatalogOffering struct {
+	// The billing plan for the catalog offering version associated with this instance software
+	// attachment.
+	//
+	// If absent, no billing plan is associated with the catalog offering version (free).
+	Plan *CatalogOfferingVersionPlanReference `json:"plan,omitempty"`
+
+	// The catalog offering version associated with this instance software attachment.
+	Version *CatalogOfferingVersionReference `json:"version" validate:"required"`
+}
+
+// UnmarshalInstanceSoftwareAttachmentCatalogOffering unmarshals an instance of InstanceSoftwareAttachmentCatalogOffering from the specified map of raw messages.
+func UnmarshalInstanceSoftwareAttachmentCatalogOffering(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(InstanceSoftwareAttachmentCatalogOffering)
+	err = core.UnmarshalModel(m, "plan", &obj.Plan, UnmarshalCatalogOfferingVersionPlanReference)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "plan-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "version", &obj.Version, UnmarshalCatalogOfferingVersionReference)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "version-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// InstanceSoftwareAttachmentCollection : InstanceSoftwareAttachmentCollection struct
+type InstanceSoftwareAttachmentCollection struct {
+	// The software attachments for the instance.
+	SoftwareAttachments []InstanceSoftwareAttachment `json:"software_attachments" validate:"required"`
+}
+
+// UnmarshalInstanceSoftwareAttachmentCollection unmarshals an instance of InstanceSoftwareAttachmentCollection from the specified map of raw messages.
+func UnmarshalInstanceSoftwareAttachmentCollection(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(InstanceSoftwareAttachmentCollection)
+	err = core.UnmarshalModel(m, "software_attachments", &obj.SoftwareAttachments, UnmarshalInstanceSoftwareAttachment)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "software_attachments-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// InstanceSoftwareAttachmentEntitlement : The entitlement for the licensed software for this instance software attachment.
+type InstanceSoftwareAttachmentEntitlement struct {
+	// The licensed software for this instance software attachment entitlement.
+	LicensedSoftware []InstanceSoftwareAttachmentEntitlementLicensedSoftware `json:"licensed_software" validate:"required"`
+}
+
+// UnmarshalInstanceSoftwareAttachmentEntitlement unmarshals an instance of InstanceSoftwareAttachmentEntitlement from the specified map of raw messages.
+func UnmarshalInstanceSoftwareAttachmentEntitlement(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(InstanceSoftwareAttachmentEntitlement)
+	err = core.UnmarshalModel(m, "licensed_software", &obj.LicensedSoftware, UnmarshalInstanceSoftwareAttachmentEntitlementLicensedSoftware)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "licensed_software-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// InstanceSoftwareAttachmentEntitlementLicensedSoftware : The licensed software for the instance software attachment's entitlement.
+type InstanceSoftwareAttachmentEntitlementLicensedSoftware struct {
+	// The SKU for this licensed software.
+	Sku *string `json:"sku" validate:"required"`
+
+	Vendor *InstanceSoftwareAttachmentEntitlementLicensedSoftwareVendor `json:"vendor" validate:"required"`
+}
+
+// UnmarshalInstanceSoftwareAttachmentEntitlementLicensedSoftware unmarshals an instance of InstanceSoftwareAttachmentEntitlementLicensedSoftware from the specified map of raw messages.
+func UnmarshalInstanceSoftwareAttachmentEntitlementLicensedSoftware(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(InstanceSoftwareAttachmentEntitlementLicensedSoftware)
+	err = core.UnmarshalPrimitive(m, "sku", &obj.Sku)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "sku-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "vendor", &obj.Vendor, UnmarshalInstanceSoftwareAttachmentEntitlementLicensedSoftwareVendor)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "vendor-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// InstanceSoftwareAttachmentEntitlementLicensedSoftwareVendor : InstanceSoftwareAttachmentEntitlementLicensedSoftwareVendor struct
+type InstanceSoftwareAttachmentEntitlementLicensedSoftwareVendor struct {
+	// The name of the vendor providing this licensed software.
+	Name *string `json:"name" validate:"required"`
+}
+
+// UnmarshalInstanceSoftwareAttachmentEntitlementLicensedSoftwareVendor unmarshals an instance of InstanceSoftwareAttachmentEntitlementLicensedSoftwareVendor from the specified map of raw messages.
+func UnmarshalInstanceSoftwareAttachmentEntitlementLicensedSoftwareVendor(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(InstanceSoftwareAttachmentEntitlementLicensedSoftwareVendor)
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// InstanceSoftwareAttachmentLifecycleReason : InstanceSoftwareAttachmentLifecycleReason struct
+type InstanceSoftwareAttachmentLifecycleReason struct {
+	// A reason code for this lifecycle state:
+	// - `failed_licensing`: Allocation of one or more software license(s) has failed. Delete
+	//   the instance and provision it again. If the problem persists, contact IBM Support.
+	// - `failed_registration`: The software instance's registration to Resource Controller has
+	//   failed. Delete the instance and provision it again. If the problem persists, contact IBM
+	//   Support.
+	// - `internal_error`: Internal error (contact IBM support)
+	// - `pending_registration`: The software instance's registration to Resource Controller,
+	//   and the creation of any required software license(s), is being processed.
+	//
+	// The enumerated values for this property may
+	// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.
+	Code *string `json:"code" validate:"required"`
+
+	// An explanation of the reason for this lifecycle state.
+	Message *string `json:"message" validate:"required"`
+
+	// A link to documentation about the reason for this lifecycle state.
+	MoreInfo *string `json:"more_info,omitempty"`
+}
+
+// Constants associated with the InstanceSoftwareAttachmentLifecycleReason.Code property.
+// A reason code for this lifecycle state:
+//   - `failed_licensing`: Allocation of one or more software license(s) has failed. Delete
+//     the instance and provision it again. If the problem persists, contact IBM Support.
+//   - `failed_registration`: The software instance's registration to Resource Controller has
+//     failed. Delete the instance and provision it again. If the problem persists, contact IBM
+//     Support.
+//   - `internal_error`: Internal error (contact IBM support)
+//   - `pending_registration`: The software instance's registration to Resource Controller,
+//     and the creation of any required software license(s), is being processed.
+//
+// The enumerated values for this property may
+// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.
+const (
+	InstanceSoftwareAttachmentLifecycleReasonCodeFailedLicensingConst     = "failed_licensing"
+	InstanceSoftwareAttachmentLifecycleReasonCodeFailedRegistrationConst  = "failed_registration"
+	InstanceSoftwareAttachmentLifecycleReasonCodeInternalErrorConst       = "internal_error"
+	InstanceSoftwareAttachmentLifecycleReasonCodePendingRegistrationConst = "pending_registration"
+)
+
+// UnmarshalInstanceSoftwareAttachmentLifecycleReason unmarshals an instance of InstanceSoftwareAttachmentLifecycleReason from the specified map of raw messages.
+func UnmarshalInstanceSoftwareAttachmentLifecycleReason(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(InstanceSoftwareAttachmentLifecycleReason)
+	err = core.UnmarshalPrimitive(m, "code", &obj.Code)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "code-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "message", &obj.Message)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "message-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "more_info", &obj.MoreInfo)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "more_info-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// InstanceSoftwareAttachmentOfferingInstance : InstanceSoftwareAttachmentOfferingInstance struct
+type InstanceSoftwareAttachmentOfferingInstance struct {
+	// The CRN for the software offering instance registered with Resource Controller that is associated with the instance
+	// software attachment.
+	CRN *string `json:"crn" validate:"required"`
+}
+
+// UnmarshalInstanceSoftwareAttachmentOfferingInstance unmarshals an instance of InstanceSoftwareAttachmentOfferingInstance from the specified map of raw messages.
+func UnmarshalInstanceSoftwareAttachmentOfferingInstance(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(InstanceSoftwareAttachmentOfferingInstance)
+	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "crn-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// InstanceSoftwareAttachmentPatch : InstanceSoftwareAttachmentPatch struct
+type InstanceSoftwareAttachmentPatch struct {
+	// The name for this instance software attachment. The name must not be used by another software attachment for this
+	// instance.
+	Name *string `json:"name,omitempty"`
+}
+
+// UnmarshalInstanceSoftwareAttachmentPatch unmarshals an instance of InstanceSoftwareAttachmentPatch from the specified map of raw messages.
+func UnmarshalInstanceSoftwareAttachmentPatch(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(InstanceSoftwareAttachmentPatch)
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// AsPatch returns a generic map representation of the InstanceSoftwareAttachmentPatch
+func (instanceSoftwareAttachmentPatch *InstanceSoftwareAttachmentPatch) AsPatch() (_patch map[string]interface{}, err error) {
+	_patch = map[string]interface{}{}
+	if !core.IsNil(instanceSoftwareAttachmentPatch.Name) {
+		_patch["name"] = instanceSoftwareAttachmentPatch.Name
+	}
+
+	return
+}
+
+// InstanceSoftwareAttachmentReference : InstanceSoftwareAttachmentReference struct
+type InstanceSoftwareAttachmentReference struct {
+	// If present, this property indicates the referenced resource has been deleted, and provides
+	// some supplementary information.
+	Deleted *Deleted `json:"deleted,omitempty"`
+
+	// The URL for this instance software attachment.
+	Href *string `json:"href" validate:"required"`
+
+	// The unique identifier for this instance software attachment.
+	ID *string `json:"id" validate:"required"`
+
+	// The name for this instance software attachment. The name is unique across all instance software attachments for the
+	// instance.
+	Name *string `json:"name" validate:"required"`
+
+	// The resource type.
+	ResourceType *string `json:"resource_type" validate:"required"`
+}
+
+// Constants associated with the InstanceSoftwareAttachmentReference.ResourceType property.
+// The resource type.
+const (
+	InstanceSoftwareAttachmentReferenceResourceTypeInstanceSoftwareAttachmentConst = "instance_software_attachment"
+)
+
+// UnmarshalInstanceSoftwareAttachmentReference unmarshals an instance of InstanceSoftwareAttachmentReference from the specified map of raw messages.
+func UnmarshalInstanceSoftwareAttachmentReference(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(InstanceSoftwareAttachmentReference)
+	err = core.UnmarshalModel(m, "deleted", &obj.Deleted, UnmarshalDeleted)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "deleted-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "href-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "id-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "resource_type-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
 // InstanceStatusReason : InstanceStatusReason struct
 type InstanceStatusReason struct {
 	// A snake case string succinctly identifying the status reason.
@@ -73772,8 +75857,9 @@ type InstanceTemplate struct {
 
 	// The default trusted profile configuration to use for this virtual server instance
 	//
-	// This property's value is used when provisioning the virtual server instance, but not
-	// subsequently managed. Accordingly, it is reflected as an [instance
+	// This property's value is used when provisioning the virtual server instance, and
+	// can only be changed by reinitializing the instance. Accordingly, it is reflected as
+	// an [instance
 	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization)
 	// property.
 	DefaultTrustedProfile *InstanceDefaultTrustedProfilePrototype `json:"default_trusted_profile,omitempty"`
@@ -73798,8 +75884,8 @@ type InstanceTemplate struct {
 	// no keys are specified, the instance will be inaccessible unless the specified image provides another means of
 	// access.
 	//
-	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
-	// Accordingly, it is reflected as an [instance
+	// This property's value is used when provisioning the virtual server instance, and can only be changed by
+	// reinitializing the instance. Accordingly, it is reflected as an [instance
 	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	Keys []KeyIdentityIntf `json:"keys,omitempty"`
 
@@ -73829,6 +75915,12 @@ type InstanceTemplate struct {
 
 	// The resource group for this instance template.
 	ResourceGroup *ResourceGroupReference `json:"resource_group" validate:"required"`
+
+	// The threads per core to use for this virtual server instance. Must be one of the values in the profile's
+	// `threads_per_core.values`.
+	//
+	// If unspecified, the default threads per core from the profile will be used.
+	ThreadsPerCore *int64 `json:"threads_per_core,omitempty"`
 
 	// The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes. An increase in
 	// this value will result in a corresponding decrease to
@@ -73917,188 +76009,169 @@ type InstanceTemplateIntf interface {
 
 // UnmarshalInstanceTemplate unmarshals an instance of InstanceTemplate from the specified map of raw messages.
 func UnmarshalInstanceTemplate(m map[string]json.RawMessage, result interface{}) (err error) {
-
-	// Check for source_snapshot presence to determine object type
-	var isSourceSnapshot bool
-	if bootVolumeRaw, exists := m["boot_volume_attachment"]; exists && len(bootVolumeRaw) > 0 && string(bootVolumeRaw) != "null" {
-		var bootVolumeMap map[string]json.RawMessage
-		if err = json.Unmarshal(bootVolumeRaw, &bootVolumeMap); err == nil {
-			if volumeRaw, volumeExists := bootVolumeMap["volume"]; volumeExists && len(volumeRaw) > 0 && string(volumeRaw) != "null" {
-				var volumeMap map[string]json.RawMessage
-				if err = json.Unmarshal(volumeRaw, &volumeMap); err == nil {
-					if _, snapshotExists := volumeMap["source_snapshot"]; snapshotExists {
-						isSourceSnapshot = true
-					}
-				}
-			}
-		}
-	}
-	if isSourceSnapshot {
-		err = core.UnmarshalModel(m, "", result, UnmarshalInstanceTemplateInstanceBySourceSnapshotInstanceTemplateContext)
-		if err != nil {
-			err = core.SDKErrorf(err, "", "unmarshal-InstanceTemplateInstanceBySourceSnapshotInstanceTemplateContext-error", common.GetComponentInfo())
-		}
-		return err
-	} else {
-		obj := new(InstanceTemplate)
-		err = core.UnmarshalModel(m, "availability", &obj.Availability, UnmarshalInstanceAvailabilityPrototype)
-		if err != nil {
-			err = core.SDKErrorf(err, "", "availability-error", common.GetComponentInfo())
-			return
-		}
-		err = core.UnmarshalModel(m, "availability_policy", &obj.AvailabilityPolicy, UnmarshalInstanceAvailabilityPolicyPrototype)
-		if err != nil {
-			err = core.SDKErrorf(err, "", "availability_policy-error", common.GetComponentInfo())
-			return
-		}
-		err = core.UnmarshalModel(m, "cluster_network_attachments", &obj.ClusterNetworkAttachments, UnmarshalInstanceClusterNetworkAttachmentPrototypeInstanceContext)
-		if err != nil {
-			err = core.SDKErrorf(err, "", "cluster_network_attachments-error", common.GetComponentInfo())
-			return
-		}
-		err = core.UnmarshalPrimitive(m, "confidential_compute_mode", &obj.ConfidentialComputeMode)
-		if err != nil {
-			err = core.SDKErrorf(err, "", "confidential_compute_mode-error", common.GetComponentInfo())
-			return
-		}
-		err = core.UnmarshalPrimitive(m, "created_at", &obj.CreatedAt)
-		if err != nil {
-			err = core.SDKErrorf(err, "", "created_at-error", common.GetComponentInfo())
-			return
-		}
-		err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
-		if err != nil {
-			err = core.SDKErrorf(err, "", "crn-error", common.GetComponentInfo())
-			return
-		}
-		err = core.UnmarshalModel(m, "default_trusted_profile", &obj.DefaultTrustedProfile, UnmarshalInstanceDefaultTrustedProfilePrototype)
-		if err != nil {
-			err = core.SDKErrorf(err, "", "default_trusted_profile-error", common.GetComponentInfo())
-			return
-		}
-		err = core.UnmarshalPrimitive(m, "enable_secure_boot", &obj.EnableSecureBoot)
-		if err != nil {
-			err = core.SDKErrorf(err, "", "enable_secure_boot-error", common.GetComponentInfo())
-			return
-		}
-		err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-		if err != nil {
-			err = core.SDKErrorf(err, "", "href-error", common.GetComponentInfo())
-			return
-		}
-		err = core.UnmarshalPrimitive(m, "id", &obj.ID)
-		if err != nil {
-			err = core.SDKErrorf(err, "", "id-error", common.GetComponentInfo())
-			return
-		}
-		err = core.UnmarshalModel(m, "keys", &obj.Keys, UnmarshalKeyIdentity)
-		if err != nil {
-			err = core.SDKErrorf(err, "", "keys-error", common.GetComponentInfo())
-			return
-		}
-		err = core.UnmarshalModel(m, "metadata_service", &obj.MetadataService, UnmarshalInstanceMetadataServicePrototype)
-		if err != nil {
-			err = core.SDKErrorf(err, "", "metadata_service-error", common.GetComponentInfo())
-			return
-		}
-		err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-		if err != nil {
-			err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
-			return
-		}
-		err = core.UnmarshalModel(m, "placement_target", &obj.PlacementTarget, UnmarshalInstancePlacementTargetPrototype)
-		if err != nil {
-			err = core.SDKErrorf(err, "", "placement_target-error", common.GetComponentInfo())
-			return
-		}
-		err = core.UnmarshalModel(m, "profile", &obj.Profile, UnmarshalInstanceProfileIdentity)
-		if err != nil {
-			err = core.SDKErrorf(err, "", "profile-error", common.GetComponentInfo())
-			return
-		}
-		err = core.UnmarshalModel(m, "reservation_affinity", &obj.ReservationAffinity, UnmarshalInstanceReservationAffinityPrototype)
-		if err != nil {
-			err = core.SDKErrorf(err, "", "reservation_affinity-error", common.GetComponentInfo())
-			return
-		}
-		err = core.UnmarshalModel(m, "resource_group", &obj.ResourceGroup, UnmarshalResourceGroupReference)
-		if err != nil {
-			err = core.SDKErrorf(err, "", "resource_group-error", common.GetComponentInfo())
-			return
-		}
-		err = core.UnmarshalPrimitive(m, "total_volume_bandwidth", &obj.TotalVolumeBandwidth)
-		if err != nil {
-			err = core.SDKErrorf(err, "", "total_volume_bandwidth-error", common.GetComponentInfo())
-			return
-		}
-		err = core.UnmarshalPrimitive(m, "user_data", &obj.UserData)
-		if err != nil {
-			err = core.SDKErrorf(err, "", "user_data-error", common.GetComponentInfo())
-			return
-		}
-		err = core.UnmarshalModel(m, "vcpu", &obj.Vcpu, UnmarshalInstanceVcpuPrototype)
-		if err != nil {
-			err = core.SDKErrorf(err, "", "vcpu-error", common.GetComponentInfo())
-			return
-		}
-		err = core.UnmarshalModel(m, "volume_attachments", &obj.VolumeAttachments, UnmarshalVolumeAttachmentPrototype)
-		if err != nil {
-			err = core.SDKErrorf(err, "", "volume_attachments-error", common.GetComponentInfo())
-			return
-		}
-		err = core.UnmarshalPrimitive(m, "volume_bandwidth_qos_mode", &obj.VolumeBandwidthQosMode)
-		if err != nil {
-			err = core.SDKErrorf(err, "", "volume_bandwidth_qos_mode-error", common.GetComponentInfo())
-			return
-		}
-		err = core.UnmarshalModel(m, "vpc", &obj.VPC, UnmarshalVPCIdentity)
-		if err != nil {
-			err = core.SDKErrorf(err, "", "vpc-error", common.GetComponentInfo())
-			return
-		}
-		err = core.UnmarshalModel(m, "boot_volume_attachment", &obj.BootVolumeAttachment, UnmarshalVolumeAttachmentPrototypeInstanceByImageContext)
-		if err != nil {
-			err = core.SDKErrorf(err, "", "boot_volume_attachment-error", common.GetComponentInfo())
-			return
-		}
-		err = core.UnmarshalModel(m, "image", &obj.Image, UnmarshalImageIdentity)
-		if err != nil {
-			err = core.SDKErrorf(err, "", "image-error", common.GetComponentInfo())
-			return
-		}
-		err = core.UnmarshalModel(m, "zone", &obj.Zone, UnmarshalZoneIdentity)
-		if err != nil {
-			err = core.SDKErrorf(err, "", "zone-error", common.GetComponentInfo())
-			return
-		}
-		err = core.UnmarshalModel(m, "network_attachments", &obj.NetworkAttachments, UnmarshalInstanceNetworkAttachmentPrototype)
-		if err != nil {
-			err = core.SDKErrorf(err, "", "network_attachments-error", common.GetComponentInfo())
-			return
-		}
-		err = core.UnmarshalModel(m, "primary_network_attachment", &obj.PrimaryNetworkAttachment, UnmarshalInstanceNetworkAttachmentPrototype)
-		if err != nil {
-			err = core.SDKErrorf(err, "", "primary_network_attachment-error", common.GetComponentInfo())
-			return
-		}
-		err = core.UnmarshalModel(m, "network_interfaces", &obj.NetworkInterfaces, UnmarshalNetworkInterfacePrototype)
-		if err != nil {
-			err = core.SDKErrorf(err, "", "network_interfaces-error", common.GetComponentInfo())
-			return
-		}
-		err = core.UnmarshalModel(m, "primary_network_interface", &obj.PrimaryNetworkInterface, UnmarshalNetworkInterfacePrototype)
-		if err != nil {
-			err = core.SDKErrorf(err, "", "primary_network_interface-error", common.GetComponentInfo())
-			return
-		}
-		err = core.UnmarshalModel(m, "catalog_offering", &obj.CatalogOffering, UnmarshalInstanceCatalogOfferingPrototype)
-		if err != nil {
-			err = core.SDKErrorf(err, "", "catalog_offering-error", common.GetComponentInfo())
-			return
-		}
-		reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	obj := new(InstanceTemplate)
+	err = core.UnmarshalModel(m, "availability", &obj.Availability, UnmarshalInstanceAvailabilityPrototype)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "availability-error", common.GetComponentInfo())
 		return
 	}
+	err = core.UnmarshalModel(m, "availability_policy", &obj.AvailabilityPolicy, UnmarshalInstanceAvailabilityPolicyPrototype)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "availability_policy-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "cluster_network_attachments", &obj.ClusterNetworkAttachments, UnmarshalInstanceClusterNetworkAttachmentPrototypeInstanceContext)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "cluster_network_attachments-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "confidential_compute_mode", &obj.ConfidentialComputeMode)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "confidential_compute_mode-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "created_at", &obj.CreatedAt)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "created_at-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "crn-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "default_trusted_profile", &obj.DefaultTrustedProfile, UnmarshalInstanceDefaultTrustedProfilePrototype)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "default_trusted_profile-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "enable_secure_boot", &obj.EnableSecureBoot)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "enable_secure_boot-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "href-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "id-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "keys", &obj.Keys, UnmarshalKeyIdentity)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "keys-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "metadata_service", &obj.MetadataService, UnmarshalInstanceMetadataServicePrototype)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "metadata_service-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "placement_target", &obj.PlacementTarget, UnmarshalInstancePlacementTargetPrototype)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "placement_target-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "profile", &obj.Profile, UnmarshalInstanceProfileIdentity)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "profile-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "reservation_affinity", &obj.ReservationAffinity, UnmarshalInstanceReservationAffinityPrototype)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "reservation_affinity-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "resource_group", &obj.ResourceGroup, UnmarshalResourceGroupReference)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "resource_group-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "threads_per_core", &obj.ThreadsPerCore)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "threads_per_core-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "total_volume_bandwidth", &obj.TotalVolumeBandwidth)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "total_volume_bandwidth-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "user_data", &obj.UserData)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "user_data-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "vcpu", &obj.Vcpu, UnmarshalInstanceVcpuPrototype)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "vcpu-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "volume_attachments", &obj.VolumeAttachments, UnmarshalVolumeAttachmentPrototype)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "volume_attachments-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "volume_bandwidth_qos_mode", &obj.VolumeBandwidthQosMode)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "volume_bandwidth_qos_mode-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "vpc", &obj.VPC, UnmarshalVPCIdentity)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "vpc-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "boot_volume_attachment", &obj.BootVolumeAttachment, UnmarshalVolumeAttachmentPrototypeInstanceByImageContext)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "boot_volume_attachment-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "image", &obj.Image, UnmarshalImageIdentity)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "image-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "zone", &obj.Zone, UnmarshalZoneIdentity)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "zone-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "network_attachments", &obj.NetworkAttachments, UnmarshalInstanceNetworkAttachmentPrototype)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "network_attachments-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "primary_network_attachment", &obj.PrimaryNetworkAttachment, UnmarshalInstanceNetworkAttachmentPrototype)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "primary_network_attachment-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "network_interfaces", &obj.NetworkInterfaces, UnmarshalNetworkInterfacePrototype)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "network_interfaces-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "primary_network_interface", &obj.PrimaryNetworkInterface, UnmarshalNetworkInterfacePrototype)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "primary_network_interface-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "catalog_offering", &obj.CatalogOffering, UnmarshalInstanceCatalogOfferingPrototype)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "catalog_offering-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
 }
 
 // InstanceTemplateCollection : InstanceTemplateCollection struct
@@ -74267,8 +76340,9 @@ type InstanceTemplatePrototype struct {
 
 	// The default trusted profile configuration to use for this virtual server instance
 	//
-	// This property's value is used when provisioning the virtual server instance, but not
-	// subsequently managed. Accordingly, it is reflected as an [instance
+	// This property's value is used when provisioning the virtual server instance, and
+	// can only be changed by reinitializing the instance. Accordingly, it is reflected as
+	// an [instance
 	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization)
 	// property.
 	DefaultTrustedProfile *InstanceDefaultTrustedProfilePrototype `json:"default_trusted_profile,omitempty"`
@@ -74287,8 +76361,8 @@ type InstanceTemplatePrototype struct {
 	// no keys are specified, the instance will be inaccessible unless the specified image provides another means of
 	// access.
 	//
-	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
-	// Accordingly, it is reflected as an [instance
+	// This property's value is used when provisioning the virtual server instance, and can only be changed by
+	// reinitializing the instance. Accordingly, it is reflected as an [instance
 	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	Keys []KeyIdentityIntf `json:"keys,omitempty"`
 
@@ -74320,6 +76394,12 @@ type InstanceTemplatePrototype struct {
 	// The resource group to use. If unspecified, the account's [default resource
 	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) will be used.
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
+
+	// The threads per core to use for this virtual server instance. Must be one of the values in the profile's
+	// `threads_per_core.values`.
+	//
+	// If unspecified, the default threads per core from the profile will be used.
+	ThreadsPerCore *int64 `json:"threads_per_core,omitempty"`
 
 	// The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes. An increase in
 	// this value will result in a corresponding decrease to
@@ -74477,6 +76557,11 @@ func UnmarshalInstanceTemplatePrototype(m map[string]json.RawMessage, result int
 	err = core.UnmarshalModel(m, "resource_group", &obj.ResourceGroup, UnmarshalResourceGroupIdentity)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "resource_group-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "threads_per_core", &obj.ThreadsPerCore)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "threads_per_core-error", common.GetComponentInfo())
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "total_volume_bandwidth", &obj.TotalVolumeBandwidth)
@@ -77584,6 +79669,34 @@ func (options *ListInstanceProfilesOptions) SetHeaders(param map[string]string) 
 	return options
 }
 
+// ListInstanceSoftwareAttachmentsOptions : The ListInstanceSoftwareAttachments options.
+type ListInstanceSoftwareAttachmentsOptions struct {
+	// The virtual server instance identifier.
+	InstanceID *string `json:"instance_id" validate:"required,ne="`
+
+	// Allows users to set headers on API requests.
+	Headers map[string]string
+}
+
+// NewListInstanceSoftwareAttachmentsOptions : Instantiate ListInstanceSoftwareAttachmentsOptions
+func (*VpcV1) NewListInstanceSoftwareAttachmentsOptions(instanceID string) *ListInstanceSoftwareAttachmentsOptions {
+	return &ListInstanceSoftwareAttachmentsOptions{
+		InstanceID: core.StringPtr(instanceID),
+	}
+}
+
+// SetInstanceID : Allow user to set InstanceID
+func (_options *ListInstanceSoftwareAttachmentsOptions) SetInstanceID(instanceID string) *ListInstanceSoftwareAttachmentsOptions {
+	_options.InstanceID = core.StringPtr(instanceID)
+	return _options
+}
+
+// SetHeaders : Allow user to set Headers
+func (options *ListInstanceSoftwareAttachmentsOptions) SetHeaders(param map[string]string) *ListInstanceSoftwareAttachmentsOptions {
+	options.Headers = param
+	return options
+}
+
 // ListInstanceTemplatesOptions : The ListInstanceTemplates options.
 type ListInstanceTemplatesOptions struct {
 
@@ -78722,8 +80835,8 @@ func (options *ListPublicAddressRangeAuthorizedCIDRAllocationsOptions) SetHeader
 	return options
 }
 
-// ListPublicAddressRangeAuthorizedCIDRsOptions : The ListPublicAddressRangeAuthorizedCIDRs options.
-type ListPublicAddressRangeAuthorizedCIDRsOptions struct {
+// ListPublicAddressRangeAuthorizedCidrsOptions : The ListPublicAddressRangeAuthorizedCidrs options.
+type ListPublicAddressRangeAuthorizedCidrsOptions struct {
 	// A server-provided token determining what resource to start the page on.
 	Start *string `json:"start,omitempty"`
 
@@ -78740,51 +80853,51 @@ type ListPublicAddressRangeAuthorizedCIDRsOptions struct {
 	Headers map[string]string
 }
 
-// Constants associated with the ListPublicAddressRangeAuthorizedCIDRsOptions.AllocationProfileFamily property.
+// Constants associated with the ListPublicAddressRangeAuthorizedCidrsOptions.AllocationProfileFamily property.
 // Filters the collection to resources with an `allocation.profile_family` property matching the exact specified value.
 const (
-	ListPublicAddressRangeAuthorizedCIDRsOptionsAllocationProfileFamilyProviderConst = "provider"
-	ListPublicAddressRangeAuthorizedCIDRsOptionsAllocationProfileFamilyUserConst     = "user"
+	ListPublicAddressRangeAuthorizedCidrsOptionsAllocationProfileFamilyProviderConst = "provider"
+	ListPublicAddressRangeAuthorizedCidrsOptionsAllocationProfileFamilyUserConst     = "user"
 )
 
-// Constants associated with the ListPublicAddressRangeAuthorizedCIDRsOptions.AvailabilityMode property.
+// Constants associated with the ListPublicAddressRangeAuthorizedCidrsOptions.AvailabilityMode property.
 // Filters the collection to resources with an `availability_mode` property matching the exact specified value.
 const (
-	ListPublicAddressRangeAuthorizedCIDRsOptionsAvailabilityModeRegionalConst = "regional"
-	ListPublicAddressRangeAuthorizedCIDRsOptionsAvailabilityModeZonalConst    = "zonal"
+	ListPublicAddressRangeAuthorizedCidrsOptionsAvailabilityModeRegionalConst = "regional"
+	ListPublicAddressRangeAuthorizedCidrsOptionsAvailabilityModeZonalConst    = "zonal"
 )
 
-// NewListPublicAddressRangeAuthorizedCIDRsOptions : Instantiate ListPublicAddressRangeAuthorizedCIDRsOptions
-func (*VpcV1) NewListPublicAddressRangeAuthorizedCIDRsOptions() *ListPublicAddressRangeAuthorizedCIDRsOptions {
-	return &ListPublicAddressRangeAuthorizedCIDRsOptions{}
+// NewListPublicAddressRangeAuthorizedCidrsOptions : Instantiate ListPublicAddressRangeAuthorizedCidrsOptions
+func (*VpcV1) NewListPublicAddressRangeAuthorizedCidrsOptions() *ListPublicAddressRangeAuthorizedCidrsOptions {
+	return &ListPublicAddressRangeAuthorizedCidrsOptions{}
 }
 
 // SetStart : Allow user to set Start
-func (_options *ListPublicAddressRangeAuthorizedCIDRsOptions) SetStart(start string) *ListPublicAddressRangeAuthorizedCIDRsOptions {
+func (_options *ListPublicAddressRangeAuthorizedCidrsOptions) SetStart(start string) *ListPublicAddressRangeAuthorizedCidrsOptions {
 	_options.Start = core.StringPtr(start)
 	return _options
 }
 
 // SetLimit : Allow user to set Limit
-func (_options *ListPublicAddressRangeAuthorizedCIDRsOptions) SetLimit(limit int64) *ListPublicAddressRangeAuthorizedCIDRsOptions {
+func (_options *ListPublicAddressRangeAuthorizedCidrsOptions) SetLimit(limit int64) *ListPublicAddressRangeAuthorizedCidrsOptions {
 	_options.Limit = core.Int64Ptr(limit)
 	return _options
 }
 
 // SetAllocationProfileFamily : Allow user to set AllocationProfileFamily
-func (_options *ListPublicAddressRangeAuthorizedCIDRsOptions) SetAllocationProfileFamily(allocationProfileFamily string) *ListPublicAddressRangeAuthorizedCIDRsOptions {
+func (_options *ListPublicAddressRangeAuthorizedCidrsOptions) SetAllocationProfileFamily(allocationProfileFamily string) *ListPublicAddressRangeAuthorizedCidrsOptions {
 	_options.AllocationProfileFamily = core.StringPtr(allocationProfileFamily)
 	return _options
 }
 
 // SetAvailabilityMode : Allow user to set AvailabilityMode
-func (_options *ListPublicAddressRangeAuthorizedCIDRsOptions) SetAvailabilityMode(availabilityMode string) *ListPublicAddressRangeAuthorizedCIDRsOptions {
+func (_options *ListPublicAddressRangeAuthorizedCidrsOptions) SetAvailabilityMode(availabilityMode string) *ListPublicAddressRangeAuthorizedCidrsOptions {
 	_options.AvailabilityMode = core.StringPtr(availabilityMode)
 	return _options
 }
 
 // SetHeaders : Allow user to set Headers
-func (options *ListPublicAddressRangeAuthorizedCIDRsOptions) SetHeaders(param map[string]string) *ListPublicAddressRangeAuthorizedCIDRsOptions {
+func (options *ListPublicAddressRangeAuthorizedCidrsOptions) SetHeaders(param map[string]string) *ListPublicAddressRangeAuthorizedCidrsOptions {
 	options.Headers = param
 	return options
 }
@@ -79581,6 +81694,10 @@ type ListSnapshotConsistencyGroupsOptions struct {
 	// identifier.
 	BackupPolicyPlanID *string `json:"backup_policy_plan.id,omitempty"`
 
+	// Filters the collection to snapshot consistency groups with a `backup_policy_job.id` property matching the specified
+	// identifier.
+	BackupPolicyJobID *string `json:"backup_policy_job.id,omitempty"`
+
 	// Allows users to set headers on API requests.
 	Headers map[string]string
 }
@@ -79632,6 +81749,12 @@ func (_options *ListSnapshotConsistencyGroupsOptions) SetSort(sort string) *List
 // SetBackupPolicyPlanID : Allow user to set BackupPolicyPlanID
 func (_options *ListSnapshotConsistencyGroupsOptions) SetBackupPolicyPlanID(backupPolicyPlanID string) *ListSnapshotConsistencyGroupsOptions {
 	_options.BackupPolicyPlanID = core.StringPtr(backupPolicyPlanID)
+	return _options
+}
+
+// SetBackupPolicyJobID : Allow user to set BackupPolicyJobID
+func (_options *ListSnapshotConsistencyGroupsOptions) SetBackupPolicyJobID(backupPolicyJobID string) *ListSnapshotConsistencyGroupsOptions {
+	_options.BackupPolicyJobID = core.StringPtr(backupPolicyJobID)
 	return _options
 }
 
@@ -80868,8 +82991,8 @@ func (options *ListVpcsOptions) SetHeaders(param map[string]string) *ListVpcsOpt
 	return options
 }
 
-// ListVPNGatewayAdvertisedCIDRsOptions : The ListVPNGatewayAdvertisedCIDRs options.
-type ListVPNGatewayAdvertisedCIDRsOptions struct {
+// ListVPNGatewayAdvertisedCidrsOptions : The ListVPNGatewayAdvertisedCidrs options.
+type ListVPNGatewayAdvertisedCidrsOptions struct {
 	// The VPN gateway identifier.
 	VPNGatewayID *string `json:"vpn_gateway_id" validate:"required,ne="`
 
@@ -80877,27 +83000,27 @@ type ListVPNGatewayAdvertisedCIDRsOptions struct {
 	Headers map[string]string
 }
 
-// NewListVPNGatewayAdvertisedCIDRsOptions : Instantiate ListVPNGatewayAdvertisedCIDRsOptions
-func (*VpcV1) NewListVPNGatewayAdvertisedCIDRsOptions(vpnGatewayID string) *ListVPNGatewayAdvertisedCIDRsOptions {
-	return &ListVPNGatewayAdvertisedCIDRsOptions{
+// NewListVPNGatewayAdvertisedCidrsOptions : Instantiate ListVPNGatewayAdvertisedCidrsOptions
+func (*VpcV1) NewListVPNGatewayAdvertisedCidrsOptions(vpnGatewayID string) *ListVPNGatewayAdvertisedCidrsOptions {
+	return &ListVPNGatewayAdvertisedCidrsOptions{
 		VPNGatewayID: core.StringPtr(vpnGatewayID),
 	}
 }
 
 // SetVPNGatewayID : Allow user to set VPNGatewayID
-func (_options *ListVPNGatewayAdvertisedCIDRsOptions) SetVPNGatewayID(vpnGatewayID string) *ListVPNGatewayAdvertisedCIDRsOptions {
+func (_options *ListVPNGatewayAdvertisedCidrsOptions) SetVPNGatewayID(vpnGatewayID string) *ListVPNGatewayAdvertisedCidrsOptions {
 	_options.VPNGatewayID = core.StringPtr(vpnGatewayID)
 	return _options
 }
 
 // SetHeaders : Allow user to set Headers
-func (options *ListVPNGatewayAdvertisedCIDRsOptions) SetHeaders(param map[string]string) *ListVPNGatewayAdvertisedCIDRsOptions {
+func (options *ListVPNGatewayAdvertisedCidrsOptions) SetHeaders(param map[string]string) *ListVPNGatewayAdvertisedCidrsOptions {
 	options.Headers = param
 	return options
 }
 
-// ListVPNGatewayConnectionsLocalCIDRsOptions : The ListVPNGatewayConnectionsLocalCIDRs options.
-type ListVPNGatewayConnectionsLocalCIDRsOptions struct {
+// ListVPNGatewayConnectionsLocalCidrsOptions : The ListVPNGatewayConnectionsLocalCidrs options.
+type ListVPNGatewayConnectionsLocalCidrsOptions struct {
 	// The VPN gateway identifier.
 	VPNGatewayID *string `json:"vpn_gateway_id" validate:"required,ne="`
 
@@ -80908,28 +83031,28 @@ type ListVPNGatewayConnectionsLocalCIDRsOptions struct {
 	Headers map[string]string
 }
 
-// NewListVPNGatewayConnectionsLocalCIDRsOptions : Instantiate ListVPNGatewayConnectionsLocalCIDRsOptions
-func (*VpcV1) NewListVPNGatewayConnectionsLocalCIDRsOptions(vpnGatewayID string, id string) *ListVPNGatewayConnectionsLocalCIDRsOptions {
-	return &ListVPNGatewayConnectionsLocalCIDRsOptions{
+// NewListVPNGatewayConnectionsLocalCidrsOptions : Instantiate ListVPNGatewayConnectionsLocalCidrsOptions
+func (*VpcV1) NewListVPNGatewayConnectionsLocalCidrsOptions(vpnGatewayID string, id string) *ListVPNGatewayConnectionsLocalCidrsOptions {
+	return &ListVPNGatewayConnectionsLocalCidrsOptions{
 		VPNGatewayID: core.StringPtr(vpnGatewayID),
 		ID:           core.StringPtr(id),
 	}
 }
 
 // SetVPNGatewayID : Allow user to set VPNGatewayID
-func (_options *ListVPNGatewayConnectionsLocalCIDRsOptions) SetVPNGatewayID(vpnGatewayID string) *ListVPNGatewayConnectionsLocalCIDRsOptions {
+func (_options *ListVPNGatewayConnectionsLocalCidrsOptions) SetVPNGatewayID(vpnGatewayID string) *ListVPNGatewayConnectionsLocalCidrsOptions {
 	_options.VPNGatewayID = core.StringPtr(vpnGatewayID)
 	return _options
 }
 
 // SetID : Allow user to set ID
-func (_options *ListVPNGatewayConnectionsLocalCIDRsOptions) SetID(id string) *ListVPNGatewayConnectionsLocalCIDRsOptions {
+func (_options *ListVPNGatewayConnectionsLocalCidrsOptions) SetID(id string) *ListVPNGatewayConnectionsLocalCidrsOptions {
 	_options.ID = core.StringPtr(id)
 	return _options
 }
 
 // SetHeaders : Allow user to set Headers
-func (options *ListVPNGatewayConnectionsLocalCIDRsOptions) SetHeaders(param map[string]string) *ListVPNGatewayConnectionsLocalCIDRsOptions {
+func (options *ListVPNGatewayConnectionsLocalCidrsOptions) SetHeaders(param map[string]string) *ListVPNGatewayConnectionsLocalCidrsOptions {
 	options.Headers = param
 	return options
 }
@@ -80996,8 +83119,8 @@ func (options *ListVPNGatewayConnectionsOptions) SetHeaders(param map[string]str
 	return options
 }
 
-// ListVPNGatewayConnectionsPeerCIDRsOptions : The ListVPNGatewayConnectionsPeerCIDRs options.
-type ListVPNGatewayConnectionsPeerCIDRsOptions struct {
+// ListVPNGatewayConnectionsPeerCidrsOptions : The ListVPNGatewayConnectionsPeerCidrs options.
+type ListVPNGatewayConnectionsPeerCidrsOptions struct {
 	// The VPN gateway identifier.
 	VPNGatewayID *string `json:"vpn_gateway_id" validate:"required,ne="`
 
@@ -81008,28 +83131,28 @@ type ListVPNGatewayConnectionsPeerCIDRsOptions struct {
 	Headers map[string]string
 }
 
-// NewListVPNGatewayConnectionsPeerCIDRsOptions : Instantiate ListVPNGatewayConnectionsPeerCIDRsOptions
-func (*VpcV1) NewListVPNGatewayConnectionsPeerCIDRsOptions(vpnGatewayID string, id string) *ListVPNGatewayConnectionsPeerCIDRsOptions {
-	return &ListVPNGatewayConnectionsPeerCIDRsOptions{
+// NewListVPNGatewayConnectionsPeerCidrsOptions : Instantiate ListVPNGatewayConnectionsPeerCidrsOptions
+func (*VpcV1) NewListVPNGatewayConnectionsPeerCidrsOptions(vpnGatewayID string, id string) *ListVPNGatewayConnectionsPeerCidrsOptions {
+	return &ListVPNGatewayConnectionsPeerCidrsOptions{
 		VPNGatewayID: core.StringPtr(vpnGatewayID),
 		ID:           core.StringPtr(id),
 	}
 }
 
 // SetVPNGatewayID : Allow user to set VPNGatewayID
-func (_options *ListVPNGatewayConnectionsPeerCIDRsOptions) SetVPNGatewayID(vpnGatewayID string) *ListVPNGatewayConnectionsPeerCIDRsOptions {
+func (_options *ListVPNGatewayConnectionsPeerCidrsOptions) SetVPNGatewayID(vpnGatewayID string) *ListVPNGatewayConnectionsPeerCidrsOptions {
 	_options.VPNGatewayID = core.StringPtr(vpnGatewayID)
 	return _options
 }
 
 // SetID : Allow user to set ID
-func (_options *ListVPNGatewayConnectionsPeerCIDRsOptions) SetID(id string) *ListVPNGatewayConnectionsPeerCIDRsOptions {
+func (_options *ListVPNGatewayConnectionsPeerCidrsOptions) SetID(id string) *ListVPNGatewayConnectionsPeerCidrsOptions {
 	_options.ID = core.StringPtr(id)
 	return _options
 }
 
 // SetHeaders : Allow user to set Headers
-func (options *ListVPNGatewayConnectionsPeerCIDRsOptions) SetHeaders(param map[string]string) *ListVPNGatewayConnectionsPeerCIDRsOptions {
+func (options *ListVPNGatewayConnectionsPeerCidrsOptions) SetHeaders(param map[string]string) *ListVPNGatewayConnectionsPeerCidrsOptions {
 	options.Headers = param
 	return options
 }
@@ -81375,6 +83498,9 @@ type LoadBalancer struct {
 	// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.
 	AccessMode *string `json:"access_mode" validate:"required"`
 
+	// Indicates whether this load balancer supports advanced health checks.
+	AdvancedHealthChecksSupported *bool `json:"advanced_health_checks_supported" validate:"required"`
+
 	// The load balancer pool members attached to this load balancer.
 	AttachedLoadBalancerPoolMembers []LoadBalancerPoolMemberReference `json:"attached_load_balancer_pool_members" validate:"required"`
 
@@ -81404,6 +83530,9 @@ type LoadBalancer struct {
 	// The supported `failsafe_policy.action` values for this load balancer's pools.
 	FailsafePolicyActions []string `json:"failsafe_policy_actions" validate:"required"`
 
+	// Indicates whether this load balancer supports pool members specified by their fully qualified domain names.
+	FqdnPoolMembersSupported *bool `json:"fqdn_pool_members_supported" validate:"required"`
+
 	// The fully qualified domain name assigned to this load balancer.
 	Hostname *string `json:"hostname" validate:"required"`
 
@@ -81427,6 +83556,9 @@ type LoadBalancer struct {
 
 	// The logging configuration for this load balancer.
 	Logging *LoadBalancerLogging `json:"logging" validate:"required"`
+
+	// Indicates whether this load balancer supports mTLS.
+	MtlsSupported *bool `json:"mtls_supported" validate:"required"`
 
 	// The name for this load balancer. The name is unique across all load balancers in the VPC.
 	Name *string `json:"name" validate:"required"`
@@ -81591,6 +83723,11 @@ func UnmarshalLoadBalancer(m map[string]json.RawMessage, result interface{}) (er
 		err = core.SDKErrorf(err, "", "access_mode-error", common.GetComponentInfo())
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "advanced_health_checks_supported", &obj.AdvancedHealthChecksSupported)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "advanced_health_checks_supported-error", common.GetComponentInfo())
+		return
+	}
 	err = core.UnmarshalModel(m, "attached_load_balancer_pool_members", &obj.AttachedLoadBalancerPoolMembers, UnmarshalLoadBalancerPoolMemberReference)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "attached_load_balancer_pool_members-error", common.GetComponentInfo())
@@ -81619,6 +83756,11 @@ func UnmarshalLoadBalancer(m map[string]json.RawMessage, result interface{}) (er
 	err = core.UnmarshalPrimitive(m, "failsafe_policy_actions", &obj.FailsafePolicyActions)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "failsafe_policy_actions-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "fqdn_pool_members_supported", &obj.FqdnPoolMembersSupported)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "fqdn_pool_members_supported-error", common.GetComponentInfo())
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "hostname", &obj.Hostname)
@@ -81659,6 +83801,11 @@ func UnmarshalLoadBalancer(m map[string]json.RawMessage, result interface{}) (er
 	err = core.UnmarshalModel(m, "logging", &obj.Logging, UnmarshalLoadBalancerLogging)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "logging-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "mtls_supported", &obj.MtlsSupported)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "mtls_supported-error", common.GetComponentInfo())
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
@@ -82013,6 +84160,8 @@ type LoadBalancerListener struct {
 	// If absent, this listener is not using a certificate instance.
 	CertificateInstance *CertificateInstanceReference `json:"certificate_instance,omitempty"`
 
+	ClientAuthentication *LoadBalancerListenerClientAuthentication `json:"client_authentication,omitempty"`
+
 	// The concurrent connection limit for the listener. If reached, incoming connections may be queued or rejected.
 	//
 	// This property will be present for load balancers in the `application` family.
@@ -82104,6 +84253,11 @@ func UnmarshalLoadBalancerListener(m map[string]json.RawMessage, result interfac
 		err = core.SDKErrorf(err, "", "certificate_instance-error", common.GetComponentInfo())
 		return
 	}
+	err = core.UnmarshalModel(m, "client_authentication", &obj.ClientAuthentication, UnmarshalLoadBalancerListenerClientAuthentication)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "client_authentication-error", common.GetComponentInfo())
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "connection_limit", &obj.ConnectionLimit)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "connection_limit-error", common.GetComponentInfo())
@@ -82167,6 +84321,173 @@ func UnmarshalLoadBalancerListener(m map[string]json.RawMessage, result interfac
 	err = core.UnmarshalPrimitive(m, "provisioning_status", &obj.ProvisioningStatus)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "provisioning_status-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// LoadBalancerListenerClientAuthentication : LoadBalancerListenerClientAuthentication struct
+type LoadBalancerListenerClientAuthentication struct {
+	// The certificate instance used for the listener client certificate authority.
+	CertificateAuthority *CertificateInstanceReference `json:"certificate_authority" validate:"required"`
+
+	// A [PEM-encoded](https://www.rfc-editor.org/rfc/rfc7468) certificate revocation list
+	// (CRL) used for the listener.
+	CertificateRevocationList *string `json:"certificate_revocation_list,omitempty"`
+}
+
+// UnmarshalLoadBalancerListenerClientAuthentication unmarshals an instance of LoadBalancerListenerClientAuthentication from the specified map of raw messages.
+func UnmarshalLoadBalancerListenerClientAuthentication(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(LoadBalancerListenerClientAuthentication)
+	err = core.UnmarshalModel(m, "certificate_authority", &obj.CertificateAuthority, UnmarshalCertificateInstanceReference)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "certificate_authority-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "certificate_revocation_list", &obj.CertificateRevocationList)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "certificate_revocation_list-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// LoadBalancerListenerClientAuthenticationCertificateAuthorityPatch : The certificate instance to use for the listener client certificate authority.
+//
+// Specify `null` to remove an existing certificate authority.
+// Models which "extend" this model:
+// - LoadBalancerListenerClientAuthenticationCertificateAuthorityPatchCertificateInstanceIdentityByCRN
+type LoadBalancerListenerClientAuthenticationCertificateAuthorityPatch struct {
+	// The CRN for this certificate instance.
+	CRN *string `json:"crn,omitempty"`
+}
+
+func (*LoadBalancerListenerClientAuthenticationCertificateAuthorityPatch) isaLoadBalancerListenerClientAuthenticationCertificateAuthorityPatch() bool {
+	return true
+}
+
+type LoadBalancerListenerClientAuthenticationCertificateAuthorityPatchIntf interface {
+	isaLoadBalancerListenerClientAuthenticationCertificateAuthorityPatch() bool
+	asPatch() map[string]interface{}
+}
+
+// UnmarshalLoadBalancerListenerClientAuthenticationCertificateAuthorityPatch unmarshals an instance of LoadBalancerListenerClientAuthenticationCertificateAuthorityPatch from the specified map of raw messages.
+func UnmarshalLoadBalancerListenerClientAuthenticationCertificateAuthorityPatch(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(LoadBalancerListenerClientAuthenticationCertificateAuthorityPatch)
+	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "crn-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// asPatch returns a generic map representation of the LoadBalancerListenerClientAuthenticationCertificateAuthorityPatch
+func (loadBalancerListenerClientAuthenticationCertificateAuthorityPatch *LoadBalancerListenerClientAuthenticationCertificateAuthorityPatch) asPatch() (_patch map[string]interface{}) {
+	_patch = map[string]interface{}{}
+	if !core.IsNil(loadBalancerListenerClientAuthenticationCertificateAuthorityPatch.CRN) {
+		_patch["crn"] = loadBalancerListenerClientAuthenticationCertificateAuthorityPatch.CRN
+	}
+
+	return
+}
+
+// LoadBalancerListenerClientAuthenticationPatch : The client authentication to use for this listener.
+//
+// Supported by load balancers with `mtls_supported` set to `true`. The listener must have a `protocol` of `https`.
+//
+// Specify `null` to remove an existing client authentication.
+type LoadBalancerListenerClientAuthenticationPatch struct {
+	// The certificate instance to use for the listener client certificate authority.
+	//
+	// Specify `null` to remove an existing certificate authority.
+	CertificateAuthority LoadBalancerListenerClientAuthenticationCertificateAuthorityPatchIntf `json:"certificate_authority,omitempty"`
+
+	// A [PEM-encoded](https://www.rfc-editor.org/rfc/rfc7468) (with the label `X509 CRL`) certificate revocation list
+	// (CRL) to use for the listener.
+	//
+	// The CRL must be formatted using the X.509 standard as described in
+	// [RFC 5280](https://www.rfc-editor.org/rfc/rfc5280).
+	//
+	// Specify `null` to remove an existing certificate revocation list.
+	CertificateRevocationList *string `json:"certificate_revocation_list,omitempty"`
+}
+
+// UnmarshalLoadBalancerListenerClientAuthenticationPatch unmarshals an instance of LoadBalancerListenerClientAuthenticationPatch from the specified map of raw messages.
+func UnmarshalLoadBalancerListenerClientAuthenticationPatch(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(LoadBalancerListenerClientAuthenticationPatch)
+	err = core.UnmarshalModel(m, "certificate_authority", &obj.CertificateAuthority, UnmarshalLoadBalancerListenerClientAuthenticationCertificateAuthorityPatch)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "certificate_authority-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "certificate_revocation_list", &obj.CertificateRevocationList)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "certificate_revocation_list-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// asPatch returns a generic map representation of the LoadBalancerListenerClientAuthenticationPatch
+func (loadBalancerListenerClientAuthenticationPatch *LoadBalancerListenerClientAuthenticationPatch) asPatch() (_patch map[string]interface{}) {
+	_patch = map[string]interface{}{}
+	if !core.IsNil(loadBalancerListenerClientAuthenticationPatch.CertificateAuthority) {
+		_patch["certificate_authority"] = loadBalancerListenerClientAuthenticationPatch.CertificateAuthority.asPatch()
+	}
+	if !core.IsNil(loadBalancerListenerClientAuthenticationPatch.CertificateRevocationList) {
+		_patch["certificate_revocation_list"] = loadBalancerListenerClientAuthenticationPatch.CertificateRevocationList
+	}
+
+	return
+}
+
+// LoadBalancerListenerClientAuthenticationPrototype : The client authentication to use for this listener.
+//
+// Supported by load balancers with `mtls_supported` set to `true`. The listener must have a `protocol` of `https`.
+type LoadBalancerListenerClientAuthenticationPrototype struct {
+	// The certificate instance to use for the listener client certificate authority.
+	//
+	// Required if `certificate_revocation_list` is specified.
+	CertificateAuthority CertificateInstanceIdentityIntf `json:"certificate_authority" validate:"required"`
+
+	// A [PEM-encoded](https://www.rfc-editor.org/rfc/rfc7468) (with the label `X509 CRL`) certificate revocation list
+	// (CRL) to use for the listener.
+	//
+	// The CRL must be formatted using the X.509 standard as described in
+	// [RFC 5280](https://www.rfc-editor.org/rfc/rfc5280).
+	//
+	// If specified, `certificate_authority` must also be specified.
+	CertificateRevocationList *string `json:"certificate_revocation_list,omitempty"`
+}
+
+// NewLoadBalancerListenerClientAuthenticationPrototype : Instantiate LoadBalancerListenerClientAuthenticationPrototype (Generic Model Constructor)
+func (*VpcV1) NewLoadBalancerListenerClientAuthenticationPrototype(certificateAuthority CertificateInstanceIdentityIntf) (_model *LoadBalancerListenerClientAuthenticationPrototype, err error) {
+	_model = &LoadBalancerListenerClientAuthenticationPrototype{
+		CertificateAuthority: certificateAuthority,
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "model-missing-required", common.GetComponentInfo())
+	}
+	return
+}
+
+// UnmarshalLoadBalancerListenerClientAuthenticationPrototype unmarshals an instance of LoadBalancerListenerClientAuthenticationPrototype from the specified map of raw messages.
+func UnmarshalLoadBalancerListenerClientAuthenticationPrototype(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(LoadBalancerListenerClientAuthenticationPrototype)
+	err = core.UnmarshalModel(m, "certificate_authority", &obj.CertificateAuthority, UnmarshalCertificateInstanceIdentity)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "certificate_authority-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "certificate_revocation_list", &obj.CertificateRevocationList)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "certificate_revocation_list-error", common.GetComponentInfo())
 		return
 	}
 	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
@@ -82454,6 +84775,14 @@ type LoadBalancerListenerPatch struct {
 	// `protocol` of `https`.
 	CertificateInstance CertificateInstanceIdentityIntf `json:"certificate_instance,omitempty"`
 
+	// The client authentication to use for this listener.
+	//
+	// Supported by load balancers with `mtls_supported` set to `true`. The listener must
+	// have a `protocol` of `https`.
+	//
+	// Specify `null` to remove an existing client authentication.
+	ClientAuthentication *LoadBalancerListenerClientAuthenticationPatch `json:"client_authentication,omitempty"`
+
 	// The concurrent connection limit for the listener. If reached, incoming connections may be queued or rejected.
 	//
 	// Supported for load balancers in the `application` family.
@@ -82569,6 +84898,11 @@ func UnmarshalLoadBalancerListenerPatch(m map[string]json.RawMessage, result int
 		err = core.SDKErrorf(err, "", "certificate_instance-error", common.GetComponentInfo())
 		return
 	}
+	err = core.UnmarshalModel(m, "client_authentication", &obj.ClientAuthentication, UnmarshalLoadBalancerListenerClientAuthenticationPatch)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "client_authentication-error", common.GetComponentInfo())
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "connection_limit", &obj.ConnectionLimit)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "connection_limit-error", common.GetComponentInfo())
@@ -82621,6 +84955,9 @@ func (loadBalancerListenerPatch *LoadBalancerListenerPatch) AsPatch() (_patch ma
 	}
 	if !core.IsNil(loadBalancerListenerPatch.CertificateInstance) {
 		_patch["certificate_instance"] = loadBalancerListenerPatch.CertificateInstance.asPatch()
+	}
+	if !core.IsNil(loadBalancerListenerPatch.ClientAuthentication) {
+		_patch["client_authentication"] = loadBalancerListenerPatch.ClientAuthentication.asPatch()
 	}
 	if !core.IsNil(loadBalancerListenerPatch.ConnectionLimit) {
 		_patch["connection_limit"] = loadBalancerListenerPatch.ConnectionLimit
@@ -83053,6 +85390,7 @@ const (
 	LoadBalancerListenerPolicyRuleConditionContainsConst     = "contains"
 	LoadBalancerListenerPolicyRuleConditionEqualsConst       = "equals"
 	LoadBalancerListenerPolicyRuleConditionMatchesRegexConst = "matches_regex"
+	LoadBalancerListenerPolicyRuleConditionStartsWithConst   = "starts_with"
 )
 
 // Constants associated with the LoadBalancerListenerPolicyRule.ProvisioningStatus property.
@@ -83185,6 +85523,7 @@ const (
 	LoadBalancerListenerPolicyRulePatchConditionContainsConst     = "contains"
 	LoadBalancerListenerPolicyRulePatchConditionEqualsConst       = "equals"
 	LoadBalancerListenerPolicyRulePatchConditionMatchesRegexConst = "matches_regex"
+	LoadBalancerListenerPolicyRulePatchConditionStartsWithConst   = "starts_with"
 )
 
 // Constants associated with the LoadBalancerListenerPolicyRulePatch.Type property.
@@ -83292,6 +85631,7 @@ const (
 	LoadBalancerListenerPolicyRulePrototypeConditionContainsConst     = "contains"
 	LoadBalancerListenerPolicyRulePrototypeConditionEqualsConst       = "equals"
 	LoadBalancerListenerPolicyRulePrototypeConditionMatchesRegexConst = "matches_regex"
+	LoadBalancerListenerPolicyRulePrototypeConditionStartsWithConst   = "starts_with"
 )
 
 // Constants associated with the LoadBalancerListenerPolicyRulePrototype.Type property.
@@ -83515,13 +85855,13 @@ func UnmarshalLoadBalancerListenerPolicyTarget(m map[string]json.RawMessage, res
 // - LoadBalancerListenerPolicyTargetPatchLoadBalancerListenerPolicyRedirectURLPatch
 // - LoadBalancerListenerPolicyTargetPatchLoadBalancerListenerIdentity
 type LoadBalancerListenerPolicyTargetPatch struct {
-	// The unique identifier for this load balancer pool or the unique identifier for this load balancer listener.
+	// The unique identifier for this load balancer pool.
 	ID *string `json:"id,omitempty"`
 
-	// The URL for this load balancer pool or the URL for this load balancer listener.
+	// The URL for this load balancer pool.
 	Href *string `json:"href,omitempty"`
 
-	// The HTTP status code for this redirect or the HTTP status code for this redirect.
+	// The HTTP status code for this redirect.
 	HTTPStatusCode *int64 `json:"http_status_code,omitempty"`
 
 	// The target listener.
@@ -83641,13 +85981,13 @@ func (loadBalancerListenerPolicyTargetPatch *LoadBalancerListenerPolicyTargetPat
 // - LoadBalancerListenerPolicyTargetPrototypeLoadBalancerListenerPolicyHTTPSRedirectPrototype
 // - LoadBalancerListenerPolicyTargetPrototypeLoadBalancerListenerPolicyRedirectURLPrototype
 type LoadBalancerListenerPolicyTargetPrototype struct {
-	// The unique identifier for this load balancer pool or the unique identifier for this load balancer listener.
+	// The unique identifier for this load balancer pool.
 	ID *string `json:"id,omitempty"`
 
-	// The URL for this load balancer pool or the URL for this load balancer listener.
+	// The URL for this load balancer pool.
 	Href *string `json:"href,omitempty"`
 
-	// The HTTP status code for this redirect or the HTTP status code for this redirect.
+	// The HTTP status code for this redirect.
 	HTTPStatusCode *int64 `json:"http_status_code,omitempty"`
 
 	// The target listener.
@@ -83737,6 +86077,12 @@ type LoadBalancerListenerPrototypeLoadBalancerContext struct {
 	// The certificate instance to use for SSL termination. The listener must have a
 	// `protocol` of `https`.
 	CertificateInstance CertificateInstanceIdentityIntf `json:"certificate_instance,omitempty"`
+
+	// The client authentication to use for this listener.
+	//
+	// Supported by load balancers with `mtls_supported` set to `true`. The listener must
+	// have a `protocol` of `https`.
+	ClientAuthentication *LoadBalancerListenerClientAuthenticationPrototype `json:"client_authentication,omitempty"`
 
 	// The concurrent connection limit for the listener. If reached, incoming connections may be queued or rejected.
 	//
@@ -83862,6 +86208,11 @@ func UnmarshalLoadBalancerListenerPrototypeLoadBalancerContext(m map[string]json
 	err = core.UnmarshalModel(m, "certificate_instance", &obj.CertificateInstance, UnmarshalCertificateInstanceIdentity)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "certificate_instance-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "client_authentication", &obj.ClientAuthentication, UnmarshalLoadBalancerListenerClientAuthenticationPrototype)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "client_authentication-error", common.GetComponentInfo())
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "connection_limit", &obj.ConnectionLimit)
@@ -84158,6 +86509,9 @@ type LoadBalancerPool struct {
 	// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.
 	Algorithm *string `json:"algorithm" validate:"required"`
 
+	// The client authentication used for this pool.
+	ClientAuthentication *LoadBalancerPoolClientAuthentication `json:"client_authentication,omitempty"`
+
 	// The date and time that this pool was created.
 	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
 
@@ -84214,6 +86568,11 @@ type LoadBalancerPool struct {
 	// The enumerated values for this property may
 	// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.
 	ProxyProtocol *string `json:"proxy_protocol" validate:"required"`
+
+	// The server authentication used for this pool.
+	//
+	// This property will be absent if the `pool.protocol` is not `https`.
+	ServerAuthentication *LoadBalancerPoolServerAuthentication `json:"server_authentication,omitempty"`
 
 	// The session persistence of this pool.
 	//
@@ -84280,6 +86639,11 @@ func UnmarshalLoadBalancerPool(m map[string]json.RawMessage, result interface{})
 		err = core.SDKErrorf(err, "", "algorithm-error", common.GetComponentInfo())
 		return
 	}
+	err = core.UnmarshalModel(m, "client_authentication", &obj.ClientAuthentication, UnmarshalLoadBalancerPoolClientAuthentication)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "client_authentication-error", common.GetComponentInfo())
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "created_at", &obj.CreatedAt)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "created_at-error", common.GetComponentInfo())
@@ -84335,9 +86699,103 @@ func UnmarshalLoadBalancerPool(m map[string]json.RawMessage, result interface{})
 		err = core.SDKErrorf(err, "", "proxy_protocol-error", common.GetComponentInfo())
 		return
 	}
+	err = core.UnmarshalModel(m, "server_authentication", &obj.ServerAuthentication, UnmarshalLoadBalancerPoolServerAuthentication)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "server_authentication-error", common.GetComponentInfo())
+		return
+	}
 	err = core.UnmarshalModel(m, "session_persistence", &obj.SessionPersistence, UnmarshalLoadBalancerPoolSessionPersistence)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "session_persistence-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// LoadBalancerPoolClientAuthentication : The client authentication used for this pool.
+type LoadBalancerPoolClientAuthentication struct {
+	CertificateInstance *CertificateInstanceReference `json:"certificate_instance" validate:"required"`
+}
+
+// UnmarshalLoadBalancerPoolClientAuthentication unmarshals an instance of LoadBalancerPoolClientAuthentication from the specified map of raw messages.
+func UnmarshalLoadBalancerPoolClientAuthentication(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(LoadBalancerPoolClientAuthentication)
+	err = core.UnmarshalModel(m, "certificate_instance", &obj.CertificateInstance, UnmarshalCertificateInstanceReference)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "certificate_instance-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// LoadBalancerPoolClientAuthenticationPatch : The client authentication to use for this pool.
+//
+// Supported by load balancers with `mtls_supported` set to `true`. The pool must have a `protocol` of `https`.
+//
+// Specify `null` to remove an existing client authentication.
+type LoadBalancerPoolClientAuthenticationPatch struct {
+	// The backend certificate instance to use for client
+	// certificate verification.
+	//
+	// Supported by load balancers with `mtls_supported` set to `true`. The pool
+	// must have a `protocol` of `https`.
+	CertificateInstance CertificateInstanceIdentityIntf `json:"certificate_instance,omitempty"`
+}
+
+// UnmarshalLoadBalancerPoolClientAuthenticationPatch unmarshals an instance of LoadBalancerPoolClientAuthenticationPatch from the specified map of raw messages.
+func UnmarshalLoadBalancerPoolClientAuthenticationPatch(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(LoadBalancerPoolClientAuthenticationPatch)
+	err = core.UnmarshalModel(m, "certificate_instance", &obj.CertificateInstance, UnmarshalCertificateInstanceIdentity)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "certificate_instance-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// asPatch returns a generic map representation of the LoadBalancerPoolClientAuthenticationPatch
+func (loadBalancerPoolClientAuthenticationPatch *LoadBalancerPoolClientAuthenticationPatch) asPatch() (_patch map[string]interface{}) {
+	_patch = map[string]interface{}{}
+	if !core.IsNil(loadBalancerPoolClientAuthenticationPatch.CertificateInstance) {
+		_patch["certificate_instance"] = loadBalancerPoolClientAuthenticationPatch.CertificateInstance.asPatch()
+	}
+
+	return
+}
+
+// LoadBalancerPoolClientAuthenticationPrototype : The client authentication to use for this pool.
+//
+// Supported by load balancers with `mtls_supported` set to `true`. The pool must have a `protocol` of `https`.
+type LoadBalancerPoolClientAuthenticationPrototype struct {
+	// The backend certificate instance to use for client
+	// certificate verification.
+	//
+	// Supported by load balancers with `mtls_supported` set to `true`. The pool
+	// must have a `protocol` of `https`.
+	CertificateInstance CertificateInstanceIdentityIntf `json:"certificate_instance" validate:"required"`
+}
+
+// NewLoadBalancerPoolClientAuthenticationPrototype : Instantiate LoadBalancerPoolClientAuthenticationPrototype (Generic Model Constructor)
+func (*VpcV1) NewLoadBalancerPoolClientAuthenticationPrototype(certificateInstance CertificateInstanceIdentityIntf) (_model *LoadBalancerPoolClientAuthenticationPrototype, err error) {
+	_model = &LoadBalancerPoolClientAuthenticationPrototype{
+		CertificateInstance: certificateInstance,
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "model-missing-required", common.GetComponentInfo())
+	}
+	return
+}
+
+// UnmarshalLoadBalancerPoolClientAuthenticationPrototype unmarshals an instance of LoadBalancerPoolClientAuthenticationPrototype from the specified map of raw messages.
+func UnmarshalLoadBalancerPoolClientAuthenticationPrototype(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(LoadBalancerPoolClientAuthenticationPrototype)
+	err = core.UnmarshalModel(m, "certificate_instance", &obj.CertificateInstance, UnmarshalCertificateInstanceIdentity)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "certificate_instance-error", common.GetComponentInfo())
 		return
 	}
 	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
@@ -84680,6 +87138,10 @@ type LoadBalancerPoolHealthMonitor struct {
 	// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.
 	Type *string `json:"type" validate:"required"`
 
+	Request *LoadBalancerPoolHealthMonitorTypeHttphttpsRequest `json:"request,omitempty"`
+
+	Response *LoadBalancerPoolHealthMonitorTypeHttphttpsResponse `json:"response,omitempty"`
+
 	// The health check URL path, in the format of an [origin-form request
 	// target](https://tools.ietf.org/html/rfc7230#section-5.3.1).
 	URLPath *string `json:"url_path,omitempty"`
@@ -84732,6 +87194,16 @@ func UnmarshalLoadBalancerPoolHealthMonitor(m map[string]json.RawMessage, result
 		err = core.SDKErrorf(err, "", "type-error", common.GetComponentInfo())
 		return
 	}
+	err = core.UnmarshalModel(m, "request", &obj.Request, UnmarshalLoadBalancerPoolHealthMonitorTypeHttphttpsRequest)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "request-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "response", &obj.Response, UnmarshalLoadBalancerPoolHealthMonitorTypeHttphttpsResponse)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "response-error", common.GetComponentInfo())
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "url_path", &obj.URLPath)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "url_path-error", common.GetComponentInfo())
@@ -84755,6 +87227,12 @@ type LoadBalancerPoolHealthMonitorPatch struct {
 	//
 	// Specify `null` to remove an existing health check port.
 	Port *int64 `json:"port,omitempty"`
+
+	// Supported by load balancers with `advanced_health_checks_supported` set to `true`.
+	Request *LoadBalancerPoolHealthMonitorTypeHttphttpsRequestPatch `json:"request,omitempty"`
+
+	// Supported by load balancers with `advanced_health_checks_supported` set to `true`.
+	Response *LoadBalancerPoolHealthMonitorTypeHttphttpsResponsePatch `json:"response,omitempty"`
 
 	// The seconds to wait for a response to a health check.  Must be less than `delay`.
 	Timeout *int64 `json:"timeout" validate:"required"`
@@ -84811,6 +87289,16 @@ func UnmarshalLoadBalancerPoolHealthMonitorPatch(m map[string]json.RawMessage, r
 		err = core.SDKErrorf(err, "", "port-error", common.GetComponentInfo())
 		return
 	}
+	err = core.UnmarshalModel(m, "request", &obj.Request, UnmarshalLoadBalancerPoolHealthMonitorTypeHttphttpsRequestPatch)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "request-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "response", &obj.Response, UnmarshalLoadBalancerPoolHealthMonitorTypeHttphttpsResponsePatch)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "response-error", common.GetComponentInfo())
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "timeout", &obj.Timeout)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "timeout-error", common.GetComponentInfo())
@@ -84841,6 +87329,12 @@ func (loadBalancerPoolHealthMonitorPatch *LoadBalancerPoolHealthMonitorPatch) as
 	}
 	if !core.IsNil(loadBalancerPoolHealthMonitorPatch.Port) {
 		_patch["port"] = loadBalancerPoolHealthMonitorPatch.Port
+	}
+	if !core.IsNil(loadBalancerPoolHealthMonitorPatch.Request) {
+		_patch["request"] = loadBalancerPoolHealthMonitorPatch.Request.asPatch()
+	}
+	if !core.IsNil(loadBalancerPoolHealthMonitorPatch.Response) {
+		_patch["response"] = loadBalancerPoolHealthMonitorPatch.Response.asPatch()
 	}
 	if !core.IsNil(loadBalancerPoolHealthMonitorPatch.Timeout) {
 		_patch["timeout"] = loadBalancerPoolHealthMonitorPatch.Timeout
@@ -84876,6 +87370,18 @@ type LoadBalancerPoolHealthMonitorPrototype struct {
 
 	// The protocol type to use for health checks.
 	Type *string `json:"type" validate:"required"`
+
+	// The HTTP request to use for health checks. If unspecified, a `request.method` value of
+	// `get` will be used with no `request.headers`.
+	//
+	// Supported by load balancers with `advanced_health_checks_supported` set to `true`.
+	Request LoadBalancerPoolHealthMonitorTypeHttphttpsRequestPrototypeIntf `json:"request,omitempty"`
+
+	// The HTTP response to use for health checks. If unspecified, a `response.codes` value of
+	// `["200"]` will be used with no `response.body_regex`.
+	//
+	// Supported by load balancers with `advanced_health_checks_supported` set to `true`.
+	Response *LoadBalancerPoolHealthMonitorTypeHttphttpsResponsePrototype `json:"response,omitempty"`
 
 	// The health check URL path to use.
 	//
@@ -84927,9 +87433,385 @@ func UnmarshalLoadBalancerPoolHealthMonitorPrototype(m map[string]json.RawMessag
 		err = core.SDKErrorf(err, "", "type-error", common.GetComponentInfo())
 		return
 	}
+	err = core.UnmarshalModel(m, "request", &obj.Request, UnmarshalLoadBalancerPoolHealthMonitorTypeHttphttpsRequestPrototype)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "request-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "response", &obj.Response, UnmarshalLoadBalancerPoolHealthMonitorTypeHttphttpsResponsePrototype)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "response-error", common.GetComponentInfo())
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "url_path", &obj.URLPath)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "url_path-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// LoadBalancerPoolHealthMonitorTypeHttphttpsRequest : LoadBalancerPoolHealthMonitorTypeHttphttpsRequest struct
+type LoadBalancerPoolHealthMonitorTypeHttphttpsRequest struct {
+	// The HTTP request body used for health checks.
+	//
+	// If absent, the health checks will ignore the request body.
+	Body *string `json:"body,omitempty"`
+
+	// The HTTP request headers used for health checks.
+	//
+	// If empty, the health checks will ignore the request headers.
+	HeadersVar []LoadBalancerPoolHealthMonitorTypeHttphttpsRequestHeader `json:"headers,omitempty"`
+
+	// The HTTP request method used for health checks.
+	Method *string `json:"method" validate:"required"`
+}
+
+// Constants associated with the LoadBalancerPoolHealthMonitorTypeHttphttpsRequest.Method property.
+// The HTTP request method used for health checks.
+const (
+	LoadBalancerPoolHealthMonitorTypeHttphttpsRequestMethodGetConst  = "get"
+	LoadBalancerPoolHealthMonitorTypeHttphttpsRequestMethodPostConst = "post"
+)
+
+// UnmarshalLoadBalancerPoolHealthMonitorTypeHttphttpsRequest unmarshals an instance of LoadBalancerPoolHealthMonitorTypeHttphttpsRequest from the specified map of raw messages.
+func UnmarshalLoadBalancerPoolHealthMonitorTypeHttphttpsRequest(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(LoadBalancerPoolHealthMonitorTypeHttphttpsRequest)
+	err = core.UnmarshalPrimitive(m, "body", &obj.Body)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "body-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "headers", &obj.HeadersVar, UnmarshalLoadBalancerPoolHealthMonitorTypeHttphttpsRequestHeader)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "headers-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "method", &obj.Method)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "method-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// LoadBalancerPoolHealthMonitorTypeHttphttpsRequestHeader : An HTTP request header used for health checks.
+type LoadBalancerPoolHealthMonitorTypeHttphttpsRequestHeader struct {
+	// The field of an HTTP request header used for health checks.
+	Field *string `json:"field" validate:"required"`
+
+	// The value of an HTTP request header used for health checks.
+	Value *string `json:"value" validate:"required"`
+}
+
+// UnmarshalLoadBalancerPoolHealthMonitorTypeHttphttpsRequestHeader unmarshals an instance of LoadBalancerPoolHealthMonitorTypeHttphttpsRequestHeader from the specified map of raw messages.
+func UnmarshalLoadBalancerPoolHealthMonitorTypeHttphttpsRequestHeader(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(LoadBalancerPoolHealthMonitorTypeHttphttpsRequestHeader)
+	err = core.UnmarshalPrimitive(m, "field", &obj.Field)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "field-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "value", &obj.Value)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "value-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// LoadBalancerPoolHealthMonitorTypeHttphttpsRequestHeaderPrototype : An HTTP request header to use for health checks.
+type LoadBalancerPoolHealthMonitorTypeHttphttpsRequestHeaderPrototype struct {
+	// The field of an HTTP request header to use for health checks.
+	Field *string `json:"field" validate:"required"`
+
+	// The value of an HTTP request header to use for health checks.
+	Value *string `json:"value" validate:"required"`
+}
+
+// NewLoadBalancerPoolHealthMonitorTypeHttphttpsRequestHeaderPrototype : Instantiate LoadBalancerPoolHealthMonitorTypeHttphttpsRequestHeaderPrototype (Generic Model Constructor)
+func (*VpcV1) NewLoadBalancerPoolHealthMonitorTypeHttphttpsRequestHeaderPrototype(field string, value string) (_model *LoadBalancerPoolHealthMonitorTypeHttphttpsRequestHeaderPrototype, err error) {
+	_model = &LoadBalancerPoolHealthMonitorTypeHttphttpsRequestHeaderPrototype{
+		Field: core.StringPtr(field),
+		Value: core.StringPtr(value),
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "model-missing-required", common.GetComponentInfo())
+	}
+	return
+}
+
+// UnmarshalLoadBalancerPoolHealthMonitorTypeHttphttpsRequestHeaderPrototype unmarshals an instance of LoadBalancerPoolHealthMonitorTypeHttphttpsRequestHeaderPrototype from the specified map of raw messages.
+func UnmarshalLoadBalancerPoolHealthMonitorTypeHttphttpsRequestHeaderPrototype(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(LoadBalancerPoolHealthMonitorTypeHttphttpsRequestHeaderPrototype)
+	err = core.UnmarshalPrimitive(m, "field", &obj.Field)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "field-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "value", &obj.Value)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "value-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// asPatch returns a generic map representation of the LoadBalancerPoolHealthMonitorTypeHttphttpsRequestHeaderPrototype
+func (loadBalancerPoolHealthMonitorTypeHttphttpsRequestHeaderPrototype *LoadBalancerPoolHealthMonitorTypeHttphttpsRequestHeaderPrototype) asPatch() (_patch map[string]interface{}) {
+	_patch = map[string]interface{}{}
+	if !core.IsNil(loadBalancerPoolHealthMonitorTypeHttphttpsRequestHeaderPrototype.Field) {
+		_patch["field"] = loadBalancerPoolHealthMonitorTypeHttphttpsRequestHeaderPrototype.Field
+	}
+	if !core.IsNil(loadBalancerPoolHealthMonitorTypeHttphttpsRequestHeaderPrototype.Value) {
+		_patch["value"] = loadBalancerPoolHealthMonitorTypeHttphttpsRequestHeaderPrototype.Value
+	}
+
+	return
+}
+
+// LoadBalancerPoolHealthMonitorTypeHttphttpsRequestPatch : Supported by load balancers with `advanced_health_checks_supported` set to `true`.
+type LoadBalancerPoolHealthMonitorTypeHttphttpsRequestPatch struct {
+	// The HTTP request body to use for health checks. If set, a corresponding `Content-Type` field must be included in the
+	// `request.headers` array.
+	//
+	// Specify `null` to remove the request body used for health checks.
+	//
+	// The body must be formatted in a way that will be understood by the backend server member.
+	Body *string `json:"body,omitempty"`
+
+	// The HTTP request headers to use for health checks.
+	//
+	// Specify an empty array to remove the request headers for health checks.
+	//
+	// Include a `Host` field and its value to enable the `HTTP/1.1` protocol for health checks. If a `Host` header is not
+	// included, `HTTP/1.0` will be used by default. More than one
+	// `Host` header is not allowed.
+	//
+	// Include a `Content-Type` field and its value to indicate the media type of the
+	// `request.body` (if set).
+	//
+	// A header must not exceed 1000 characters, and all headers combined must not exceed 4000 characters.
+	HeadersVar []LoadBalancerPoolHealthMonitorTypeHttphttpsRequestHeaderPrototype `json:"headers,omitempty"`
+
+	// The HTTP request method to use for health checks. If updating to `get`, the
+	// `health_monitor.request.body` property (if set) must be removed.
+	Method *string `json:"method,omitempty"`
+}
+
+// Constants associated with the LoadBalancerPoolHealthMonitorTypeHttphttpsRequestPatch.Method property.
+// The HTTP request method to use for health checks. If updating to `get`, the
+// `health_monitor.request.body` property (if set) must be removed.
+const (
+	LoadBalancerPoolHealthMonitorTypeHttphttpsRequestPatchMethodGetConst  = "get"
+	LoadBalancerPoolHealthMonitorTypeHttphttpsRequestPatchMethodPostConst = "post"
+)
+
+// UnmarshalLoadBalancerPoolHealthMonitorTypeHttphttpsRequestPatch unmarshals an instance of LoadBalancerPoolHealthMonitorTypeHttphttpsRequestPatch from the specified map of raw messages.
+func UnmarshalLoadBalancerPoolHealthMonitorTypeHttphttpsRequestPatch(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(LoadBalancerPoolHealthMonitorTypeHttphttpsRequestPatch)
+	err = core.UnmarshalPrimitive(m, "body", &obj.Body)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "body-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "headers", &obj.HeadersVar, UnmarshalLoadBalancerPoolHealthMonitorTypeHttphttpsRequestHeaderPrototype)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "headers-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "method", &obj.Method)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "method-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// asPatch returns a generic map representation of the LoadBalancerPoolHealthMonitorTypeHttphttpsRequestPatch
+func (loadBalancerPoolHealthMonitorTypeHttphttpsRequestPatch *LoadBalancerPoolHealthMonitorTypeHttphttpsRequestPatch) asPatch() (_patch map[string]interface{}) {
+	_patch = map[string]interface{}{}
+	if !core.IsNil(loadBalancerPoolHealthMonitorTypeHttphttpsRequestPatch.Body) {
+		_patch["body"] = loadBalancerPoolHealthMonitorTypeHttphttpsRequestPatch.Body
+	}
+	if !core.IsNil(loadBalancerPoolHealthMonitorTypeHttphttpsRequestPatch.HeadersVar) {
+		var headersPatches []map[string]interface{}
+		for _, headers := range loadBalancerPoolHealthMonitorTypeHttphttpsRequestPatch.HeadersVar {
+			headersPatches = append(headersPatches, headers.asPatch())
+		}
+		_patch["headers"] = headersPatches
+	}
+	if !core.IsNil(loadBalancerPoolHealthMonitorTypeHttphttpsRequestPatch.Method) {
+		_patch["method"] = loadBalancerPoolHealthMonitorTypeHttphttpsRequestPatch.Method
+	}
+
+	return
+}
+
+// LoadBalancerPoolHealthMonitorTypeHttphttpsRequestPrototype : The HTTP request to use for health checks. If unspecified, a `request.method` value of
+// `get` will be used with no `request.headers`.
+//
+// Supported by load balancers with `advanced_health_checks_supported` set to `true`.
+// Models which "extend" this model:
+// - LoadBalancerPoolHealthMonitorTypeHttphttpsRequestPrototypeLoadBalancerPoolHealthMonitorTypeHttphttpsRequestGetPrototype
+// - LoadBalancerPoolHealthMonitorTypeHttphttpsRequestPrototypeLoadBalancerPoolHealthMonitorTypeHttphttpsRequestPostPrototype
+type LoadBalancerPoolHealthMonitorTypeHttphttpsRequestPrototype struct {
+	// The HTTP request headers to use for health checks. If empty, health check HTTP requests will not have headers.
+	//
+	// Include a `Host` field and its value to enable the `HTTP/1.1` protocol for health checks. If a `Host` header is not
+	// included, `HTTP/1.0` will be used by default. More than one
+	// `Host` header is not allowed.
+	//
+	// A header must not exceed 1000 characters, and all headers combined must not exceed 4000 characters.
+	HeadersVar []LoadBalancerPoolHealthMonitorTypeHttphttpsRequestHeaderPrototype `json:"headers,omitempty"`
+
+	// The HTTP request method to use for health checks.
+	Method *string `json:"method,omitempty"`
+
+	// The HTTP request body to use for health checks. If unspecified, health check requests will not have a request body.
+	//
+	// The body must be formatted in a way that is understood by the backend member. If specified, the `request.headers`
+	// array must include a corresponding `Content-Type` header.
+	Body *string `json:"body,omitempty"`
+}
+
+// Constants associated with the LoadBalancerPoolHealthMonitorTypeHttphttpsRequestPrototype.Method property.
+// The HTTP request method to use for health checks.
+const (
+	LoadBalancerPoolHealthMonitorTypeHttphttpsRequestPrototypeMethodGetConst = "get"
+)
+
+func (*LoadBalancerPoolHealthMonitorTypeHttphttpsRequestPrototype) isaLoadBalancerPoolHealthMonitorTypeHttphttpsRequestPrototype() bool {
+	return true
+}
+
+type LoadBalancerPoolHealthMonitorTypeHttphttpsRequestPrototypeIntf interface {
+	isaLoadBalancerPoolHealthMonitorTypeHttphttpsRequestPrototype() bool
+}
+
+// UnmarshalLoadBalancerPoolHealthMonitorTypeHttphttpsRequestPrototype unmarshals an instance of LoadBalancerPoolHealthMonitorTypeHttphttpsRequestPrototype from the specified map of raw messages.
+func UnmarshalLoadBalancerPoolHealthMonitorTypeHttphttpsRequestPrototype(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(LoadBalancerPoolHealthMonitorTypeHttphttpsRequestPrototype)
+	err = core.UnmarshalModel(m, "headers", &obj.HeadersVar, UnmarshalLoadBalancerPoolHealthMonitorTypeHttphttpsRequestHeaderPrototype)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "headers-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "method", &obj.Method)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "method-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "body", &obj.Body)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "body-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// LoadBalancerPoolHealthMonitorTypeHttphttpsResponse : LoadBalancerPoolHealthMonitorTypeHttphttpsResponse struct
+type LoadBalancerPoolHealthMonitorTypeHttphttpsResponse struct {
+	// The PCRE-flavor regular expression that HTTP response bodies must match for successful health checks.
+	//
+	// If absent, health checks will ignore any response body.
+	BodyRegex *string `json:"body_regex,omitempty"`
+
+	// The HTTP response codes expected for successful health checks.
+	Codes []string `json:"codes" validate:"required"`
+}
+
+// UnmarshalLoadBalancerPoolHealthMonitorTypeHttphttpsResponse unmarshals an instance of LoadBalancerPoolHealthMonitorTypeHttphttpsResponse from the specified map of raw messages.
+func UnmarshalLoadBalancerPoolHealthMonitorTypeHttphttpsResponse(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(LoadBalancerPoolHealthMonitorTypeHttphttpsResponse)
+	err = core.UnmarshalPrimitive(m, "body_regex", &obj.BodyRegex)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "body_regex-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "codes", &obj.Codes)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "codes-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// LoadBalancerPoolHealthMonitorTypeHttphttpsResponsePatch : Supported by load balancers with `advanced_health_checks_supported` set to `true`.
+type LoadBalancerPoolHealthMonitorTypeHttphttpsResponsePatch struct {
+	// The PCRE-flavor regular expression that HTTP response bodies will be expected to match for successful health checks.
+	//
+	// Specify `null` to remove the response body for successful health checks. If removed, health checks will ignore any
+	// response body.
+	BodyRegex *string `json:"body_regex,omitempty"`
+
+	// The HTTP response codes to expect for successful health checks.
+	Codes []string `json:"codes,omitempty"`
+}
+
+// UnmarshalLoadBalancerPoolHealthMonitorTypeHttphttpsResponsePatch unmarshals an instance of LoadBalancerPoolHealthMonitorTypeHttphttpsResponsePatch from the specified map of raw messages.
+func UnmarshalLoadBalancerPoolHealthMonitorTypeHttphttpsResponsePatch(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(LoadBalancerPoolHealthMonitorTypeHttphttpsResponsePatch)
+	err = core.UnmarshalPrimitive(m, "body_regex", &obj.BodyRegex)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "body_regex-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "codes", &obj.Codes)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "codes-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// asPatch returns a generic map representation of the LoadBalancerPoolHealthMonitorTypeHttphttpsResponsePatch
+func (loadBalancerPoolHealthMonitorTypeHttphttpsResponsePatch *LoadBalancerPoolHealthMonitorTypeHttphttpsResponsePatch) asPatch() (_patch map[string]interface{}) {
+	_patch = map[string]interface{}{}
+	if !core.IsNil(loadBalancerPoolHealthMonitorTypeHttphttpsResponsePatch.BodyRegex) {
+		_patch["body_regex"] = loadBalancerPoolHealthMonitorTypeHttphttpsResponsePatch.BodyRegex
+	}
+	if !core.IsNil(loadBalancerPoolHealthMonitorTypeHttphttpsResponsePatch.Codes) {
+		_patch["codes"] = loadBalancerPoolHealthMonitorTypeHttphttpsResponsePatch.Codes
+	}
+
+	return
+}
+
+// LoadBalancerPoolHealthMonitorTypeHttphttpsResponsePrototype : The HTTP response to use for health checks. If unspecified, a `response.codes` value of
+// `["200"]` will be used with no `response.body_regex`.
+//
+// Supported by load balancers with `advanced_health_checks_supported` set to `true`.
+type LoadBalancerPoolHealthMonitorTypeHttphttpsResponsePrototype struct {
+	// The PCRE-flavor regular expression that HTTP response bodies will be expected to match for successful health checks.
+	//
+	// If unspecified, health checks will ignore any response body.
+	BodyRegex *string `json:"body_regex,omitempty"`
+
+	// The HTTP response codes to expect for successful health checks.
+	Codes []string `json:"codes,omitempty"`
+}
+
+// UnmarshalLoadBalancerPoolHealthMonitorTypeHttphttpsResponsePrototype unmarshals an instance of LoadBalancerPoolHealthMonitorTypeHttphttpsResponsePrototype from the specified map of raw messages.
+func UnmarshalLoadBalancerPoolHealthMonitorTypeHttphttpsResponsePrototype(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(LoadBalancerPoolHealthMonitorTypeHttphttpsResponsePrototype)
+	err = core.UnmarshalPrimitive(m, "body_regex", &obj.BodyRegex)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "body_regex-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "codes", &obj.Codes)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "codes-error", common.GetComponentInfo())
 		return
 	}
 	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
@@ -85323,6 +88205,7 @@ func UnmarshalLoadBalancerPoolMemberReference(m map[string]json.RawMessage, resu
 // - LoadBalancerPoolMemberTargetByReservedIP
 // - LoadBalancerPoolMemberTargetIPNotReservedIP
 // - LoadBalancerPoolMemberTargetLoadBalancerReference
+// - LoadBalancerPoolMemberTargetFqdn
 type LoadBalancerPoolMemberTarget struct {
 	// The CRN for this virtual server instance.
 	CRN *string `json:"crn,omitempty"`
@@ -85350,6 +88233,9 @@ type LoadBalancerPoolMemberTarget struct {
 
 	// The resource type.
 	ResourceType *string `json:"resource_type,omitempty"`
+
+	// A fully qualified domain name for this resource.
+	Fqdn *string `json:"fqdn,omitempty"`
 }
 
 // Constants associated with the LoadBalancerPoolMemberTarget.ResourceType property.
@@ -85404,6 +88290,11 @@ func UnmarshalLoadBalancerPoolMemberTarget(m map[string]json.RawMessage, result 
 		err = core.SDKErrorf(err, "", "resource_type-error", common.GetComponentInfo())
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "fqdn", &obj.Fqdn)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "fqdn-error", common.GetComponentInfo())
+		return
+	}
 	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
 	return
 }
@@ -85419,15 +88310,15 @@ func UnmarshalLoadBalancerPoolMemberTarget(m map[string]json.RawMessage, result 
 // - LoadBalancerPoolMemberTargetPrototypeReservedIPIdentity
 // - LoadBalancerPoolMemberTargetPrototypeIP
 // - LoadBalancerPoolMemberTargetPrototypeLoadBalancerIdentity
+// - LoadBalancerPoolMemberTargetPrototypeFqdn
 type LoadBalancerPoolMemberTargetPrototype struct {
-	// The unique identifier for this virtual server instance or the unique identifier for this reserved IP or the unique
-	// identifier for this load balancer.
+	// The unique identifier for this virtual server instance.
 	ID *string `json:"id,omitempty"`
 
-	// The CRN for this virtual server instance or the CRN for this load balancer.
+	// The CRN for this virtual server instance.
 	CRN *string `json:"crn,omitempty"`
 
-	// The URL for this virtual server instance or the URL for this reserved IP or the URL for this load balancer.
+	// The URL for this virtual server instance.
 	Href *string `json:"href,omitempty"`
 
 	// The IP address.
@@ -85435,6 +88326,9 @@ type LoadBalancerPoolMemberTargetPrototype struct {
 	// This property may [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support IPv6 addresses in
 	// the future.
 	Address *string `json:"address,omitempty"`
+
+	// A fully qualified domain name for this resource.
+	Fqdn *string `json:"fqdn,omitempty"`
 }
 
 func (*LoadBalancerPoolMemberTargetPrototype) isaLoadBalancerPoolMemberTargetPrototype() bool {
@@ -85469,6 +88363,11 @@ func UnmarshalLoadBalancerPoolMemberTargetPrototype(m map[string]json.RawMessage
 		err = core.SDKErrorf(err, "", "address-error", common.GetComponentInfo())
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "fqdn", &obj.Fqdn)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "fqdn-error", common.GetComponentInfo())
+		return
+	}
 	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
 	return
 }
@@ -85488,6 +88387,9 @@ func (loadBalancerPoolMemberTargetPrototype *LoadBalancerPoolMemberTargetPrototy
 	if !core.IsNil(loadBalancerPoolMemberTargetPrototype.Address) {
 		_patch["address"] = loadBalancerPoolMemberTargetPrototype.Address
 	}
+	if !core.IsNil(loadBalancerPoolMemberTargetPrototype.Fqdn) {
+		_patch["fqdn"] = loadBalancerPoolMemberTargetPrototype.Fqdn
+	}
 
 	return
 }
@@ -85497,6 +88399,14 @@ type LoadBalancerPoolPatch struct {
 	// The load balancing algorithm. The `least_connections` algorithm is only supported for load balancers that have
 	// `availability` with value `subnet` in the profile.
 	Algorithm *string `json:"algorithm,omitempty"`
+
+	// The client authentication to use for this pool.
+	//
+	// Supported by load balancers with `mtls_supported` set to `true`. The pool must
+	// have a `protocol` of `https`.
+	//
+	// Specify `null` to remove an existing client authentication.
+	ClientAuthentication *LoadBalancerPoolClientAuthenticationPatch `json:"client_authentication,omitempty"`
 
 	// The failsafe policy for this load balancer pool.
 	FailsafePolicy *LoadBalancerPoolFailsafePolicyPatch `json:"failsafe_policy,omitempty"`
@@ -85538,6 +88448,14 @@ type LoadBalancerPoolPatch struct {
 	//
 	// For load balancers in the `network` family, this property must be `disabled`.
 	ProxyProtocol *string `json:"proxy_protocol,omitempty"`
+
+	// The server authentication to use for this pool.
+	//
+	// Supported by load balancers with `mtls_supported` set to `true`. The pool must
+	// have a `protocol` of `https`.
+	//
+	// Specify `null` to remove an existing server authentication.
+	ServerAuthentication *LoadBalancerPoolServerAuthenticationPatch `json:"server_authentication,omitempty"`
 
 	// The session persistence of this pool.
 	SessionPersistence *LoadBalancerPoolSessionPersistencePatch `json:"session_persistence,omitempty"`
@@ -85590,6 +88508,11 @@ func UnmarshalLoadBalancerPoolPatch(m map[string]json.RawMessage, result interfa
 		err = core.SDKErrorf(err, "", "algorithm-error", common.GetComponentInfo())
 		return
 	}
+	err = core.UnmarshalModel(m, "client_authentication", &obj.ClientAuthentication, UnmarshalLoadBalancerPoolClientAuthenticationPatch)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "client_authentication-error", common.GetComponentInfo())
+		return
+	}
 	err = core.UnmarshalModel(m, "failsafe_policy", &obj.FailsafePolicy, UnmarshalLoadBalancerPoolFailsafePolicyPatch)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "failsafe_policy-error", common.GetComponentInfo())
@@ -85615,6 +88538,11 @@ func UnmarshalLoadBalancerPoolPatch(m map[string]json.RawMessage, result interfa
 		err = core.SDKErrorf(err, "", "proxy_protocol-error", common.GetComponentInfo())
 		return
 	}
+	err = core.UnmarshalModel(m, "server_authentication", &obj.ServerAuthentication, UnmarshalLoadBalancerPoolServerAuthenticationPatch)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "server_authentication-error", common.GetComponentInfo())
+		return
+	}
 	err = core.UnmarshalModel(m, "session_persistence", &obj.SessionPersistence, UnmarshalLoadBalancerPoolSessionPersistencePatch)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "session_persistence-error", common.GetComponentInfo())
@@ -85629,6 +88557,9 @@ func (loadBalancerPoolPatch *LoadBalancerPoolPatch) AsPatch() (_patch map[string
 	_patch = map[string]interface{}{}
 	if !core.IsNil(loadBalancerPoolPatch.Algorithm) {
 		_patch["algorithm"] = loadBalancerPoolPatch.Algorithm
+	}
+	if !core.IsNil(loadBalancerPoolPatch.ClientAuthentication) {
+		_patch["client_authentication"] = loadBalancerPoolPatch.ClientAuthentication.asPatch()
 	}
 	if !core.IsNil(loadBalancerPoolPatch.FailsafePolicy) {
 		_patch["failsafe_policy"] = loadBalancerPoolPatch.FailsafePolicy.asPatch()
@@ -85645,6 +88576,9 @@ func (loadBalancerPoolPatch *LoadBalancerPoolPatch) AsPatch() (_patch map[string
 	if !core.IsNil(loadBalancerPoolPatch.ProxyProtocol) {
 		_patch["proxy_protocol"] = loadBalancerPoolPatch.ProxyProtocol
 	}
+	if !core.IsNil(loadBalancerPoolPatch.ServerAuthentication) {
+		_patch["server_authentication"] = loadBalancerPoolPatch.ServerAuthentication.asPatch()
+	}
 	if !core.IsNil(loadBalancerPoolPatch.SessionPersistence) {
 		_patch["session_persistence"] = loadBalancerPoolPatch.SessionPersistence.asPatch()
 	}
@@ -85657,6 +88591,12 @@ type LoadBalancerPoolPrototypeLoadBalancerContext struct {
 	// The load balancing algorithm. The `least_connections` algorithm is only supported for load balancers that have
 	// `availability` with value `subnet` in the profile.
 	Algorithm *string `json:"algorithm" validate:"required"`
+
+	// The client authentication to use for this pool.
+	//
+	// Supported by load balancers with `mtls_supported` set to `true`. The pool must
+	// have a `protocol` of `https`.
+	ClientAuthentication *LoadBalancerPoolClientAuthenticationPrototype `json:"client_authentication,omitempty"`
 
 	// The health monitor of this pool.
 	//
@@ -85698,6 +88638,12 @@ type LoadBalancerPoolPrototypeLoadBalancerContext struct {
 	//
 	// For load balancers in the `network` family, this property must be `disabled`.
 	ProxyProtocol *string `json:"proxy_protocol,omitempty"`
+
+	// The server authentication to use for this pool.
+	//
+	// Supported by load balancers with `mtls_supported` set to `true`. The pool must
+	// have a `protocol` of `https`.
+	ServerAuthentication *LoadBalancerPoolServerAuthenticationPrototype `json:"server_authentication,omitempty"`
 
 	// The session persistence of this pool. If specified, the load balancer must have
 	// `source_ip_session_persistence_supported` set to `true` in its profile.
@@ -85766,6 +88712,11 @@ func UnmarshalLoadBalancerPoolPrototypeLoadBalancerContext(m map[string]json.Raw
 		err = core.SDKErrorf(err, "", "algorithm-error", common.GetComponentInfo())
 		return
 	}
+	err = core.UnmarshalModel(m, "client_authentication", &obj.ClientAuthentication, UnmarshalLoadBalancerPoolClientAuthenticationPrototype)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "client_authentication-error", common.GetComponentInfo())
+		return
+	}
 	err = core.UnmarshalModel(m, "health_monitor", &obj.HealthMonitor, UnmarshalLoadBalancerPoolHealthMonitorPrototype)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "health_monitor-error", common.GetComponentInfo())
@@ -85789,6 +88740,11 @@ func UnmarshalLoadBalancerPoolPrototypeLoadBalancerContext(m map[string]json.Raw
 	err = core.UnmarshalPrimitive(m, "proxy_protocol", &obj.ProxyProtocol)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "proxy_protocol-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "server_authentication", &obj.ServerAuthentication, UnmarshalLoadBalancerPoolServerAuthenticationPrototype)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "server_authentication-error", common.GetComponentInfo())
 		return
 	}
 	err = core.UnmarshalModel(m, "session_persistence", &obj.SessionPersistence, UnmarshalLoadBalancerPoolSessionPersistencePrototype)
@@ -85837,6 +88793,128 @@ func UnmarshalLoadBalancerPoolReference(m map[string]json.RawMessage, result int
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// LoadBalancerPoolServerAuthentication : The server authentication used for this pool.
+//
+// This property will be absent if the `pool.protocol` is not `https`.
+type LoadBalancerPoolServerAuthentication struct {
+	// The backend server certificate authority instance used for server
+	// certificate verification.
+	CertificateAuthority *CertificateInstanceReference `json:"certificate_authority,omitempty"`
+
+	// If set to `true`, the backend server certificate is verified.
+	VerifyCertificate *bool `json:"verify_certificate" validate:"required"`
+}
+
+// UnmarshalLoadBalancerPoolServerAuthentication unmarshals an instance of LoadBalancerPoolServerAuthentication from the specified map of raw messages.
+func UnmarshalLoadBalancerPoolServerAuthentication(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(LoadBalancerPoolServerAuthentication)
+	err = core.UnmarshalModel(m, "certificate_authority", &obj.CertificateAuthority, UnmarshalCertificateInstanceReference)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "certificate_authority-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "verify_certificate", &obj.VerifyCertificate)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "verify_certificate-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// LoadBalancerPoolServerAuthenticationPatch : The server authentication to use for this pool.
+//
+// Supported by load balancers with `mtls_supported` set to `true`. The pool must have a `protocol` of `https`.
+//
+// Specify `null` to remove an existing server authentication.
+type LoadBalancerPoolServerAuthenticationPatch struct {
+	// The backend server certificate authority instance to use for server
+	// certificate verification.
+	//
+	// Supported by load balancers with `mtls_supported` set to `true`. The pool must
+	// have a `protocol` of `https`.
+	//
+	// If specified, `verify_certificate` must be `true`.
+	CertificateAuthority CertificateInstanceIdentityIntf `json:"certificate_authority,omitempty"`
+
+	// Indicates whether server certificate verification is enabled.
+	//
+	// If set to `true`, the backend server certificate is verified by:
+	// - `certificate_authority`, if specified.
+	// - the system default certificate authorities, if `certificate_authority`
+	//   is not specified.
+	VerifyCertificate *bool `json:"verify_certificate,omitempty"`
+}
+
+// UnmarshalLoadBalancerPoolServerAuthenticationPatch unmarshals an instance of LoadBalancerPoolServerAuthenticationPatch from the specified map of raw messages.
+func UnmarshalLoadBalancerPoolServerAuthenticationPatch(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(LoadBalancerPoolServerAuthenticationPatch)
+	err = core.UnmarshalModel(m, "certificate_authority", &obj.CertificateAuthority, UnmarshalCertificateInstanceIdentity)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "certificate_authority-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "verify_certificate", &obj.VerifyCertificate)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "verify_certificate-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// asPatch returns a generic map representation of the LoadBalancerPoolServerAuthenticationPatch
+func (loadBalancerPoolServerAuthenticationPatch *LoadBalancerPoolServerAuthenticationPatch) asPatch() (_patch map[string]interface{}) {
+	_patch = map[string]interface{}{}
+	if !core.IsNil(loadBalancerPoolServerAuthenticationPatch.CertificateAuthority) {
+		_patch["certificate_authority"] = loadBalancerPoolServerAuthenticationPatch.CertificateAuthority.asPatch()
+	}
+	if !core.IsNil(loadBalancerPoolServerAuthenticationPatch.VerifyCertificate) {
+		_patch["verify_certificate"] = loadBalancerPoolServerAuthenticationPatch.VerifyCertificate
+	}
+
+	return
+}
+
+// LoadBalancerPoolServerAuthenticationPrototype : The server authentication to use for this pool.
+//
+// Supported by load balancers with `mtls_supported` set to `true`. The pool must have a `protocol` of `https`.
+type LoadBalancerPoolServerAuthenticationPrototype struct {
+	// The backend server certificate authority instance to use for server
+	// certificate verification.
+	//
+	// Supported by load balancers with `mtls_supported` set to `true`. The pool must
+	// have a `protocol` of `https`.
+	//
+	// If specified, `verify_certificate` must be `true`.
+	CertificateAuthority CertificateInstanceIdentityIntf `json:"certificate_authority,omitempty"`
+
+	// Indicates whether server certificate verification is enabled.
+	//
+	// If set to `true`, the backend server certificate is verified by:
+	// - `certificate_authority`, if specified.
+	// - the system default certificate authorities, if `certificate_authority`
+	//   is not specified.
+	VerifyCertificate *bool `json:"verify_certificate,omitempty"`
+}
+
+// UnmarshalLoadBalancerPoolServerAuthenticationPrototype unmarshals an instance of LoadBalancerPoolServerAuthenticationPrototype from the specified map of raw messages.
+func UnmarshalLoadBalancerPoolServerAuthenticationPrototype(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(LoadBalancerPoolServerAuthenticationPrototype)
+	err = core.UnmarshalModel(m, "certificate_authority", &obj.CertificateAuthority, UnmarshalCertificateInstanceIdentity)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "certificate_authority-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "verify_certificate", &obj.VerifyCertificate)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "verify_certificate-error", common.GetComponentInfo())
 		return
 	}
 	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
@@ -85996,6 +89074,8 @@ func UnmarshalLoadBalancerPoolSessionPersistencePrototype(m map[string]json.RawM
 type LoadBalancerProfile struct {
 	AccessModes *LoadBalancerProfileAccessModes `json:"access_modes" validate:"required"`
 
+	AdvancedHealthChecksSupported LoadBalancerProfileAdvancedHealthCheckSupportedIntf `json:"advanced_health_checks_supported" validate:"required"`
+
 	Availability LoadBalancerProfileAvailabilityIntf `json:"availability" validate:"required"`
 
 	FailsafePolicyActions LoadBalancerProfileFailsafePolicyActionsIntf `json:"failsafe_policy_actions" validate:"required"`
@@ -86006,6 +89086,8 @@ type LoadBalancerProfile struct {
 	// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.
 	Family *string `json:"family" validate:"required"`
 
+	FqdnPoolMembersSupported LoadBalancerProfileFqdnSupportedIntf `json:"fqdn_pool_members_supported" validate:"required"`
+
 	// The URL for this load balancer profile.
 	Href *string `json:"href" validate:"required"`
 
@@ -86013,6 +89095,8 @@ type LoadBalancerProfile struct {
 
 	// Indicates which logging type(s) are supported for a load balancer with this profile.
 	LoggingSupported *LoadBalancerProfileLoggingSupported `json:"logging_supported" validate:"required"`
+
+	MtlsSupported LoadBalancerProfileMtlsSupportedIntf `json:"mtls_supported" validate:"required"`
 
 	// The globally unique name for this load balancer profile.
 	Name *string `json:"name" validate:"required"`
@@ -86049,6 +89133,11 @@ func UnmarshalLoadBalancerProfile(m map[string]json.RawMessage, result interface
 		err = core.SDKErrorf(err, "", "access_modes-error", common.GetComponentInfo())
 		return
 	}
+	err = core.UnmarshalModel(m, "advanced_health_checks_supported", &obj.AdvancedHealthChecksSupported, UnmarshalLoadBalancerProfileAdvancedHealthCheckSupported)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "advanced_health_checks_supported-error", common.GetComponentInfo())
+		return
+	}
 	err = core.UnmarshalModel(m, "availability", &obj.Availability, UnmarshalLoadBalancerProfileAvailability)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "availability-error", common.GetComponentInfo())
@@ -86064,6 +89153,11 @@ func UnmarshalLoadBalancerProfile(m map[string]json.RawMessage, result interface
 		err = core.SDKErrorf(err, "", "family-error", common.GetComponentInfo())
 		return
 	}
+	err = core.UnmarshalModel(m, "fqdn_pool_members_supported", &obj.FqdnPoolMembersSupported, UnmarshalLoadBalancerProfileFqdnSupported)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "fqdn_pool_members_supported-error", common.GetComponentInfo())
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "href-error", common.GetComponentInfo())
@@ -86077,6 +89171,11 @@ func UnmarshalLoadBalancerProfile(m map[string]json.RawMessage, result interface
 	err = core.UnmarshalModel(m, "logging_supported", &obj.LoggingSupported, UnmarshalLoadBalancerProfileLoggingSupported)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "logging_supported-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "mtls_supported", &obj.MtlsSupported, UnmarshalLoadBalancerProfileMtlsSupported)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "mtls_supported-error", common.GetComponentInfo())
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
@@ -86158,6 +89257,49 @@ func UnmarshalLoadBalancerProfileAccessModes(m map[string]json.RawMessage, resul
 	err = core.UnmarshalPrimitive(m, "values", &obj.Values)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "values-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// LoadBalancerProfileAdvancedHealthCheckSupported : LoadBalancerProfileAdvancedHealthCheckSupported struct
+// Models which "extend" this model:
+// - LoadBalancerProfileAdvancedHealthCheckSupportedFixed
+// - LoadBalancerProfileAdvancedHealthCheckSupportedDependent
+type LoadBalancerProfileAdvancedHealthCheckSupported struct {
+	// The type for this profile field.
+	Type *string `json:"type,omitempty"`
+
+	// The value for this profile field.
+	Value *bool `json:"value,omitempty"`
+}
+
+// Constants associated with the LoadBalancerProfileAdvancedHealthCheckSupported.Type property.
+// The type for this profile field.
+const (
+	LoadBalancerProfileAdvancedHealthCheckSupportedTypeFixedConst = "fixed"
+)
+
+func (*LoadBalancerProfileAdvancedHealthCheckSupported) isaLoadBalancerProfileAdvancedHealthCheckSupported() bool {
+	return true
+}
+
+type LoadBalancerProfileAdvancedHealthCheckSupportedIntf interface {
+	isaLoadBalancerProfileAdvancedHealthCheckSupported() bool
+}
+
+// UnmarshalLoadBalancerProfileAdvancedHealthCheckSupported unmarshals an instance of LoadBalancerProfileAdvancedHealthCheckSupported from the specified map of raw messages.
+func UnmarshalLoadBalancerProfileAdvancedHealthCheckSupported(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(LoadBalancerProfileAdvancedHealthCheckSupported)
+	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "type-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "value", &obj.Value)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "value-error", common.GetComponentInfo())
 		return
 	}
 	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
@@ -86290,6 +89432,49 @@ func (resp *LoadBalancerProfileCollection) GetNextStart() (*string, error) {
 		return nil, nil
 	}
 	return start, nil
+}
+
+// LoadBalancerProfileFqdnSupported : LoadBalancerProfileFqdnSupported struct
+// Models which "extend" this model:
+// - LoadBalancerProfileFqdnSupportedFixed
+// - LoadBalancerProfileFqdnSupportedDependent
+type LoadBalancerProfileFqdnSupported struct {
+	// The type for this profile field.
+	Type *string `json:"type,omitempty"`
+
+	// The value for this profile field.
+	Value *bool `json:"value,omitempty"`
+}
+
+// Constants associated with the LoadBalancerProfileFqdnSupported.Type property.
+// The type for this profile field.
+const (
+	LoadBalancerProfileFqdnSupportedTypeFixedConst = "fixed"
+)
+
+func (*LoadBalancerProfileFqdnSupported) isaLoadBalancerProfileFqdnSupported() bool {
+	return true
+}
+
+type LoadBalancerProfileFqdnSupportedIntf interface {
+	isaLoadBalancerProfileFqdnSupported() bool
+}
+
+// UnmarshalLoadBalancerProfileFqdnSupported unmarshals an instance of LoadBalancerProfileFqdnSupported from the specified map of raw messages.
+func UnmarshalLoadBalancerProfileFqdnSupported(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(LoadBalancerProfileFqdnSupported)
+	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "type-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "value", &obj.Value)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "value-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
 }
 
 // LoadBalancerProfileFailsafePolicyActions : LoadBalancerProfileFailsafePolicyActions struct
@@ -86466,6 +89651,49 @@ const (
 // UnmarshalLoadBalancerProfileLoggingSupported unmarshals an instance of LoadBalancerProfileLoggingSupported from the specified map of raw messages.
 func UnmarshalLoadBalancerProfileLoggingSupported(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(LoadBalancerProfileLoggingSupported)
+	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "type-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "value", &obj.Value)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "value-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// LoadBalancerProfileMtlsSupported : LoadBalancerProfileMtlsSupported struct
+// Models which "extend" this model:
+// - LoadBalancerProfileMtlsSupportedFixed
+// - LoadBalancerProfileMtlsSupportedDependent
+type LoadBalancerProfileMtlsSupported struct {
+	// The type for this profile field.
+	Type *string `json:"type,omitempty"`
+
+	// The value for this profile field.
+	Value *bool `json:"value,omitempty"`
+}
+
+// Constants associated with the LoadBalancerProfileMtlsSupported.Type property.
+// The type for this profile field.
+const (
+	LoadBalancerProfileMtlsSupportedTypeFixedConst = "fixed"
+)
+
+func (*LoadBalancerProfileMtlsSupported) isaLoadBalancerProfileMtlsSupported() bool {
+	return true
+}
+
+type LoadBalancerProfileMtlsSupportedIntf interface {
+	isaLoadBalancerProfileMtlsSupported() bool
+}
+
+// UnmarshalLoadBalancerProfileMtlsSupported unmarshals an instance of LoadBalancerProfileMtlsSupported from the specified map of raw messages.
+func UnmarshalLoadBalancerProfileMtlsSupported(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(LoadBalancerProfileMtlsSupported)
 	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "type-error", common.GetComponentInfo())
@@ -88885,13 +92113,8 @@ func UnmarshalNetworkACLRule(m map[string]json.RawMessage, result interface{}) (
 			err = core.SDKErrorf(err, "", "unmarshal-NetworkACLRuleNetworkACLRuleProtocolIndividual-error", common.GetComponentInfo())
 		}
 	} else {
-		// errMsg := fmt.Sprintf("unrecognized value for discriminator property 'protocol': %s", discValue)
-		// err = core.SDKErrorf(err, errMsg, "invalid-discriminator", common.GetComponentInfo())
-		// Fallback to base NetworkACLRule for unknown protocols
-		err = core.UnmarshalModel(m, "", result, UnmarshalNetworkACLRuleGeneric)
-		if err != nil {
-			err = core.SDKErrorf(err, "", "unmarshal-NetworkACLRuleItemGeneric-error", common.GetComponentInfo())
-		}
+		errMsg := fmt.Sprintf("unrecognized value for discriminator property 'protocol': %s", discValue)
+		err = core.SDKErrorf(err, errMsg, "invalid-discriminator", common.GetComponentInfo())
 	}
 	return
 }
@@ -90733,156 +93956,9 @@ func UnmarshalNetworkACLRuleItem(m map[string]json.RawMessage, result interface{
 			err = core.SDKErrorf(err, "", "unmarshal-NetworkACLRuleItemNetworkACLRuleProtocolIndividual-error", common.GetComponentInfo())
 		}
 	} else {
-		// errMsg := fmt.Sprintf("unrecognized value for discriminator property 'protocol': %s", discValue)
-		// err = core.SDKErrorf(err, errMsg, "invalid-discriminator", common.GetComponentInfo())
-		// Fallback to base NetworkACLRuleItem for unknown protocols
-		err = core.UnmarshalModel(m, "", result, UnmarshalNetworkACLRuleItemGeneric)
-		if err != nil {
-			err = core.SDKErrorf(err, "", "unmarshal-NetworkACLRuleItemGeneric-error", common.GetComponentInfo())
-		}
+		errMsg := fmt.Sprintf("unrecognized value for discriminator property 'protocol': %s", discValue)
+		err = core.SDKErrorf(err, errMsg, "invalid-discriminator", common.GetComponentInfo())
 	}
-	return
-}
-
-// UnmarshalNetworkACLRuleItemGeneric unmarshals the base NetworkACLRuleItem fields for unknown protocol types
-func UnmarshalNetworkACLRuleItemGeneric(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(NetworkACLRuleItem)
-	err = core.UnmarshalPrimitive(m, "action", &obj.Action)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "action-error", common.GetComponentInfo())
-		return
-	}
-	err = core.UnmarshalModel(m, "before", &obj.Before, UnmarshalNetworkACLRuleReference)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "before-error", common.GetComponentInfo())
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "created_at", &obj.CreatedAt)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "created_at-error", common.GetComponentInfo())
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "destination", &obj.Destination)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "destination-error", common.GetComponentInfo())
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "direction", &obj.Direction)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "direction-error", common.GetComponentInfo())
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "href-error", common.GetComponentInfo())
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "id-error", common.GetComponentInfo())
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "ip_version", &obj.IPVersion)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "ip_version-error", common.GetComponentInfo())
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "protocol", &obj.Protocol)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "protocol-error", common.GetComponentInfo())
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "source", &obj.Source)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "source-error", common.GetComponentInfo())
-		return
-	}
-
-	// Attempt to unmarshal optional protocol-specific fields - ignore errors as these may not be present
-	_ = core.UnmarshalPrimitive(m, "code", &obj.Code)
-	_ = core.UnmarshalPrimitive(m, "type", &obj.Type)
-	_ = core.UnmarshalPrimitive(m, "destination_port_max", &obj.DestinationPortMax)
-	_ = core.UnmarshalPrimitive(m, "destination_port_min", &obj.DestinationPortMin)
-	_ = core.UnmarshalPrimitive(m, "source_port_max", &obj.SourcePortMax)
-	_ = core.UnmarshalPrimitive(m, "source_port_min", &obj.SourcePortMin)
-
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// UnmarshalNetworkACLRuleGeneric unmarshals the base NetworkACLRuleItem fields for unknown protocol types
-func UnmarshalNetworkACLRuleGeneric(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(NetworkACLRule)
-	err = core.UnmarshalPrimitive(m, "action", &obj.Action)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "action-error", common.GetComponentInfo())
-		return
-	}
-	err = core.UnmarshalModel(m, "before", &obj.Before, UnmarshalNetworkACLRuleReference)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "before-error", common.GetComponentInfo())
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "created_at", &obj.CreatedAt)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "created_at-error", common.GetComponentInfo())
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "destination", &obj.Destination)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "destination-error", common.GetComponentInfo())
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "direction", &obj.Direction)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "direction-error", common.GetComponentInfo())
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "href-error", common.GetComponentInfo())
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "id-error", common.GetComponentInfo())
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "ip_version", &obj.IPVersion)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "ip_version-error", common.GetComponentInfo())
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "protocol", &obj.Protocol)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "protocol-error", common.GetComponentInfo())
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "source", &obj.Source)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "source-error", common.GetComponentInfo())
-		return
-	}
-
-	// Attempt to unmarshal optional protocol-specific fields - ignore errors as these may not be present
-	_ = core.UnmarshalPrimitive(m, "code", &obj.Code)
-	_ = core.UnmarshalPrimitive(m, "type", &obj.Type)
-	_ = core.UnmarshalPrimitive(m, "destination_port_max", &obj.DestinationPortMax)
-	_ = core.UnmarshalPrimitive(m, "destination_port_min", &obj.DestinationPortMin)
-	_ = core.UnmarshalPrimitive(m, "source_port_max", &obj.SourcePortMax)
-	_ = core.UnmarshalPrimitive(m, "source_port_min", &obj.SourcePortMin)
-
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
 	return
 }
 
@@ -94010,6 +97086,9 @@ type PublicAddressRangeAuthorizedCIDR struct {
 	// blocks in the future.
 	CIDR *string `json:"cidr" validate:"required"`
 
+	// The CRN for this public address range authorized CIDR.
+	CRN *string `json:"crn" validate:"required"`
+
 	// The URL for this public address range authorized CIDR.
 	Href *string `json:"href" validate:"required"`
 
@@ -94105,6 +97184,11 @@ func UnmarshalPublicAddressRangeAuthorizedCIDR(m map[string]json.RawMessage, res
 	err = core.UnmarshalPrimitive(m, "cidr", &obj.CIDR)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "cidr-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "crn-error", common.GetComponentInfo())
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
@@ -94372,7 +97456,7 @@ func UnmarshalPublicAddressRangeAuthorizedCIDRAllocationItem(m map[string]json.R
 // PublicAddressRangeAuthorizedCIDRCollection : PublicAddressRangeAuthorizedCIDRCollection struct
 type PublicAddressRangeAuthorizedCIDRCollection struct {
 	// A page of public address range authorized CIDRs.
-	AuthorizedCIDRs []PublicAddressRangeAuthorizedCIDR `json:"authorized_cidrs" validate:"required"`
+	AuthorizedCidrs []PublicAddressRangeAuthorizedCIDR `json:"authorized_cidrs" validate:"required"`
 
 	// A link to the first page of resources.
 	First *PageLink `json:"first" validate:"required"`
@@ -94391,7 +97475,7 @@ type PublicAddressRangeAuthorizedCIDRCollection struct {
 // UnmarshalPublicAddressRangeAuthorizedCIDRCollection unmarshals an instance of PublicAddressRangeAuthorizedCIDRCollection from the specified map of raw messages.
 func UnmarshalPublicAddressRangeAuthorizedCIDRCollection(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(PublicAddressRangeAuthorizedCIDRCollection)
-	err = core.UnmarshalModel(m, "authorized_cidrs", &obj.AuthorizedCIDRs, UnmarshalPublicAddressRangeAuthorizedCIDR)
+	err = core.UnmarshalModel(m, "authorized_cidrs", &obj.AuthorizedCidrs, UnmarshalPublicAddressRangeAuthorizedCIDR)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "authorized_cidrs-error", common.GetComponentInfo())
 		return
@@ -94493,6 +97577,9 @@ type PublicAddressRangeAuthorizedCIDRReference struct {
 	// blocks in the future.
 	CIDR *string `json:"cidr" validate:"required"`
 
+	// The CRN for this public address range authorized CIDR.
+	CRN *string `json:"crn" validate:"required"`
+
 	// The URL for this public address range authorized CIDR.
 	Href *string `json:"href" validate:"required"`
 
@@ -94519,6 +97606,11 @@ func UnmarshalPublicAddressRangeAuthorizedCIDRReference(m map[string]json.RawMes
 	err = core.UnmarshalPrimitive(m, "cidr", &obj.CIDR)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "cidr-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "crn-error", common.GetComponentInfo())
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
@@ -94550,6 +97642,9 @@ type PublicAddressRangeAuthorizedCIDRReferenceFloatingIPContext struct {
 	// The public IPv4 address block for the public address range authorized CIDR, expressed in CIDR format.
 	CIDR *string `json:"cidr" validate:"required"`
 
+	// The CRN for this public address range authorized CIDR.
+	CRN *string `json:"crn" validate:"required"`
+
 	// The URL for this public address range authorized CIDR.
 	Href *string `json:"href" validate:"required"`
 
@@ -94576,6 +97671,11 @@ func UnmarshalPublicAddressRangeAuthorizedCIDRReferenceFloatingIPContext(m map[s
 	err = core.UnmarshalPrimitive(m, "cidr", &obj.CIDR)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "cidr-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "crn-error", common.GetComponentInfo())
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
@@ -94870,43 +97970,6 @@ func (resp *PublicAddressRangeProfileCollection) GetNextStart() (*string, error)
 	return start, nil
 }
 
-// PublicAddressRangeProfileIdentity : Identifies a public address range profile by a unique property.
-// Models which "extend" this model:
-// - PublicAddressRangeProfileIdentityByName
-// - PublicAddressRangeProfileIdentityByHref
-type PublicAddressRangeProfileIdentity struct {
-	// The globally unique name for this public address range profile.
-	Name *string `json:"name,omitempty"`
-
-	// The URL for this public address range profile.
-	Href *string `json:"href,omitempty"`
-}
-
-func (*PublicAddressRangeProfileIdentity) isaPublicAddressRangeProfileIdentity() bool {
-	return true
-}
-
-type PublicAddressRangeProfileIdentityIntf interface {
-	isaPublicAddressRangeProfileIdentity() bool
-}
-
-// UnmarshalPublicAddressRangeProfileIdentity unmarshals an instance of PublicAddressRangeProfileIdentity from the specified map of raw messages.
-func UnmarshalPublicAddressRangeProfileIdentity(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(PublicAddressRangeProfileIdentity)
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "href-error", common.GetComponentInfo())
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
 // PublicAddressRangeProfileReference : PublicAddressRangeProfileReference struct
 type PublicAddressRangeProfileReference struct {
 	// The URL for this public address range profile.
@@ -94957,9 +98020,6 @@ type PublicAddressRangePrototype struct {
 	// name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
-	// Identifies a public address range profile by a unique property.
-	Profile PublicAddressRangeProfileIdentityIntf `json:"profile,omitempty"`
-
 	// The resource group to use. If unspecified, the account's [default resource
 	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) will be used.
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
@@ -94992,11 +98052,6 @@ func UnmarshalPublicAddressRangePrototype(m map[string]json.RawMessage, result i
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
-		return
-	}
-	err = core.UnmarshalModel(m, "profile", &obj.Profile, UnmarshalPublicAddressRangeProfileIdentity)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "profile-error", common.GetComponentInfo())
 		return
 	}
 	err = core.UnmarshalModel(m, "resource_group", &obj.ResourceGroup, UnmarshalResourceGroupIdentity)
@@ -96217,9 +99272,9 @@ type ReplaceBareMetalServerInitializationOptions struct {
 	// cloud-init vendor data. For cloud-init enabled images, these keys will also be added as SSH authorized keys for the
 	// [default user](https://cloud.ibm.com/docs/vpc?topic=vpc-vsi_is_connecting_linux#determining-default-user-account).
 	//
-	// For Windows images, at least one key must be specified, and one will be selected to encrypt the administrator
-	// password. Keys are optional for other images, but if no keys are specified, the bare metal server will be
-	// inaccessible unless the specified image provides another means of access.
+	// For Windows images, at least one SSH key of type `rsa` must be specified. One of the provided keys is selected to
+	// encrypt the administrator password. SSH keys are optional for other images; however, if no keys are specified, the
+	// bare metal server will be inaccessible unless the selected image provides an alternative access mechanism.
 	Keys []KeyIdentityIntf `json:"keys" validate:"required"`
 
 	// The default trusted profile to be used when initializing the bare metal server.
@@ -96227,7 +99282,8 @@ type ReplaceBareMetalServerInitializationOptions struct {
 	// If unspecified, no default trusted profile will be made available.
 	DefaultTrustedProfile *BareMetalServerInitializationDefaultTrustedProfilePrototype `json:"default_trusted_profile,omitempty"`
 
-	// The user data to be made available when initializing the bare metal server.
+	// The [user data](https://cloud.ibm.com/docs/vpc?topic=vpc-user-data) to make available when setting up the bare metal
+	// server.
 	UserData *string `json:"user_data,omitempty"`
 
 	// Allows users to set headers on API requests.
@@ -98044,13 +101100,13 @@ func UnmarshalReservedIPTarget(m map[string]json.RawMessage, result interface{})
 // - ReservedIPTargetPrototypeEndpointGatewayIdentity
 // - ReservedIPTargetPrototypeVirtualNetworkInterfaceIdentity
 type ReservedIPTargetPrototype struct {
-	// The unique identifier for this endpoint gateway or the unique identifier for this virtual network interface.
+	// The unique identifier for this endpoint gateway.
 	ID *string `json:"id,omitempty"`
 
-	// The CRN for this endpoint gateway or the CRN for this virtual network interface.
+	// The CRN for this endpoint gateway.
 	CRN *string `json:"crn,omitempty"`
 
-	// The URL for this endpoint gateway or the URL for this virtual network interface.
+	// The URL for this endpoint gateway.
 	Href *string `json:"href,omitempty"`
 }
 
@@ -101565,73 +104621,9 @@ func UnmarshalSecurityGroupRule(m map[string]json.RawMessage, result interface{}
 			err = core.SDKErrorf(err, "", "unmarshal-SecurityGroupRuleProtocolIndividual-error", common.GetComponentInfo())
 		}
 	} else {
-		// errMsg := fmt.Sprintf("unrecognized value for discriminator property 'protocol': %s", discValue)
-		// err = core.SDKErrorf(err, errMsg, "invalid-discriminator", common.GetComponentInfo())
-		// Fallback to base SecurityGroupRule for unknown protocols
-		err = core.UnmarshalModel(m, "", result, UnmarshalSecurityGroupRuleGeneric)
-		if err != nil {
-			err = core.SDKErrorf(err, "", "unmarshal-SecurityGroupRuleGeneric-error", common.GetComponentInfo())
-		}
+		errMsg := fmt.Sprintf("unrecognized value for discriminator property 'protocol': %s", discValue)
+		err = core.SDKErrorf(err, errMsg, "invalid-discriminator", common.GetComponentInfo())
 	}
-	return
-}
-
-// UnmarshalSecurityGroupRuleGeneric unmarshals the base SecurityGroupRule fields for unknown protocol types
-func UnmarshalSecurityGroupRuleGeneric(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(SecurityGroupRule)
-	err = core.UnmarshalPrimitive(m, "direction", &obj.Direction)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "direction-error", common.GetComponentInfo())
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "href-error", common.GetComponentInfo())
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "id-error", common.GetComponentInfo())
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "ip_version", &obj.IPVersion)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "ip_version-error", common.GetComponentInfo())
-		return
-	}
-	err = core.UnmarshalModel(m, "local", &obj.Local, UnmarshalSecurityGroupRuleLocal)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "local-error", common.GetComponentInfo())
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
-		return
-	}
-	err = core.UnmarshalModel(m, "remote", &obj.Remote, UnmarshalSecurityGroupRuleRemote)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "remote-error", common.GetComponentInfo())
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "resource_type-error", common.GetComponentInfo())
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "protocol", &obj.Protocol)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "protocol-error", common.GetComponentInfo())
-		return
-	}
-
-	// Attempt to unmarshal optional fields - ignore errors as these may not be present
-	_ = core.UnmarshalPrimitive(m, "code", &obj.Code)
-	_ = core.UnmarshalPrimitive(m, "type", &obj.Type)
-	_ = core.UnmarshalPrimitive(m, "port_max", &obj.PortMax)
-	_ = core.UnmarshalPrimitive(m, "port_min", &obj.PortMin)
-
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
 	return
 }
 
@@ -104615,6 +107607,8 @@ type SharePatch struct {
 	//   mount target control access to the mount target.
 	// - `vpc`: All clients in the VPC for a mount target have access to the mount target.
 	//
+	// The `vpc` access control mode has been deprecated. Use `security_group` instead.
+	//
 	// For this property to be changed, the share must have no mount targets,
 	// `replication_role` must be `none` and `accessor_binding_role` must not be `accessor`.
 	AccessControlMode *string `json:"access_control_mode,omitempty"`
@@ -104683,6 +107677,8 @@ type SharePatch struct {
 //   - `security_group`: The security groups on the virtual network interface for a
 //     mount target control access to the mount target.
 //   - `vpc`: All clients in the VPC for a mount target have access to the mount target.
+//
+// The `vpc` access control mode has been deprecated. Use `security_group` instead.
 //
 // For this property to be changed, the share must have no mount targets,
 // `replication_role` must be `none` and `accessor_binding_role` must not be `accessor`.
@@ -105629,6 +108625,8 @@ type SharePrototype struct {
 	//   require a virtual network interface.
 	// - `vpc`: All clients in the VPC for a mount target have access to the mount target.
 	//   Mount targets for this share require a VPC.
+	//
+	// The `vpc` access control mode has been deprecated. Use `security_group` instead.
 	AccessControlMode *string `json:"access_control_mode,omitempty"`
 
 	// The access protocols to allow for this share. If unspecified:
@@ -105733,6 +108731,8 @@ const (
 //     require a virtual network interface.
 //   - `vpc`: All clients in the VPC for a mount target have access to the mount target.
 //     Mount targets for this share require a VPC.
+//
+// The `vpc` access control mode has been deprecated. Use `security_group` instead.
 const (
 	SharePrototypeAccessControlModeSecurityGroupConst = "security_group"
 	SharePrototypeAccessControlModeVPCConst           = "vpc"
@@ -106993,7 +109993,11 @@ type SnapshotAllowedUse struct {
 	// - `gpu.count` (integer): The number of GPUs
 	// - `gpu.manufacturer` (string): The GPU manufacturer
 	// - `gpu.memory` (integer): The overall amount of GPU memory in GiB (gibibytes)
-	// - `gpu.model` (string): The GPU model.
+	// - `gpu.model` (string): The GPU model
+	// - `metadata_service.enabled` (boolean): Whether the metadata service is enabled
+	// - `metadata_service.protocol` (string): The communication protocol used for the
+	//   metadata service endpoint
+	// - `vcpu.count` (integer): The number of virtual CPUs.
 	Instance *string `json:"instance" validate:"required"`
 }
 
@@ -107045,7 +110049,11 @@ type SnapshotAllowedUsePatch struct {
 	// - `gpu.count` (integer): The number of GPUs
 	// - `gpu.manufacturer` (string): The GPU manufacturer
 	// - `gpu.memory` (integer): The overall amount of GPU memory in GiB (gibibytes)
-	// - `gpu.model` (string): The GPU model.
+	// - `gpu.model` (string): The GPU model
+	// - `metadata_service.enabled` (boolean): Whether the metadata service is enabled
+	// - `metadata_service.protocol` (string): The communication protocol used for the
+	//   metadata service endpoint
+	// - `vcpu.count` (integer): The number of virtual CPUs.
 	Instance *string `json:"instance,omitempty"`
 }
 
@@ -107118,7 +110126,11 @@ type SnapshotAllowedUsePrototype struct {
 	// - `gpu.count` (integer): The number of GPUs
 	// - `gpu.manufacturer` (string): The GPU manufacturer
 	// - `gpu.memory` (integer): The overall amount of GPU memory in GiB (gibibytes)
-	// - `gpu.model` (string): The GPU model.
+	// - `gpu.model` (string): The GPU model
+	// - `metadata_service.enabled` (boolean): Whether the metadata service is enabled
+	// - `metadata_service.protocol` (string): The communication protocol used for the
+	//   metadata service endpoint.
+	// - `vcpu.count` (integer): The number of virtual CPUs.
 	Instance *string `json:"instance,omitempty"`
 }
 
@@ -107325,6 +110337,11 @@ func (resp *SnapshotCollection) GetNextStart() (*string, error) {
 
 // SnapshotConsistencyGroup : SnapshotConsistencyGroup struct
 type SnapshotConsistencyGroup struct {
+	// If present, the backup policy job that created this snapshot consistency group.
+	// Snapshot consistency groups with the same backup policy job identifier represent
+	// snapshots of the same instance across different storage generations.
+	BackupPolicyJob *BackupPolicyJobReference `json:"backup_policy_job,omitempty"`
+
 	// If present, the backup policy plan which created this snapshot consistency group.
 	BackupPolicyPlan *BackupPolicyPlanReference `json:"backup_policy_plan,omitempty"`
 
@@ -107387,6 +110404,11 @@ const (
 // UnmarshalSnapshotConsistencyGroup unmarshals an instance of SnapshotConsistencyGroup from the specified map of raw messages.
 func UnmarshalSnapshotConsistencyGroup(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(SnapshotConsistencyGroup)
+	err = core.UnmarshalModel(m, "backup_policy_job", &obj.BackupPolicyJob, UnmarshalBackupPolicyJobReference)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "backup_policy_job-error", common.GetComponentInfo())
+		return
+	}
 	err = core.UnmarshalModel(m, "backup_policy_plan", &obj.BackupPolicyPlan, UnmarshalBackupPolicyPlanReference)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "backup_policy_plan-error", common.GetComponentInfo())
@@ -107574,9 +110596,9 @@ type SnapshotConsistencyGroupPrototype struct {
 	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) will be used.
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 
-	// The data-consistent member snapshots to create.  Each snapshot must specify a
-	// `source_volume` attached to the same virtual server instance, and all source volumes must have a
-	// `storage_generation` value of `1`.
+	// The data-consistent member snapshots to create. Each snapshot must specify a
+	// `source_volume` attached to the same virtual server instance, and all source volumes must have the same
+	// `storage_generation` value.
 	Snapshots []SnapshotPrototypeSnapshotConsistencyGroupContext `json:"snapshots,omitempty"`
 }
 
@@ -110526,6 +113548,54 @@ func (options *UpdateInstanceOptions) SetHeaders(param map[string]string) *Updat
 	return options
 }
 
+// UpdateInstanceSoftwareAttachmentOptions : The UpdateInstanceSoftwareAttachment options.
+type UpdateInstanceSoftwareAttachmentOptions struct {
+	// The virtual server instance identifier.
+	InstanceID *string `json:"instance_id" validate:"required,ne="`
+
+	// The instance software attachment identifier.
+	ID *string `json:"id" validate:"required,ne="`
+
+	// The instance software attachment patch.
+	InstanceSoftwareAttachmentPatch map[string]interface{} `json:"InstanceSoftwareAttachment_patch" validate:"required"`
+
+	// Allows users to set headers on API requests.
+	Headers map[string]string
+}
+
+// NewUpdateInstanceSoftwareAttachmentOptions : Instantiate UpdateInstanceSoftwareAttachmentOptions
+func (*VpcV1) NewUpdateInstanceSoftwareAttachmentOptions(instanceID string, id string, instanceSoftwareAttachmentPatch map[string]interface{}) *UpdateInstanceSoftwareAttachmentOptions {
+	return &UpdateInstanceSoftwareAttachmentOptions{
+		InstanceID:                      core.StringPtr(instanceID),
+		ID:                              core.StringPtr(id),
+		InstanceSoftwareAttachmentPatch: instanceSoftwareAttachmentPatch,
+	}
+}
+
+// SetInstanceID : Allow user to set InstanceID
+func (_options *UpdateInstanceSoftwareAttachmentOptions) SetInstanceID(instanceID string) *UpdateInstanceSoftwareAttachmentOptions {
+	_options.InstanceID = core.StringPtr(instanceID)
+	return _options
+}
+
+// SetID : Allow user to set ID
+func (_options *UpdateInstanceSoftwareAttachmentOptions) SetID(id string) *UpdateInstanceSoftwareAttachmentOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
+}
+
+// SetInstanceSoftwareAttachmentPatch : Allow user to set InstanceSoftwareAttachmentPatch
+func (_options *UpdateInstanceSoftwareAttachmentOptions) SetInstanceSoftwareAttachmentPatch(instanceSoftwareAttachmentPatch map[string]interface{}) *UpdateInstanceSoftwareAttachmentOptions {
+	_options.InstanceSoftwareAttachmentPatch = instanceSoftwareAttachmentPatch
+	return _options
+}
+
+// SetHeaders : Allow user to set Headers
+func (options *UpdateInstanceSoftwareAttachmentOptions) SetHeaders(param map[string]string) *UpdateInstanceSoftwareAttachmentOptions {
+	options.Headers = param
+	return options
+}
+
 // UpdateInstanceTemplateOptions : The UpdateInstanceTemplate options.
 type UpdateInstanceTemplateOptions struct {
 	// The instance template identifier.
@@ -110979,6 +114049,10 @@ type UpdateLoadBalancerPoolOptions struct {
 	// The load balancer pool patch.
 	LoadBalancerPoolPatch map[string]interface{} `json:"LoadBalancerPool_patch" validate:"required"`
 
+	// If present, the request will fail if the specified ETag value does not match the resource's current ETag value.
+	// Required if the request body includes an array.
+	IfMatch *string `json:"If-Match,omitempty"`
+
 	// Allows users to set headers on API requests.
 	Headers map[string]string
 }
@@ -111007,6 +114081,12 @@ func (_options *UpdateLoadBalancerPoolOptions) SetID(id string) *UpdateLoadBalan
 // SetLoadBalancerPoolPatch : Allow user to set LoadBalancerPoolPatch
 func (_options *UpdateLoadBalancerPoolOptions) SetLoadBalancerPoolPatch(loadBalancerPoolPatch map[string]interface{}) *UpdateLoadBalancerPoolOptions {
 	_options.LoadBalancerPoolPatch = loadBalancerPoolPatch
+	return _options
+}
+
+// SetIfMatch : Allow user to set IfMatch
+func (_options *UpdateLoadBalancerPoolOptions) SetIfMatch(ifMatch string) *UpdateLoadBalancerPoolOptions {
+	_options.IfMatch = core.StringPtr(ifMatch)
 	return _options
 }
 
@@ -111760,6 +114840,186 @@ func (_options *UpdateSubnetReservedIPOptions) SetReservedIPPatch(reservedIPPatc
 func (options *UpdateSubnetReservedIPOptions) SetHeaders(param map[string]string) *UpdateSubnetReservedIPOptions {
 	options.Headers = param
 	return options
+}
+
+// UpdateVPCRouteResponse : UpdateVPCRouteResponse struct
+type UpdateVPCRouteResponse struct {
+	// The action to perform with a packet matching the route:
+	// - `delegate`: delegate to system-provided routes
+	// - `delegate_vpc`: delegate to system-provided routes, ignoring Internet-bound routes
+	// - `deliver`: deliver the packet to the specified `next_hop`
+	// - `drop`: drop the packet
+	//
+	// The enumerated values for this property may
+	// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.
+	Action *string `json:"action" validate:"required"`
+
+	// Indicates whether this route will be advertised to the ingress sources specified by the `advertise_routes_to`
+	// routing table property.
+	Advertise *bool `json:"advertise" validate:"required"`
+
+	// The date and time that the route was created.
+	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
+
+	// If present, the resource that created the route. Routes with this property present cannot
+	// be directly deleted. All routes with an `origin` of `service` will have this property set,
+	// and future `origin` values may also have this property set.
+	Creator RouteCreatorIntf `json:"creator,omitempty"`
+
+	// The destination CIDR of the route.
+	Destination *string `json:"destination" validate:"required"`
+
+	// The URL for this route.
+	Href *string `json:"href" validate:"required"`
+
+	// The unique identifier for this route.
+	ID *string `json:"id" validate:"required"`
+
+	// The lifecycle state of the route.
+	LifecycleState *string `json:"lifecycle_state" validate:"required"`
+
+	// The name for this route. The name is unique across all routes in the routing table.
+	Name *string `json:"name" validate:"required"`
+
+	// If `action` is `deliver`, the next hop that packets will be delivered to.  For
+	// other `action` values, its `address` will be `0.0.0.0`.
+	NextHop RouteNextHopIntf `json:"next_hop" validate:"required"`
+
+	// The origin of this route:
+	// - `service`: route was directly created by a service
+	// - `user`: route was directly created by a user
+	//
+	// The enumerated values for this property may
+	// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.
+	Origin *string `json:"origin" validate:"required"`
+
+	// The priority of this route. Smaller values have higher priority.
+	//
+	// If a routing table contains multiple routes with the same `zone` and `destination`, the route with the highest
+	// priority (smallest value) is selected. If two routes have the same `destination` and `priority`, traffic is
+	// distributed between them.
+	Priority *int64 `json:"priority" validate:"required"`
+
+	// The zone the route applies to.
+	//
+	// If subnets are attached to the route's routing table, egress traffic from those
+	// subnets in this zone will be subject to this route. If this route's routing table
+	// has any of `route_direct_link_ingress`, `route_internet_ingress`,
+	// `route_transit_gateway_ingress` or `route_vpc_zone_ingress`  set to`true`, traffic
+	// from those ingress sources arriving in this zone will be subject to this route.
+	Zone *ZoneReference `json:"zone" validate:"required"`
+}
+
+// Constants associated with the UpdateVPCRouteResponse.Action property.
+// The action to perform with a packet matching the route:
+// - `delegate`: delegate to system-provided routes
+// - `delegate_vpc`: delegate to system-provided routes, ignoring Internet-bound routes
+// - `deliver`: deliver the packet to the specified `next_hop`
+// - `drop`: drop the packet
+//
+// The enumerated values for this property may
+// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.
+const (
+	UpdateVPCRouteResponseActionDelegateConst    = "delegate"
+	UpdateVPCRouteResponseActionDelegateVPCConst = "delegate_vpc"
+	UpdateVPCRouteResponseActionDeliverConst     = "deliver"
+	UpdateVPCRouteResponseActionDropConst        = "drop"
+)
+
+// Constants associated with the UpdateVPCRouteResponse.LifecycleState property.
+// The lifecycle state of the route.
+const (
+	UpdateVPCRouteResponseLifecycleStateDeletingConst  = "deleting"
+	UpdateVPCRouteResponseLifecycleStateFailedConst    = "failed"
+	UpdateVPCRouteResponseLifecycleStatePendingConst   = "pending"
+	UpdateVPCRouteResponseLifecycleStateStableConst    = "stable"
+	UpdateVPCRouteResponseLifecycleStateSuspendedConst = "suspended"
+	UpdateVPCRouteResponseLifecycleStateUpdatingConst  = "updating"
+	UpdateVPCRouteResponseLifecycleStateWaitingConst   = "waiting"
+)
+
+// Constants associated with the UpdateVPCRouteResponse.Origin property.
+// The origin of this route:
+// - `service`: route was directly created by a service
+// - `user`: route was directly created by a user
+//
+// The enumerated values for this property may
+// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.
+const (
+	UpdateVPCRouteResponseOriginServiceConst = "service"
+	UpdateVPCRouteResponseOriginUserConst    = "user"
+)
+
+// UnmarshalUpdateVPCRouteResponse unmarshals an instance of UpdateVPCRouteResponse from the specified map of raw messages.
+func UnmarshalUpdateVPCRouteResponse(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(UpdateVPCRouteResponse)
+	err = core.UnmarshalPrimitive(m, "action", &obj.Action)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "action-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "advertise", &obj.Advertise)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "advertise-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "created_at", &obj.CreatedAt)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "created_at-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "creator", &obj.Creator, UnmarshalRouteCreator)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "creator-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "destination", &obj.Destination)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "destination-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "href-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "id-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "lifecycle_state", &obj.LifecycleState)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "lifecycle_state-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "next_hop", &obj.NextHop, UnmarshalRouteNextHop)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "next_hop-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "origin", &obj.Origin)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "origin-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "priority", &obj.Priority)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "priority-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "zone", &obj.Zone, UnmarshalZoneReference)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "zone-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
 }
 
 // UpdateVirtualNetworkInterfaceOptions : The UpdateVirtualNetworkInterface options.
@@ -113955,7 +117215,7 @@ type VPNGateway struct {
 
 	// The static CIDRs advertised through any enabled routing protocol (for example, BGP). The routing protocol will
 	// advertise routes with these CIDRs as route destinations.
-	AdvertisedCIDRs []string `json:"advertised_cidrs,omitempty"`
+	AdvertisedCidrs []string `json:"advertised_cidrs,omitempty"`
 
 	// The local autonomous system number (ASN) for this VPN gateway and its connections.
 	LocalAsn *int64 `json:"local_asn,omitempty"`
@@ -114091,7 +117351,7 @@ func UnmarshalVPNGateway(m map[string]json.RawMessage, result interface{}) (err 
 		err = core.SDKErrorf(err, "", "mode-error", common.GetComponentInfo())
 		return
 	}
-	err = core.UnmarshalPrimitive(m, "advertised_cidrs", &obj.AdvertisedCIDRs)
+	err = core.UnmarshalPrimitive(m, "advertised_cidrs", &obj.AdvertisedCidrs)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "advertised_cidrs-error", common.GetComponentInfo())
 		return
@@ -114109,13 +117369,13 @@ func UnmarshalVPNGateway(m map[string]json.RawMessage, result interface{}) (err 
 type VPNGatewayAdvertisedCIDRCollection struct {
 	// The static CIDRs advertised through any enabled routing protocol (for example, BGP). The routing protocol will
 	// advertise routes with these CIDRs as route destinations.
-	AdvertisedCIDRs []string `json:"advertised_cidrs" validate:"required"`
+	AdvertisedCidrs []string `json:"advertised_cidrs" validate:"required"`
 }
 
 // UnmarshalVPNGatewayAdvertisedCIDRCollection unmarshals an instance of VPNGatewayAdvertisedCIDRCollection from the specified map of raw messages.
 func UnmarshalVPNGatewayAdvertisedCIDRCollection(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(VPNGatewayAdvertisedCIDRCollection)
-	err = core.UnmarshalPrimitive(m, "advertised_cidrs", &obj.AdvertisedCIDRs)
+	err = core.UnmarshalPrimitive(m, "advertised_cidrs", &obj.AdvertisedCidrs)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "advertised_cidrs-error", common.GetComponentInfo())
 		return
@@ -114360,16 +117620,16 @@ func UnmarshalVPNGatewayConnection(m map[string]json.RawMessage, result interfac
 	return
 }
 
-// VPNGatewayConnectionCIDRs : VPNGatewayConnectionCIDRs struct
-type VPNGatewayConnectionCIDRs struct {
+// VPNGatewayConnectionCidRs : VPNGatewayConnectionCidRs struct
+type VPNGatewayConnectionCidRs struct {
 	// The CIDRs for this resource.
-	CIDRs []string `json:"cidrs" validate:"required"`
+	Cidrs []string `json:"cidrs" validate:"required"`
 }
 
-// UnmarshalVPNGatewayConnectionCIDRs unmarshals an instance of VPNGatewayConnectionCIDRs from the specified map of raw messages.
-func UnmarshalVPNGatewayConnectionCIDRs(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(VPNGatewayConnectionCIDRs)
-	err = core.UnmarshalPrimitive(m, "cidrs", &obj.CIDRs)
+// UnmarshalVPNGatewayConnectionCidRs unmarshals an instance of VPNGatewayConnectionCidRs from the specified map of raw messages.
+func UnmarshalVPNGatewayConnectionCidRs(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VPNGatewayConnectionCidRs)
+	err = core.UnmarshalPrimitive(m, "cidrs", &obj.Cidrs)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "cidrs-error", common.GetComponentInfo())
 		return
@@ -115321,11 +118581,10 @@ func (vpnGatewayConnectionPatch *VPNGatewayConnectionPatch) AsPatch() (_patch ma
 // - VPNGatewayConnectionPeerPatchVPNGatewayConnectionPolicyModePeerPatch
 // - VPNGatewayConnectionPeerPatchVPNGatewayConnectionDynamicRouteModePeerPatch
 type VPNGatewayConnectionPeerPatch struct {
-	// The IP address of the peer VPN gateway for this connection or the IP address of the peer VPN gateway for this
-	// connection.
+	// The IP address of the peer VPN gateway for this connection.
 	Address *string `json:"address,omitempty"`
 
-	// The FQDN of the peer VPN gateway for this connection or the FQDN of the peer VPN gateway for this connection.
+	// The FQDN of the peer VPN gateway for this connection.
 	Fqdn *string `json:"fqdn,omitempty"`
 
 	// The peer autonomous system number (ASN) for this VPN gateway connection. The ASN values in the
@@ -115385,7 +118644,7 @@ func (vpnGatewayConnectionPeerPatch *VPNGatewayConnectionPeerPatch) asPatch() (_
 // VPNGatewayConnectionPolicyModeLocal : VPNGatewayConnectionPolicyModeLocal struct
 type VPNGatewayConnectionPolicyModeLocal struct {
 	// The local CIDRs for this VPN gateway connection.
-	CIDRs []string `json:"cidrs" validate:"required"`
+	Cidrs []string `json:"cidrs" validate:"required"`
 
 	// The local IKE identities.
 	//
@@ -115397,7 +118656,7 @@ type VPNGatewayConnectionPolicyModeLocal struct {
 // UnmarshalVPNGatewayConnectionPolicyModeLocal unmarshals an instance of VPNGatewayConnectionPolicyModeLocal from the specified map of raw messages.
 func UnmarshalVPNGatewayConnectionPolicyModeLocal(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(VPNGatewayConnectionPolicyModeLocal)
-	err = core.UnmarshalPrimitive(m, "cidrs", &obj.CIDRs)
+	err = core.UnmarshalPrimitive(m, "cidrs", &obj.Cidrs)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "cidrs-error", common.GetComponentInfo())
 		return
@@ -115414,7 +118673,7 @@ func UnmarshalVPNGatewayConnectionPolicyModeLocal(m map[string]json.RawMessage, 
 // VPNGatewayConnectionPolicyModeLocalPrototype : VPNGatewayConnectionPolicyModeLocalPrototype struct
 type VPNGatewayConnectionPolicyModeLocalPrototype struct {
 	// The local CIDRs for this VPN gateway connection.
-	CIDRs []string `json:"cidrs" validate:"required"`
+	Cidrs []string `json:"cidrs" validate:"required"`
 
 	// The local IKE identities to use.
 	//
@@ -115428,7 +118687,7 @@ type VPNGatewayConnectionPolicyModeLocalPrototype struct {
 // NewVPNGatewayConnectionPolicyModeLocalPrototype : Instantiate VPNGatewayConnectionPolicyModeLocalPrototype (Generic Model Constructor)
 func (*VpcV1) NewVPNGatewayConnectionPolicyModeLocalPrototype(cidrs []string) (_model *VPNGatewayConnectionPolicyModeLocalPrototype, err error) {
 	_model = &VPNGatewayConnectionPolicyModeLocalPrototype{
-		CIDRs: cidrs,
+		Cidrs: cidrs,
 	}
 	err = core.ValidateStruct(_model, "required parameters")
 	if err != nil {
@@ -115440,7 +118699,7 @@ func (*VpcV1) NewVPNGatewayConnectionPolicyModeLocalPrototype(cidrs []string) (_
 // UnmarshalVPNGatewayConnectionPolicyModeLocalPrototype unmarshals an instance of VPNGatewayConnectionPolicyModeLocalPrototype from the specified map of raw messages.
 func UnmarshalVPNGatewayConnectionPolicyModeLocalPrototype(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(VPNGatewayConnectionPolicyModeLocalPrototype)
-	err = core.UnmarshalPrimitive(m, "cidrs", &obj.CIDRs)
+	err = core.UnmarshalPrimitive(m, "cidrs", &obj.Cidrs)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "cidrs-error", common.GetComponentInfo())
 		return
@@ -115460,7 +118719,7 @@ func UnmarshalVPNGatewayConnectionPolicyModeLocalPrototype(m map[string]json.Raw
 // - VPNGatewayConnectionPolicyModePeerVPNGatewayConnectionPeerByFqdn
 type VPNGatewayConnectionPolicyModePeer struct {
 	// The peer CIDRs for this VPN gateway connection.
-	CIDRs []string `json:"cidrs" validate:"required"`
+	Cidrs []string `json:"cidrs" validate:"required"`
 
 	// The peer IKE identity.
 	IkeIdentity VPNGatewayConnectionIkeIdentityIntf `json:"ike_identity" validate:"required"`
@@ -115493,7 +118752,7 @@ type VPNGatewayConnectionPolicyModePeerIntf interface {
 // UnmarshalVPNGatewayConnectionPolicyModePeer unmarshals an instance of VPNGatewayConnectionPolicyModePeer from the specified map of raw messages.
 func UnmarshalVPNGatewayConnectionPolicyModePeer(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(VPNGatewayConnectionPolicyModePeer)
-	err = core.UnmarshalPrimitive(m, "cidrs", &obj.CIDRs)
+	err = core.UnmarshalPrimitive(m, "cidrs", &obj.Cidrs)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "cidrs-error", common.GetComponentInfo())
 		return
@@ -115528,7 +118787,7 @@ func UnmarshalVPNGatewayConnectionPolicyModePeer(m map[string]json.RawMessage, r
 // - VPNGatewayConnectionPolicyModePeerPrototypeVPNGatewayConnectionPeerByFqdn
 type VPNGatewayConnectionPolicyModePeerPrototype struct {
 	// The peer CIDRs for this VPN gateway connection.
-	CIDRs []string `json:"cidrs" validate:"required"`
+	Cidrs []string `json:"cidrs" validate:"required"`
 
 	// The peer IKE identity to use.
 	//
@@ -115557,7 +118816,7 @@ type VPNGatewayConnectionPolicyModePeerPrototypeIntf interface {
 // UnmarshalVPNGatewayConnectionPolicyModePeerPrototype unmarshals an instance of VPNGatewayConnectionPolicyModePeerPrototype from the specified map of raw messages.
 func UnmarshalVPNGatewayConnectionPolicyModePeerPrototype(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(VPNGatewayConnectionPolicyModePeerPrototype)
-	err = core.UnmarshalPrimitive(m, "cidrs", &obj.CIDRs)
+	err = core.UnmarshalPrimitive(m, "cidrs", &obj.Cidrs)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "cidrs-error", common.GetComponentInfo())
 		return
@@ -116597,7 +119856,7 @@ type VPNGatewayPrototype struct {
 
 	// The static CIDRs advertised through any enabled routing protocol (for example, BGP). The routing protocol will
 	// advertise routes with these CIDRs as route destinations.
-	AdvertisedCIDRs []string `json:"advertised_cidrs,omitempty"`
+	AdvertisedCidrs []string `json:"advertised_cidrs,omitempty"`
 
 	// The local autonomous system number (ASN) for this VPN gateway and its connections. The ASN values in the
 	// [restricted ASN list](
@@ -116641,7 +119900,7 @@ func UnmarshalVPNGatewayPrototype(m map[string]json.RawMessage, result interface
 		err = core.SDKErrorf(err, "", "subnet-error", common.GetComponentInfo())
 		return
 	}
-	err = core.UnmarshalPrimitive(m, "advertised_cidrs", &obj.AdvertisedCIDRs)
+	err = core.UnmarshalPrimitive(m, "advertised_cidrs", &obj.AdvertisedCidrs)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "advertised_cidrs-error", common.GetComponentInfo())
 		return
@@ -119413,7 +122672,11 @@ type VolumeAllowedUse struct {
 	// - `gpu.count` (integer): The number of GPUs
 	// - `gpu.manufacturer` (string): The GPU manufacturer
 	// - `gpu.memory` (integer): The overall amount of GPU memory in GiB (gibibytes)
-	// - `gpu.model` (string): The GPU model.
+	// - `gpu.model` (string): The GPU model
+	// - `metadata_service.enabled` (boolean): Whether the metadata service is enabled
+	// - `metadata_service.protocol` (string): The communication protocol used for the
+	//   metadata service endpoint
+	// - `vcpu.count` (integer): The number of virtual CPUs.
 	Instance *string `json:"instance" validate:"required"`
 }
 
@@ -119464,7 +122727,11 @@ type VolumeAllowedUsePatch struct {
 	// - `gpu.count` (integer): The number of GPUs
 	// - `gpu.manufacturer` (string): The GPU manufacturer
 	// - `gpu.memory` (integer): The overall amount of GPU memory in GiB (gibibytes)
-	// - `gpu.model` (string): The GPU model.
+	// - `gpu.model` (string): The GPU model
+	// - `metadata_service.enabled` (boolean): Whether the metadata service is enabled
+	// - `metadata_service.protocol` (string): The communication protocol used for the
+	//   metadata service endpoint
+	// - `vcpu.count` (integer): The number of virtual CPUs.
 	Instance *string `json:"instance,omitempty"`
 }
 
@@ -119536,7 +122803,11 @@ type VolumeAllowedUsePrototype struct {
 	// - `gpu.count` (integer): The number of GPUs
 	// - `gpu.manufacturer` (string): The GPU manufacturer
 	// - `gpu.memory` (integer): The overall amount of GPU memory in GiB (gibibytes)
-	// - `gpu.model` (string): The GPU model.
+	// - `gpu.model` (string): The GPU model
+	// - `metadata_service.enabled` (boolean): Whether the metadata service is enabled
+	// - `metadata_service.protocol` (string): The communication protocol used for the
+	//   metadata service endpoint
+	// - `vcpu.count` (integer): The number of virtual CPUs.
 	Instance *string `json:"instance,omitempty"`
 }
 
@@ -119703,7 +122974,9 @@ func UnmarshalVolumeAttachmentCollection(m map[string]json.RawMessage, result in
 	return
 }
 
-// VolumeAttachmentDevice : VolumeAttachmentDevice struct
+// VolumeAttachmentDevice : The configuration for the volume as a device in the instance operating system.
+//
+// This property may be absent if the volume attachment's `status` is not `attached`.
 type VolumeAttachmentDevice struct {
 	// A unique identifier for the device which is exposed to the instance operating system.
 	ID *string `json:"id" validate:"required"`
@@ -119998,16 +123271,10 @@ type VolumeAttachmentPrototypeVolume struct {
 	UserTags []string `json:"user_tags,omitempty"`
 
 	// The capacity to use for the volume (in gigabytes). The specified value must be within the `capacity` range of the
-	// volume's profile or the capacity to use for the volume (in gigabytes). The specified value must be at least the
-	// snapshot's `minimum_capacity`, and must be within the `capacity` range of the volume's profile.
-	//
-	// If unspecified, the capacity will be the source snapshot's `minimum_capacity`.
+	// volume's profile.
 	Capacity *int64 `json:"capacity,omitempty"`
 
 	// The root key to use to wrap the data encryption key for the volume.
-	//
-	// If unspecified, the `encryption` type for the volume will be `provider_managed` or the root key to use to wrap the
-	// data encryption key for the volume.
 	//
 	// If unspecified, the `encryption` type for the volume will be `provider_managed`.
 	EncryptionKey EncryptionKeyIdentityIntf `json:"encryption_key,omitempty"`
@@ -121809,16 +125076,10 @@ type VolumePrototype struct {
 	Zone ZoneIdentityIntf `json:"zone" validate:"required"`
 
 	// The capacity to use for the volume (in gigabytes). The specified value must be within the `capacity` range of the
-	// volume's profile or the capacity to use for the volume (in gigabytes). The specified value must be at least the
-	// snapshot's `minimum_capacity`, and must be within the `capacity` range of the volume's profile.
-	//
-	// If unspecified, the capacity will be the source snapshot's `minimum_capacity`.
+	// volume's profile.
 	Capacity *int64 `json:"capacity,omitempty"`
 
 	// The root key to use to wrap the data encryption key for the volume.
-	//
-	// If unspecified, the `encryption` type for the volume will be `provider_managed` or the root key to use to wrap the
-	// data encryption key for the volume.
 	//
 	// If unspecified, the `encryption` type for the volume will be `provider_managed`.
 	EncryptionKey EncryptionKeyIdentityIntf `json:"encryption_key,omitempty"`
@@ -121929,10 +125190,14 @@ type VolumePrototypeInstanceByImageContext struct {
 	Bandwidth *int64 `json:"bandwidth,omitempty"`
 
 	// The capacity to use for the volume (in gigabytes). The specified value must be at least the image's
-	// `minimum_provisioned_size`, at most 250 gigabytes, and within the
-	// `boot_capacity` range of the volume's profile.
+	// `minimum_provisioned_size`, at most 250 gigabytes for
+	// `storage_generation: 1` or at most 32,000 gigabytes for `storage_generation: 2`, and within the `boot_capacity`
+	// range of the volume's profile.
 	//
-	// If unspecified, the capacity will be the image's `minimum_provisioned_size`.
+	// If unspecified, the capacity will depend on the image:
+	// - When using a system-provided image, 100 gigabytes or the `minimum_provisioned_size`
+	//   of the image, whichever is larger.
+	// - When using a custom image, the `minimum_provisioned_size` of the image.
 	Capacity *int64 `json:"capacity,omitempty"`
 
 	// The root key to use to wrap the data encryption key for the volume.
@@ -122048,8 +125313,9 @@ type VolumePrototypeInstanceBySourceSnapshotContext struct {
 	Bandwidth *int64 `json:"bandwidth,omitempty"`
 
 	// The capacity to use for the volume (in gigabytes). The specified value must be at least the snapshot's
-	// `minimum_capacity`, at most 250 gigabytes, and within the
-	// `boot_capacity` range of the volume's profile.
+	// `minimum_capacity`, at most 250 gigabytes for
+	// `storage_generation: 1` or at most 32,000 gigabytes for `storage_generation: 2`, and within the `boot_capacity`
+	// range of the volume's profile.
 	Capacity *int64 `json:"capacity,omitempty"`
 
 	// The root key to use to wrap the data encryption key for the volume.
@@ -123412,8 +126678,8 @@ type BackupPolicyPrototypeBackupPolicyMatchResourceTypeInstancePrototype struct 
 	// The resource type this backup policy will apply to. Resources that have both a matching type and a matching user tag
 	// will be subject to the backup policy.
 	//
-	// A backup policy of type `instance` will create a backup of all volumes with a
-	// `storage_generation` value of `1` attached to the instance.
+	// If the targeted instance contains volumes with different `storage_generation` values, a backup policy of type
+	// `instance` will create separate backups for each `storage_generation` present.
 	MatchResourceType *string `json:"match_resource_type" validate:"required"`
 }
 
@@ -123428,8 +126694,8 @@ const (
 // The resource type this backup policy will apply to. Resources that have both a matching type and a matching user tag
 // will be subject to the backup policy.
 //
-// A backup policy of type `instance` will create a backup of all volumes with a
-// `storage_generation` value of `1` attached to the instance.
+// If the targeted instance contains volumes with different `storage_generation` values, a backup policy of type
+// `instance` will create separate backups for each `storage_generation` present.
 const (
 	BackupPolicyPrototypeBackupPolicyMatchResourceTypeInstancePrototypeMatchResourceTypeInstanceConst = "instance"
 )
@@ -127594,16 +130860,16 @@ func UnmarshalCatalogOfferingVersionPlanIdentityCatalogOfferingVersionPlanByCRN(
 	return
 }
 
-// CertificateInstanceIdentityByCRN : CertificateInstanceIdentityByCRN struct
+// CertificateInstanceIdentityCertificateInstanceIdentityByCRN : CertificateInstanceIdentityCertificateInstanceIdentityByCRN struct
 // This model "extends" CertificateInstanceIdentity
-type CertificateInstanceIdentityByCRN struct {
+type CertificateInstanceIdentityCertificateInstanceIdentityByCRN struct {
 	// The CRN for this certificate instance.
 	CRN *string `json:"crn" validate:"required"`
 }
 
-// NewCertificateInstanceIdentityByCRN : Instantiate CertificateInstanceIdentityByCRN (Generic Model Constructor)
-func (*VpcV1) NewCertificateInstanceIdentityByCRN(crn string) (_model *CertificateInstanceIdentityByCRN, err error) {
-	_model = &CertificateInstanceIdentityByCRN{
+// NewCertificateInstanceIdentityCertificateInstanceIdentityByCRN : Instantiate CertificateInstanceIdentityCertificateInstanceIdentityByCRN (Generic Model Constructor)
+func (*VpcV1) NewCertificateInstanceIdentityCertificateInstanceIdentityByCRN(crn string) (_model *CertificateInstanceIdentityCertificateInstanceIdentityByCRN, err error) {
+	_model = &CertificateInstanceIdentityCertificateInstanceIdentityByCRN{
 		CRN: core.StringPtr(crn),
 	}
 	err = core.ValidateStruct(_model, "required parameters")
@@ -127613,13 +130879,13 @@ func (*VpcV1) NewCertificateInstanceIdentityByCRN(crn string) (_model *Certifica
 	return
 }
 
-func (*CertificateInstanceIdentityByCRN) isaCertificateInstanceIdentity() bool {
+func (*CertificateInstanceIdentityCertificateInstanceIdentityByCRN) isaCertificateInstanceIdentity() bool {
 	return true
 }
 
-// UnmarshalCertificateInstanceIdentityByCRN unmarshals an instance of CertificateInstanceIdentityByCRN from the specified map of raw messages.
-func UnmarshalCertificateInstanceIdentityByCRN(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(CertificateInstanceIdentityByCRN)
+// UnmarshalCertificateInstanceIdentityCertificateInstanceIdentityByCRN unmarshals an instance of CertificateInstanceIdentityCertificateInstanceIdentityByCRN from the specified map of raw messages.
+func UnmarshalCertificateInstanceIdentityCertificateInstanceIdentityByCRN(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(CertificateInstanceIdentityCertificateInstanceIdentityByCRN)
 	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "crn-error", common.GetComponentInfo())
@@ -127629,11 +130895,11 @@ func UnmarshalCertificateInstanceIdentityByCRN(m map[string]json.RawMessage, res
 	return
 }
 
-// asPatch returns a generic map representation of the CertificateInstanceIdentityByCRN
-func (certificateInstanceIdentityByCRN *CertificateInstanceIdentityByCRN) asPatch() (_patch map[string]interface{}) {
+// asPatch returns a generic map representation of the CertificateInstanceIdentityCertificateInstanceIdentityByCRN
+func (certificateInstanceIdentityCertificateInstanceIdentityByCRN *CertificateInstanceIdentityCertificateInstanceIdentityByCRN) asPatch() (_patch map[string]interface{}) {
 	_patch = map[string]interface{}{}
-	if !core.IsNil(certificateInstanceIdentityByCRN.CRN) {
-		_patch["crn"] = certificateInstanceIdentityByCRN.CRN
+	if !core.IsNil(certificateInstanceIdentityCertificateInstanceIdentityByCRN.CRN) {
+		_patch["crn"] = certificateInstanceIdentityCertificateInstanceIdentityByCRN.CRN
 	}
 
 	return
@@ -135191,7 +138457,7 @@ func UnmarshalInstanceProfileVcpuEnum(m map[string]json.RawMessage, result inter
 	return
 }
 
-// InstanceProfileVcpuFixed : The VCPU count for an instance with this profile.
+// InstanceProfileVcpuFixed : The default VCPU count for an instance with this profile.
 // This model "extends" InstanceProfileVcpu
 type InstanceProfileVcpuFixed struct {
 	// The type for this profile field.
@@ -135653,8 +138919,8 @@ type InstancePrototypeInstanceByCatalogOffering struct {
 
 	// The default trusted profile configuration to use for this virtual server instance
 	//
-	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
-	// Accordingly, it is reflected as an [instance
+	// This property's value is used when provisioning the virtual server instance, and can only be changed by
+	// reinitializing the instance. Accordingly, it is reflected as an [instance
 	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	DefaultTrustedProfile *InstanceDefaultTrustedProfilePrototype `json:"default_trusted_profile,omitempty"`
 
@@ -135672,8 +138938,8 @@ type InstancePrototypeInstanceByCatalogOffering struct {
 	// no keys are specified, the instance will be inaccessible unless the specified image provides another means of
 	// access.
 	//
-	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
-	// Accordingly, it is reflected as an [instance
+	// This property's value is used when provisioning the virtual server instance, and can only be changed by
+	// reinitializing the instance. Accordingly, it is reflected as an [instance
 	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	Keys []KeyIdentityIntf `json:"keys,omitempty"`
 
@@ -135696,6 +138962,12 @@ type InstancePrototypeInstanceByCatalogOffering struct {
 	ReservationAffinity *InstanceReservationAffinityPrototype `json:"reservation_affinity,omitempty"`
 
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
+
+	// The threads per core to use for this virtual server instance. Must be one of the values in the profile's
+	// `threads_per_core.values`.
+	//
+	// If unspecified, the default threads per core from the profile will be used.
+	ThreadsPerCore *int64 `json:"threads_per_core,omitempty"`
 
 	// The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes. An increase in
 	// this value will result in a corresponding decrease to
@@ -135852,6 +139124,11 @@ func UnmarshalInstancePrototypeInstanceByCatalogOffering(m map[string]json.RawMe
 		err = core.SDKErrorf(err, "", "resource_group-error", common.GetComponentInfo())
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "threads_per_core", &obj.ThreadsPerCore)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "threads_per_core-error", common.GetComponentInfo())
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "total_volume_bandwidth", &obj.TotalVolumeBandwidth)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "total_volume_bandwidth-error", common.GetComponentInfo())
@@ -135945,8 +139222,8 @@ type InstancePrototypeInstanceByImage struct {
 
 	// The default trusted profile configuration to use for this virtual server instance
 	//
-	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
-	// Accordingly, it is reflected as an [instance
+	// This property's value is used when provisioning the virtual server instance, and can only be changed by
+	// reinitializing the instance. Accordingly, it is reflected as an [instance
 	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	DefaultTrustedProfile *InstanceDefaultTrustedProfilePrototype `json:"default_trusted_profile,omitempty"`
 
@@ -135964,8 +139241,8 @@ type InstancePrototypeInstanceByImage struct {
 	// no keys are specified, the instance will be inaccessible unless the specified image provides another means of
 	// access.
 	//
-	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
-	// Accordingly, it is reflected as an [instance
+	// This property's value is used when provisioning the virtual server instance, and can only be changed by
+	// reinitializing the instance. Accordingly, it is reflected as an [instance
 	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	Keys []KeyIdentityIntf `json:"keys,omitempty"`
 
@@ -135988,6 +139265,12 @@ type InstancePrototypeInstanceByImage struct {
 	ReservationAffinity *InstanceReservationAffinityPrototype `json:"reservation_affinity,omitempty"`
 
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
+
+	// The threads per core to use for this virtual server instance. Must be one of the values in the profile's
+	// `threads_per_core.values`.
+	//
+	// If unspecified, the default threads per core from the profile will be used.
+	ThreadsPerCore *int64 `json:"threads_per_core,omitempty"`
 
 	// The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes. An increase in
 	// this value will result in a corresponding decrease to
@@ -136138,6 +139421,11 @@ func UnmarshalInstancePrototypeInstanceByImage(m map[string]json.RawMessage, res
 		err = core.SDKErrorf(err, "", "resource_group-error", common.GetComponentInfo())
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "threads_per_core", &obj.ThreadsPerCore)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "threads_per_core-error", common.GetComponentInfo())
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "total_volume_bandwidth", &obj.TotalVolumeBandwidth)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "total_volume_bandwidth-error", common.GetComponentInfo())
@@ -136229,8 +139517,8 @@ type InstancePrototypeInstanceBySourceSnapshot struct {
 
 	// The default trusted profile configuration to use for this virtual server instance
 	//
-	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
-	// Accordingly, it is reflected as an [instance
+	// This property's value is used when provisioning the virtual server instance, and can only be changed by
+	// reinitializing the instance. Accordingly, it is reflected as an [instance
 	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	DefaultTrustedProfile *InstanceDefaultTrustedProfilePrototype `json:"default_trusted_profile,omitempty"`
 
@@ -136248,8 +139536,8 @@ type InstancePrototypeInstanceBySourceSnapshot struct {
 	// no keys are specified, the instance will be inaccessible unless the specified image provides another means of
 	// access.
 	//
-	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
-	// Accordingly, it is reflected as an [instance
+	// This property's value is used when provisioning the virtual server instance, and can only be changed by
+	// reinitializing the instance. Accordingly, it is reflected as an [instance
 	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	Keys []KeyIdentityIntf `json:"keys,omitempty"`
 
@@ -136272,6 +139560,12 @@ type InstancePrototypeInstanceBySourceSnapshot struct {
 	ReservationAffinity *InstanceReservationAffinityPrototype `json:"reservation_affinity,omitempty"`
 
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
+
+	// The threads per core to use for this virtual server instance. Must be one of the values in the profile's
+	// `threads_per_core.values`.
+	//
+	// If unspecified, the default threads per core from the profile will be used.
+	ThreadsPerCore *int64 `json:"threads_per_core,omitempty"`
 
 	// The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes. An increase in
 	// this value will result in a corresponding decrease to
@@ -136419,6 +139713,11 @@ func UnmarshalInstancePrototypeInstanceBySourceSnapshot(m map[string]json.RawMes
 		err = core.SDKErrorf(err, "", "resource_group-error", common.GetComponentInfo())
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "threads_per_core", &obj.ThreadsPerCore)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "threads_per_core-error", common.GetComponentInfo())
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "total_volume_bandwidth", &obj.TotalVolumeBandwidth)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "total_volume_bandwidth-error", common.GetComponentInfo())
@@ -136508,8 +139807,8 @@ type InstancePrototypeInstanceBySourceTemplate struct {
 
 	// The default trusted profile configuration to use for this virtual server instance
 	//
-	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
-	// Accordingly, it is reflected as an [instance
+	// This property's value is used when provisioning the virtual server instance, and can only be changed by
+	// reinitializing the instance. Accordingly, it is reflected as an [instance
 	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	DefaultTrustedProfile *InstanceDefaultTrustedProfilePrototype `json:"default_trusted_profile,omitempty"`
 
@@ -136527,8 +139826,8 @@ type InstancePrototypeInstanceBySourceTemplate struct {
 	// no keys are specified, the instance will be inaccessible unless the specified image provides another means of
 	// access.
 	//
-	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
-	// Accordingly, it is reflected as an [instance
+	// This property's value is used when provisioning the virtual server instance, and can only be changed by
+	// reinitializing the instance. Accordingly, it is reflected as an [instance
 	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	Keys []KeyIdentityIntf `json:"keys,omitempty"`
 
@@ -136551,6 +139850,12 @@ type InstancePrototypeInstanceBySourceTemplate struct {
 	ReservationAffinity *InstanceReservationAffinityPrototype `json:"reservation_affinity,omitempty"`
 
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
+
+	// The threads per core to use for this virtual server instance. Must be one of the values in the profile's
+	// `threads_per_core.values`.
+	//
+	// If unspecified, the default threads per core from the profile will be used.
+	ThreadsPerCore *int64 `json:"threads_per_core,omitempty"`
 
 	// The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes. An increase in
 	// this value will result in a corresponding decrease to
@@ -136718,6 +140023,11 @@ func UnmarshalInstancePrototypeInstanceBySourceTemplate(m map[string]json.RawMes
 		err = core.SDKErrorf(err, "", "resource_group-error", common.GetComponentInfo())
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "threads_per_core", &obj.ThreadsPerCore)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "threads_per_core-error", common.GetComponentInfo())
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "total_volume_bandwidth", &obj.TotalVolumeBandwidth)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "total_volume_bandwidth-error", common.GetComponentInfo())
@@ -136819,8 +140129,8 @@ type InstancePrototypeInstanceByVolume struct {
 
 	// The default trusted profile configuration to use for this virtual server instance
 	//
-	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
-	// Accordingly, it is reflected as an [instance
+	// This property's value is used when provisioning the virtual server instance, and can only be changed by
+	// reinitializing the instance. Accordingly, it is reflected as an [instance
 	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	DefaultTrustedProfile *InstanceDefaultTrustedProfilePrototype `json:"default_trusted_profile,omitempty"`
 
@@ -136838,8 +140148,8 @@ type InstancePrototypeInstanceByVolume struct {
 	// no keys are specified, the instance will be inaccessible unless the specified image provides another means of
 	// access.
 	//
-	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
-	// Accordingly, it is reflected as an [instance
+	// This property's value is used when provisioning the virtual server instance, and can only be changed by
+	// reinitializing the instance. Accordingly, it is reflected as an [instance
 	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	Keys []KeyIdentityIntf `json:"keys,omitempty"`
 
@@ -136862,6 +140172,12 @@ type InstancePrototypeInstanceByVolume struct {
 	ReservationAffinity *InstanceReservationAffinityPrototype `json:"reservation_affinity,omitempty"`
 
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
+
+	// The threads per core to use for this virtual server instance. Must be one of the values in the profile's
+	// `threads_per_core.values`.
+	//
+	// If unspecified, the default threads per core from the profile will be used.
+	ThreadsPerCore *int64 `json:"threads_per_core,omitempty"`
 
 	// The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes. An increase in
 	// this value will result in a corresponding decrease to
@@ -137009,6 +140325,11 @@ func UnmarshalInstancePrototypeInstanceByVolume(m map[string]json.RawMessage, re
 		err = core.SDKErrorf(err, "", "resource_group-error", common.GetComponentInfo())
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "threads_per_core", &obj.ThreadsPerCore)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "threads_per_core-error", common.GetComponentInfo())
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "total_volume_bandwidth", &obj.TotalVolumeBandwidth)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "total_volume_bandwidth-error", common.GetComponentInfo())
@@ -137067,6 +140388,238 @@ func UnmarshalInstancePrototypeInstanceByVolume(m map[string]json.RawMessage, re
 	err = core.UnmarshalModel(m, "primary_network_interface", &obj.PrimaryNetworkInterface, UnmarshalNetworkInterfacePrototype)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "primary_network_interface-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// InstanceReinitializePrototypeInstanceReinitializeByImage : Reinitialize an instance by using an image. The image must be within the same operating system family as the current
+// instance image, and must have the same licensing model.
+// This model "extends" InstanceReinitializePrototype
+type InstanceReinitializePrototypeInstanceReinitializeByImage struct {
+	// The default trusted profile configuration to use for this virtual server instance. If not specified, the instance
+	// will be reinitialized without a default trusted profile.
+	//
+	// This property's value is used when reinitializing the virtual server instance, and can only be changed by
+	// reinitializing the instance. Accordingly, it is reflected as an [instance
+	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
+	DefaultTrustedProfile *InstanceDefaultTrustedProfilePrototype `json:"default_trusted_profile,omitempty"`
+
+	// The public SSH keys for the reinitialized instance. The keys will be made available to the virtual server instance
+	// as cloud-init vendor data. For cloud-init enabled images, the keys will also be added as SSH authorized keys for the
+	// [default user]
+	// (https://cloud.ibm.com/docs/vpc?topic=vpc-vsi_is_connecting_linux#determining-default-user-account).
+	//
+	// For Windows images, only keys with a `type` value of `rsa` must be specified, and one will be selected to encrypt
+	// [the administrator password](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization). Keys are optional for
+	// other images.
+	//
+	// If no keys are specified, the instance will be reinitialized without a key.
+	Keys []KeyIdentityIntf `json:"keys,omitempty"`
+
+	// The [user data](https://cloud.ibm.com/docs/vpc?topic=vpc-user-data) to make available when setting up the virtual
+	// server instance. If not specified, the instance will be reinitialized without user data.
+	UserData *string `json:"user_data,omitempty"`
+
+	// The boot volume attachment for the virtual server instance. If not specified,
+	// a new boot volume attachment will be created.
+	BootVolumeAttachment *VolumeAttachmentPrototypeInstanceByImageContext `json:"boot_volume_attachment,omitempty"`
+
+	// The image to use when reinitializing the virtual server instance.
+	Image ImageIdentityIntf `json:"image" validate:"required"`
+}
+
+// NewInstanceReinitializePrototypeInstanceReinitializeByImage : Instantiate InstanceReinitializePrototypeInstanceReinitializeByImage (Generic Model Constructor)
+func (*VpcV1) NewInstanceReinitializePrototypeInstanceReinitializeByImage(image ImageIdentityIntf) (_model *InstanceReinitializePrototypeInstanceReinitializeByImage, err error) {
+	_model = &InstanceReinitializePrototypeInstanceReinitializeByImage{
+		Image: image,
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "model-missing-required", common.GetComponentInfo())
+	}
+	return
+}
+
+func (*InstanceReinitializePrototypeInstanceReinitializeByImage) isaInstanceReinitializePrototype() bool {
+	return true
+}
+
+// UnmarshalInstanceReinitializePrototypeInstanceReinitializeByImage unmarshals an instance of InstanceReinitializePrototypeInstanceReinitializeByImage from the specified map of raw messages.
+func UnmarshalInstanceReinitializePrototypeInstanceReinitializeByImage(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(InstanceReinitializePrototypeInstanceReinitializeByImage)
+	err = core.UnmarshalModel(m, "default_trusted_profile", &obj.DefaultTrustedProfile, UnmarshalInstanceDefaultTrustedProfilePrototype)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "default_trusted_profile-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "keys", &obj.Keys, UnmarshalKeyIdentity)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "keys-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "user_data", &obj.UserData)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "user_data-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "boot_volume_attachment", &obj.BootVolumeAttachment, UnmarshalVolumeAttachmentPrototypeInstanceByImageContext)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "boot_volume_attachment-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "image", &obj.Image, UnmarshalImageIdentity)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "image-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// InstanceReinitializePrototypeInstanceReinitializeBySnapshot : Reinitialize an instance by using a snapshot.
+// This model "extends" InstanceReinitializePrototype
+type InstanceReinitializePrototypeInstanceReinitializeBySnapshot struct {
+	// The default trusted profile configuration to use for this virtual server instance. If not specified, the instance
+	// will be reinitialized without a default trusted profile.
+	//
+	// This property's value is used when reinitializing the virtual server instance, and can only be changed by
+	// reinitializing the instance. Accordingly, it is reflected as an [instance
+	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
+	DefaultTrustedProfile *InstanceDefaultTrustedProfilePrototype `json:"default_trusted_profile,omitempty"`
+
+	// The public SSH keys for the reinitialized instance. The keys will be made available to the virtual server instance
+	// as cloud-init vendor data. For cloud-init enabled images, the keys will also be added as SSH authorized keys for the
+	// [default user]
+	// (https://cloud.ibm.com/docs/vpc?topic=vpc-vsi_is_connecting_linux#determining-default-user-account).
+	//
+	// For Windows images, only keys with a `type` value of `rsa` must be specified, and one will be selected to encrypt
+	// [the administrator password](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization). Keys are optional for
+	// other images.
+	//
+	// If no keys are specified, the instance will be reinitialized without a key.
+	Keys []KeyIdentityIntf `json:"keys,omitempty"`
+
+	// The [user data](https://cloud.ibm.com/docs/vpc?topic=vpc-user-data) to make available when setting up the virtual
+	// server instance. If not specified, the instance will be reinitialized without user data.
+	UserData *string `json:"user_data,omitempty"`
+
+	// The boot volume attachment for the virtual server instance.
+	BootVolumeAttachment *VolumeAttachmentPrototypeInstanceBySourceSnapshotContext `json:"boot_volume_attachment" validate:"required"`
+}
+
+// NewInstanceReinitializePrototypeInstanceReinitializeBySnapshot : Instantiate InstanceReinitializePrototypeInstanceReinitializeBySnapshot (Generic Model Constructor)
+func (*VpcV1) NewInstanceReinitializePrototypeInstanceReinitializeBySnapshot(bootVolumeAttachment *VolumeAttachmentPrototypeInstanceBySourceSnapshotContext) (_model *InstanceReinitializePrototypeInstanceReinitializeBySnapshot, err error) {
+	_model = &InstanceReinitializePrototypeInstanceReinitializeBySnapshot{
+		BootVolumeAttachment: bootVolumeAttachment,
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "model-missing-required", common.GetComponentInfo())
+	}
+	return
+}
+
+func (*InstanceReinitializePrototypeInstanceReinitializeBySnapshot) isaInstanceReinitializePrototype() bool {
+	return true
+}
+
+// UnmarshalInstanceReinitializePrototypeInstanceReinitializeBySnapshot unmarshals an instance of InstanceReinitializePrototypeInstanceReinitializeBySnapshot from the specified map of raw messages.
+func UnmarshalInstanceReinitializePrototypeInstanceReinitializeBySnapshot(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(InstanceReinitializePrototypeInstanceReinitializeBySnapshot)
+	err = core.UnmarshalModel(m, "default_trusted_profile", &obj.DefaultTrustedProfile, UnmarshalInstanceDefaultTrustedProfilePrototype)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "default_trusted_profile-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "keys", &obj.Keys, UnmarshalKeyIdentity)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "keys-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "user_data", &obj.UserData)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "user_data-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "boot_volume_attachment", &obj.BootVolumeAttachment, UnmarshalVolumeAttachmentPrototypeInstanceBySourceSnapshotContext)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "boot_volume_attachment-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// InstanceReinitializePrototypeInstanceReinitializeByVolume : Reinitialize an instance by using a boot volume.
+// This model "extends" InstanceReinitializePrototype
+type InstanceReinitializePrototypeInstanceReinitializeByVolume struct {
+	// The default trusted profile configuration to use for this virtual server instance. If not specified, the instance
+	// will be reinitialized without a default trusted profile.
+	//
+	// This property's value is used when reinitializing the virtual server instance, and can only be changed by
+	// reinitializing the instance. Accordingly, it is reflected as an [instance
+	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
+	DefaultTrustedProfile *InstanceDefaultTrustedProfilePrototype `json:"default_trusted_profile,omitempty"`
+
+	// The public SSH keys for the reinitialized instance. The keys will be made available to the virtual server instance
+	// as cloud-init vendor data. For cloud-init enabled images, the keys will also be added as SSH authorized keys for the
+	// [default user]
+	// (https://cloud.ibm.com/docs/vpc?topic=vpc-vsi_is_connecting_linux#determining-default-user-account).
+	//
+	// For Windows images, only keys with a `type` value of `rsa` must be specified, and one will be selected to encrypt
+	// [the administrator password](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization). Keys are optional for
+	// other images.
+	//
+	// If no keys are specified, the instance will be reinitialized without a key.
+	Keys []KeyIdentityIntf `json:"keys,omitempty"`
+
+	// The [user data](https://cloud.ibm.com/docs/vpc?topic=vpc-user-data) to make available when setting up the virtual
+	// server instance. If not specified, the instance will be reinitialized without user data.
+	UserData *string `json:"user_data,omitempty"`
+
+	// The boot volume attachment for the virtual server instance.
+	BootVolumeAttachment *VolumeAttachmentPrototypeInstanceByVolumeContext `json:"boot_volume_attachment" validate:"required"`
+}
+
+// NewInstanceReinitializePrototypeInstanceReinitializeByVolume : Instantiate InstanceReinitializePrototypeInstanceReinitializeByVolume (Generic Model Constructor)
+func (*VpcV1) NewInstanceReinitializePrototypeInstanceReinitializeByVolume(bootVolumeAttachment *VolumeAttachmentPrototypeInstanceByVolumeContext) (_model *InstanceReinitializePrototypeInstanceReinitializeByVolume, err error) {
+	_model = &InstanceReinitializePrototypeInstanceReinitializeByVolume{
+		BootVolumeAttachment: bootVolumeAttachment,
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "model-missing-required", common.GetComponentInfo())
+	}
+	return
+}
+
+func (*InstanceReinitializePrototypeInstanceReinitializeByVolume) isaInstanceReinitializePrototype() bool {
+	return true
+}
+
+// UnmarshalInstanceReinitializePrototypeInstanceReinitializeByVolume unmarshals an instance of InstanceReinitializePrototypeInstanceReinitializeByVolume from the specified map of raw messages.
+func UnmarshalInstanceReinitializePrototypeInstanceReinitializeByVolume(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(InstanceReinitializePrototypeInstanceReinitializeByVolume)
+	err = core.UnmarshalModel(m, "default_trusted_profile", &obj.DefaultTrustedProfile, UnmarshalInstanceDefaultTrustedProfilePrototype)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "default_trusted_profile-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "keys", &obj.Keys, UnmarshalKeyIdentity)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "keys-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "user_data", &obj.UserData)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "user_data-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "boot_volume_attachment", &obj.BootVolumeAttachment, UnmarshalVolumeAttachmentPrototypeInstanceByVolumeContext)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "boot_volume_attachment-error", common.GetComponentInfo())
 		return
 	}
 	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
@@ -137230,8 +140783,8 @@ type InstanceTemplatePrototypeInstanceTemplateByCatalogOffering struct {
 
 	// The default trusted profile configuration to use for this virtual server instance
 	//
-	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
-	// Accordingly, it is reflected as an [instance
+	// This property's value is used when provisioning the virtual server instance, and can only be changed by
+	// reinitializing the instance. Accordingly, it is reflected as an [instance
 	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	DefaultTrustedProfile *InstanceDefaultTrustedProfilePrototype `json:"default_trusted_profile,omitempty"`
 
@@ -137249,8 +140802,8 @@ type InstanceTemplatePrototypeInstanceTemplateByCatalogOffering struct {
 	// no keys are specified, the instance will be inaccessible unless the specified image provides another means of
 	// access.
 	//
-	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
-	// Accordingly, it is reflected as an [instance
+	// This property's value is used when provisioning the virtual server instance, and can only be changed by
+	// reinitializing the instance. Accordingly, it is reflected as an [instance
 	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	Keys []KeyIdentityIntf `json:"keys,omitempty"`
 
@@ -137271,6 +140824,12 @@ type InstanceTemplatePrototypeInstanceTemplateByCatalogOffering struct {
 	ReservationAffinity *InstanceReservationAffinityPrototype `json:"reservation_affinity,omitempty"`
 
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
+
+	// The threads per core to use for this virtual server instance. Must be one of the values in the profile's
+	// `threads_per_core.values`.
+	//
+	// If unspecified, the default threads per core from the profile will be used.
+	ThreadsPerCore *int64 `json:"threads_per_core,omitempty"`
 
 	// The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes. An increase in
 	// this value will result in a corresponding decrease to
@@ -137427,6 +140986,11 @@ func UnmarshalInstanceTemplatePrototypeInstanceTemplateByCatalogOffering(m map[s
 		err = core.SDKErrorf(err, "", "resource_group-error", common.GetComponentInfo())
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "threads_per_core", &obj.ThreadsPerCore)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "threads_per_core-error", common.GetComponentInfo())
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "total_volume_bandwidth", &obj.TotalVolumeBandwidth)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "total_volume_bandwidth-error", common.GetComponentInfo())
@@ -137520,8 +141084,8 @@ type InstanceTemplatePrototypeInstanceTemplateByImage struct {
 
 	// The default trusted profile configuration to use for this virtual server instance
 	//
-	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
-	// Accordingly, it is reflected as an [instance
+	// This property's value is used when provisioning the virtual server instance, and can only be changed by
+	// reinitializing the instance. Accordingly, it is reflected as an [instance
 	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	DefaultTrustedProfile *InstanceDefaultTrustedProfilePrototype `json:"default_trusted_profile,omitempty"`
 
@@ -137539,8 +141103,8 @@ type InstanceTemplatePrototypeInstanceTemplateByImage struct {
 	// no keys are specified, the instance will be inaccessible unless the specified image provides another means of
 	// access.
 	//
-	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
-	// Accordingly, it is reflected as an [instance
+	// This property's value is used when provisioning the virtual server instance, and can only be changed by
+	// reinitializing the instance. Accordingly, it is reflected as an [instance
 	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	Keys []KeyIdentityIntf `json:"keys,omitempty"`
 
@@ -137561,6 +141125,12 @@ type InstanceTemplatePrototypeInstanceTemplateByImage struct {
 	ReservationAffinity *InstanceReservationAffinityPrototype `json:"reservation_affinity,omitempty"`
 
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
+
+	// The threads per core to use for this virtual server instance. Must be one of the values in the profile's
+	// `threads_per_core.values`.
+	//
+	// If unspecified, the default threads per core from the profile will be used.
+	ThreadsPerCore *int64 `json:"threads_per_core,omitempty"`
 
 	// The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes. An increase in
 	// this value will result in a corresponding decrease to
@@ -137711,6 +141281,11 @@ func UnmarshalInstanceTemplatePrototypeInstanceTemplateByImage(m map[string]json
 		err = core.SDKErrorf(err, "", "resource_group-error", common.GetComponentInfo())
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "threads_per_core", &obj.ThreadsPerCore)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "threads_per_core-error", common.GetComponentInfo())
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "total_volume_bandwidth", &obj.TotalVolumeBandwidth)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "total_volume_bandwidth-error", common.GetComponentInfo())
@@ -137802,8 +141377,8 @@ type InstanceTemplatePrototypeInstanceTemplateBySourceSnapshot struct {
 
 	// The default trusted profile configuration to use for this virtual server instance
 	//
-	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
-	// Accordingly, it is reflected as an [instance
+	// This property's value is used when provisioning the virtual server instance, and can only be changed by
+	// reinitializing the instance. Accordingly, it is reflected as an [instance
 	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	DefaultTrustedProfile *InstanceDefaultTrustedProfilePrototype `json:"default_trusted_profile,omitempty"`
 
@@ -137821,8 +141396,8 @@ type InstanceTemplatePrototypeInstanceTemplateBySourceSnapshot struct {
 	// no keys are specified, the instance will be inaccessible unless the specified image provides another means of
 	// access.
 	//
-	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
-	// Accordingly, it is reflected as an [instance
+	// This property's value is used when provisioning the virtual server instance, and can only be changed by
+	// reinitializing the instance. Accordingly, it is reflected as an [instance
 	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	Keys []KeyIdentityIntf `json:"keys,omitempty"`
 
@@ -137843,6 +141418,12 @@ type InstanceTemplatePrototypeInstanceTemplateBySourceSnapshot struct {
 	ReservationAffinity *InstanceReservationAffinityPrototype `json:"reservation_affinity,omitempty"`
 
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
+
+	// The threads per core to use for this virtual server instance. Must be one of the values in the profile's
+	// `threads_per_core.values`.
+	//
+	// If unspecified, the default threads per core from the profile will be used.
+	ThreadsPerCore *int64 `json:"threads_per_core,omitempty"`
 
 	// The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes. An increase in
 	// this value will result in a corresponding decrease to
@@ -137990,6 +141571,11 @@ func UnmarshalInstanceTemplatePrototypeInstanceTemplateBySourceSnapshot(m map[st
 		err = core.SDKErrorf(err, "", "resource_group-error", common.GetComponentInfo())
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "threads_per_core", &obj.ThreadsPerCore)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "threads_per_core-error", common.GetComponentInfo())
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "total_volume_bandwidth", &obj.TotalVolumeBandwidth)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "total_volume_bandwidth-error", common.GetComponentInfo())
@@ -138079,8 +141665,8 @@ type InstanceTemplatePrototypeInstanceTemplateBySourceTemplate struct {
 
 	// The default trusted profile configuration to use for this virtual server instance
 	//
-	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
-	// Accordingly, it is reflected as an [instance
+	// This property's value is used when provisioning the virtual server instance, and can only be changed by
+	// reinitializing the instance. Accordingly, it is reflected as an [instance
 	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	DefaultTrustedProfile *InstanceDefaultTrustedProfilePrototype `json:"default_trusted_profile,omitempty"`
 
@@ -138098,8 +141684,8 @@ type InstanceTemplatePrototypeInstanceTemplateBySourceTemplate struct {
 	// no keys are specified, the instance will be inaccessible unless the specified image provides another means of
 	// access.
 	//
-	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
-	// Accordingly, it is reflected as an [instance
+	// This property's value is used when provisioning the virtual server instance, and can only be changed by
+	// reinitializing the instance. Accordingly, it is reflected as an [instance
 	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	Keys []KeyIdentityIntf `json:"keys,omitempty"`
 
@@ -138120,6 +141706,12 @@ type InstanceTemplatePrototypeInstanceTemplateBySourceTemplate struct {
 	ReservationAffinity *InstanceReservationAffinityPrototype `json:"reservation_affinity,omitempty"`
 
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
+
+	// The threads per core to use for this virtual server instance. Must be one of the values in the profile's
+	// `threads_per_core.values`.
+	//
+	// If unspecified, the default threads per core from the profile will be used.
+	ThreadsPerCore *int64 `json:"threads_per_core,omitempty"`
 
 	// The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes. An increase in
 	// this value will result in a corresponding decrease to
@@ -138287,6 +141879,11 @@ func UnmarshalInstanceTemplatePrototypeInstanceTemplateBySourceTemplate(m map[st
 		err = core.SDKErrorf(err, "", "resource_group-error", common.GetComponentInfo())
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "threads_per_core", &obj.ThreadsPerCore)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "threads_per_core-error", common.GetComponentInfo())
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "total_volume_bandwidth", &obj.TotalVolumeBandwidth)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "total_volume_bandwidth-error", common.GetComponentInfo())
@@ -138394,8 +141991,8 @@ type InstanceTemplateInstanceByCatalogOfferingInstanceTemplateContext struct {
 
 	// The default trusted profile configuration to use for this virtual server instance
 	//
-	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
-	// Accordingly, it is reflected as an [instance
+	// This property's value is used when provisioning the virtual server instance, and can only be changed by
+	// reinitializing the instance. Accordingly, it is reflected as an [instance
 	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	DefaultTrustedProfile *InstanceDefaultTrustedProfilePrototype `json:"default_trusted_profile,omitempty"`
 
@@ -138419,8 +142016,8 @@ type InstanceTemplateInstanceByCatalogOfferingInstanceTemplateContext struct {
 	// no keys are specified, the instance will be inaccessible unless the specified image provides another means of
 	// access.
 	//
-	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
-	// Accordingly, it is reflected as an [instance
+	// This property's value is used when provisioning the virtual server instance, and can only be changed by
+	// reinitializing the instance. Accordingly, it is reflected as an [instance
 	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	Keys []KeyIdentityIntf `json:"keys,omitempty"`
 
@@ -138441,6 +142038,12 @@ type InstanceTemplateInstanceByCatalogOfferingInstanceTemplateContext struct {
 
 	// The resource group for this instance template.
 	ResourceGroup *ResourceGroupReference `json:"resource_group" validate:"required"`
+
+	// The threads per core to use for this virtual server instance. Must be one of the values in the profile's
+	// `threads_per_core.values`.
+	//
+	// If unspecified, the default threads per core from the profile will be used.
+	ThreadsPerCore *int64 `json:"threads_per_core,omitempty"`
 
 	// The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes. An increase in
 	// this value will result in a corresponding decrease to
@@ -138617,6 +142220,11 @@ func UnmarshalInstanceTemplateInstanceByCatalogOfferingInstanceTemplateContext(m
 		err = core.SDKErrorf(err, "", "resource_group-error", common.GetComponentInfo())
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "threads_per_core", &obj.ThreadsPerCore)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "threads_per_core-error", common.GetComponentInfo())
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "total_volume_bandwidth", &obj.TotalVolumeBandwidth)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "total_volume_bandwidth-error", common.GetComponentInfo())
@@ -138714,8 +142322,8 @@ type InstanceTemplateInstanceByImageInstanceTemplateContext struct {
 
 	// The default trusted profile configuration to use for this virtual server instance
 	//
-	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
-	// Accordingly, it is reflected as an [instance
+	// This property's value is used when provisioning the virtual server instance, and can only be changed by
+	// reinitializing the instance. Accordingly, it is reflected as an [instance
 	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	DefaultTrustedProfile *InstanceDefaultTrustedProfilePrototype `json:"default_trusted_profile,omitempty"`
 
@@ -138739,8 +142347,8 @@ type InstanceTemplateInstanceByImageInstanceTemplateContext struct {
 	// no keys are specified, the instance will be inaccessible unless the specified image provides another means of
 	// access.
 	//
-	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
-	// Accordingly, it is reflected as an [instance
+	// This property's value is used when provisioning the virtual server instance, and can only be changed by
+	// reinitializing the instance. Accordingly, it is reflected as an [instance
 	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	Keys []KeyIdentityIntf `json:"keys,omitempty"`
 
@@ -138761,6 +142369,12 @@ type InstanceTemplateInstanceByImageInstanceTemplateContext struct {
 
 	// The resource group for this instance template.
 	ResourceGroup *ResourceGroupReference `json:"resource_group" validate:"required"`
+
+	// The threads per core to use for this virtual server instance. Must be one of the values in the profile's
+	// `threads_per_core.values`.
+	//
+	// If unspecified, the default threads per core from the profile will be used.
+	ThreadsPerCore *int64 `json:"threads_per_core,omitempty"`
 
 	// The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes. An increase in
 	// this value will result in a corresponding decrease to
@@ -138931,6 +142545,11 @@ func UnmarshalInstanceTemplateInstanceByImageInstanceTemplateContext(m map[strin
 		err = core.SDKErrorf(err, "", "resource_group-error", common.GetComponentInfo())
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "threads_per_core", &obj.ThreadsPerCore)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "threads_per_core-error", common.GetComponentInfo())
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "total_volume_bandwidth", &obj.TotalVolumeBandwidth)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "total_volume_bandwidth-error", common.GetComponentInfo())
@@ -139028,8 +142647,8 @@ type InstanceTemplateInstanceBySourceSnapshotInstanceTemplateContext struct {
 
 	// The default trusted profile configuration to use for this virtual server instance
 	//
-	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
-	// Accordingly, it is reflected as an [instance
+	// This property's value is used when provisioning the virtual server instance, and can only be changed by
+	// reinitializing the instance. Accordingly, it is reflected as an [instance
 	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	DefaultTrustedProfile *InstanceDefaultTrustedProfilePrototype `json:"default_trusted_profile,omitempty"`
 
@@ -139053,8 +142672,8 @@ type InstanceTemplateInstanceBySourceSnapshotInstanceTemplateContext struct {
 	// no keys are specified, the instance will be inaccessible unless the specified image provides another means of
 	// access.
 	//
-	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
-	// Accordingly, it is reflected as an [instance
+	// This property's value is used when provisioning the virtual server instance, and can only be changed by
+	// reinitializing the instance. Accordingly, it is reflected as an [instance
 	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	Keys []KeyIdentityIntf `json:"keys,omitempty"`
 
@@ -139075,6 +142694,12 @@ type InstanceTemplateInstanceBySourceSnapshotInstanceTemplateContext struct {
 
 	// The resource group for this instance template.
 	ResourceGroup *ResourceGroupReference `json:"resource_group" validate:"required"`
+
+	// The threads per core to use for this virtual server instance. Must be one of the values in the profile's
+	// `threads_per_core.values`.
+	//
+	// If unspecified, the default threads per core from the profile will be used.
+	ThreadsPerCore *int64 `json:"threads_per_core,omitempty"`
 
 	// The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes. An increase in
 	// this value will result in a corresponding decrease to
@@ -139240,6 +142865,11 @@ func UnmarshalInstanceTemplateInstanceBySourceSnapshotInstanceTemplateContext(m 
 	err = core.UnmarshalModel(m, "resource_group", &obj.ResourceGroup, UnmarshalResourceGroupReference)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "resource_group-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "threads_per_core", &obj.ThreadsPerCore)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "threads_per_core-error", common.GetComponentInfo())
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "total_volume_bandwidth", &obj.TotalVolumeBandwidth)
@@ -139615,6 +143245,51 @@ func (loadBalancerIdentityByID *LoadBalancerIdentityByID) asPatch() (_patch map[
 	_patch = map[string]interface{}{}
 	if !core.IsNil(loadBalancerIdentityByID.ID) {
 		_patch["id"] = loadBalancerIdentityByID.ID
+	}
+
+	return
+}
+
+// LoadBalancerListenerClientAuthenticationCertificateAuthorityPatchCertificateInstanceIdentityByCRN : LoadBalancerListenerClientAuthenticationCertificateAuthorityPatchCertificateInstanceIdentityByCRN struct
+// This model "extends" LoadBalancerListenerClientAuthenticationCertificateAuthorityPatch
+type LoadBalancerListenerClientAuthenticationCertificateAuthorityPatchCertificateInstanceIdentityByCRN struct {
+	// The CRN for this certificate instance.
+	CRN *string `json:"crn" validate:"required"`
+}
+
+// NewLoadBalancerListenerClientAuthenticationCertificateAuthorityPatchCertificateInstanceIdentityByCRN : Instantiate LoadBalancerListenerClientAuthenticationCertificateAuthorityPatchCertificateInstanceIdentityByCRN (Generic Model Constructor)
+func (*VpcV1) NewLoadBalancerListenerClientAuthenticationCertificateAuthorityPatchCertificateInstanceIdentityByCRN(crn string) (_model *LoadBalancerListenerClientAuthenticationCertificateAuthorityPatchCertificateInstanceIdentityByCRN, err error) {
+	_model = &LoadBalancerListenerClientAuthenticationCertificateAuthorityPatchCertificateInstanceIdentityByCRN{
+		CRN: core.StringPtr(crn),
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "model-missing-required", common.GetComponentInfo())
+	}
+	return
+}
+
+func (*LoadBalancerListenerClientAuthenticationCertificateAuthorityPatchCertificateInstanceIdentityByCRN) isaLoadBalancerListenerClientAuthenticationCertificateAuthorityPatch() bool {
+	return true
+}
+
+// UnmarshalLoadBalancerListenerClientAuthenticationCertificateAuthorityPatchCertificateInstanceIdentityByCRN unmarshals an instance of LoadBalancerListenerClientAuthenticationCertificateAuthorityPatchCertificateInstanceIdentityByCRN from the specified map of raw messages.
+func UnmarshalLoadBalancerListenerClientAuthenticationCertificateAuthorityPatchCertificateInstanceIdentityByCRN(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(LoadBalancerListenerClientAuthenticationCertificateAuthorityPatchCertificateInstanceIdentityByCRN)
+	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "crn-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// asPatch returns a generic map representation of the LoadBalancerListenerClientAuthenticationCertificateAuthorityPatchCertificateInstanceIdentityByCRN
+func (loadBalancerListenerClientAuthenticationCertificateAuthorityPatchCertificateInstanceIdentityByCRN *LoadBalancerListenerClientAuthenticationCertificateAuthorityPatchCertificateInstanceIdentityByCRN) asPatch() (_patch map[string]interface{}) {
+	_patch = map[string]interface{}{}
+	if !core.IsNil(loadBalancerListenerClientAuthenticationCertificateAuthorityPatchCertificateInstanceIdentityByCRN.CRN) {
+		_patch["crn"] = loadBalancerListenerClientAuthenticationCertificateAuthorityPatchCertificateInstanceIdentityByCRN.CRN
 	}
 
 	return
@@ -140511,6 +144186,18 @@ type LoadBalancerPoolHealthMonitorPrototypeLoadBalancerPoolHealthMonitorTypeHttp
 	// The seconds to wait for a response to a health check.  Must be less than `delay`.
 	Timeout *int64 `json:"timeout" validate:"required"`
 
+	// The HTTP request to use for health checks. If unspecified, a `request.method` value of
+	// `get` will be used with no `request.headers`.
+	//
+	// Supported by load balancers with `advanced_health_checks_supported` set to `true`.
+	Request LoadBalancerPoolHealthMonitorTypeHttphttpsRequestPrototypeIntf `json:"request,omitempty"`
+
+	// The HTTP response to use for health checks. If unspecified, a `response.codes` value of
+	// `["200"]` will be used with no `response.body_regex`.
+	//
+	// Supported by load balancers with `advanced_health_checks_supported` set to `true`.
+	Response *LoadBalancerPoolHealthMonitorTypeHttphttpsResponsePrototype `json:"response,omitempty"`
+
 	// The protocol type to use for health checks.
 	//
 	// Load balancers in the `network` family do not support the `https` protocol.
@@ -140571,6 +144258,16 @@ func UnmarshalLoadBalancerPoolHealthMonitorPrototypeLoadBalancerPoolHealthMonito
 	err = core.UnmarshalPrimitive(m, "timeout", &obj.Timeout)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "timeout-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "request", &obj.Request, UnmarshalLoadBalancerPoolHealthMonitorTypeHttphttpsRequestPrototype)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "request-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "response", &obj.Response, UnmarshalLoadBalancerPoolHealthMonitorTypeHttphttpsResponsePrototype)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "response-error", common.GetComponentInfo())
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
@@ -140682,6 +144379,10 @@ type LoadBalancerPoolHealthMonitorTypeHttphttps struct {
 	// The seconds to wait for a response to a health check.
 	Timeout *int64 `json:"timeout" validate:"required"`
 
+	Request *LoadBalancerPoolHealthMonitorTypeHttphttpsRequest `json:"request" validate:"required"`
+
+	Response *LoadBalancerPoolHealthMonitorTypeHttphttpsResponse `json:"response" validate:"required"`
+
 	// The protocol type used for health checks.
 	Type *string `json:"type" validate:"required"`
 
@@ -140724,6 +144425,16 @@ func UnmarshalLoadBalancerPoolHealthMonitorTypeHttphttps(m map[string]json.RawMe
 		err = core.SDKErrorf(err, "", "timeout-error", common.GetComponentInfo())
 		return
 	}
+	err = core.UnmarshalModel(m, "request", &obj.Request, UnmarshalLoadBalancerPoolHealthMonitorTypeHttphttpsRequest)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "request-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "response", &obj.Response, UnmarshalLoadBalancerPoolHealthMonitorTypeHttphttpsResponse)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "response-error", common.GetComponentInfo())
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "type-error", common.GetComponentInfo())
@@ -140732,6 +144443,106 @@ func UnmarshalLoadBalancerPoolHealthMonitorTypeHttphttps(m map[string]json.RawMe
 	err = core.UnmarshalPrimitive(m, "url_path", &obj.URLPath)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "url_path-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// LoadBalancerPoolHealthMonitorTypeHttphttpsRequestPrototypeLoadBalancerPoolHealthMonitorTypeHttphttpsRequestGetPrototype : LoadBalancerPoolHealthMonitorTypeHttphttpsRequestPrototypeLoadBalancerPoolHealthMonitorTypeHttphttpsRequestGetPrototype struct
+// This model "extends" LoadBalancerPoolHealthMonitorTypeHttphttpsRequestPrototype
+type LoadBalancerPoolHealthMonitorTypeHttphttpsRequestPrototypeLoadBalancerPoolHealthMonitorTypeHttphttpsRequestGetPrototype struct {
+	// The HTTP request headers to use for health checks. If empty, health check HTTP requests will not have headers.
+	//
+	// Include a `Host` field and its value to enable the `HTTP/1.1` protocol for health checks. If a `Host` header is not
+	// included, `HTTP/1.0` will be used by default. More than one
+	// `Host` header is not allowed.
+	//
+	// A header must not exceed 1000 characters, and all headers combined must not exceed 4000 characters.
+	HeadersVar []LoadBalancerPoolHealthMonitorTypeHttphttpsRequestHeaderPrototype `json:"headers,omitempty"`
+
+	// The HTTP request method to use for health checks.
+	Method *string `json:"method,omitempty"`
+}
+
+// Constants associated with the LoadBalancerPoolHealthMonitorTypeHttphttpsRequestPrototypeLoadBalancerPoolHealthMonitorTypeHttphttpsRequestGetPrototype.Method property.
+// The HTTP request method to use for health checks.
+const (
+	LoadBalancerPoolHealthMonitorTypeHttphttpsRequestPrototypeLoadBalancerPoolHealthMonitorTypeHttphttpsRequestGetPrototypeMethodGetConst = "get"
+)
+
+func (*LoadBalancerPoolHealthMonitorTypeHttphttpsRequestPrototypeLoadBalancerPoolHealthMonitorTypeHttphttpsRequestGetPrototype) isaLoadBalancerPoolHealthMonitorTypeHttphttpsRequestPrototype() bool {
+	return true
+}
+
+// UnmarshalLoadBalancerPoolHealthMonitorTypeHttphttpsRequestPrototypeLoadBalancerPoolHealthMonitorTypeHttphttpsRequestGetPrototype unmarshals an instance of LoadBalancerPoolHealthMonitorTypeHttphttpsRequestPrototypeLoadBalancerPoolHealthMonitorTypeHttphttpsRequestGetPrototype from the specified map of raw messages.
+func UnmarshalLoadBalancerPoolHealthMonitorTypeHttphttpsRequestPrototypeLoadBalancerPoolHealthMonitorTypeHttphttpsRequestGetPrototype(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(LoadBalancerPoolHealthMonitorTypeHttphttpsRequestPrototypeLoadBalancerPoolHealthMonitorTypeHttphttpsRequestGetPrototype)
+	err = core.UnmarshalModel(m, "headers", &obj.HeadersVar, UnmarshalLoadBalancerPoolHealthMonitorTypeHttphttpsRequestHeaderPrototype)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "headers-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "method", &obj.Method)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "method-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// LoadBalancerPoolHealthMonitorTypeHttphttpsRequestPrototypeLoadBalancerPoolHealthMonitorTypeHttphttpsRequestPostPrototype : LoadBalancerPoolHealthMonitorTypeHttphttpsRequestPrototypeLoadBalancerPoolHealthMonitorTypeHttphttpsRequestPostPrototype struct
+// This model "extends" LoadBalancerPoolHealthMonitorTypeHttphttpsRequestPrototype
+type LoadBalancerPoolHealthMonitorTypeHttphttpsRequestPrototypeLoadBalancerPoolHealthMonitorTypeHttphttpsRequestPostPrototype struct {
+	// The HTTP request body to use for health checks. If unspecified, health check requests will not have a request body.
+	//
+	// The body must be formatted in a way that is understood by the backend member. If specified, the `request.headers`
+	// array must include a corresponding `Content-Type` header.
+	Body *string `json:"body,omitempty"`
+
+	// The HTTP request headers to use for health checks. If empty, health check requests will not have headers.
+	//
+	// Include a `Host` field and its value to enable the `HTTP/1.1` protocol for health checks. If a `Host` header is not
+	// included, `HTTP/1.0` will be used by default. More than one
+	// `Host` header is not allowed.
+	//
+	// Include a `Content-Type` field and its value to indicate the media type of the
+	// `request.body` (if set).
+	//
+	// A header must not exceed 1000 characters, and all headers combined must not exceed 4000 characters.
+	HeadersVar []LoadBalancerPoolHealthMonitorTypeHttphttpsRequestHeaderPrototype `json:"headers,omitempty"`
+
+	// The HTTP request method to use for health checks.
+	Method *string `json:"method,omitempty"`
+}
+
+// Constants associated with the LoadBalancerPoolHealthMonitorTypeHttphttpsRequestPrototypeLoadBalancerPoolHealthMonitorTypeHttphttpsRequestPostPrototype.Method property.
+// The HTTP request method to use for health checks.
+const (
+	LoadBalancerPoolHealthMonitorTypeHttphttpsRequestPrototypeLoadBalancerPoolHealthMonitorTypeHttphttpsRequestPostPrototypeMethodPostConst = "post"
+)
+
+func (*LoadBalancerPoolHealthMonitorTypeHttphttpsRequestPrototypeLoadBalancerPoolHealthMonitorTypeHttphttpsRequestPostPrototype) isaLoadBalancerPoolHealthMonitorTypeHttphttpsRequestPrototype() bool {
+	return true
+}
+
+// UnmarshalLoadBalancerPoolHealthMonitorTypeHttphttpsRequestPrototypeLoadBalancerPoolHealthMonitorTypeHttphttpsRequestPostPrototype unmarshals an instance of LoadBalancerPoolHealthMonitorTypeHttphttpsRequestPrototypeLoadBalancerPoolHealthMonitorTypeHttphttpsRequestPostPrototype from the specified map of raw messages.
+func UnmarshalLoadBalancerPoolHealthMonitorTypeHttphttpsRequestPrototypeLoadBalancerPoolHealthMonitorTypeHttphttpsRequestPostPrototype(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(LoadBalancerPoolHealthMonitorTypeHttphttpsRequestPrototypeLoadBalancerPoolHealthMonitorTypeHttphttpsRequestPostPrototype)
+	err = core.UnmarshalPrimitive(m, "body", &obj.Body)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "body-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "headers", &obj.HeadersVar, UnmarshalLoadBalancerPoolHealthMonitorTypeHttphttpsRequestHeaderPrototype)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "headers-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "method", &obj.Method)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "method-error", common.GetComponentInfo())
 		return
 	}
 	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
@@ -140963,6 +144774,51 @@ func UnmarshalLoadBalancerPoolMemberTargetByReservedIP(m map[string]json.RawMess
 		return
 	}
 	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// LoadBalancerPoolMemberTargetPrototypeFqdn : LoadBalancerPoolMemberTargetPrototypeFqdn struct
+// This model "extends" LoadBalancerPoolMemberTargetPrototype
+type LoadBalancerPoolMemberTargetPrototypeFqdn struct {
+	// A fully qualified domain name for this resource.
+	Fqdn *string `json:"fqdn" validate:"required"`
+}
+
+// NewLoadBalancerPoolMemberTargetPrototypeFqdn : Instantiate LoadBalancerPoolMemberTargetPrototypeFqdn (Generic Model Constructor)
+func (*VpcV1) NewLoadBalancerPoolMemberTargetPrototypeFqdn(fqdn string) (_model *LoadBalancerPoolMemberTargetPrototypeFqdn, err error) {
+	_model = &LoadBalancerPoolMemberTargetPrototypeFqdn{
+		Fqdn: core.StringPtr(fqdn),
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "model-missing-required", common.GetComponentInfo())
+	}
+	return
+}
+
+func (*LoadBalancerPoolMemberTargetPrototypeFqdn) isaLoadBalancerPoolMemberTargetPrototype() bool {
+	return true
+}
+
+// UnmarshalLoadBalancerPoolMemberTargetPrototypeFqdn unmarshals an instance of LoadBalancerPoolMemberTargetPrototypeFqdn from the specified map of raw messages.
+func UnmarshalLoadBalancerPoolMemberTargetPrototypeFqdn(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(LoadBalancerPoolMemberTargetPrototypeFqdn)
+	err = core.UnmarshalPrimitive(m, "fqdn", &obj.Fqdn)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "fqdn-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// asPatch returns a generic map representation of the LoadBalancerPoolMemberTargetPrototypeFqdn
+func (loadBalancerPoolMemberTargetPrototypeFqdn *LoadBalancerPoolMemberTargetPrototypeFqdn) asPatch() (_patch map[string]interface{}) {
+	_patch = map[string]interface{}{}
+	if !core.IsNil(loadBalancerPoolMemberTargetPrototypeFqdn.Fqdn) {
+		_patch["fqdn"] = loadBalancerPoolMemberTargetPrototypeFqdn.Fqdn
+	}
+
 	return
 }
 
@@ -141206,6 +145062,29 @@ func (loadBalancerPoolMemberTargetPrototypeReservedIPIdentity *LoadBalancerPoolM
 	return
 }
 
+// LoadBalancerPoolMemberTargetFqdn : LoadBalancerPoolMemberTargetFqdn struct
+// This model "extends" LoadBalancerPoolMemberTarget
+type LoadBalancerPoolMemberTargetFqdn struct {
+	// A fully qualified domain name for this resource.
+	Fqdn *string `json:"fqdn" validate:"required"`
+}
+
+func (*LoadBalancerPoolMemberTargetFqdn) isaLoadBalancerPoolMemberTarget() bool {
+	return true
+}
+
+// UnmarshalLoadBalancerPoolMemberTargetFqdn unmarshals an instance of LoadBalancerPoolMemberTargetFqdn from the specified map of raw messages.
+func UnmarshalLoadBalancerPoolMemberTargetFqdn(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(LoadBalancerPoolMemberTargetFqdn)
+	err = core.UnmarshalPrimitive(m, "fqdn", &obj.Fqdn)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "fqdn-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
 // LoadBalancerPoolMemberTargetIPNotReservedIP : LoadBalancerPoolMemberTargetIPNotReservedIP struct
 // This model "extends" LoadBalancerPoolMemberTarget
 type LoadBalancerPoolMemberTargetIPNotReservedIP struct {
@@ -141358,6 +145237,72 @@ func UnmarshalLoadBalancerPoolMemberTargetLoadBalancerReference(m map[string]jso
 	return
 }
 
+// LoadBalancerProfileAdvancedHealthCheckSupportedDependent : The advanced health check support for a load balancer with this profile depends on its configuration.
+// This model "extends" LoadBalancerProfileAdvancedHealthCheckSupported
+type LoadBalancerProfileAdvancedHealthCheckSupportedDependent struct {
+	// The type for this profile field.
+	Type *string `json:"type" validate:"required"`
+}
+
+// Constants associated with the LoadBalancerProfileAdvancedHealthCheckSupportedDependent.Type property.
+// The type for this profile field.
+const (
+	LoadBalancerProfileAdvancedHealthCheckSupportedDependentTypeDependentConst = "dependent"
+)
+
+func (*LoadBalancerProfileAdvancedHealthCheckSupportedDependent) isaLoadBalancerProfileAdvancedHealthCheckSupported() bool {
+	return true
+}
+
+// UnmarshalLoadBalancerProfileAdvancedHealthCheckSupportedDependent unmarshals an instance of LoadBalancerProfileAdvancedHealthCheckSupportedDependent from the specified map of raw messages.
+func UnmarshalLoadBalancerProfileAdvancedHealthCheckSupportedDependent(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(LoadBalancerProfileAdvancedHealthCheckSupportedDependent)
+	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "type-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// LoadBalancerProfileAdvancedHealthCheckSupportedFixed : The advanced health check support for a load balancer with this profile.
+// This model "extends" LoadBalancerProfileAdvancedHealthCheckSupported
+type LoadBalancerProfileAdvancedHealthCheckSupportedFixed struct {
+	// The type for this profile field.
+	Type *string `json:"type" validate:"required"`
+
+	// The value for this profile field.
+	Value *bool `json:"value" validate:"required"`
+}
+
+// Constants associated with the LoadBalancerProfileAdvancedHealthCheckSupportedFixed.Type property.
+// The type for this profile field.
+const (
+	LoadBalancerProfileAdvancedHealthCheckSupportedFixedTypeFixedConst = "fixed"
+)
+
+func (*LoadBalancerProfileAdvancedHealthCheckSupportedFixed) isaLoadBalancerProfileAdvancedHealthCheckSupported() bool {
+	return true
+}
+
+// UnmarshalLoadBalancerProfileAdvancedHealthCheckSupportedFixed unmarshals an instance of LoadBalancerProfileAdvancedHealthCheckSupportedFixed from the specified map of raw messages.
+func UnmarshalLoadBalancerProfileAdvancedHealthCheckSupportedFixed(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(LoadBalancerProfileAdvancedHealthCheckSupportedFixed)
+	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "type-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "value", &obj.Value)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "value-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
 // LoadBalancerProfileAvailabilityDependent : The availability mode for a load balancer with this profile depends on its configuration.
 // This model "extends" LoadBalancerProfileAvailability
 type LoadBalancerProfileAvailabilityDependent struct {
@@ -141429,6 +145374,72 @@ func (*LoadBalancerProfileAvailabilityFixed) isaLoadBalancerProfileAvailability(
 // UnmarshalLoadBalancerProfileAvailabilityFixed unmarshals an instance of LoadBalancerProfileAvailabilityFixed from the specified map of raw messages.
 func UnmarshalLoadBalancerProfileAvailabilityFixed(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(LoadBalancerProfileAvailabilityFixed)
+	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "type-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "value", &obj.Value)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "value-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// LoadBalancerProfileFqdnSupportedDependent : The FQDN support for a load balancer with this profile depends on its configuration.
+// This model "extends" LoadBalancerProfileFqdnSupported
+type LoadBalancerProfileFqdnSupportedDependent struct {
+	// The type for this profile field.
+	Type *string `json:"type" validate:"required"`
+}
+
+// Constants associated with the LoadBalancerProfileFqdnSupportedDependent.Type property.
+// The type for this profile field.
+const (
+	LoadBalancerProfileFqdnSupportedDependentTypeDependentConst = "dependent"
+)
+
+func (*LoadBalancerProfileFqdnSupportedDependent) isaLoadBalancerProfileFqdnSupported() bool {
+	return true
+}
+
+// UnmarshalLoadBalancerProfileFqdnSupportedDependent unmarshals an instance of LoadBalancerProfileFqdnSupportedDependent from the specified map of raw messages.
+func UnmarshalLoadBalancerProfileFqdnSupportedDependent(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(LoadBalancerProfileFqdnSupportedDependent)
+	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "type-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// LoadBalancerProfileFqdnSupportedFixed : The FQDN support for a load balancer with this profile.
+// This model "extends" LoadBalancerProfileFqdnSupported
+type LoadBalancerProfileFqdnSupportedFixed struct {
+	// The type for this profile field.
+	Type *string `json:"type" validate:"required"`
+
+	// The value for this profile field.
+	Value *bool `json:"value" validate:"required"`
+}
+
+// Constants associated with the LoadBalancerProfileFqdnSupportedFixed.Type property.
+// The type for this profile field.
+const (
+	LoadBalancerProfileFqdnSupportedFixedTypeFixedConst = "fixed"
+)
+
+func (*LoadBalancerProfileFqdnSupportedFixed) isaLoadBalancerProfileFqdnSupported() bool {
+	return true
+}
+
+// UnmarshalLoadBalancerProfileFqdnSupportedFixed unmarshals an instance of LoadBalancerProfileFqdnSupportedFixed from the specified map of raw messages.
+func UnmarshalLoadBalancerProfileFqdnSupportedFixed(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(LoadBalancerProfileFqdnSupportedFixed)
 	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "type-error", common.GetComponentInfo())
@@ -141664,6 +145675,72 @@ func (*LoadBalancerProfileInstanceGroupsSupportedFixed) isaLoadBalancerProfileIn
 // UnmarshalLoadBalancerProfileInstanceGroupsSupportedFixed unmarshals an instance of LoadBalancerProfileInstanceGroupsSupportedFixed from the specified map of raw messages.
 func UnmarshalLoadBalancerProfileInstanceGroupsSupportedFixed(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(LoadBalancerProfileInstanceGroupsSupportedFixed)
+	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "type-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "value", &obj.Value)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "value-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// LoadBalancerProfileMtlsSupportedDependent : The mTLS support for a load balancer with this profile depends on its configuration.
+// This model "extends" LoadBalancerProfileMtlsSupported
+type LoadBalancerProfileMtlsSupportedDependent struct {
+	// The type for this profile field.
+	Type *string `json:"type" validate:"required"`
+}
+
+// Constants associated with the LoadBalancerProfileMtlsSupportedDependent.Type property.
+// The type for this profile field.
+const (
+	LoadBalancerProfileMtlsSupportedDependentTypeDependentConst = "dependent"
+)
+
+func (*LoadBalancerProfileMtlsSupportedDependent) isaLoadBalancerProfileMtlsSupported() bool {
+	return true
+}
+
+// UnmarshalLoadBalancerProfileMtlsSupportedDependent unmarshals an instance of LoadBalancerProfileMtlsSupportedDependent from the specified map of raw messages.
+func UnmarshalLoadBalancerProfileMtlsSupportedDependent(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(LoadBalancerProfileMtlsSupportedDependent)
+	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "type-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// LoadBalancerProfileMtlsSupportedFixed : The mTLS support for a load balancer with this profile.
+// This model "extends" LoadBalancerProfileMtlsSupported
+type LoadBalancerProfileMtlsSupportedFixed struct {
+	// The type for this profile field.
+	Type *string `json:"type" validate:"required"`
+
+	// The value for this profile field.
+	Value *bool `json:"value" validate:"required"`
+}
+
+// Constants associated with the LoadBalancerProfileMtlsSupportedFixed.Type property.
+// The type for this profile field.
+const (
+	LoadBalancerProfileMtlsSupportedFixedTypeFixedConst = "fixed"
+)
+
+func (*LoadBalancerProfileMtlsSupportedFixed) isaLoadBalancerProfileMtlsSupported() bool {
+	return true
+}
+
+// UnmarshalLoadBalancerProfileMtlsSupportedFixed unmarshals an instance of LoadBalancerProfileMtlsSupportedFixed from the specified map of raw messages.
+func UnmarshalLoadBalancerProfileMtlsSupportedFixed(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(LoadBalancerProfileMtlsSupportedFixed)
 	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "type-error", common.GetComponentInfo())
@@ -142849,19 +146926,6 @@ type NetworkACLRuleItemNetworkACLRuleProtocolIndividual struct {
 	Source *string `json:"source" validate:"required"`
 
 	// The network protocol.
-	//
-	// The value must be the name of an individual protocol, excluding `icmp`, `tcp` and
-	// `udp`. Names for well known protocols are:
-	// - `ah`: AH (authentication header, protocol number `51`)
-	// - `esp`: ESP (encapsulating security payload, protocol number `50`)
-	// - `gre`: GRE (generic routing encapsulation, protocol number `47`)
-	// - `ip_in_ip`: IP encapsulation within IP (protocol number `4`)
-	// - `l2tp`: L2TP (layer two tunneling protocol, protocol number `115`)
-	// - `rsvp`: RSVP (reservation protocol, protocol number `46`)
-	// - `sctp`: SCTP (stream control transmission protocol, protocol number `132`)
-	// - `vrrp`: VRRP (virtual router redundancy protocol, protocol number `112`)
-	//
-	// For other protocols, specify a value of `number_`*N*, where *N* is the network protocol number in decimal.
 	Protocol *string `json:"protocol" validate:"required"`
 }
 
@@ -142890,19 +146954,6 @@ const (
 
 // Constants associated with the NetworkACLRuleItemNetworkACLRuleProtocolIndividual.Protocol property.
 // The network protocol.
-//
-// The value must be the name of an individual protocol, excluding `icmp`, `tcp` and
-// `udp`. Names for well known protocols are:
-// - `ah`: AH (authentication header, protocol number `51`)
-// - `esp`: ESP (encapsulating security payload, protocol number `50`)
-// - `gre`: GRE (generic routing encapsulation, protocol number `47`)
-// - `ip_in_ip`: IP encapsulation within IP (protocol number `4`)
-// - `l2tp`: L2TP (layer two tunneling protocol, protocol number `115`)
-// - `rsvp`: RSVP (reservation protocol, protocol number `46`)
-// - `sctp`: SCTP (stream control transmission protocol, protocol number `132`)
-// - `vrrp`: VRRP (virtual router redundancy protocol, protocol number `112`)
-//
-// For other protocols, specify a value of `number_`*N*, where *N* is the network protocol number in decimal.
 const (
 	NetworkACLRuleItemNetworkACLRuleProtocolIndividualProtocolAhConst        = "ah"
 	NetworkACLRuleItemNetworkACLRuleProtocolIndividualProtocolEspConst       = "esp"
@@ -145787,19 +149838,6 @@ type NetworkACLRuleNetworkACLRuleProtocolIndividual struct {
 	Source *string `json:"source" validate:"required"`
 
 	// The network protocol.
-	//
-	// The value must be the name of an individual protocol, excluding `icmp`, `tcp` and
-	// `udp`. Names for well known protocols are:
-	// - `ah`: AH (authentication header, protocol number `51`)
-	// - `esp`: ESP (encapsulating security payload, protocol number `50`)
-	// - `gre`: GRE (generic routing encapsulation, protocol number `47`)
-	// - `ip_in_ip`: IP encapsulation within IP (protocol number `4`)
-	// - `l2tp`: L2TP (layer two tunneling protocol, protocol number `115`)
-	// - `rsvp`: RSVP (reservation protocol, protocol number `46`)
-	// - `sctp`: SCTP (stream control transmission protocol, protocol number `132`)
-	// - `vrrp`: VRRP (virtual router redundancy protocol, protocol number `112`)
-	//
-	// For other protocols, specify a value of `number_`*N*, where *N* is the network protocol number in decimal.
 	Protocol *string `json:"protocol" validate:"required"`
 }
 
@@ -145828,19 +149866,6 @@ const (
 
 // Constants associated with the NetworkACLRuleNetworkACLRuleProtocolIndividual.Protocol property.
 // The network protocol.
-//
-// The value must be the name of an individual protocol, excluding `icmp`, `tcp` and
-// `udp`. Names for well known protocols are:
-// - `ah`: AH (authentication header, protocol number `51`)
-// - `esp`: ESP (encapsulating security payload, protocol number `50`)
-// - `gre`: GRE (generic routing encapsulation, protocol number `47`)
-// - `ip_in_ip`: IP encapsulation within IP (protocol number `4`)
-// - `l2tp`: L2TP (layer two tunneling protocol, protocol number `115`)
-// - `rsvp`: RSVP (reservation protocol, protocol number `46`)
-// - `sctp`: SCTP (stream control transmission protocol, protocol number `132`)
-// - `vrrp`: VRRP (virtual router redundancy protocol, protocol number `112`)
-//
-// For other protocols, specify a value of `number_`*N*, where *N* is the network protocol number in decimal.
 const (
 	NetworkACLRuleNetworkACLRuleProtocolIndividualProtocolAhConst        = "ah"
 	NetworkACLRuleNetworkACLRuleProtocolIndividualProtocolEspConst       = "esp"
@@ -146653,76 +150678,6 @@ func UnmarshalPublicAddressRangeAuthorizedCIDRAllocationItemPublicAddressRangeRe
 	return
 }
 
-// PublicAddressRangeProfileIdentityByHref : PublicAddressRangeProfileIdentityByHref struct
-// This model "extends" PublicAddressRangeProfileIdentity
-type PublicAddressRangeProfileIdentityByHref struct {
-	// The URL for this public address range profile.
-	Href *string `json:"href" validate:"required"`
-}
-
-// NewPublicAddressRangeProfileIdentityByHref : Instantiate PublicAddressRangeProfileIdentityByHref (Generic Model Constructor)
-func (*VpcV1) NewPublicAddressRangeProfileIdentityByHref(href string) (_model *PublicAddressRangeProfileIdentityByHref, err error) {
-	_model = &PublicAddressRangeProfileIdentityByHref{
-		Href: core.StringPtr(href),
-	}
-	err = core.ValidateStruct(_model, "required parameters")
-	if err != nil {
-		err = core.SDKErrorf(err, "", "model-missing-required", common.GetComponentInfo())
-	}
-	return
-}
-
-func (*PublicAddressRangeProfileIdentityByHref) isaPublicAddressRangeProfileIdentity() bool {
-	return true
-}
-
-// UnmarshalPublicAddressRangeProfileIdentityByHref unmarshals an instance of PublicAddressRangeProfileIdentityByHref from the specified map of raw messages.
-func UnmarshalPublicAddressRangeProfileIdentityByHref(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(PublicAddressRangeProfileIdentityByHref)
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "href-error", common.GetComponentInfo())
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// PublicAddressRangeProfileIdentityByName : PublicAddressRangeProfileIdentityByName struct
-// This model "extends" PublicAddressRangeProfileIdentity
-type PublicAddressRangeProfileIdentityByName struct {
-	// The globally unique name for this public address range profile.
-	Name *string `json:"name" validate:"required"`
-}
-
-// NewPublicAddressRangeProfileIdentityByName : Instantiate PublicAddressRangeProfileIdentityByName (Generic Model Constructor)
-func (*VpcV1) NewPublicAddressRangeProfileIdentityByName(name string) (_model *PublicAddressRangeProfileIdentityByName, err error) {
-	_model = &PublicAddressRangeProfileIdentityByName{
-		Name: core.StringPtr(name),
-	}
-	err = core.ValidateStruct(_model, "required parameters")
-	if err != nil {
-		err = core.SDKErrorf(err, "", "model-missing-required", common.GetComponentInfo())
-	}
-	return
-}
-
-func (*PublicAddressRangeProfileIdentityByName) isaPublicAddressRangeProfileIdentity() bool {
-	return true
-}
-
-// UnmarshalPublicAddressRangeProfileIdentityByName unmarshals an instance of PublicAddressRangeProfileIdentityByName from the specified map of raw messages.
-func UnmarshalPublicAddressRangeProfileIdentityByName(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(PublicAddressRangeProfileIdentityByName)
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
 // PublicAddressRangePrototypePublicAddressRangeByCIDR : The public IP range for this public address range, expressed in CIDR format. The host identifier in the CIDR must be
 // zero. The CIDR must be an unallocated range in a public address range authorized CIDR.
 //
@@ -146733,8 +150688,6 @@ type PublicAddressRangePrototypePublicAddressRangeByCIDR struct {
 	// Names starting with `ibm-` are reserved for provider-managed resources, and are not allowed. If unspecified, the
 	// name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
-
-	Profile PublicAddressRangeProfileIdentityIntf `json:"profile,omitempty"`
 
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 
@@ -146771,11 +150724,6 @@ func UnmarshalPublicAddressRangePrototypePublicAddressRangeByCIDR(m map[string]j
 		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
 		return
 	}
-	err = core.UnmarshalModel(m, "profile", &obj.Profile, UnmarshalPublicAddressRangeProfileIdentity)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "profile-error", common.GetComponentInfo())
-		return
-	}
 	err = core.UnmarshalModel(m, "resource_group", &obj.ResourceGroup, UnmarshalResourceGroupIdentity)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "resource_group-error", common.GetComponentInfo())
@@ -146802,8 +150750,6 @@ type PublicAddressRangePrototypePublicAddressRangeByIPv4AddressCount struct {
 	// Names starting with `ibm-` are reserved for provider-managed resources, and are not allowed. If unspecified, the
 	// name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
-
-	Profile PublicAddressRangeProfileIdentityIntf `json:"profile,omitempty"`
 
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 
@@ -146835,11 +150781,6 @@ func UnmarshalPublicAddressRangePrototypePublicAddressRangeByIPv4AddressCount(m 
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
-		return
-	}
-	err = core.UnmarshalModel(m, "profile", &obj.Profile, UnmarshalPublicAddressRangeProfileIdentity)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "profile-error", common.GetComponentInfo())
 		return
 	}
 	err = core.UnmarshalModel(m, "resource_group", &obj.ResourceGroup, UnmarshalResourceGroupIdentity)
@@ -153266,6 +157207,8 @@ type SharePrototypeShareBySize struct {
 	//   require a virtual network interface.
 	// - `vpc`: All clients in the VPC for a mount target have access to the mount target.
 	//   Mount targets for this share require a VPC.
+	//
+	// The `vpc` access control mode has been deprecated. Use `security_group` instead.
 	AccessControlMode *string `json:"access_control_mode,omitempty"`
 
 	// The access protocols to allow for this share. If unspecified:
@@ -153339,6 +157282,8 @@ const (
 //     require a virtual network interface.
 //   - `vpc`: All clients in the VPC for a mount target have access to the mount target.
 //     Mount targets for this share require a VPC.
+//
+// The `vpc` access control mode has been deprecated. Use `security_group` instead.
 const (
 	SharePrototypeShareBySizeAccessControlModeSecurityGroupConst = "security_group"
 	SharePrototypeShareBySizeAccessControlModeVPCConst           = "vpc"
@@ -153945,9 +157890,9 @@ type SnapshotConsistencyGroupPrototypeSnapshotConsistencyGroupBySnapshots struct
 
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 
-	// The data-consistent member snapshots to create.  Each snapshot must specify a
-	// `source_volume` attached to the same virtual server instance, and all source volumes must have a
-	// `storage_generation` value of `1`.
+	// The data-consistent member snapshots to create. Each snapshot must specify a
+	// `source_volume` attached to the same virtual server instance, and all source volumes must have the same
+	// `storage_generation` value.
 	Snapshots []SnapshotPrototypeSnapshotConsistencyGroupContext `json:"snapshots" validate:"required"`
 }
 
@@ -156691,7 +160636,7 @@ func UnmarshalVPNGatewayConnectionPolicyMode(m map[string]json.RawMessage, resul
 // This model "extends" VPNGatewayConnectionPolicyModePeerPrototype
 type VPNGatewayConnectionPolicyModePeerPrototypeVPNGatewayConnectionPeerByAddress struct {
 	// The peer CIDRs for this VPN gateway connection.
-	CIDRs []string `json:"cidrs" validate:"required"`
+	Cidrs []string `json:"cidrs" validate:"required"`
 
 	// The peer IKE identity to use.
 	//
@@ -156707,7 +160652,7 @@ type VPNGatewayConnectionPolicyModePeerPrototypeVPNGatewayConnectionPeerByAddres
 // NewVPNGatewayConnectionPolicyModePeerPrototypeVPNGatewayConnectionPeerByAddress : Instantiate VPNGatewayConnectionPolicyModePeerPrototypeVPNGatewayConnectionPeerByAddress (Generic Model Constructor)
 func (*VpcV1) NewVPNGatewayConnectionPolicyModePeerPrototypeVPNGatewayConnectionPeerByAddress(cidrs []string, address string) (_model *VPNGatewayConnectionPolicyModePeerPrototypeVPNGatewayConnectionPeerByAddress, err error) {
 	_model = &VPNGatewayConnectionPolicyModePeerPrototypeVPNGatewayConnectionPeerByAddress{
-		CIDRs:   cidrs,
+		Cidrs:   cidrs,
 		Address: core.StringPtr(address),
 	}
 	err = core.ValidateStruct(_model, "required parameters")
@@ -156724,7 +160669,7 @@ func (*VPNGatewayConnectionPolicyModePeerPrototypeVPNGatewayConnectionPeerByAddr
 // UnmarshalVPNGatewayConnectionPolicyModePeerPrototypeVPNGatewayConnectionPeerByAddress unmarshals an instance of VPNGatewayConnectionPolicyModePeerPrototypeVPNGatewayConnectionPeerByAddress from the specified map of raw messages.
 func UnmarshalVPNGatewayConnectionPolicyModePeerPrototypeVPNGatewayConnectionPeerByAddress(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(VPNGatewayConnectionPolicyModePeerPrototypeVPNGatewayConnectionPeerByAddress)
-	err = core.UnmarshalPrimitive(m, "cidrs", &obj.CIDRs)
+	err = core.UnmarshalPrimitive(m, "cidrs", &obj.Cidrs)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "cidrs-error", common.GetComponentInfo())
 		return
@@ -156747,7 +160692,7 @@ func UnmarshalVPNGatewayConnectionPolicyModePeerPrototypeVPNGatewayConnectionPee
 // This model "extends" VPNGatewayConnectionPolicyModePeerPrototype
 type VPNGatewayConnectionPolicyModePeerPrototypeVPNGatewayConnectionPeerByFqdn struct {
 	// The peer CIDRs for this VPN gateway connection.
-	CIDRs []string `json:"cidrs" validate:"required"`
+	Cidrs []string `json:"cidrs" validate:"required"`
 
 	// The peer IKE identity to use.
 	//
@@ -156763,7 +160708,7 @@ type VPNGatewayConnectionPolicyModePeerPrototypeVPNGatewayConnectionPeerByFqdn s
 // NewVPNGatewayConnectionPolicyModePeerPrototypeVPNGatewayConnectionPeerByFqdn : Instantiate VPNGatewayConnectionPolicyModePeerPrototypeVPNGatewayConnectionPeerByFqdn (Generic Model Constructor)
 func (*VpcV1) NewVPNGatewayConnectionPolicyModePeerPrototypeVPNGatewayConnectionPeerByFqdn(cidrs []string, fqdn string) (_model *VPNGatewayConnectionPolicyModePeerPrototypeVPNGatewayConnectionPeerByFqdn, err error) {
 	_model = &VPNGatewayConnectionPolicyModePeerPrototypeVPNGatewayConnectionPeerByFqdn{
-		CIDRs: cidrs,
+		Cidrs: cidrs,
 		Fqdn:  core.StringPtr(fqdn),
 	}
 	err = core.ValidateStruct(_model, "required parameters")
@@ -156780,7 +160725,7 @@ func (*VPNGatewayConnectionPolicyModePeerPrototypeVPNGatewayConnectionPeerByFqdn
 // UnmarshalVPNGatewayConnectionPolicyModePeerPrototypeVPNGatewayConnectionPeerByFqdn unmarshals an instance of VPNGatewayConnectionPolicyModePeerPrototypeVPNGatewayConnectionPeerByFqdn from the specified map of raw messages.
 func UnmarshalVPNGatewayConnectionPolicyModePeerPrototypeVPNGatewayConnectionPeerByFqdn(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(VPNGatewayConnectionPolicyModePeerPrototypeVPNGatewayConnectionPeerByFqdn)
-	err = core.UnmarshalPrimitive(m, "cidrs", &obj.CIDRs)
+	err = core.UnmarshalPrimitive(m, "cidrs", &obj.Cidrs)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "cidrs-error", common.GetComponentInfo())
 		return
@@ -156803,7 +160748,7 @@ func UnmarshalVPNGatewayConnectionPolicyModePeerPrototypeVPNGatewayConnectionPee
 // This model "extends" VPNGatewayConnectionPolicyModePeer
 type VPNGatewayConnectionPolicyModePeerVPNGatewayConnectionPeerByAddress struct {
 	// The peer CIDRs for this VPN gateway connection.
-	CIDRs []string `json:"cidrs" validate:"required"`
+	Cidrs []string `json:"cidrs" validate:"required"`
 
 	// The peer IKE identity.
 	IkeIdentity VPNGatewayConnectionIkeIdentityIntf `json:"ike_identity" validate:"required"`
@@ -156829,7 +160774,7 @@ func (*VPNGatewayConnectionPolicyModePeerVPNGatewayConnectionPeerByAddress) isaV
 // UnmarshalVPNGatewayConnectionPolicyModePeerVPNGatewayConnectionPeerByAddress unmarshals an instance of VPNGatewayConnectionPolicyModePeerVPNGatewayConnectionPeerByAddress from the specified map of raw messages.
 func UnmarshalVPNGatewayConnectionPolicyModePeerVPNGatewayConnectionPeerByAddress(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(VPNGatewayConnectionPolicyModePeerVPNGatewayConnectionPeerByAddress)
-	err = core.UnmarshalPrimitive(m, "cidrs", &obj.CIDRs)
+	err = core.UnmarshalPrimitive(m, "cidrs", &obj.Cidrs)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "cidrs-error", common.GetComponentInfo())
 		return
@@ -156857,7 +160802,7 @@ func UnmarshalVPNGatewayConnectionPolicyModePeerVPNGatewayConnectionPeerByAddres
 // This model "extends" VPNGatewayConnectionPolicyModePeer
 type VPNGatewayConnectionPolicyModePeerVPNGatewayConnectionPeerByFqdn struct {
 	// The peer CIDRs for this VPN gateway connection.
-	CIDRs []string `json:"cidrs" validate:"required"`
+	Cidrs []string `json:"cidrs" validate:"required"`
 
 	// The peer IKE identity.
 	IkeIdentity VPNGatewayConnectionIkeIdentityIntf `json:"ike_identity" validate:"required"`
@@ -156883,7 +160828,7 @@ func (*VPNGatewayConnectionPolicyModePeerVPNGatewayConnectionPeerByFqdn) isaVPNG
 // UnmarshalVPNGatewayConnectionPolicyModePeerVPNGatewayConnectionPeerByFqdn unmarshals an instance of VPNGatewayConnectionPolicyModePeerVPNGatewayConnectionPeerByFqdn from the specified map of raw messages.
 func UnmarshalVPNGatewayConnectionPolicyModePeerVPNGatewayConnectionPeerByFqdn(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(VPNGatewayConnectionPolicyModePeerVPNGatewayConnectionPeerByFqdn)
-	err = core.UnmarshalPrimitive(m, "cidrs", &obj.CIDRs)
+	err = core.UnmarshalPrimitive(m, "cidrs", &obj.Cidrs)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "cidrs-error", common.GetComponentInfo())
 		return
@@ -157942,7 +161887,7 @@ type VPNGatewayPrototypeVPNGatewayRouteModePrototype struct {
 
 	// The static CIDRs advertised through any enabled routing protocol (for example, BGP). The routing protocol will
 	// advertise routes with these CIDRs as route destinations.
-	AdvertisedCIDRs []string `json:"advertised_cidrs,omitempty"`
+	AdvertisedCidrs []string `json:"advertised_cidrs,omitempty"`
 
 	// The local autonomous system number (ASN) for this VPN gateway and its connections. The ASN values in the
 	// [restricted ASN list](
@@ -157994,7 +161939,7 @@ func UnmarshalVPNGatewayPrototypeVPNGatewayRouteModePrototype(m map[string]json.
 		err = core.SDKErrorf(err, "", "subnet-error", common.GetComponentInfo())
 		return
 	}
-	err = core.UnmarshalPrimitive(m, "advertised_cidrs", &obj.AdvertisedCIDRs)
+	err = core.UnmarshalPrimitive(m, "advertised_cidrs", &obj.AdvertisedCidrs)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "advertised_cidrs-error", common.GetComponentInfo())
 		return
@@ -158068,7 +162013,7 @@ type VPNGatewayRouteMode struct {
 
 	// The static CIDRs advertised through any enabled routing protocol (for example, BGP). The routing protocol will
 	// advertise routes with these CIDRs as route destinations.
-	AdvertisedCIDRs []string `json:"advertised_cidrs" validate:"required"`
+	AdvertisedCidrs []string `json:"advertised_cidrs" validate:"required"`
 
 	// The local autonomous system number (ASN) for this VPN gateway and its connections.
 	LocalAsn *int64 `json:"local_asn" validate:"required"`
@@ -158198,7 +162143,7 @@ func UnmarshalVPNGatewayRouteMode(m map[string]json.RawMessage, result interface
 		err = core.SDKErrorf(err, "", "vpc-error", common.GetComponentInfo())
 		return
 	}
-	err = core.UnmarshalPrimitive(m, "advertised_cidrs", &obj.AdvertisedCIDRs)
+	err = core.UnmarshalPrimitive(m, "advertised_cidrs", &obj.AdvertisedCidrs)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "advertised_cidrs-error", common.GetComponentInfo())
 		return
@@ -158993,16 +162938,10 @@ type VolumeAttachmentPrototypeVolumeVolumePrototypeInstanceContext struct {
 	UserTags []string `json:"user_tags,omitempty"`
 
 	// The capacity to use for the volume (in gigabytes). The specified value must be within the `capacity` range of the
-	// volume's profile or the capacity to use for the volume (in gigabytes). The specified value must be at least the
-	// snapshot's `minimum_capacity`, and must be within the `capacity` range of the volume's profile.
-	//
-	// If unspecified, the capacity will be the source snapshot's `minimum_capacity`.
+	// volume's profile.
 	Capacity *int64 `json:"capacity,omitempty"`
 
 	// The root key to use to wrap the data encryption key for the volume.
-	//
-	// If unspecified, the `encryption` type for the volume will be `provider_managed` or the root key to use to wrap the
-	// data encryption key for the volume.
 	//
 	// If unspecified, the `encryption` type for the volume will be `provider_managed`.
 	EncryptionKey EncryptionKeyIdentityIntf `json:"encryption_key,omitempty"`
@@ -163829,8 +167768,8 @@ type InstancePrototypeInstanceByCatalogOfferingInstanceByCatalogOfferingInstance
 
 	// The default trusted profile configuration to use for this virtual server instance
 	//
-	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
-	// Accordingly, it is reflected as an [instance
+	// This property's value is used when provisioning the virtual server instance, and can only be changed by
+	// reinitializing the instance. Accordingly, it is reflected as an [instance
 	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	DefaultTrustedProfile *InstanceDefaultTrustedProfilePrototype `json:"default_trusted_profile,omitempty"`
 
@@ -163848,8 +167787,8 @@ type InstancePrototypeInstanceByCatalogOfferingInstanceByCatalogOfferingInstance
 	// no keys are specified, the instance will be inaccessible unless the specified image provides another means of
 	// access.
 	//
-	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
-	// Accordingly, it is reflected as an [instance
+	// This property's value is used when provisioning the virtual server instance, and can only be changed by
+	// reinitializing the instance. Accordingly, it is reflected as an [instance
 	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	Keys []KeyIdentityIntf `json:"keys,omitempty"`
 
@@ -163872,6 +167811,12 @@ type InstancePrototypeInstanceByCatalogOfferingInstanceByCatalogOfferingInstance
 	ReservationAffinity *InstanceReservationAffinityPrototype `json:"reservation_affinity,omitempty"`
 
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
+
+	// The threads per core to use for this virtual server instance. Must be one of the values in the profile's
+	// `threads_per_core.values`.
+	//
+	// If unspecified, the default threads per core from the profile will be used.
+	ThreadsPerCore *int64 `json:"threads_per_core,omitempty"`
 
 	// The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes. An increase in
 	// this value will result in a corresponding decrease to
@@ -164024,6 +167969,11 @@ func UnmarshalInstancePrototypeInstanceByCatalogOfferingInstanceByCatalogOfferin
 		err = core.SDKErrorf(err, "", "resource_group-error", common.GetComponentInfo())
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "threads_per_core", &obj.ThreadsPerCore)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "threads_per_core-error", common.GetComponentInfo())
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "total_volume_bandwidth", &obj.TotalVolumeBandwidth)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "total_volume_bandwidth-error", common.GetComponentInfo())
@@ -164102,8 +168052,8 @@ type InstancePrototypeInstanceByCatalogOfferingInstanceByCatalogOfferingInstance
 
 	// The default trusted profile configuration to use for this virtual server instance
 	//
-	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
-	// Accordingly, it is reflected as an [instance
+	// This property's value is used when provisioning the virtual server instance, and can only be changed by
+	// reinitializing the instance. Accordingly, it is reflected as an [instance
 	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	DefaultTrustedProfile *InstanceDefaultTrustedProfilePrototype `json:"default_trusted_profile,omitempty"`
 
@@ -164121,8 +168071,8 @@ type InstancePrototypeInstanceByCatalogOfferingInstanceByCatalogOfferingInstance
 	// no keys are specified, the instance will be inaccessible unless the specified image provides another means of
 	// access.
 	//
-	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
-	// Accordingly, it is reflected as an [instance
+	// This property's value is used when provisioning the virtual server instance, and can only be changed by
+	// reinitializing the instance. Accordingly, it is reflected as an [instance
 	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	Keys []KeyIdentityIntf `json:"keys,omitempty"`
 
@@ -164145,6 +168095,12 @@ type InstancePrototypeInstanceByCatalogOfferingInstanceByCatalogOfferingInstance
 	ReservationAffinity *InstanceReservationAffinityPrototype `json:"reservation_affinity,omitempty"`
 
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
+
+	// The threads per core to use for this virtual server instance. Must be one of the values in the profile's
+	// `threads_per_core.values`.
+	//
+	// If unspecified, the default threads per core from the profile will be used.
+	ThreadsPerCore *int64 `json:"threads_per_core,omitempty"`
 
 	// The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes. An increase in
 	// this value will result in a corresponding decrease to
@@ -164297,6 +168253,11 @@ func UnmarshalInstancePrototypeInstanceByCatalogOfferingInstanceByCatalogOfferin
 		err = core.SDKErrorf(err, "", "resource_group-error", common.GetComponentInfo())
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "threads_per_core", &obj.ThreadsPerCore)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "threads_per_core-error", common.GetComponentInfo())
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "total_volume_bandwidth", &obj.TotalVolumeBandwidth)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "total_volume_bandwidth-error", common.GetComponentInfo())
@@ -164375,8 +168336,8 @@ type InstancePrototypeInstanceByImageInstanceByImageInstanceByNetworkAttachment 
 
 	// The default trusted profile configuration to use for this virtual server instance
 	//
-	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
-	// Accordingly, it is reflected as an [instance
+	// This property's value is used when provisioning the virtual server instance, and can only be changed by
+	// reinitializing the instance. Accordingly, it is reflected as an [instance
 	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	DefaultTrustedProfile *InstanceDefaultTrustedProfilePrototype `json:"default_trusted_profile,omitempty"`
 
@@ -164394,8 +168355,8 @@ type InstancePrototypeInstanceByImageInstanceByImageInstanceByNetworkAttachment 
 	// no keys are specified, the instance will be inaccessible unless the specified image provides another means of
 	// access.
 	//
-	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
-	// Accordingly, it is reflected as an [instance
+	// This property's value is used when provisioning the virtual server instance, and can only be changed by
+	// reinitializing the instance. Accordingly, it is reflected as an [instance
 	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	Keys []KeyIdentityIntf `json:"keys,omitempty"`
 
@@ -164418,6 +168379,12 @@ type InstancePrototypeInstanceByImageInstanceByImageInstanceByNetworkAttachment 
 	ReservationAffinity *InstanceReservationAffinityPrototype `json:"reservation_affinity,omitempty"`
 
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
+
+	// The threads per core to use for this virtual server instance. Must be one of the values in the profile's
+	// `threads_per_core.values`.
+	//
+	// If unspecified, the default threads per core from the profile will be used.
+	ThreadsPerCore *int64 `json:"threads_per_core,omitempty"`
 
 	// The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes. An increase in
 	// this value will result in a corresponding decrease to
@@ -164571,6 +168538,11 @@ func UnmarshalInstancePrototypeInstanceByImageInstanceByImageInstanceByNetworkAt
 		err = core.SDKErrorf(err, "", "resource_group-error", common.GetComponentInfo())
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "threads_per_core", &obj.ThreadsPerCore)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "threads_per_core-error", common.GetComponentInfo())
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "total_volume_bandwidth", &obj.TotalVolumeBandwidth)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "total_volume_bandwidth-error", common.GetComponentInfo())
@@ -164649,8 +168621,8 @@ type InstancePrototypeInstanceByImageInstanceByImageInstanceByNetworkInterface s
 
 	// The default trusted profile configuration to use for this virtual server instance
 	//
-	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
-	// Accordingly, it is reflected as an [instance
+	// This property's value is used when provisioning the virtual server instance, and can only be changed by
+	// reinitializing the instance. Accordingly, it is reflected as an [instance
 	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	DefaultTrustedProfile *InstanceDefaultTrustedProfilePrototype `json:"default_trusted_profile,omitempty"`
 
@@ -164668,8 +168640,8 @@ type InstancePrototypeInstanceByImageInstanceByImageInstanceByNetworkInterface s
 	// no keys are specified, the instance will be inaccessible unless the specified image provides another means of
 	// access.
 	//
-	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
-	// Accordingly, it is reflected as an [instance
+	// This property's value is used when provisioning the virtual server instance, and can only be changed by
+	// reinitializing the instance. Accordingly, it is reflected as an [instance
 	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	Keys []KeyIdentityIntf `json:"keys,omitempty"`
 
@@ -164692,6 +168664,12 @@ type InstancePrototypeInstanceByImageInstanceByImageInstanceByNetworkInterface s
 	ReservationAffinity *InstanceReservationAffinityPrototype `json:"reservation_affinity,omitempty"`
 
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
+
+	// The threads per core to use for this virtual server instance. Must be one of the values in the profile's
+	// `threads_per_core.values`.
+	//
+	// If unspecified, the default threads per core from the profile will be used.
+	ThreadsPerCore *int64 `json:"threads_per_core,omitempty"`
 
 	// The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes. An increase in
 	// this value will result in a corresponding decrease to
@@ -164845,6 +168823,11 @@ func UnmarshalInstancePrototypeInstanceByImageInstanceByImageInstanceByNetworkIn
 		err = core.SDKErrorf(err, "", "resource_group-error", common.GetComponentInfo())
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "threads_per_core", &obj.ThreadsPerCore)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "threads_per_core-error", common.GetComponentInfo())
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "total_volume_bandwidth", &obj.TotalVolumeBandwidth)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "total_volume_bandwidth-error", common.GetComponentInfo())
@@ -164923,8 +168906,8 @@ type InstancePrototypeInstanceBySourceSnapshotInstanceBySourceSnapshotInstanceBy
 
 	// The default trusted profile configuration to use for this virtual server instance
 	//
-	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
-	// Accordingly, it is reflected as an [instance
+	// This property's value is used when provisioning the virtual server instance, and can only be changed by
+	// reinitializing the instance. Accordingly, it is reflected as an [instance
 	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	DefaultTrustedProfile *InstanceDefaultTrustedProfilePrototype `json:"default_trusted_profile,omitempty"`
 
@@ -164942,8 +168925,8 @@ type InstancePrototypeInstanceBySourceSnapshotInstanceBySourceSnapshotInstanceBy
 	// no keys are specified, the instance will be inaccessible unless the specified image provides another means of
 	// access.
 	//
-	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
-	// Accordingly, it is reflected as an [instance
+	// This property's value is used when provisioning the virtual server instance, and can only be changed by
+	// reinitializing the instance. Accordingly, it is reflected as an [instance
 	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	Keys []KeyIdentityIntf `json:"keys,omitempty"`
 
@@ -164966,6 +168949,12 @@ type InstancePrototypeInstanceBySourceSnapshotInstanceBySourceSnapshotInstanceBy
 	ReservationAffinity *InstanceReservationAffinityPrototype `json:"reservation_affinity,omitempty"`
 
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
+
+	// The threads per core to use for this virtual server instance. Must be one of the values in the profile's
+	// `threads_per_core.values`.
+	//
+	// If unspecified, the default threads per core from the profile will be used.
+	ThreadsPerCore *int64 `json:"threads_per_core,omitempty"`
 
 	// The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes. An increase in
 	// this value will result in a corresponding decrease to
@@ -165116,6 +169105,11 @@ func UnmarshalInstancePrototypeInstanceBySourceSnapshotInstanceBySourceSnapshotI
 		err = core.SDKErrorf(err, "", "resource_group-error", common.GetComponentInfo())
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "threads_per_core", &obj.ThreadsPerCore)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "threads_per_core-error", common.GetComponentInfo())
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "total_volume_bandwidth", &obj.TotalVolumeBandwidth)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "total_volume_bandwidth-error", common.GetComponentInfo())
@@ -165189,8 +169183,8 @@ type InstancePrototypeInstanceBySourceSnapshotInstanceBySourceSnapshotInstanceBy
 
 	// The default trusted profile configuration to use for this virtual server instance
 	//
-	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
-	// Accordingly, it is reflected as an [instance
+	// This property's value is used when provisioning the virtual server instance, and can only be changed by
+	// reinitializing the instance. Accordingly, it is reflected as an [instance
 	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	DefaultTrustedProfile *InstanceDefaultTrustedProfilePrototype `json:"default_trusted_profile,omitempty"`
 
@@ -165208,8 +169202,8 @@ type InstancePrototypeInstanceBySourceSnapshotInstanceBySourceSnapshotInstanceBy
 	// no keys are specified, the instance will be inaccessible unless the specified image provides another means of
 	// access.
 	//
-	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
-	// Accordingly, it is reflected as an [instance
+	// This property's value is used when provisioning the virtual server instance, and can only be changed by
+	// reinitializing the instance. Accordingly, it is reflected as an [instance
 	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	Keys []KeyIdentityIntf `json:"keys,omitempty"`
 
@@ -165232,6 +169226,12 @@ type InstancePrototypeInstanceBySourceSnapshotInstanceBySourceSnapshotInstanceBy
 	ReservationAffinity *InstanceReservationAffinityPrototype `json:"reservation_affinity,omitempty"`
 
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
+
+	// The threads per core to use for this virtual server instance. Must be one of the values in the profile's
+	// `threads_per_core.values`.
+	//
+	// If unspecified, the default threads per core from the profile will be used.
+	ThreadsPerCore *int64 `json:"threads_per_core,omitempty"`
 
 	// The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes. An increase in
 	// this value will result in a corresponding decrease to
@@ -165382,6 +169382,11 @@ func UnmarshalInstancePrototypeInstanceBySourceSnapshotInstanceBySourceSnapshotI
 		err = core.SDKErrorf(err, "", "resource_group-error", common.GetComponentInfo())
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "threads_per_core", &obj.ThreadsPerCore)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "threads_per_core-error", common.GetComponentInfo())
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "total_volume_bandwidth", &obj.TotalVolumeBandwidth)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "total_volume_bandwidth-error", common.GetComponentInfo())
@@ -165455,8 +169460,8 @@ type InstancePrototypeInstanceByVolumeInstanceByVolumeInstanceByNetworkAttachmen
 
 	// The default trusted profile configuration to use for this virtual server instance
 	//
-	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
-	// Accordingly, it is reflected as an [instance
+	// This property's value is used when provisioning the virtual server instance, and can only be changed by
+	// reinitializing the instance. Accordingly, it is reflected as an [instance
 	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	DefaultTrustedProfile *InstanceDefaultTrustedProfilePrototype `json:"default_trusted_profile,omitempty"`
 
@@ -165474,8 +169479,8 @@ type InstancePrototypeInstanceByVolumeInstanceByVolumeInstanceByNetworkAttachmen
 	// no keys are specified, the instance will be inaccessible unless the specified image provides another means of
 	// access.
 	//
-	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
-	// Accordingly, it is reflected as an [instance
+	// This property's value is used when provisioning the virtual server instance, and can only be changed by
+	// reinitializing the instance. Accordingly, it is reflected as an [instance
 	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	Keys []KeyIdentityIntf `json:"keys,omitempty"`
 
@@ -165498,6 +169503,12 @@ type InstancePrototypeInstanceByVolumeInstanceByVolumeInstanceByNetworkAttachmen
 	ReservationAffinity *InstanceReservationAffinityPrototype `json:"reservation_affinity,omitempty"`
 
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
+
+	// The threads per core to use for this virtual server instance. Must be one of the values in the profile's
+	// `threads_per_core.values`.
+	//
+	// If unspecified, the default threads per core from the profile will be used.
+	ThreadsPerCore *int64 `json:"threads_per_core,omitempty"`
 
 	// The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes. An increase in
 	// this value will result in a corresponding decrease to
@@ -165648,6 +169659,11 @@ func UnmarshalInstancePrototypeInstanceByVolumeInstanceByVolumeInstanceByNetwork
 		err = core.SDKErrorf(err, "", "resource_group-error", common.GetComponentInfo())
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "threads_per_core", &obj.ThreadsPerCore)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "threads_per_core-error", common.GetComponentInfo())
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "total_volume_bandwidth", &obj.TotalVolumeBandwidth)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "total_volume_bandwidth-error", common.GetComponentInfo())
@@ -165721,8 +169737,8 @@ type InstancePrototypeInstanceByVolumeInstanceByVolumeInstanceByNetworkInterface
 
 	// The default trusted profile configuration to use for this virtual server instance
 	//
-	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
-	// Accordingly, it is reflected as an [instance
+	// This property's value is used when provisioning the virtual server instance, and can only be changed by
+	// reinitializing the instance. Accordingly, it is reflected as an [instance
 	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	DefaultTrustedProfile *InstanceDefaultTrustedProfilePrototype `json:"default_trusted_profile,omitempty"`
 
@@ -165740,8 +169756,8 @@ type InstancePrototypeInstanceByVolumeInstanceByVolumeInstanceByNetworkInterface
 	// no keys are specified, the instance will be inaccessible unless the specified image provides another means of
 	// access.
 	//
-	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
-	// Accordingly, it is reflected as an [instance
+	// This property's value is used when provisioning the virtual server instance, and can only be changed by
+	// reinitializing the instance. Accordingly, it is reflected as an [instance
 	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	Keys []KeyIdentityIntf `json:"keys,omitempty"`
 
@@ -165764,6 +169780,12 @@ type InstancePrototypeInstanceByVolumeInstanceByVolumeInstanceByNetworkInterface
 	ReservationAffinity *InstanceReservationAffinityPrototype `json:"reservation_affinity,omitempty"`
 
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
+
+	// The threads per core to use for this virtual server instance. Must be one of the values in the profile's
+	// `threads_per_core.values`.
+	//
+	// If unspecified, the default threads per core from the profile will be used.
+	ThreadsPerCore *int64 `json:"threads_per_core,omitempty"`
 
 	// The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes. An increase in
 	// this value will result in a corresponding decrease to
@@ -165914,6 +169936,11 @@ func UnmarshalInstancePrototypeInstanceByVolumeInstanceByVolumeInstanceByNetwork
 		err = core.SDKErrorf(err, "", "resource_group-error", common.GetComponentInfo())
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "threads_per_core", &obj.ThreadsPerCore)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "threads_per_core-error", common.GetComponentInfo())
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "total_volume_bandwidth", &obj.TotalVolumeBandwidth)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "total_volume_bandwidth-error", common.GetComponentInfo())
@@ -165987,8 +170014,8 @@ type InstanceTemplatePrototypeInstanceTemplateByCatalogOfferingInstanceTemplateB
 
 	// The default trusted profile configuration to use for this virtual server instance
 	//
-	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
-	// Accordingly, it is reflected as an [instance
+	// This property's value is used when provisioning the virtual server instance, and can only be changed by
+	// reinitializing the instance. Accordingly, it is reflected as an [instance
 	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	DefaultTrustedProfile *InstanceDefaultTrustedProfilePrototype `json:"default_trusted_profile,omitempty"`
 
@@ -166006,8 +170033,8 @@ type InstanceTemplatePrototypeInstanceTemplateByCatalogOfferingInstanceTemplateB
 	// no keys are specified, the instance will be inaccessible unless the specified image provides another means of
 	// access.
 	//
-	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
-	// Accordingly, it is reflected as an [instance
+	// This property's value is used when provisioning the virtual server instance, and can only be changed by
+	// reinitializing the instance. Accordingly, it is reflected as an [instance
 	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	Keys []KeyIdentityIntf `json:"keys,omitempty"`
 
@@ -166028,6 +170055,12 @@ type InstanceTemplatePrototypeInstanceTemplateByCatalogOfferingInstanceTemplateB
 	ReservationAffinity *InstanceReservationAffinityPrototype `json:"reservation_affinity,omitempty"`
 
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
+
+	// The threads per core to use for this virtual server instance. Must be one of the values in the profile's
+	// `threads_per_core.values`.
+	//
+	// If unspecified, the default threads per core from the profile will be used.
+	ThreadsPerCore *int64 `json:"threads_per_core,omitempty"`
 
 	// The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes. An increase in
 	// this value will result in a corresponding decrease to
@@ -166180,6 +170213,11 @@ func UnmarshalInstanceTemplatePrototypeInstanceTemplateByCatalogOfferingInstance
 		err = core.SDKErrorf(err, "", "resource_group-error", common.GetComponentInfo())
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "threads_per_core", &obj.ThreadsPerCore)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "threads_per_core-error", common.GetComponentInfo())
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "total_volume_bandwidth", &obj.TotalVolumeBandwidth)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "total_volume_bandwidth-error", common.GetComponentInfo())
@@ -166258,8 +170296,8 @@ type InstanceTemplatePrototypeInstanceTemplateByCatalogOfferingInstanceTemplateB
 
 	// The default trusted profile configuration to use for this virtual server instance
 	//
-	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
-	// Accordingly, it is reflected as an [instance
+	// This property's value is used when provisioning the virtual server instance, and can only be changed by
+	// reinitializing the instance. Accordingly, it is reflected as an [instance
 	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	DefaultTrustedProfile *InstanceDefaultTrustedProfilePrototype `json:"default_trusted_profile,omitempty"`
 
@@ -166277,8 +170315,8 @@ type InstanceTemplatePrototypeInstanceTemplateByCatalogOfferingInstanceTemplateB
 	// no keys are specified, the instance will be inaccessible unless the specified image provides another means of
 	// access.
 	//
-	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
-	// Accordingly, it is reflected as an [instance
+	// This property's value is used when provisioning the virtual server instance, and can only be changed by
+	// reinitializing the instance. Accordingly, it is reflected as an [instance
 	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	Keys []KeyIdentityIntf `json:"keys,omitempty"`
 
@@ -166299,6 +170337,12 @@ type InstanceTemplatePrototypeInstanceTemplateByCatalogOfferingInstanceTemplateB
 	ReservationAffinity *InstanceReservationAffinityPrototype `json:"reservation_affinity,omitempty"`
 
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
+
+	// The threads per core to use for this virtual server instance. Must be one of the values in the profile's
+	// `threads_per_core.values`.
+	//
+	// If unspecified, the default threads per core from the profile will be used.
+	ThreadsPerCore *int64 `json:"threads_per_core,omitempty"`
 
 	// The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes. An increase in
 	// this value will result in a corresponding decrease to
@@ -166451,6 +170495,11 @@ func UnmarshalInstanceTemplatePrototypeInstanceTemplateByCatalogOfferingInstance
 		err = core.SDKErrorf(err, "", "resource_group-error", common.GetComponentInfo())
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "threads_per_core", &obj.ThreadsPerCore)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "threads_per_core-error", common.GetComponentInfo())
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "total_volume_bandwidth", &obj.TotalVolumeBandwidth)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "total_volume_bandwidth-error", common.GetComponentInfo())
@@ -166529,8 +170578,8 @@ type InstanceTemplatePrototypeInstanceTemplateByImageInstanceTemplateByImageInst
 
 	// The default trusted profile configuration to use for this virtual server instance
 	//
-	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
-	// Accordingly, it is reflected as an [instance
+	// This property's value is used when provisioning the virtual server instance, and can only be changed by
+	// reinitializing the instance. Accordingly, it is reflected as an [instance
 	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	DefaultTrustedProfile *InstanceDefaultTrustedProfilePrototype `json:"default_trusted_profile,omitempty"`
 
@@ -166548,8 +170597,8 @@ type InstanceTemplatePrototypeInstanceTemplateByImageInstanceTemplateByImageInst
 	// no keys are specified, the instance will be inaccessible unless the specified image provides another means of
 	// access.
 	//
-	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
-	// Accordingly, it is reflected as an [instance
+	// This property's value is used when provisioning the virtual server instance, and can only be changed by
+	// reinitializing the instance. Accordingly, it is reflected as an [instance
 	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	Keys []KeyIdentityIntf `json:"keys,omitempty"`
 
@@ -166570,6 +170619,12 @@ type InstanceTemplatePrototypeInstanceTemplateByImageInstanceTemplateByImageInst
 	ReservationAffinity *InstanceReservationAffinityPrototype `json:"reservation_affinity,omitempty"`
 
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
+
+	// The threads per core to use for this virtual server instance. Must be one of the values in the profile's
+	// `threads_per_core.values`.
+	//
+	// If unspecified, the default threads per core from the profile will be used.
+	ThreadsPerCore *int64 `json:"threads_per_core,omitempty"`
 
 	// The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes. An increase in
 	// this value will result in a corresponding decrease to
@@ -166723,6 +170778,11 @@ func UnmarshalInstanceTemplatePrototypeInstanceTemplateByImageInstanceTemplateBy
 		err = core.SDKErrorf(err, "", "resource_group-error", common.GetComponentInfo())
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "threads_per_core", &obj.ThreadsPerCore)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "threads_per_core-error", common.GetComponentInfo())
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "total_volume_bandwidth", &obj.TotalVolumeBandwidth)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "total_volume_bandwidth-error", common.GetComponentInfo())
@@ -166801,8 +170861,8 @@ type InstanceTemplatePrototypeInstanceTemplateByImageInstanceTemplateByImageInst
 
 	// The default trusted profile configuration to use for this virtual server instance
 	//
-	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
-	// Accordingly, it is reflected as an [instance
+	// This property's value is used when provisioning the virtual server instance, and can only be changed by
+	// reinitializing the instance. Accordingly, it is reflected as an [instance
 	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	DefaultTrustedProfile *InstanceDefaultTrustedProfilePrototype `json:"default_trusted_profile,omitempty"`
 
@@ -166820,8 +170880,8 @@ type InstanceTemplatePrototypeInstanceTemplateByImageInstanceTemplateByImageInst
 	// no keys are specified, the instance will be inaccessible unless the specified image provides another means of
 	// access.
 	//
-	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
-	// Accordingly, it is reflected as an [instance
+	// This property's value is used when provisioning the virtual server instance, and can only be changed by
+	// reinitializing the instance. Accordingly, it is reflected as an [instance
 	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	Keys []KeyIdentityIntf `json:"keys,omitempty"`
 
@@ -166842,6 +170902,12 @@ type InstanceTemplatePrototypeInstanceTemplateByImageInstanceTemplateByImageInst
 	ReservationAffinity *InstanceReservationAffinityPrototype `json:"reservation_affinity,omitempty"`
 
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
+
+	// The threads per core to use for this virtual server instance. Must be one of the values in the profile's
+	// `threads_per_core.values`.
+	//
+	// If unspecified, the default threads per core from the profile will be used.
+	ThreadsPerCore *int64 `json:"threads_per_core,omitempty"`
 
 	// The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes. An increase in
 	// this value will result in a corresponding decrease to
@@ -166995,6 +171061,11 @@ func UnmarshalInstanceTemplatePrototypeInstanceTemplateByImageInstanceTemplateBy
 		err = core.SDKErrorf(err, "", "resource_group-error", common.GetComponentInfo())
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "threads_per_core", &obj.ThreadsPerCore)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "threads_per_core-error", common.GetComponentInfo())
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "total_volume_bandwidth", &obj.TotalVolumeBandwidth)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "total_volume_bandwidth-error", common.GetComponentInfo())
@@ -167073,8 +171144,8 @@ type InstanceTemplatePrototypeInstanceTemplateBySourceSnapshotInstanceTemplateBy
 
 	// The default trusted profile configuration to use for this virtual server instance
 	//
-	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
-	// Accordingly, it is reflected as an [instance
+	// This property's value is used when provisioning the virtual server instance, and can only be changed by
+	// reinitializing the instance. Accordingly, it is reflected as an [instance
 	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	DefaultTrustedProfile *InstanceDefaultTrustedProfilePrototype `json:"default_trusted_profile,omitempty"`
 
@@ -167092,8 +171163,8 @@ type InstanceTemplatePrototypeInstanceTemplateBySourceSnapshotInstanceTemplateBy
 	// no keys are specified, the instance will be inaccessible unless the specified image provides another means of
 	// access.
 	//
-	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
-	// Accordingly, it is reflected as an [instance
+	// This property's value is used when provisioning the virtual server instance, and can only be changed by
+	// reinitializing the instance. Accordingly, it is reflected as an [instance
 	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	Keys []KeyIdentityIntf `json:"keys,omitempty"`
 
@@ -167114,6 +171185,12 @@ type InstanceTemplatePrototypeInstanceTemplateBySourceSnapshotInstanceTemplateBy
 	ReservationAffinity *InstanceReservationAffinityPrototype `json:"reservation_affinity,omitempty"`
 
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
+
+	// The threads per core to use for this virtual server instance. Must be one of the values in the profile's
+	// `threads_per_core.values`.
+	//
+	// If unspecified, the default threads per core from the profile will be used.
+	ThreadsPerCore *int64 `json:"threads_per_core,omitempty"`
 
 	// The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes. An increase in
 	// this value will result in a corresponding decrease to
@@ -167264,6 +171341,11 @@ func UnmarshalInstanceTemplatePrototypeInstanceTemplateBySourceSnapshotInstanceT
 		err = core.SDKErrorf(err, "", "resource_group-error", common.GetComponentInfo())
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "threads_per_core", &obj.ThreadsPerCore)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "threads_per_core-error", common.GetComponentInfo())
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "total_volume_bandwidth", &obj.TotalVolumeBandwidth)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "total_volume_bandwidth-error", common.GetComponentInfo())
@@ -167337,8 +171419,8 @@ type InstanceTemplatePrototypeInstanceTemplateBySourceSnapshotInstanceTemplateBy
 
 	// The default trusted profile configuration to use for this virtual server instance
 	//
-	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
-	// Accordingly, it is reflected as an [instance
+	// This property's value is used when provisioning the virtual server instance, and can only be changed by
+	// reinitializing the instance. Accordingly, it is reflected as an [instance
 	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	DefaultTrustedProfile *InstanceDefaultTrustedProfilePrototype `json:"default_trusted_profile,omitempty"`
 
@@ -167356,8 +171438,8 @@ type InstanceTemplatePrototypeInstanceTemplateBySourceSnapshotInstanceTemplateBy
 	// no keys are specified, the instance will be inaccessible unless the specified image provides another means of
 	// access.
 	//
-	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
-	// Accordingly, it is reflected as an [instance
+	// This property's value is used when provisioning the virtual server instance, and can only be changed by
+	// reinitializing the instance. Accordingly, it is reflected as an [instance
 	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	Keys []KeyIdentityIntf `json:"keys,omitempty"`
 
@@ -167378,6 +171460,12 @@ type InstanceTemplatePrototypeInstanceTemplateBySourceSnapshotInstanceTemplateBy
 	ReservationAffinity *InstanceReservationAffinityPrototype `json:"reservation_affinity,omitempty"`
 
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
+
+	// The threads per core to use for this virtual server instance. Must be one of the values in the profile's
+	// `threads_per_core.values`.
+	//
+	// If unspecified, the default threads per core from the profile will be used.
+	ThreadsPerCore *int64 `json:"threads_per_core,omitempty"`
 
 	// The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes. An increase in
 	// this value will result in a corresponding decrease to
@@ -167528,6 +171616,11 @@ func UnmarshalInstanceTemplatePrototypeInstanceTemplateBySourceSnapshotInstanceT
 		err = core.SDKErrorf(err, "", "resource_group-error", common.GetComponentInfo())
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "threads_per_core", &obj.ThreadsPerCore)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "threads_per_core-error", common.GetComponentInfo())
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "total_volume_bandwidth", &obj.TotalVolumeBandwidth)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "total_volume_bandwidth-error", common.GetComponentInfo())
@@ -167607,8 +171700,8 @@ type InstanceTemplateInstanceByCatalogOfferingInstanceTemplateContextInstanceByC
 
 	// The default trusted profile configuration to use for this virtual server instance
 	//
-	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
-	// Accordingly, it is reflected as an [instance
+	// This property's value is used when provisioning the virtual server instance, and can only be changed by
+	// reinitializing the instance. Accordingly, it is reflected as an [instance
 	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	DefaultTrustedProfile *InstanceDefaultTrustedProfilePrototype `json:"default_trusted_profile,omitempty"`
 
@@ -167632,8 +171725,8 @@ type InstanceTemplateInstanceByCatalogOfferingInstanceTemplateContextInstanceByC
 	// no keys are specified, the instance will be inaccessible unless the specified image provides another means of
 	// access.
 	//
-	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
-	// Accordingly, it is reflected as an [instance
+	// This property's value is used when provisioning the virtual server instance, and can only be changed by
+	// reinitializing the instance. Accordingly, it is reflected as an [instance
 	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	Keys []KeyIdentityIntf `json:"keys,omitempty"`
 
@@ -167654,6 +171747,12 @@ type InstanceTemplateInstanceByCatalogOfferingInstanceTemplateContextInstanceByC
 
 	// The resource group for this instance template.
 	ResourceGroup *ResourceGroupReference `json:"resource_group" validate:"required"`
+
+	// The threads per core to use for this virtual server instance. Must be one of the values in the profile's
+	// `threads_per_core.values`.
+	//
+	// If unspecified, the default threads per core from the profile will be used.
+	ThreadsPerCore *int64 `json:"threads_per_core,omitempty"`
 
 	// The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes. An increase in
 	// this value will result in a corresponding decrease to
@@ -167812,6 +171911,11 @@ func UnmarshalInstanceTemplateInstanceByCatalogOfferingInstanceTemplateContextIn
 		err = core.SDKErrorf(err, "", "resource_group-error", common.GetComponentInfo())
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "threads_per_core", &obj.ThreadsPerCore)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "threads_per_core-error", common.GetComponentInfo())
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "total_volume_bandwidth", &obj.TotalVolumeBandwidth)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "total_volume_bandwidth-error", common.GetComponentInfo())
@@ -167896,8 +172000,8 @@ type InstanceTemplateInstanceByCatalogOfferingInstanceTemplateContextInstanceByC
 
 	// The default trusted profile configuration to use for this virtual server instance
 	//
-	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
-	// Accordingly, it is reflected as an [instance
+	// This property's value is used when provisioning the virtual server instance, and can only be changed by
+	// reinitializing the instance. Accordingly, it is reflected as an [instance
 	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	DefaultTrustedProfile *InstanceDefaultTrustedProfilePrototype `json:"default_trusted_profile,omitempty"`
 
@@ -167921,8 +172025,8 @@ type InstanceTemplateInstanceByCatalogOfferingInstanceTemplateContextInstanceByC
 	// no keys are specified, the instance will be inaccessible unless the specified image provides another means of
 	// access.
 	//
-	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
-	// Accordingly, it is reflected as an [instance
+	// This property's value is used when provisioning the virtual server instance, and can only be changed by
+	// reinitializing the instance. Accordingly, it is reflected as an [instance
 	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	Keys []KeyIdentityIntf `json:"keys,omitempty"`
 
@@ -167943,6 +172047,12 @@ type InstanceTemplateInstanceByCatalogOfferingInstanceTemplateContextInstanceByC
 
 	// The resource group for this instance template.
 	ResourceGroup *ResourceGroupReference `json:"resource_group" validate:"required"`
+
+	// The threads per core to use for this virtual server instance. Must be one of the values in the profile's
+	// `threads_per_core.values`.
+	//
+	// If unspecified, the default threads per core from the profile will be used.
+	ThreadsPerCore *int64 `json:"threads_per_core,omitempty"`
 
 	// The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes. An increase in
 	// this value will result in a corresponding decrease to
@@ -168101,6 +172211,11 @@ func UnmarshalInstanceTemplateInstanceByCatalogOfferingInstanceTemplateContextIn
 		err = core.SDKErrorf(err, "", "resource_group-error", common.GetComponentInfo())
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "threads_per_core", &obj.ThreadsPerCore)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "threads_per_core-error", common.GetComponentInfo())
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "total_volume_bandwidth", &obj.TotalVolumeBandwidth)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "total_volume_bandwidth-error", common.GetComponentInfo())
@@ -168185,8 +172300,8 @@ type InstanceTemplateInstanceByImageInstanceTemplateContextInstanceByImageInstan
 
 	// The default trusted profile configuration to use for this virtual server instance
 	//
-	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
-	// Accordingly, it is reflected as an [instance
+	// This property's value is used when provisioning the virtual server instance, and can only be changed by
+	// reinitializing the instance. Accordingly, it is reflected as an [instance
 	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	DefaultTrustedProfile *InstanceDefaultTrustedProfilePrototype `json:"default_trusted_profile,omitempty"`
 
@@ -168210,8 +172325,8 @@ type InstanceTemplateInstanceByImageInstanceTemplateContextInstanceByImageInstan
 	// no keys are specified, the instance will be inaccessible unless the specified image provides another means of
 	// access.
 	//
-	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
-	// Accordingly, it is reflected as an [instance
+	// This property's value is used when provisioning the virtual server instance, and can only be changed by
+	// reinitializing the instance. Accordingly, it is reflected as an [instance
 	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	Keys []KeyIdentityIntf `json:"keys,omitempty"`
 
@@ -168232,6 +172347,12 @@ type InstanceTemplateInstanceByImageInstanceTemplateContextInstanceByImageInstan
 
 	// The resource group for this instance template.
 	ResourceGroup *ResourceGroupReference `json:"resource_group" validate:"required"`
+
+	// The threads per core to use for this virtual server instance. Must be one of the values in the profile's
+	// `threads_per_core.values`.
+	//
+	// If unspecified, the default threads per core from the profile will be used.
+	ThreadsPerCore *int64 `json:"threads_per_core,omitempty"`
 
 	// The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes. An increase in
 	// this value will result in a corresponding decrease to
@@ -168391,6 +172512,11 @@ func UnmarshalInstanceTemplateInstanceByImageInstanceTemplateContextInstanceByIm
 		err = core.SDKErrorf(err, "", "resource_group-error", common.GetComponentInfo())
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "threads_per_core", &obj.ThreadsPerCore)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "threads_per_core-error", common.GetComponentInfo())
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "total_volume_bandwidth", &obj.TotalVolumeBandwidth)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "total_volume_bandwidth-error", common.GetComponentInfo())
@@ -168475,8 +172601,8 @@ type InstanceTemplateInstanceByImageInstanceTemplateContextInstanceByImageInstan
 
 	// The default trusted profile configuration to use for this virtual server instance
 	//
-	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
-	// Accordingly, it is reflected as an [instance
+	// This property's value is used when provisioning the virtual server instance, and can only be changed by
+	// reinitializing the instance. Accordingly, it is reflected as an [instance
 	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	DefaultTrustedProfile *InstanceDefaultTrustedProfilePrototype `json:"default_trusted_profile,omitempty"`
 
@@ -168500,8 +172626,8 @@ type InstanceTemplateInstanceByImageInstanceTemplateContextInstanceByImageInstan
 	// no keys are specified, the instance will be inaccessible unless the specified image provides another means of
 	// access.
 	//
-	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
-	// Accordingly, it is reflected as an [instance
+	// This property's value is used when provisioning the virtual server instance, and can only be changed by
+	// reinitializing the instance. Accordingly, it is reflected as an [instance
 	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	Keys []KeyIdentityIntf `json:"keys,omitempty"`
 
@@ -168522,6 +172648,12 @@ type InstanceTemplateInstanceByImageInstanceTemplateContextInstanceByImageInstan
 
 	// The resource group for this instance template.
 	ResourceGroup *ResourceGroupReference `json:"resource_group" validate:"required"`
+
+	// The threads per core to use for this virtual server instance. Must be one of the values in the profile's
+	// `threads_per_core.values`.
+	//
+	// If unspecified, the default threads per core from the profile will be used.
+	ThreadsPerCore *int64 `json:"threads_per_core,omitempty"`
 
 	// The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes. An increase in
 	// this value will result in a corresponding decrease to
@@ -168681,6 +172813,11 @@ func UnmarshalInstanceTemplateInstanceByImageInstanceTemplateContextInstanceByIm
 		err = core.SDKErrorf(err, "", "resource_group-error", common.GetComponentInfo())
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "threads_per_core", &obj.ThreadsPerCore)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "threads_per_core-error", common.GetComponentInfo())
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "total_volume_bandwidth", &obj.TotalVolumeBandwidth)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "total_volume_bandwidth-error", common.GetComponentInfo())
@@ -168765,8 +172902,8 @@ type InstanceTemplateInstanceBySourceSnapshotInstanceTemplateContextInstanceBySo
 
 	// The default trusted profile configuration to use for this virtual server instance
 	//
-	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
-	// Accordingly, it is reflected as an [instance
+	// This property's value is used when provisioning the virtual server instance, and can only be changed by
+	// reinitializing the instance. Accordingly, it is reflected as an [instance
 	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	DefaultTrustedProfile *InstanceDefaultTrustedProfilePrototype `json:"default_trusted_profile,omitempty"`
 
@@ -168790,8 +172927,8 @@ type InstanceTemplateInstanceBySourceSnapshotInstanceTemplateContextInstanceBySo
 	// no keys are specified, the instance will be inaccessible unless the specified image provides another means of
 	// access.
 	//
-	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
-	// Accordingly, it is reflected as an [instance
+	// This property's value is used when provisioning the virtual server instance, and can only be changed by
+	// reinitializing the instance. Accordingly, it is reflected as an [instance
 	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	Keys []KeyIdentityIntf `json:"keys,omitempty"`
 
@@ -168812,6 +172949,12 @@ type InstanceTemplateInstanceBySourceSnapshotInstanceTemplateContextInstanceBySo
 
 	// The resource group for this instance template.
 	ResourceGroup *ResourceGroupReference `json:"resource_group" validate:"required"`
+
+	// The threads per core to use for this virtual server instance. Must be one of the values in the profile's
+	// `threads_per_core.values`.
+	//
+	// If unspecified, the default threads per core from the profile will be used.
+	ThreadsPerCore *int64 `json:"threads_per_core,omitempty"`
 
 	// The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes. An increase in
 	// this value will result in a corresponding decrease to
@@ -168971,6 +173114,11 @@ func UnmarshalInstanceTemplateInstanceBySourceSnapshotInstanceTemplateContextIns
 		err = core.SDKErrorf(err, "", "resource_group-error", common.GetComponentInfo())
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "threads_per_core", &obj.ThreadsPerCore)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "threads_per_core-error", common.GetComponentInfo())
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "total_volume_bandwidth", &obj.TotalVolumeBandwidth)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "total_volume_bandwidth-error", common.GetComponentInfo())
@@ -169055,8 +173203,8 @@ type InstanceTemplateInstanceBySourceSnapshotInstanceTemplateContextInstanceBySo
 
 	// The default trusted profile configuration to use for this virtual server instance
 	//
-	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
-	// Accordingly, it is reflected as an [instance
+	// This property's value is used when provisioning the virtual server instance, and can only be changed by
+	// reinitializing the instance. Accordingly, it is reflected as an [instance
 	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	DefaultTrustedProfile *InstanceDefaultTrustedProfilePrototype `json:"default_trusted_profile,omitempty"`
 
@@ -169080,8 +173228,8 @@ type InstanceTemplateInstanceBySourceSnapshotInstanceTemplateContextInstanceBySo
 	// no keys are specified, the instance will be inaccessible unless the specified image provides another means of
 	// access.
 	//
-	// This property's value is used when provisioning the virtual server instance, but not subsequently managed.
-	// Accordingly, it is reflected as an [instance
+	// This property's value is used when provisioning the virtual server instance, and can only be changed by
+	// reinitializing the instance. Accordingly, it is reflected as an [instance
 	// initialization](https://cloud.ibm.com/apidocs/vpc#get-instance-initialization) property.
 	Keys []KeyIdentityIntf `json:"keys,omitempty"`
 
@@ -169102,6 +173250,12 @@ type InstanceTemplateInstanceBySourceSnapshotInstanceTemplateContextInstanceBySo
 
 	// The resource group for this instance template.
 	ResourceGroup *ResourceGroupReference `json:"resource_group" validate:"required"`
+
+	// The threads per core to use for this virtual server instance. Must be one of the values in the profile's
+	// `threads_per_core.values`.
+	//
+	// If unspecified, the default threads per core from the profile will be used.
+	ThreadsPerCore *int64 `json:"threads_per_core,omitempty"`
 
 	// The amount of bandwidth (in megabits per second) allocated exclusively to instance storage volumes. An increase in
 	// this value will result in a corresponding decrease to
@@ -169262,6 +173416,11 @@ func UnmarshalInstanceTemplateInstanceBySourceSnapshotInstanceTemplateContextIns
 	err = core.UnmarshalModel(m, "resource_group", &obj.ResourceGroup, UnmarshalResourceGroupReference)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "resource_group-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "threads_per_core", &obj.ThreadsPerCore)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "threads_per_core-error", common.GetComponentInfo())
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "total_volume_bandwidth", &obj.TotalVolumeBandwidth)
@@ -176508,25 +180667,25 @@ func (pager *PrivatePathServiceGatewayEndpointGatewayBindingsPager) GetAll() (al
 	return
 }
 
-// PublicAddressRangeAuthorizedCIDRsPager can be used to simplify the use of the "ListPublicAddressRangeAuthorizedCIDRs" method.
-type PublicAddressRangeAuthorizedCIDRsPager struct {
+// PublicAddressRangeAuthorizedCidrsPager can be used to simplify the use of the "ListPublicAddressRangeAuthorizedCidrs" method.
+type PublicAddressRangeAuthorizedCidrsPager struct {
 	hasNext     bool
-	options     *ListPublicAddressRangeAuthorizedCIDRsOptions
+	options     *ListPublicAddressRangeAuthorizedCidrsOptions
 	client      *VpcV1
 	pageContext struct {
 		next *string
 	}
 }
 
-// NewPublicAddressRangeAuthorizedCIDRsPager returns a new PublicAddressRangeAuthorizedCIDRsPager instance.
-func (vpc *VpcV1) NewPublicAddressRangeAuthorizedCIDRsPager(options *ListPublicAddressRangeAuthorizedCIDRsOptions) (pager *PublicAddressRangeAuthorizedCIDRsPager, err error) {
+// NewPublicAddressRangeAuthorizedCidrsPager returns a new PublicAddressRangeAuthorizedCidrsPager instance.
+func (vpc *VpcV1) NewPublicAddressRangeAuthorizedCidrsPager(options *ListPublicAddressRangeAuthorizedCidrsOptions) (pager *PublicAddressRangeAuthorizedCidrsPager, err error) {
 	if options.Start != nil && *options.Start != "" {
 		err = core.SDKErrorf(nil, "the 'options.Start' field should not be set", "no-query-setting", common.GetComponentInfo())
 		return
 	}
 
-	var optionsCopy ListPublicAddressRangeAuthorizedCIDRsOptions = *options
-	pager = &PublicAddressRangeAuthorizedCIDRsPager{
+	var optionsCopy ListPublicAddressRangeAuthorizedCidrsOptions = *options
+	pager = &PublicAddressRangeAuthorizedCidrsPager{
 		hasNext: true,
 		options: &optionsCopy,
 		client:  vpc,
@@ -176535,19 +180694,19 @@ func (vpc *VpcV1) NewPublicAddressRangeAuthorizedCIDRsPager(options *ListPublicA
 }
 
 // HasNext returns true if there are potentially more results to be retrieved.
-func (pager *PublicAddressRangeAuthorizedCIDRsPager) HasNext() bool {
+func (pager *PublicAddressRangeAuthorizedCidrsPager) HasNext() bool {
 	return pager.hasNext
 }
 
 // GetNextWithContext returns the next page of results using the specified Context.
-func (pager *PublicAddressRangeAuthorizedCIDRsPager) GetNextWithContext(ctx context.Context) (page []PublicAddressRangeAuthorizedCIDR, err error) {
+func (pager *PublicAddressRangeAuthorizedCidrsPager) GetNextWithContext(ctx context.Context) (page []PublicAddressRangeAuthorizedCIDR, err error) {
 	if !pager.HasNext() {
 		return nil, fmt.Errorf("no more results available")
 	}
 
 	pager.options.Start = pager.pageContext.next
 
-	result, _, err := pager.client.ListPublicAddressRangeAuthorizedCIDRsWithContext(ctx, pager.options)
+	result, _, err := pager.client.ListPublicAddressRangeAuthorizedCidrsWithContext(ctx, pager.options)
 	if err != nil {
 		err = core.RepurposeSDKProblem(err, "error-getting-next-page")
 		return
@@ -176566,14 +180725,14 @@ func (pager *PublicAddressRangeAuthorizedCIDRsPager) GetNextWithContext(ctx cont
 	}
 	pager.pageContext.next = next
 	pager.hasNext = (pager.pageContext.next != nil)
-	page = result.AuthorizedCIDRs
+	page = result.AuthorizedCidrs
 
 	return
 }
 
 // GetAllWithContext returns all results by invoking GetNextWithContext() repeatedly
 // until all pages of results have been retrieved.
-func (pager *PublicAddressRangeAuthorizedCIDRsPager) GetAllWithContext(ctx context.Context) (allItems []PublicAddressRangeAuthorizedCIDR, err error) {
+func (pager *PublicAddressRangeAuthorizedCidrsPager) GetAllWithContext(ctx context.Context) (allItems []PublicAddressRangeAuthorizedCIDR, err error) {
 	for pager.HasNext() {
 		var nextPage []PublicAddressRangeAuthorizedCIDR
 		nextPage, err = pager.GetNextWithContext(ctx)
@@ -176587,14 +180746,14 @@ func (pager *PublicAddressRangeAuthorizedCIDRsPager) GetAllWithContext(ctx conte
 }
 
 // GetNext invokes GetNextWithContext() using context.Background() as the Context parameter.
-func (pager *PublicAddressRangeAuthorizedCIDRsPager) GetNext() (page []PublicAddressRangeAuthorizedCIDR, err error) {
+func (pager *PublicAddressRangeAuthorizedCidrsPager) GetNext() (page []PublicAddressRangeAuthorizedCIDR, err error) {
 	page, err = pager.GetNextWithContext(context.Background())
 	err = core.RepurposeSDKProblem(err, "")
 	return
 }
 
 // GetAll invokes GetAllWithContext() using context.Background() as the Context parameter.
-func (pager *PublicAddressRangeAuthorizedCIDRsPager) GetAll() (allItems []PublicAddressRangeAuthorizedCIDR, err error) {
+func (pager *PublicAddressRangeAuthorizedCidrsPager) GetAll() (allItems []PublicAddressRangeAuthorizedCIDR, err error) {
 	allItems, err = pager.GetAllWithContext(context.Background())
 	err = core.RepurposeSDKProblem(err, "")
 	return

@@ -88,6 +88,11 @@ func DataSourceIBMIsInstanceNetworkInterfaces() *schema.Resource {
 										Computed:    true,
 										Description: "The unique user-defined name for this floating IP.",
 									},
+									"resource_type": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The resource type.",
+									},
 								},
 							},
 						},

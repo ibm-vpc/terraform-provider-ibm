@@ -86,6 +86,11 @@ func DataSourceIBMIsInstanceNetworkInterface() *schema.Resource {
 							Computed:    true,
 							Description: "The unique user-defined name for this floating IP.",
 						},
+						"resource_type": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The resource type.",
+						},
 					},
 				},
 			},
@@ -417,6 +422,9 @@ func dataSourceNetworkInterfaceFloatingIpsToMap(floatingIpsItem vpcv1.FloatingIP
 	}
 	if floatingIpsItem.Name != nil {
 		floatingIpsMap["name"] = floatingIpsItem.Name
+	}
+	if floatingIpsItem.ResourceType != nil {
+		floatingIpsMap["resource_type"] = floatingIpsItem.ResourceType
 	}
 
 	return floatingIpsMap

@@ -72,6 +72,11 @@ func DataSourceIBMIsVirtualNetworkInterfaceFloatingIPs() *schema.Resource {
 							Computed:    true,
 							Description: "The URL for this floating IP.",
 						},
+						"resource_type": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The resource type.",
+						},
 					},
 				},
 			},
@@ -119,6 +124,9 @@ func dataSourceIBMIsVirtualNetworkInterfaceFloatingIPsRead(context context.Conte
 
 		l["crn"] = floatingIP.CRN
 		l["href"] = floatingIP.Href
+		if floatingIP.ResourceType != nil {
+			l["resource_type"] = *floatingIP.ResourceType
+		}
 		deleted := make(map[string]interface{})
 
 		if floatingIP.Deleted != nil && floatingIP.Deleted.MoreInfo != nil {

@@ -195,6 +195,9 @@ func publicGatewaysGet(context context.Context, d *schema.ResourceData, meta int
 				"id":                             *publicgw.FloatingIP.ID,
 				isPublicGatewayFloatingIPAddress: *publicgw.FloatingIP.Address,
 			}
+			if publicgw.FloatingIP.ResourceType != nil {
+				floatIP["resource_type"] = *publicgw.FloatingIP.ResourceType
+			}
 			l[isPublicGatewayFloatingIP] = floatIP
 		}
 		tags, err := flex.GetGlobalTagsUsingCRN(meta, *publicgw.CRN, "", isUserTagType)

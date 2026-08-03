@@ -93,6 +93,69 @@ func ResourceIBMIsBareMetalServerNetworkInterfaceFloatingIp() *schema.Resource {
 				Computed:    true,
 				Description: "Floating IP crn",
 			},
+			isBMSNicFIPResourceType: {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The resource type",
+			},
+			isBMSNicFIPAuthorizedCIDR: {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "The public address range authorized CIDR this floating IP is allocated from",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						isBMSNicFIPAuthorizedCIDRID: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The unique identifier for this public address range authorized CIDR",
+						},
+						isBMSNicFIPAuthorizedCIDRCIDR: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The public IPv4 address block, expressed in CIDR format",
+						},
+						isBMSNicFIPAuthorizedCIDRHref: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The URL for this public address range authorized CIDR",
+						},
+						isBMSNicFIPAuthorizedCIDRName: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The name for this public address range authorized CIDR",
+						},
+						isBMSNicFIPAuthorizedCIDRResType: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The resource type",
+						},
+					},
+				},
+			},
+			isBMSNicFIPProfile: {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "The profile for this floating IP",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						isBMSNicFIPProfileName: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The globally unique name for this floating IP profile",
+						},
+						isBMSNicFIPProfileHref: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The URL for this floating IP profile",
+						},
+						isBMSNicFIPResourceType: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The resource type",
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -211,6 +274,50 @@ func bareMetalServerNICFipGet(d *schema.ResourceData, fip *vpcv1.FloatingIP, bar
 		if err = d.Set(floatingIPTarget, target.ID); err != nil {
 			err = fmt.Errorf("Error setting target: %s", err)
 			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_bare_metal_server_network_interface_floating_ip", "read", "set-target").GetDiag()
+		}
+	}
+	if fip.ResourceType != nil {
+		if err = d.Set(isBMSNicFIPResourceType, *fip.ResourceType); err != nil {
+			err = fmt.Errorf("Error setting resource_type: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_bare_metal_server_network_interface_floating_ip", "read", "set-resource_type").GetDiag()
+		}
+	}
+	if fip.AuthorizedCIDR != nil {
+		authorizedCIDRMap := map[string]interface{}{}
+		if fip.AuthorizedCIDR.ID != nil {
+			authorizedCIDRMap[isBMSNicFIPAuthorizedCIDRID] = *fip.AuthorizedCIDR.ID
+		}
+		if fip.AuthorizedCIDR.CIDR != nil {
+			authorizedCIDRMap[isBMSNicFIPAuthorizedCIDRCIDR] = *fip.AuthorizedCIDR.CIDR
+		}
+		if fip.AuthorizedCIDR.Href != nil {
+			authorizedCIDRMap[isBMSNicFIPAuthorizedCIDRHref] = *fip.AuthorizedCIDR.Href
+		}
+		if fip.AuthorizedCIDR.Name != nil {
+			authorizedCIDRMap[isBMSNicFIPAuthorizedCIDRName] = *fip.AuthorizedCIDR.Name
+		}
+		if fip.AuthorizedCIDR.ResourceType != nil {
+			authorizedCIDRMap[isBMSNicFIPAuthorizedCIDRResType] = *fip.AuthorizedCIDR.ResourceType
+		}
+		if err = d.Set(isBMSNicFIPAuthorizedCIDR, []map[string]interface{}{authorizedCIDRMap}); err != nil {
+			err = fmt.Errorf("Error setting authorized_cidr: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_bare_metal_server_network_interface_floating_ip", "read", "set-authorized_cidr").GetDiag()
+		}
+	}
+	if fip.Profile != nil {
+		profileMap := map[string]interface{}{}
+		if fip.Profile.Name != nil {
+			profileMap[isBMSNicFIPProfileName] = *fip.Profile.Name
+		}
+		if fip.Profile.Href != nil {
+			profileMap[isBMSNicFIPProfileHref] = *fip.Profile.Href
+		}
+		if fip.Profile.ResourceType != nil {
+			profileMap[isBMSNicFIPResourceType] = *fip.Profile.ResourceType
+		}
+		if err = d.Set(isBMSNicFIPProfile, []map[string]interface{}{profileMap}); err != nil {
+			err = fmt.Errorf("Error setting profile: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_bare_metal_server_network_interface_floating_ip", "read", "set-profile").GetDiag()
 		}
 	}
 

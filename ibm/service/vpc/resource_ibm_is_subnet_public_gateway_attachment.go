@@ -191,6 +191,9 @@ func resourceIBMISSubnetPublicGatewayAttachmentRead(context context.Context, d *
 			"id":                             *pg.FloatingIP.ID,
 			isPublicGatewayFloatingIPAddress: *pg.FloatingIP.Address,
 		}
+		if pg.FloatingIP.ResourceType != nil {
+			floatIP["resource_type"] = *pg.FloatingIP.ResourceType
+		}
 		if err = d.Set(isPublicGatewayFloatingIP, floatIP); err != nil {
 			err = fmt.Errorf("Error setting floating_ip: %s", err)
 			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_subnet_public_gateway_attachment", "read", "set-floating_ip").GetDiag()
