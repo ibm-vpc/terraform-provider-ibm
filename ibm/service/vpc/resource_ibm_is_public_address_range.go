@@ -57,9 +57,11 @@ func ResourceIBMPublicAddressRange() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			"ipv4_address_count": &schema.Schema{
-				Type:        schema.TypeInt,
-				Required:    true,
-				Description: "The number of IPv4 addresses in this public address range.",
+				Type:         schema.TypeInt,
+				Optional:     true,
+				Computed:     true,
+				ExactlyOneOf: []string{"ipv4_address_count", "cidr"},
+				Description:  "The number of IPv4 addresses in this public address range. Must be a power of 2.",
 			},
 			"name": &schema.Schema{
 				Type:     schema.TypeString,
@@ -190,11 +192,12 @@ func ResourceIBMPublicAddressRange() *schema.Resource {
 				},
 			},
 			"cidr": &schema.Schema{
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				ForceNew:    true,
-				Description: "The public IPv4 range, expressed in CIDR format. If specified, used to allocate this public address range from a specific authorized CIDR.",
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ForceNew:     true,
+				ExactlyOneOf: []string{"ipv4_address_count", "cidr"},
+				Description:  "The public IPv4 range, expressed in CIDR format. If specified, used to allocate this public address range from a specific authorized CIDR.",
 			},
 			"created_at": &schema.Schema{
 				Type:        schema.TypeString,
@@ -356,7 +359,9 @@ func resourceIBMPublicAddressRangeCreate(context context.Context, d *schema.Reso
 	createPublicAddressRangeOptions := &vpcv1.CreatePublicAddressRangeOptions{}
 	publicAddressRangePrototype := &vpcv1.PublicAddressRangePrototype{}
 
-	publicAddressRangePrototype.Ipv4AddressCount = core.Int64Ptr(int64(d.Get("ipv4_address_count").(int)))
+	if v, ok := d.GetOk("ipv4_address_count"); ok {
+		publicAddressRangePrototype.Ipv4AddressCount = core.Int64Ptr(int64(v.(int)))
+	}
 	if _, ok := d.GetOk("name"); ok {
 		publicAddressRangePrototype.Name = core.StringPtr(d.Get("name").(string))
 	}
