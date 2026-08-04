@@ -374,25 +374,10 @@ func resourceIBMPublicAddressRangeCreate(context context.Context, d *schema.Reso
 		}
 		publicAddressRangePrototype.Target = targetModel
 	}
-
 	if cidrIntf, ok := d.GetOk("cidr"); ok {
-		byCIDRPrototype := &vpcv1.PublicAddressRangePrototypePublicAddressRangeByCIDR{
-			CIDR: core.StringPtr(cidrIntf.(string)),
-		}
-		if publicAddressRangePrototype.Name != nil {
-			byCIDRPrototype.Name = publicAddressRangePrototype.Name
-		}
-		if publicAddressRangePrototype.ResourceGroup != nil {
-			byCIDRPrototype.ResourceGroup = publicAddressRangePrototype.ResourceGroup
-		}
-		if publicAddressRangePrototype.Target != nil {
-			byCIDRPrototype.Target = publicAddressRangePrototype.Target
-		}
-		createPublicAddressRangeOptions.SetPublicAddressRangePrototype(byCIDRPrototype)
-	} else {
-		createPublicAddressRangeOptions.PublicAddressRangePrototype = publicAddressRangePrototype
-		createPublicAddressRangeOptions.SetPublicAddressRangePrototype(publicAddressRangePrototype)
+		publicAddressRangePrototype.CIDR = core.StringPtr(cidrIntf.(string))
 	}
+	createPublicAddressRangeOptions.SetPublicAddressRangePrototype(publicAddressRangePrototype)
 	publicAddressRange, _, err := vpcClient.CreatePublicAddressRangeWithContext(context, createPublicAddressRangeOptions)
 	if err != nil {
 		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("CreatePublicAddressRangeWithContext failed: %s", err.Error()), "ibm_public_address_range", "create")
