@@ -63,6 +63,7 @@ In addition to all argument reference list, you can access the following attribu
   Nested scheme for `floating_ip`:
 	- `address` - (String) The globally unique IP address for this floating ip.
 	- `id` - (String) The unique identifier of the floating IP address.
+	- `resource_type` - (String) The resource type.
 - `id` - (String) The unique identifier of the subnet.
 - `name` -  (String) The user-defined name for this public gateway.
 - `resource_group` - (String) The resource group identifier for this public gateway.

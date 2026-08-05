@@ -42,6 +42,7 @@ func TestAccIBMISPublicGatewaysDatasource_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(resName, "public_gateways.0.id"),
 					resource.TestCheckResourceAttrSet(resName, "public_gateways.0.name"),
 					resource.TestCheckResourceAttrSet(resName, "public_gateways.0.zone"),
+					resource.TestCheckResourceAttrSet(resName, "public_gateways.0.floating_ip.0.resource_type"),
 				),
 			},
 		},

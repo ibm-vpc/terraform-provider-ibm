@@ -43,6 +43,18 @@ resource "ibm_is_public_address_range" "public_address_range_instance" {
 }
 ```
 
+An example shows how you can create a public address range using a specific CIDR block.
+
+```terraform
+resource "ibm_is_public_address_range" "public_address_range_cidr" {
+  cidr = "192.0.2.0/24"
+  name = "example-public-address-range-cidr"
+  resource_group {
+    id = "11caaa983d9c4beb82690daab18717e9"
+  }
+}
+```
+
 An example shows how you can create public address range not attached to vpc and zone
 
 ```terraform
@@ -59,7 +71,12 @@ resource "ibm_is_public_address_range" "public_address_range_instance" {
 
 You can specify the following arguments for this resource.
 
-- `ipv4_address_count` - (Required, Integer) The number of IPv4 addresses in this public address range.
+- `cidr` - (Optional, Forces new resource, String) The public IPv4 range, expressed in CIDR format. Mutually exclusive with `ipv4_address_count`. If not specified, an IP block is automatically allocated.
+
+  ~> **Note:** Exactly one of `cidr` or `ipv4_address_count` must be specified.
+- `ipv4_address_count` - (Optional, Computed, Integer) The number of IPv4 addresses in this public address range. Mutually exclusive with `cidr`.
+
+  ~> **Note:** Exactly one of `cidr` or `ipv4_address_count` must be specified.
 - `name` - (Optional, String) The name for this public address range. The name is unique across all public address ranges in the region.
 - `resource_group` - (Optional, List) The resource group for this public address range.
     
@@ -84,11 +101,27 @@ You can specify the following arguments for this resource.
 In addition to all argument reference list, you can access the following attribute reference after your resource is created.
 
 - `id` - The unique identifier of the PublicAddressRange.
+- `authorized_cidr` - (List) The authorized CIDR block for this public address range.
+
+  Nested schema for `authorized_cidr`:
+  - `cidr` - (String) The CIDR block.
+  - `href` - (String) The URL for this authorized CIDR.
+  - `id` - (String) The unique identifier for this authorized CIDR.
+  - `name` - (String) The name for this authorized CIDR.
+  - `resource_type` - (String) The resource type.
 - `cidr` - (String) The public IPv4 range, expressed in CIDR format.
 - `created_at` - (String) The date and time that the public address range was created.
 - `crn` - (String) The CRN for this public address range.
 - `href` - (String) The URL for this public address range.
+- `ip_version` - (String) The IP version.
 - `lifecycle_state` - (String) The lifecycle state of the public address range.
+- `network_prefix_length` - (Integer) The network prefix length of the CIDR block.
+- `profile` - (List) The profile for this public address range.
+
+  Nested schema for `profile`:
+  - `href` - (String) The URL for this public address range profile.
+  - `name` - (String) The globally unique name for this public address range profile.
+  - `resource_type` - (String) The resource type.
 - `resource_type` - (String) The resource type.
 - `resource_group` - (List) The resource group for this public address range.
     

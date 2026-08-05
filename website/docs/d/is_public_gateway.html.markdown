@@ -55,6 +55,7 @@ In addition to all argument reference list, you can access the following attribu
   Nested scheme for `floating_ip`:
   - `id` - (String) The ID of the floating IP that is bound to the public gateway.
   - `address` - (String) The IP address of the floating IP that is bound to the public gateway.
+  - `resource_type` - (String) The resource type.
 - `id` - (String) The ID of the public gateway.
 - `name` - (String) The name of the public gateway.
 - `status` - (String) The status of the gateway.

@@ -42,6 +42,7 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCKVmnMOlHKcZK8tpt3MP1lqOLAcqcJzhsvJcjscgVE
 						"ibm_is_bare_metal_server.testacc_bms", "name", name),
 					resource.TestCheckResourceAttr(
 						"ibm_is_bare_metal_server.testacc_bms", "zone", acc.ISZoneName),
+					resource.TestCheckResourceAttrSet("ibm_is_bare_metal_server_network_interface_floating_ip.bms_nic_fip", "resource_type"),
 				),
 			},
 		},

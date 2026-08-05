@@ -31,14 +31,16 @@ func TestAccIBMISSubnetPublicGatewayAttachment_basic(t *testing.T) {
 				Config: testAccCheckIBMISSubnetPublicGatewayAttachmentConfig(vpcname, name1, acc.ISZoneName, pgname),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckIBMISSubnetPublicGatewayAttachmentExists("ibm_is_subnet_public_gateway_attachment.attach", subnetPublicGateway),
-					resource.TestCheckResourceAttrSet(
-						"ibm_is_subnet_public_gateway_attachment.attach", "crn"),
-					resource.TestCheckResourceAttrSet(
-						"ibm_is_subnet_public_gateway_attachment.attach", "id"),
-					resource.TestCheckResourceAttrSet(
-						"ibm_is_subnet_public_gateway_attachment.attach", "resource_type"),
-					resource.TestCheckResourceAttrSet(
-						"ibm_is_subnet_public_gateway_attachment.attach", "status"),
+						resource.TestCheckResourceAttrSet(
+							"ibm_is_subnet_public_gateway_attachment.attach", "crn"),
+						resource.TestCheckResourceAttrSet(
+							"ibm_is_subnet_public_gateway_attachment.attach", "id"),
+						resource.TestCheckResourceAttrSet(
+							"ibm_is_subnet_public_gateway_attachment.attach", "resource_type"),
+						resource.TestCheckResourceAttrSet(
+							"ibm_is_subnet_public_gateway_attachment.attach", "status"),
+						resource.TestCheckResourceAttrSet(
+							"ibm_is_subnet_public_gateway_attachment.attach", "floating_ip.0.resource_type"),
 				),
 			},
 		},

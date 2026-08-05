@@ -79,9 +79,24 @@ Review the argument references that you can specify for your resource.
 ## Attribute reference
 In addition to all argument reference list, you can access the following attribute reference after your resource is created.
 
-- `address` - (String) The floating IP address that was created. 
-- `crn` - (String) The CRN for this floating IP. 
-- `id` - (String) The unique identifier of the floating IP address. 
+- `address` - (String) The floating IP address that was created.
+- `authorized_cidr` - (List) The authorized CIDR block associated with this floating IP.
+
+  Nested scheme for `authorized_cidr`:
+  - `cidr` - (String) The CIDR block.
+  - `href` - (String) The URL for this authorized CIDR.
+  - `id` - (String) The unique identifier for this authorized CIDR.
+  - `name` - (String) The name for this authorized CIDR.
+  - `resource_type` - (String) The resource type.
+- `crn` - (String) The CRN for this floating IP.
+- `id` - (String) The unique identifier of the floating IP address.
+- `profile` - (List) The profile for this floating IP.
+
+  Nested scheme for `profile`:
+  - `href` - (String) The URL for this floating IP profile.
+  - `name` - (String) The globally unique name for this floating IP profile.
+  - `resource_type` - (String) The resource type.
+- `resource_type` - (String) The resource type.
 - `status` - (String) The provisioning status of the floating IP address.
 - `target_list` - (List) The target of this floating IP.
     Nested scheme for **target_list**:

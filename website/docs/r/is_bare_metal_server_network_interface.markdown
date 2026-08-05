@@ -111,8 +111,9 @@ In addition to the argument reference list, you can access the following attribu
 - `floating_ips` - (List) The floating IPs associated with this network interface.
 
   Nested scheme for `floating_ips`:
-  - `address` - (String) The floating IP address.
+  - `address` - (String) The globally unique IP address.
   - `id` - (String) The unique identifier of the floating IP.
+  - `resource_type` - (String) The resource type.
 - `href` - (String) The URL for this network interface
 - `id` - (String) The unique identifier for this network interface. Its of the format <bare_metal_server_id>/<network_interface_id>
 - `interface_type` - (String) The network interface type, supported values are [ **pci**, **vlan** ]

@@ -71,6 +71,12 @@ Review the argument references that you can specify for your resource.
 In addition to all argument reference list, you can access the following attribute reference after your resource is created.
 
 - `crn` - (String) The crn for the public gateway.
+- `floating_ip` - (List) The floating IP address bound to this public gateway.
+
+  Nested scheme for `floating_ip`:
+  - `address` - (String) The IP address of the floating IP.
+  - `id` - (String) The unique identifier of the floating IP.
+  - `resource_type` - (String) The resource type.
 - `id` - (String) The unique identifier that was assigned to your public gateway.
 - `status` - (String) The provisioning status of your public gateway.
 

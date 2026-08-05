@@ -40,6 +40,7 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCKVmnMOlHKcZK8tpt3MP1lqOLAcqcJzhsvJcjscgVE
 					resource.TestCheckResourceAttrSet(resName, "primary_ip.0.reserved_ip"),
 					resource.TestCheckResourceAttrSet(resName, "primary_ip.0.resource_type"),
 					resource.TestCheckResourceAttrSet(resName, "port_speed"),
+					resource.TestCheckResourceAttrSet(resName, "resource_type"),
 				),
 			},
 		},

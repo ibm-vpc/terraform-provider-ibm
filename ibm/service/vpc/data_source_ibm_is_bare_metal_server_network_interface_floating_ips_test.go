@@ -35,6 +35,7 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCKVmnMOlHKcZK8tpt3MP1lqOLAcqcJzhsvJcjscgVE
 					testAccCheckIBMISBareMetalServerExists("ibm_is_bare_metal_server.testacc_bms", server),
 					resource.TestCheckResourceAttrSet(resName, "floating_ips.0.name"),
 					resource.TestCheckResourceAttrSet(resName, "floating_ips.0.id"),
+					resource.TestCheckResourceAttrSet(resName, "floating_ips.0.resource_type"),
 				),
 			},
 		},

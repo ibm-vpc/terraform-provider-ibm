@@ -38,6 +38,7 @@ func TestAccIBMIsVirtualNetworkInterfaceFloatingIPBasic(t *testing.T) {
 					resource.TestCheckResourceAttrSet("ibm_is_virtual_network_interface_floating_ip.testacc_vni_floatingip", "name"),
 					resource.TestCheckResourceAttrSet("ibm_is_virtual_network_interface_floating_ip.testacc_vni_floatingip", "virtual_network_interface"),
 					resource.TestCheckResourceAttrSet("ibm_is_virtual_network_interface_floating_ip.testacc_vni_floatingip", "floating_ip"),
+					resource.TestCheckResourceAttrSet("ibm_is_virtual_network_interface_floating_ip.testacc_vni_floatingip", "resource_type"),
 				),
 			},
 		},

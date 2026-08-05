@@ -39,6 +39,8 @@ func TestAccIBMIsInstanceNetworkInterfacesDataSourceBasic(t *testing.T) {
 					resource.TestCheckResourceAttrSet("data.ibm_is_instance_network_interfaces.is_instance_network_interfaces", "network_interfaces.0.primary_ip.0.href"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_instance_network_interfaces.is_instance_network_interfaces", "network_interfaces.0.primary_ip.0.reserved_ip"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_instance_network_interfaces.is_instance_network_interfaces", "network_interfaces.0.primary_ip.0.resource_type"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_instance_network_interfaces.is_instance_network_interfaces", "network_interfaces.0.floating_ips.#"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_instance_network_interfaces.is_instance_network_interfaces", "network_interfaces.0.floating_ips.0.resource_type"),
 				),
 			},
 		},

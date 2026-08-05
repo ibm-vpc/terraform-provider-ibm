@@ -227,6 +227,7 @@ In addition to all argument reference list, you can access the following attribu
 - `id` - (String) The unique identifier of the VPC that you created.
 - `public_address_ranges` - (List) The public address ranges attached to this VPC.
   Nested schema for `public_address_ranges`:
+	- `cidr` - (String) The public IPv4 range, expressed in CIDR format.
 	- `crn` - (String) The CRN for this public address range.
 	- `deleted` - (List) If present, this property indicates the referenced resource has been deleted, and providessome supplementary information.
 	  Nested schema for `deleted`:

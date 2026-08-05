@@ -32,6 +32,9 @@ func TestAccIBMPublicAddressRangeBasic(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					testAccCheckIBMPublicAddressRangeExists("ibm_is_public_address_range.public_address_range_instance", conf),
 					resource.TestCheckResourceAttr("ibm_is_public_address_range.public_address_range_instance", "ipv4_address_count", ipv4AddressCount),
+					resource.TestCheckResourceAttrSet("ibm_is_public_address_range.public_address_range_instance", "ip_version"),
+					resource.TestCheckResourceAttrSet("ibm_is_public_address_range.public_address_range_instance", "network_prefix_length"),
+					resource.TestCheckResourceAttrSet("ibm_is_public_address_range.public_address_range_instance", "profile.#"),
 				),
 			},
 		},
