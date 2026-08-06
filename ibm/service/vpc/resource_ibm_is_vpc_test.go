@@ -32,18 +32,18 @@ func TestAccIBMISVPC_basic(t *testing.T) {
 				Config: testAccCheckIBMISVPCConfig(name1),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckIBMISVPCExists("ibm_is_vpc.testacc_vpc", vpc),
-						resource.TestCheckResourceAttr(
-							"ibm_is_vpc.testacc_vpc", "name", name1),
-						resource.TestCheckResourceAttr(
-							"ibm_is_vpc.testacc_vpc", "default_network_acl_name", "dnwacln"),
-						resource.TestCheckResourceAttr(
-							"ibm_is_vpc.testacc_vpc", "default_security_group_name", "dsgn"),
-						resource.TestCheckResourceAttr(
-							"ibm_is_vpc.testacc_vpc", "default_routing_table_name", "drtn"),
-						resource.TestCheckResourceAttr(
-							"ibm_is_vpc.testacc_vpc", "tags.#", "2"),
-						resource.TestCheckResourceAttrSet("ibm_is_vpc.testacc_vpc", "public_address_ranges.#"),
-					),
+					resource.TestCheckResourceAttr(
+						"ibm_is_vpc.testacc_vpc", "name", name1),
+					resource.TestCheckResourceAttr(
+						"ibm_is_vpc.testacc_vpc", "default_network_acl_name", "dnwacln"),
+					resource.TestCheckResourceAttr(
+						"ibm_is_vpc.testacc_vpc", "default_security_group_name", "dsgn"),
+					resource.TestCheckResourceAttr(
+						"ibm_is_vpc.testacc_vpc", "default_routing_table_name", "drtn"),
+					resource.TestCheckResourceAttr(
+						"ibm_is_vpc.testacc_vpc", "tags.#", "2"),
+					resource.TestCheckResourceAttrSet("ibm_is_vpc.testacc_vpc", "public_address_ranges.#"),
+				),
 			},
 			{
 				Config: testAccCheckIBMISVPCConfigUpdate(name1),

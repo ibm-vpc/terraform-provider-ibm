@@ -34,13 +34,13 @@ func TestAccIBMISPublicGateway_basic(t *testing.T) {
 				Config: testAccCheckIBMISPublicGatewayConfig(vpcname, name1, zone),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckIBMISPublicGatewayExists("ibm_is_public_gateway.testacc_public_gateway", publicgw),
-						resource.TestCheckResourceAttr(
-							"ibm_is_public_gateway.testacc_public_gateway", "name", name1),
-						resource.TestCheckResourceAttr(
-							"ibm_is_public_gateway.testacc_public_gateway", "zone", zone),
-						resource.TestCheckResourceAttrSet(
-							"ibm_is_public_gateway.testacc_public_gateway", "floating_ip.0.resource_type"),
-					),
+					resource.TestCheckResourceAttr(
+						"ibm_is_public_gateway.testacc_public_gateway", "name", name1),
+					resource.TestCheckResourceAttr(
+						"ibm_is_public_gateway.testacc_public_gateway", "zone", zone),
+					resource.TestCheckResourceAttrSet(
+						"ibm_is_public_gateway.testacc_public_gateway", "floating_ip.0.resource_type"),
+				),
 			},
 
 			/*			{
