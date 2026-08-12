@@ -269,5 +269,25 @@ In addition to all argument reference list, you can access the following attribu
       - **disabled: No TPM functionality**
       - **tpm_2: TPM 2.0**
       - The enumerated values for this property are expected to expand in the future. When processing this property, check for and log unknown values. Optionally halt processing and surface the error, or bypass the resource on which the unexpected property value was encountered.
+- `nvme_qualified_name` - (String) The NVMe Qualified Name (NQN) for this bare metal server. The NQN uniquely identifies the bare metal server and is used by NVMe-oF initiators on the server to identify target subsystems (volumes).
+- `storage_access` - (List) The storage access configuration for this bare metal server.
+
+  Nested scheme for `storage_access`:
+  - `created_at` - (String) The date and time the storage access secret was created.
+  - `encrypted_secret` - (String) The storage access secret, encrypted using the server's initialization key and returned as a base64-encoded string. Present only when `status` is `active`.
+  - `public_key` - (String) The fingerprint of the SSH RSA public key used to encrypt the storage access secret.
+  - `rotated_at` - (String) The date and time the storage access secret was last rotated.
+  - `status` - (String) The status of the storage access secret. Allowable values are: `active`, `updating`.
+
+- `volume_attachments` - (List) The volume attachments for this bare metal server.
+
+  Nested scheme for `volume_attachments`:
+  - `deleted` - (List) If present, this property indicates the referenced resource has been deleted.
+    Nested scheme for `deleted`:
+    - `more_info` - (String) Link to documentation about deleted resources.
+  - `href` - (String) The URL for this volume attachment.
+  - `id` - (String) The unique identifier for this volume attachment.
+  - `name` - (String) The name for this volume attachment.
+
 - `vpc` - (String) The VPC this bare metal server resides in.
 - `zone` - (String) The zone this bare metal server resides in.

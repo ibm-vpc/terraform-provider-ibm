@@ -936,6 +936,14 @@ func DataSourceIBMISInstanceProfile() *schema.Resource {
 					},
 				},
 			},
+			"supported_volume_attachment_protocols": &schema.Schema{
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "The attachment protocols supported for volumes attached to an instance with this profile.",
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
 		},
 	}
 }
@@ -1202,6 +1210,9 @@ func instanceProfileGet(context context.Context, d *schema.ResourceData, meta in
 	}
 	if err = d.Set("zones", zones); err != nil {
 		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting zones: %s", err), "(Data) ibm_is_instance_profile", "read", "set-zones").GetDiag()
+	}
+	if err = d.Set("supported_volume_attachment_protocols", profile.SupportedVolumeAttachmentProtocols); err != nil {
+		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting supported_volume_attachment_protocols: %s", err), "(Data) ibm_is_instance_profile", "read", "set-supported_volume_attachment_protocols").GetDiag()
 	}
 	return nil
 }

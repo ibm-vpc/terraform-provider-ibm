@@ -133,3 +133,21 @@ func testAccCheckIBMISBMSProfilesDataSourceConfig() string {
       data "ibm_is_bare_metal_server_profiles" "test1" {
       }`)
 }
+
+func TestAccIBMISBMSProfilesDataSource_supportedVolumeAttachmentProtocols(t *testing.T) {
+	resName := "data.ibm_is_bare_metal_server_profiles.test1"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { acc.TestAccPreCheck(t) },
+		Providers: acc.TestAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckIBMISBMSProfilesDataSourceConfig(),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(resName, "profiles.0.name"),
+					resource.TestCheckResourceAttrSet(resName, "profiles.0.supported_volume_attachment_protocols.#"),
+				),
+			},
+		},
+	})
+}

@@ -431,6 +431,12 @@ func DataSourceIBMIsBareMetalServerProfile() *schema.Resource {
 					},
 				},
 			},
+			"supported_volume_attachment_protocols": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "The volume attachment protocols supported by bare metal servers that use this profile. These protocols determine how block storage volumes can be attached to servers created from the profile. An empty array indicates that the profile does not support volume attachments.",
+				Elem:        &schema.Schema{Type: schema.TypeString},
+			},
 		},
 	}
 }
@@ -669,7 +675,12 @@ func dataSourceIBMISBMSProfileRead(context context.Context, d *schema.ResourceDa
 			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting reservation_terms: %s", err), "(Data) ibm_is_bare_metal_server_profile", "read", "set-reservation_terms").GetDiag()
 		}
 	}
-
+	if bareMetalServerProfile.SupportedVolumeAttachmentProtocols != nil {
+		err = d.Set("supported_volume_attachment_protocols", bareMetalServerProfile.SupportedVolumeAttachmentProtocols)
+		if err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting supported_volume_attachment_protocols: %s", err), "(Data) ibm_is_bare_metal_server_profile", "read", "set-supported_volume_attachment_protocols").GetDiag()
+		}
+	}
 	return nil
 }
 

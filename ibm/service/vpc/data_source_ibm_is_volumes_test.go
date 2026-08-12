@@ -263,3 +263,38 @@ func testAccCheckIBMIsVolumesWithCatalogOffering(vpcname, subnetname, sshname, p
 		volume_name = ibm_is_instance.testacc_instance.boot_volume.0.name
 	}`, vpcname, subnetname, acc.ISZoneName, sshname, publicKey, name, acc.InstanceProfileName, acc.ISZoneName, versionCrn, planCrn)
 }
+
+func TestAccIBMIsVolumesDataSourceAttachmentMode(t *testing.T) {
+	name := fmt.Sprintf("tf-vol-%d", acctest.RandIntRange(10, 100))
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { acc.TestAccPreCheck(t) },
+		Providers: acc.TestAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckIBMIsVolumesDataSourceAttachmentModeConfig(name),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet("data.ibm_is_volumes.is_volumes", "id"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_volumes.is_volumes", "volumes.#"),
+					resource.TestCheckResourceAttr("data.ibm_is_volumes.is_volumes", "volumes.0.profile.0.name", "sdp"),
+					resource.TestCheckResourceAttr("data.ibm_is_volumes.is_volumes", "volumes.0.attachment_mode", "multiple"),
+				),
+			},
+		},
+	})
+}
+
+func testAccCheckIBMIsVolumesDataSourceAttachmentModeConfig(name string) string {
+	return fmt.Sprintf(`
+	resource "ibm_is_volume" "storage" {
+		name            = "%s"
+		profile         = "sdp"
+		zone            = "eu-gb-1"
+		capacity        = 10
+		attachment_mode = "multiple"
+	}
+	data "ibm_is_volumes" "is_volumes" {
+		volume_name = ibm_is_volume.storage.name
+		depends_on  = [ibm_is_volume.storage]
+	}
+`, name)
+}

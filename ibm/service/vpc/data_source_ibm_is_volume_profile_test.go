@@ -54,6 +54,26 @@ func TestAccIBMISVolumeProfileDataSource_sdpbasic(t *testing.T) {
 	})
 }
 
+func TestAccIBMISVolumeProfileDataSource_supportedAttachmentModes(t *testing.T) {
+	resName := "data.ibm_is_volume_profile.test1"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { acc.TestAccPreCheck(t) },
+		Providers: acc.TestAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckIBMISVolumeProfileDataSourceSdpConfig(),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resName, "name", "sdp"),
+					resource.TestCheckResourceAttrSet(resName, "family"),
+					resource.TestCheckResourceAttrSet(resName, "supported_attachment_modes.#"),
+					resource.TestCheckResourceAttrSet(resName, "supported_attachment_protocols.#"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckIBMISVolumeProfileDataSourceConfig() string {
 	return fmt.Sprintf(`
 	data "ibm_is_volume_profile" "test1" {

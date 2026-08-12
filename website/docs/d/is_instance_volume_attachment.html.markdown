@@ -54,6 +54,7 @@ In addition to all argument reference list, you can access the following attribu
     &#x2022; deleting</br>
     &#x2022; detaching
 
+- `attachment_protocol` - (String) The protocol used for this volume attachment. For instance volume attachments, the value is always **virtio_blk**.
 - `type` - (String) The type of volume attachment. Supported values are **boot**, **data**.
 - `volume_attachment_id` - (String) The unique identifier for this volume attachment.
 - `volume` - (List) The attached volume.

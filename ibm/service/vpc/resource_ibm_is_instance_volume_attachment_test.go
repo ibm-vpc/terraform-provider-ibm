@@ -699,3 +699,4 @@ func testAccCheckIBMISInstanceVolumeAttachmentAllowedUseConfig(vpcname, subnetna
 	}
 	`, vpcname, subnetname, acc.ISZoneName, sshname, publicKey, name, acc.IsImage, acc.InstanceProfileName, acc.ISZoneName, attName, autoDelete, volName, apiVersion, bareMetalServer, instanceVal)
 }
+

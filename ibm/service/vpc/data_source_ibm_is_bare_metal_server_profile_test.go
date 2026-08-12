@@ -146,3 +146,21 @@ func testAccCheckIBMISBMSProfileDataSourceResourceTypeConfig() string {
 			name = "cx2d-metal-96x192"
 		}`)
 }
+
+func TestAccIBMISBMSProfileDataSource_supportedVolumeAttachmentProtocols(t *testing.T) {
+	resName := "data.ibm_is_bare_metal_server_profile.test1"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { acc.TestAccPreCheck(t) },
+		Providers: acc.TestAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckIBMISBMSProfileDataSourceConfig(),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(resName, "name"),
+					resource.TestCheckResourceAttrSet(resName, "supported_volume_attachment_protocols.#"),
+				),
+			},
+		},
+	})
+}

@@ -238,6 +238,7 @@ In addition to the argument reference list, you can access the following attribu
   - `type` - (String) The type for this profile field.
   - `values` - (String) The permitted volume bandwidth QoS modes for an instance using this profile.
 
+- `supported_volume_attachment_protocols` - (List) The attachment protocols supported for volumes attached to an instance with this profile. Allowable list items are: `virtio_blk`. `virtio_blk`: VirtIO block device, which provides block device access for virtual server instances.
 - `zones` - (List) The zones in this region that support this instance profile.
 
     Nested schema for **zones**:

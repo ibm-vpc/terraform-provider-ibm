@@ -25,6 +25,7 @@ const (
 	isInstanceVolumeAttVolumeReferenceHref    = "volume_href"
 	isInstanceVolumeAttVolumeReferenceId      = "volume_id"
 	isInstanceVolumeAttVolumeReferenceName    = "volume_name"
+	isInstanceVolumeAttProtocol               = "attachment_protocol"
 )
 
 func DataSourceIBMISInstanceVolumeAttachment() *schema.Resource {
@@ -78,6 +79,12 @@ func DataSourceIBMISInstanceVolumeAttachment() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "The type of volume attachment one of [ boot, data ]",
+			},
+			isInstanceVolumeAttProtocol: {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "The protocol used for this attachment.",
+				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 			"bandwidth": {
 				Type:        schema.TypeInt,
@@ -181,6 +188,9 @@ func instanceVolumeAttachmentGetByName(context context.Context, d *schema.Resour
 			}
 			if err = d.Set("type", volumeAttachment.Type); err != nil {
 				return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting type: %s", err), "(Data) ibm_is_instance_volume_attachment", "read", "set-type").GetDiag()
+			}
+			if err = d.Set(isInstanceVolumeAttProtocol, volumeAttachment.Protocol); err != nil {
+				return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting attachment_protocol: %s", err), "(Data) ibm_is_instance_volume_attachment", "read", "set-attachment_protocol").GetDiag()
 			}
 			volList := make([]map[string]interface{}, 0)
 			if volumeAttachment.Volume != nil {

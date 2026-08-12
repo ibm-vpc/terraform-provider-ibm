@@ -932,6 +932,14 @@ func DataSourceIBMISInstanceProfiles() *schema.Resource {
 								},
 							},
 						},
+						"supported_volume_attachment_protocols": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "The volume attachment protocols supported by this instance profile.",
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
 					},
 				},
 			},
@@ -1160,6 +1168,11 @@ func instanceProfilesList(context context.Context, d *schema.ResourceData, meta 
 			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting vcpu_percentage: %s", err), "(Data) ibm_is_instance_profiles", "read", "set-vcpu_burst_limit").GetDiag()
 		}
 		l["vcpu_percentage"] = []map[string]interface{}{vcpuPercentageMap}
+
+		if profile.SupportedVolumeAttachmentProtocols != nil {
+			l["supported_volume_attachment_protocols"] = profile.SupportedVolumeAttachmentProtocols
+		}
+
 		profilesInfo = append(profilesInfo, l)
 	}
 	d.SetId(dataSourceIBMISInstanceProfilesID(d))

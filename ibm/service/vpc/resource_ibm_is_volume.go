@@ -289,6 +289,13 @@ func ResourceIBMISVolume() *schema.Resource {
 				Description: "The attachment states that support adjustable IOPS for this volume.",
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
+			"attachment_mode": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				Description: "The attachment mode of this volume (single or multiple).",
+				ValidateFunc: validate.InvokeValidator("ibm_is_volume", "attachment_mode"),
+			},
 			isVolumeHealthReasons: {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -507,6 +514,15 @@ func ResourceIBMISVolumeValidator() *validate.ResourceValidator {
 			Optional:                   true,
 			Regexp:                     `^([a-zA-Z_][a-zA-Z0-9_]*|[-+*/%]|&&|\|\||!|==|!=|<|<=|>|>=|~|\bin\b|\(|\)|\[|\]|,|\.|"|'|"|'|\s+|\d+)+$`})
 
+	validateSchema = append(validateSchema,
+		validate.ValidateSchema{
+			Identifier:                 "attachment_mode",
+			ValidateFunctionIdentifier: validate.ValidateAllowedStringValue,
+			Type:                       validate.TypeString,
+			Optional:                   true,
+			AllowedValues:              "single, multiple",
+		})
+
 	ibmISVolumeResourceValidator := validate.ResourceValidator{ResourceName: "ibm_is_volume", Schema: validateSchema}
 	return &ibmISVolumeResourceValidator
 }
@@ -600,6 +616,10 @@ func volCreate(context context.Context, d *schema.ResourceData, meta interface{}
 	if b, ok := d.GetOk("bandwidth"); ok {
 		bandwidth := int64(b.(int))
 		volTemplate.Bandwidth = &bandwidth
+	}
+	if am, ok := d.GetOk("attachment_mode"); ok {
+		attachmentMode := am.(string)
+		volTemplate.AttachmentMode = &attachmentMode
 	}
 
 	var userTags *schema.Set
@@ -866,6 +886,12 @@ func volGet(context context.Context, d *schema.ResourceData, meta interface{}, i
 		err = fmt.Errorf("Error setting adjustable_iops_states: %s", err)
 		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_volume", "read", "set-adjustable_iops_states").GetDiag()
 	}
+	if volume.AttachmentMode != nil {
+		if err = d.Set("attachment_mode", *volume.AttachmentMode); err != nil {
+			err = fmt.Errorf("Error setting attachment_mode: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_volume", "read", "set-attachment_mode").GetDiag()
+		}
+	}
 	if err = d.Set("resource_controller_url", controller+"/vpc-ext/storage/storageVolumes"); err != nil {
 		err = fmt.Errorf("Error setting resource_controller_url: %s", err)
 		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_volume", "read", "set-resource_controller_url").GetDiag()
@@ -1039,6 +1065,33 @@ func volUpdate(context context.Context, d *schema.ResourceData, meta interface{}
 		}
 	}
 
+	if d.HasChange("attachment_mode") {
+		attachmentMode := d.Get("attachment_mode").(string)
+		volumeAttachmentModePatchModel := &vpcv1.VolumePatch{}
+		volumeAttachmentModePatchModel.AttachmentMode = &attachmentMode
+		volumeAttachmentModePatch, err := volumeAttachmentModePatchModel.AsPatch()
+		if err != nil {
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("volumeAttachmentModePatchModel.AsPatch() failed: %s", err.Error()), "ibm_is_volume", "update")
+			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+			return tfErr.GetDiag()
+		}
+		options.VolumePatch = volumeAttachmentModePatch
+		_, response, err = sess.UpdateVolumeWithContext(context, options)
+		if err != nil {
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("UpdateVolumeWithContext failed: %s", err.Error()), "ibm_is_volume", "update")
+			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+			return tfErr.GetDiag()
+		}
+		_, err = isWaitForVolumeAvailable(sess, d.Id(), d.Timeout(schema.TimeoutCreate))
+		if err != nil {
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("isWaitForVolumeAvailable failed: %s", err.Error()), "ibm_is_volume", "update")
+			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+			return tfErr.GetDiag()
+		}
+		eTag = response.Headers.Get("ETag")
+		options.IfMatch = &eTag
+	}
+
 	if d.HasChange("allowed_use") && len(d.Get("allowed_use").([]interface{})) > 0 {
 		allowedUseModel, _ := ResourceIBMIsInstanceMapToVolumeAllowedUsePatchPrototype(d.Get("allowed_use").([]interface{})[0].(map[string]interface{}))
 		optionsget := &vpcv1.GetVolumeOptions{
@@ -1120,39 +1173,52 @@ func volUpdate(context context.Context, d *schema.ResourceData, meta interface{}
 			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
 			return tfErr.GetDiag()
 		}
-		if vol.VolumeAttachments == nil || len(vol.VolumeAttachments) < 1 {
-			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error updating Volume profile/iops because the specified volume %s is not attached to a virtual server instance", volId), "ibm_is_volume", "update")
+		var insAttachment *vpcv1.VolumeAttachmentReferenceVolumeContext
+		var bmsAttachment *vpcv1.VolumeAttachmentReferenceVolumeContext
+		for _, attIntf := range vol.VolumeAttachments {
+			if att, ok := attIntf.(*vpcv1.VolumeAttachmentReferenceVolumeContext); ok && att != nil {
+				if att.Instance != nil {
+					insAttachment = att
+					break
+				} else if att.BareMetalServer != nil {
+					bmsAttachment = att
+				}
+			}
+		}
+		if insAttachment == nil && bmsAttachment == nil {
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error updating Volume profile/iops because the specified volume %s is not attached to a virtual server instance or bare metal server", volId), "ibm_is_volume", "update")
 			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
 			return tfErr.GetDiag()
 		}
-		volAtt := &vol.VolumeAttachments[0]
-		insId := *volAtt.Instance.ID
-		getinsOptions := &vpcv1.GetInstanceOptions{
-			ID: &insId,
-		}
-		instance, response, err := sess.GetInstanceWithContext(context, getinsOptions)
-		if err != nil || instance == nil {
-			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error retrieving Instance (%s) to which the volume (%s) is attached : %s\n%s", insId, volId, err, response), "ibm_is_volume", "update")
-			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
-			return tfErr.GetDiag()
-		}
-		if instance != nil && *instance.Status != "running" {
-			actiontype := "start"
-			createinsactoptions := &vpcv1.CreateInstanceActionOptions{
-				InstanceID: &insId,
-				Type:       &actiontype,
+		if insAttachment != nil {
+			insId := *insAttachment.Instance.ID
+			getinsOptions := &vpcv1.GetInstanceOptions{
+				ID: &insId,
 			}
-			_, response, err = sess.CreateInstanceActionWithContext(context, createinsactoptions)
-			if err != nil {
-				tfErr := flex.TerraformErrorf(err, fmt.Sprintf("CreateInstanceActionWithContext failed: %s", err.Error()), "ibm_is_volume", "update")
+			instance, response, err := sess.GetInstanceWithContext(context, getinsOptions)
+			if err != nil || instance == nil {
+				tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error retrieving Instance (%s) to which the volume (%s) is attached : %s\n%s", insId, volId, err, response), "ibm_is_volume", "update")
 				log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
 				return tfErr.GetDiag()
 			}
-			_, err = isWaitForInstanceAvailable(sess, insId, d.Timeout(schema.TimeoutCreate), d)
-			if err != nil {
-				tfErr := flex.TerraformErrorf(err, fmt.Sprintf("isWaitForInstanceAvailable failed: %s", err.Error()), "ibm_is_volume", "update")
-				log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
-				return tfErr.GetDiag()
+			if instance != nil && *instance.Status != "running" {
+				actiontype := "start"
+				createinsactoptions := &vpcv1.CreateInstanceActionOptions{
+					InstanceID: &insId,
+					Type:       &actiontype,
+				}
+				_, response, err = sess.CreateInstanceActionWithContext(context, createinsactoptions)
+				if err != nil {
+					tfErr := flex.TerraformErrorf(err, fmt.Sprintf("CreateInstanceActionWithContext failed: %s", err.Error()), "ibm_is_volume", "update")
+					log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+					return tfErr.GetDiag()
+				}
+				_, err = isWaitForInstanceAvailable(sess, insId, d.Timeout(schema.TimeoutCreate), d)
+				if err != nil {
+					tfErr := flex.TerraformErrorf(err, fmt.Sprintf("isWaitForInstanceAvailable failed: %s", err.Error()), "ibm_is_volume", "update")
+					log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+					return tfErr.GetDiag()
+				}
 			}
 		}
 		if d.HasChange(isVolumeProfileName) {
@@ -1211,12 +1277,19 @@ func volUpdate(context context.Context, d *schema.ResourceData, meta interface{}
 		eTag = response.Headers.Get("ETag")
 		options.IfMatch = &eTag
 		if *vol.Profile.Name != "sdp" {
-			if vol.VolumeAttachments == nil || len(vol.VolumeAttachments) == 0 || *vol.VolumeAttachments[0].ID == "" {
+			var insAtt *vpcv1.VolumeAttachmentReferenceVolumeContext
+			for _, attIntf := range vol.VolumeAttachments {
+				if att, ok := attIntf.(*vpcv1.VolumeAttachmentReferenceVolumeContext); ok && att != nil && att.Instance != nil {
+					insAtt = att
+					break
+				}
+			}
+			if insAtt == nil || insAtt.ID == nil || *insAtt.ID == "" {
 				tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error volume capacity can't be updated since volume %s is not attached to any instance for VolumePatch", id), "ibm_is_volume", "update")
 				log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
 				return tfErr.GetDiag()
 			}
-			insId := vol.VolumeAttachments[0].Instance.ID
+			insId := insAtt.Instance.ID
 			getinsOptions := &vpcv1.GetInstanceOptions{
 				ID: insId,
 			}
@@ -1349,8 +1422,12 @@ func volDelete(context context.Context, d *schema.ResourceData, meta interface{}
 		return tfErr.GetDiag()
 	}
 
-	if volDetails.VolumeAttachments != nil {
-		for _, volAtt := range volDetails.VolumeAttachments {
+	for _, volAttIntf := range volDetails.VolumeAttachments {
+		volAtt, ok := volAttIntf.(*vpcv1.VolumeAttachmentReferenceVolumeContext)
+		if !ok || volAtt == nil || volAtt.ID == nil {
+			continue
+		}
+		if volAtt.Instance != nil {
 			deleteVolumeAttachment := &vpcv1.DeleteInstanceVolumeAttachmentOptions{
 				InstanceID: volAtt.Instance.ID,
 				ID:         volAtt.ID,
@@ -1367,7 +1444,23 @@ func volDelete(context context.Context, d *schema.ResourceData, meta interface{}
 				log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
 				return tfErr.GetDiag()
 			}
-
+		} else if volAtt.BareMetalServer != nil {
+			deleteBMSVolumeAttachment := &vpcv1.DeleteBareMetalServerVolumeAttachmentOptions{
+				BareMetalServerID: volAtt.BareMetalServer.ID,
+				ID:                volAtt.ID,
+			}
+			_, err := sess.DeleteBareMetalServerVolumeAttachmentWithContext(context, deleteBMSVolumeAttachment)
+			if err != nil {
+				tfErr := flex.TerraformErrorf(err, fmt.Sprintf("DeleteBareMetalServerVolumeAttachmentWithContext failed: %s", err.Error()), "ibm_is_volume", "delete")
+				log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+				return tfErr.GetDiag()
+			}
+			_, err = isWaitForBMSVolumeDetached(sess, d, *volAtt.BareMetalServer.ID, *volAtt.ID)
+			if err != nil {
+				tfErr := flex.TerraformErrorf(err, fmt.Sprintf("isWaitForBMSVolumeDetached failed: %s", err.Error()), "ibm_is_volume", "delete")
+				log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+				return tfErr.GetDiag()
+			}
 		}
 	}
 

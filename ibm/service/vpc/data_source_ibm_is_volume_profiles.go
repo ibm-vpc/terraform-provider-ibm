@@ -228,6 +228,22 @@ func DataSourceIBMISVolumeProfiles() *schema.Resource {
 								},
 							},
 						},
+						"supported_attachment_modes": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "The supported attachment modes for a volume with this profile. single: volume can only be attached to a single bare metal server or instance concurrently. multiple: volume can be attached to multiple bare metal servers concurrently, and each bare metal server has full read write access to the volume. Boot volumes must be single. Data volumes can be either single or multiple. To attach to a volume with attachment_mode single, the attachment protocol can be either virtio_blk or nvme_tcp. To attach to a volume with attachment_mode multiple, the attachment protocol must be nvme_tcp. The enumerated values for this property may expand in the future.",
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
+						"supported_attachment_protocols": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "The supported attachment protocols for a volume with this profile. virtio_blk: VirtIO block device, which provides block device access for virtual server instances. nvme_tcp: Non-Volatile Memory Express (NVMe) over TCP/IP, which allows bare metal servers to connect to volumes over the network using the NVMe protocol. The attachment protocol is specified during creation of an instance or bare metal server volume attachment resource. The enumerated values for this property may expand in the future.",
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
 					},
 				},
 			},
@@ -336,6 +352,12 @@ func DataSourceIBMIsVolumeProfilesVolumeProfileToMap(model *vpcv1.VolumeProfile)
 			return modelMap, err
 		}
 		modelMap["adjustable_iops_states"] = []map[string]interface{}{adjustableIopsStates}
+	}
+	if model.SupportedAttachmentModes != nil {
+		modelMap["supported_attachment_modes"] = model.SupportedAttachmentModes
+	}
+	if model.SupportedAttachmentProtocols != nil {
+		modelMap["supported_attachment_protocols"] = model.SupportedAttachmentProtocols
 	}
 	return modelMap, nil
 }

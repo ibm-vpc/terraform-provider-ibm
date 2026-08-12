@@ -114,6 +114,8 @@ Review the attribute references that you can access after you retrieve your data
       - `type` - (String) The type for this profile field.
       - `values` - (Array) The supported trusted platform module (TPM) modes.
 
+  - `supported_volume_attachment_protocols` - (List) The volume attachment protocols supported for bare metal servers with this profile. Allowable list items are: `nvme_tcp`. `nvme_tcp`: Non-Volatile Memory Express (NVMe) over TCP/IP, which allows bare metal servers to connect to volumes over the network using the NVMe protocol.
+
   - `virtual_network_interfaces_supported` - (List) Indicates whether this profile supports virtual network interfaces.
 
       Nested schema for **virtual_network_interfaces_supported**:

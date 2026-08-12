@@ -241,6 +241,8 @@ You can access the following attribute references after your data source is crea
       - `type` - (String) The type for this profile field.
       - `values` - (String) The permitted volume bandwidth QoS modes for an instance using this profile.
 
+  - `supported_volume_attachment_protocols` - (List) The attachment protocols supported for volumes attached to an instance with this profile. Allowable list items are: `virtio_blk`. `virtio_blk`: VirtIO block device, which provides block device access for virtual server instances.
+
   - `zones` - (List) The zones in this region that support this instance profile.
 
       Nested schema for **zones**:

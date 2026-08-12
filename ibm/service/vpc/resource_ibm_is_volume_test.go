@@ -565,6 +565,40 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCKVmnMOlHKcZK8tpt3MP1lqOLAcqcJzhsvJcjscgVE
 	})
 }
 
+func TestAccIBMISVolume_attachmentMode(t *testing.T) {
+	var vol string
+	name := fmt.Sprintf("tf-vol-%d", acctest.RandIntRange(10, 100))
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acc.TestAccPreCheck(t) },
+		Providers:    acc.TestAccProviders,
+		CheckDestroy: testAccCheckIBMISVolumeDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckIBMISVolumeAttachmentModeConfig(name, "multiple"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckIBMISVolumeExists("ibm_is_volume.storage", vol),
+					resource.TestCheckResourceAttr(
+						"ibm_is_volume.storage", "name", name),
+					resource.TestCheckResourceAttr(
+						"ibm_is_volume.storage", "attachment_mode", "multiple"),
+				),
+			},
+			{
+				Config: testAccCheckIBMISVolumeAttachmentModeConfig(name, "single"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckIBMISVolumeExists("ibm_is_volume.storage", vol),
+					resource.TestCheckResourceAttr(
+						"ibm_is_volume.storage", "name", name),
+					resource.TestCheckResourceAttr(
+						"ibm_is_volume.storage", "attachment_mode", "single"),
+				),
+			},
+		},
+	})
+}
+
+
+
 func testAccCheckIBMISVolumeDestroy(s *terraform.State) error {
 
 	sess, _ := acc.TestAccProvider.Meta().(conns.ClientSession).VpcV1API()
@@ -904,4 +938,16 @@ func testAccCheckIBMISVolumeConfigSnapshotCrn(vpcname, subnetname, sshname, publ
 		   source_snapshot_crn = ibm_is_snapshot.testacc_snapshot.crn
 		 }
 	`, volname, acc.ISZoneName)
+}
+
+func testAccCheckIBMISVolumeAttachmentModeConfig(name, attachmentMode string) string {
+	return fmt.Sprintf(`
+	resource "ibm_is_volume" "storage" {
+		name            = "%s"
+		profile         = "sdp"
+		zone            = "eu-gb-1"
+		capacity        = 10
+		attachment_mode = "%s"
+	}
+`, name, attachmentMode)
 }

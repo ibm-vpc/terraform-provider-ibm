@@ -411,6 +411,11 @@ func DataSourceIBMIsVolumes() *schema.Resource {
 								Type: schema.TypeString,
 							},
 						},
+						"attachment_mode": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The attachment mode of this volume (single or multiple).",
+						},
 						"storage_generation": {
 							Type:        schema.TypeInt,
 							Computed:    true,
@@ -455,6 +460,11 @@ func DataSourceIBMIsVolumes() *schema.Resource {
 										Type:        schema.TypeBool,
 										Computed:    true,
 										Description: "If set to true, when deleting the instance the volume will also be deleted.",
+									},
+									"delete_volume_on_bare_metal_server_delete": &schema.Schema{
+										Type:        schema.TypeBool,
+										Computed:    true,
+										Description: "Indicates whether deleting the bare metal server will also delete the attached volume. This property must be false if the volume's attachment_mode is multiple.",
 									},
 									isVolumesVolumeAttachmentsDeleted: &schema.Schema{
 										Type:        schema.TypeList,
@@ -533,6 +543,49 @@ func DataSourceIBMIsVolumes() *schema.Resource {
 													Type:        schema.TypeString,
 													Computed:    true,
 													Description: "The user-defined name for this virtual server instance (and default system hostname).",
+												},
+											},
+										},
+									},
+									"bare_metal_server": &schema.Schema{
+										Type:        schema.TypeList,
+										Computed:    true,
+										Description: "The attached bare metal server.",
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"crn": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "The CRN for this bare metal server.",
+												},
+												"deleted": {
+													Type:        schema.TypeList,
+													Computed:    true,
+													Description: "If present, this property indicates the referenced resource has been deleted and provides some supplementary information.",
+													Elem: &schema.Resource{
+														Schema: map[string]*schema.Schema{
+															"more_info": {
+																Type:        schema.TypeString,
+																Computed:    true,
+																Description: "Link to documentation about deleted resources.",
+															},
+														},
+													},
+												},
+												"href": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "The URL for this bare metal server.",
+												},
+												"id": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "The unique identifier for this bare metal server.",
+												},
+												"name": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "The user-defined name for this bare metal server.",
 												},
 											},
 										},
@@ -862,6 +915,9 @@ func dataSourceVolumeCollectionVolumesToMap(volumesItem vpcv1.Volume, meta inter
 	}
 	volumesMap["adjustable_capacity_states"] = volumesItem.AdjustableCapacityStates
 	volumesMap["adjustable_iops_states"] = volumesItem.AdjustableIopsStates
+	if volumesItem.AttachmentMode != nil {
+		volumesMap["attachment_mode"] = volumesItem.AttachmentMode
+	}
 	if volumesItem.CatalogOffering != nil {
 		versionCrn := ""
 		if volumesItem.CatalogOffering.Version != nil && volumesItem.CatalogOffering.Version.CRN != nil {
@@ -890,8 +946,11 @@ func dataSourceVolumeCollectionVolumesToMap(volumesItem vpcv1.Volume, meta inter
 	}
 	if volumesItem.VolumeAttachments != nil {
 		volumeAttachmentsList := []map[string]interface{}{}
-		for _, volumeAttachmentsItem := range volumesItem.VolumeAttachments {
-			volumeAttachmentsList = append(volumeAttachmentsList, dataSourceVolumeCollectionVolumesVolumeAttachmentsToMap(volumeAttachmentsItem))
+		for _, volumeAttachmentsItemIntf := range volumesItem.VolumeAttachments {
+			volumeAttachmentsMap, err := dataSourceVolumeCollectionVolumesVolumeAttachmentsToMap(volumeAttachmentsItemIntf)
+			if err == nil {
+				volumeAttachmentsList = append(volumeAttachmentsList, volumeAttachmentsMap)
+			}
 		}
 		volumesMap[isVolumesVolumeAttachments] = volumeAttachmentsList
 	}
@@ -1098,7 +1157,68 @@ func dataSourceVolumeCollectionVolumesHealthReasonsToMap(statusReasonsItem vpcv1
 	return healthReasonsMap
 }
 
-func dataSourceVolumeCollectionVolumesVolumeAttachmentsToMap(volumeAttachmentsItem vpcv1.VolumeAttachmentReferenceVolumeContext) (volumeAttachmentsMap map[string]interface{}) {
+func dataSourceVolumeCollectionVolumesVolumeAttachmentsToMap(model vpcv1.VolumeAttachmentReferenceVolumeContextIntf) (map[string]interface{}, error) {
+	if _, ok := model.(*vpcv1.VolumeAttachmentReferenceVolumeContextInstanceVolumeAttachmentReferenceVolumeContext); ok {
+		return dataSourceVolumeCollectionVolumesInstanceVolumeAttachmentsToMap(model.(*vpcv1.VolumeAttachmentReferenceVolumeContextInstanceVolumeAttachmentReferenceVolumeContext))
+	} else if _, ok := model.(*vpcv1.VolumeAttachmentReferenceVolumeContextBareMetalServerVolumeAttachmentReferenceVolumeContext); ok {
+		return dataSourceVolumeCollectionVolumesBareMetalServerVolumeAttachmentsToMap(model.(*vpcv1.VolumeAttachmentReferenceVolumeContextBareMetalServerVolumeAttachmentReferenceVolumeContext))
+	} else if _, ok := model.(*vpcv1.VolumeAttachmentReferenceVolumeContext); ok {
+		return dataSourceVolumeCollectionVolumesBaseVolumeAttachmentsToMap(model.(*vpcv1.VolumeAttachmentReferenceVolumeContext))
+	} else {
+		return nil, fmt.Errorf("Unrecognized vpcv1.VolumeAttachmentReferenceVolumeContextIntf subtype encountered")
+	}
+}
+
+func dataSourceVolumeCollectionVolumesBaseVolumeAttachmentsToMap(volumeAttachmentsItem *vpcv1.VolumeAttachmentReferenceVolumeContext) (volumeAttachmentsMap map[string]interface{}, err error) {
+	volumeAttachmentsMap = map[string]interface{}{}
+
+	if volumeAttachmentsItem.DeleteVolumeOnInstanceDelete != nil {
+		volumeAttachmentsMap[isVolumesVolumeAttachmentsDeleteVolumeOnInstanceDelete] = volumeAttachmentsItem.DeleteVolumeOnInstanceDelete
+	}
+	if volumeAttachmentsItem.DeleteVolumeOnBareMetalServerDelete != nil {
+		volumeAttachmentsMap["delete_volume_on_bare_metal_server_delete"] = volumeAttachmentsItem.DeleteVolumeOnBareMetalServerDelete
+	}
+	if volumeAttachmentsItem.Deleted != nil {
+		deletedList := []map[string]interface{}{}
+		deletedMap := dataSourceVolumeCollectionVolumeAttachmentsDeletedToMap(*volumeAttachmentsItem.Deleted)
+		deletedList = append(deletedList, deletedMap)
+		volumeAttachmentsMap[isVolumesVolumeAttachmentsDeleted] = deletedList
+	}
+	if volumeAttachmentsItem.Device != nil {
+		deviceList := []map[string]interface{}{}
+		deviceMap := dataSourceVolumeCollectionVolumeAttachmentsDeviceToMap(*volumeAttachmentsItem.Device)
+		deviceList = append(deviceList, deviceMap)
+		volumeAttachmentsMap[isVolumesVolumeAttachmentsDevice] = deviceList
+	}
+	if volumeAttachmentsItem.Href != nil {
+		volumeAttachmentsMap[isVolumesVolumeAttachmentsHref] = volumeAttachmentsItem.Href
+	}
+	if volumeAttachmentsItem.ID != nil {
+		volumeAttachmentsMap[isVolumesVolumeAttachmentsId] = volumeAttachmentsItem.ID
+	}
+	if volumeAttachmentsItem.Instance != nil {
+		instanceList := []map[string]interface{}{}
+		instanceMap := dataSourceVolumeCollectionVolumeAttachmentsInstanceToMap(*volumeAttachmentsItem.Instance)
+		instanceList = append(instanceList, instanceMap)
+		volumeAttachmentsMap[isVolumesVolumeAttachmentsInstance] = instanceList
+	}
+	if volumeAttachmentsItem.BareMetalServer != nil {
+		bareMetalServerList := []map[string]interface{}{}
+		bareMetalServerMap := dataSourceVolumeCollectionVolumeAttachmentsBareMetalServerToMap(*volumeAttachmentsItem.BareMetalServer)
+		bareMetalServerList = append(bareMetalServerList, bareMetalServerMap)
+		volumeAttachmentsMap["bare_metal_server"] = bareMetalServerList
+	}
+	if volumeAttachmentsItem.Name != nil {
+		volumeAttachmentsMap[isVolumesVolumeAttachmentsName] = volumeAttachmentsItem.Name
+	}
+	if volumeAttachmentsItem.Type != nil {
+		volumeAttachmentsMap[isVolumesVolumeAttachmentsType] = volumeAttachmentsItem.Type
+	}
+
+	return volumeAttachmentsMap, nil
+}
+
+func dataSourceVolumeCollectionVolumesInstanceVolumeAttachmentsToMap(volumeAttachmentsItem *vpcv1.VolumeAttachmentReferenceVolumeContextInstanceVolumeAttachmentReferenceVolumeContext) (volumeAttachmentsMap map[string]interface{}, err error) {
 	volumeAttachmentsMap = map[string]interface{}{}
 
 	if volumeAttachmentsItem.DeleteVolumeOnInstanceDelete != nil {
@@ -1135,7 +1255,63 @@ func dataSourceVolumeCollectionVolumesVolumeAttachmentsToMap(volumeAttachmentsIt
 		volumeAttachmentsMap[isVolumesVolumeAttachmentsType] = volumeAttachmentsItem.Type
 	}
 
-	return volumeAttachmentsMap
+	return volumeAttachmentsMap, nil
+}
+
+func dataSourceVolumeCollectionVolumesBareMetalServerVolumeAttachmentsToMap(volumeAttachmentsItem *vpcv1.VolumeAttachmentReferenceVolumeContextBareMetalServerVolumeAttachmentReferenceVolumeContext) (volumeAttachmentsMap map[string]interface{}, err error) {
+	volumeAttachmentsMap = map[string]interface{}{}
+
+	if volumeAttachmentsItem.Deleted != nil {
+		deletedList := []map[string]interface{}{}
+		deletedMap := dataSourceVolumeCollectionVolumeAttachmentsDeletedToMap(*volumeAttachmentsItem.Deleted)
+		deletedList = append(deletedList, deletedMap)
+		volumeAttachmentsMap[isVolumesVolumeAttachmentsDeleted] = deletedList
+	}
+	if volumeAttachmentsItem.Device != nil {
+		deviceList := []map[string]interface{}{}
+		deviceMap := dataSourceVolumeCollectionVolumeAttachmentsDeviceToMap(*volumeAttachmentsItem.Device)
+		deviceList = append(deviceList, deviceMap)
+		volumeAttachmentsMap[isVolumesVolumeAttachmentsDevice] = deviceList
+	}
+	if volumeAttachmentsItem.Href != nil {
+		volumeAttachmentsMap[isVolumesVolumeAttachmentsHref] = volumeAttachmentsItem.Href
+	}
+	if volumeAttachmentsItem.ID != nil {
+		volumeAttachmentsMap[isVolumesVolumeAttachmentsId] = volumeAttachmentsItem.ID
+	}
+	if volumeAttachmentsItem.Name != nil {
+		volumeAttachmentsMap[isVolumesVolumeAttachmentsName] = volumeAttachmentsItem.Name
+	}
+	if volumeAttachmentsItem.Type != nil {
+		volumeAttachmentsMap[isVolumesVolumeAttachmentsType] = volumeAttachmentsItem.Type
+	}
+
+	return volumeAttachmentsMap, nil
+}
+
+func dataSourceVolumeCollectionVolumeAttachmentsBareMetalServerToMap(bareMetalServerItem vpcv1.BareMetalServerReference) (bareMetalServerMap map[string]interface{}) {
+	bareMetalServerMap = map[string]interface{}{}
+
+	if bareMetalServerItem.CRN != nil {
+		bareMetalServerMap["crn"] = bareMetalServerItem.CRN
+	}
+	if bareMetalServerItem.Deleted != nil {
+		deletedList := []map[string]interface{}{}
+		deletedMap := dataSourceVolumeCollectionInstanceDeletedToMap(*bareMetalServerItem.Deleted)
+		deletedList = append(deletedList, deletedMap)
+		bareMetalServerMap["deleted"] = deletedList
+	}
+	if bareMetalServerItem.Href != nil {
+		bareMetalServerMap["href"] = bareMetalServerItem.Href
+	}
+	if bareMetalServerItem.ID != nil {
+		bareMetalServerMap["id"] = bareMetalServerItem.ID
+	}
+	if bareMetalServerItem.Name != nil {
+		bareMetalServerMap["name"] = bareMetalServerItem.Name
+	}
+
+	return bareMetalServerMap
 }
 
 func dataSourceVolumeCollectionVolumeAttachmentsDeletedToMap(deletedItem vpcv1.Deleted) (deletedMap map[string]interface{}) {

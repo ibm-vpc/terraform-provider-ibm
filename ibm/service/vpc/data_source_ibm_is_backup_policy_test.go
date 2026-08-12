@@ -63,3 +63,36 @@ func testAccCheckIBMIsBackupPolicyDataSourceConfigBasic(backupPolicyName, vpcnam
 		}
 	`)
 }
+
+func TestAccIBMIsBackupPolicyDataSourceBareMetalServer(t *testing.T) {
+	backupPolicyName := fmt.Sprintf("tfbakuppolicyname%d", acctest.RandIntRange(10, 100))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { acc.TestAccPreCheck(t) },
+		Providers: acc.TestAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckIBMIsBackupPolicyDataSourceConfigBareMetalServer(backupPolicyName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("data.ibm_is_backup_policy.is_backup_policy", "match_resource_type", "bare_metal_server"),
+					resource.TestCheckResourceAttr("data.ibm_is_backup_policy.is_backup_policy", "included_content.#", "1"),
+					resource.TestCheckResourceAttr("data.ibm_is_backup_policy.is_backup_policy", "included_content.0", "data_volumes"),
+				),
+			},
+		},
+	})
+}
+
+func testAccCheckIBMIsBackupPolicyDataSourceConfigBareMetalServer(backupPolicyName string) string {
+	return fmt.Sprintf(`
+	resource "ibm_is_backup_policy" "is_backup_policy" {
+		match_user_tags     = ["bms:backup"]
+		match_resource_type = "bare_metal_server"
+		included_content    = ["data_volumes"]
+		name                = "%s"
+	}
+
+	data "ibm_is_backup_policy" "is_backup_policy" {
+		identifier = ibm_is_backup_policy.is_backup_policy.id
+	}`, backupPolicyName)
+}

@@ -934,6 +934,95 @@ func DataSourceIBMIsBareMetalServer() *schema.Resource {
 					},
 				},
 			},
+			isBareMetalServerNvmeQualifiedName: {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The NVMe Qualified Name (NQN) for this bare metal server.",
+			},
+			isBareMetalServerStorageAccess: {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "The storage access secret required to connect to remote storage.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						isBMSStorageAccessCreatedAt: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The date and time the storage access secret was created.",
+						},
+						isBMSStorageAccessEncryptedSecret: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Sensitive:   true,
+							Description: "The storage access secret, encrypted using public_key and returned as a base64-encoded string. This property will only be present when the status of the storage_access secret is active.",
+						},
+						isBMSStorageAccessPublicKey: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The fingerprint of the public SSH key used to encrypt the storage access secret.",
+						},
+						isBMSStorageAccessRotatedAt: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The date and time the storage access secret was last rotated.",
+						},
+						isBMSStorageAccessStatus: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The status of the storage access secret.",
+						},
+					},
+				},
+			},
+			isBareMetalServerVolumeAttachments: {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "The volume attachments for this bare metal server.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						isBMSVolAttId: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The unique identifier for this volume attachment.",
+						},
+						isBMSVolAttName: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The name for this volume attachment.",
+						},
+						isBMSVolAttHref: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The URL for this volume attachment.",
+						},
+						isBMSVolAttDevice: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "A unique identifier for the device exposed to the bare metal server OS.",
+						},
+						isBMSVolAttVol: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The ID of the attached volume.",
+						},
+						isBMSVolAttVolName: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The name of the attached volume.",
+						},
+						isBMSVolAttVolCRN: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The CRN of the attached volume.",
+						},
+						isBMSVolAttVolHref: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The URL of the attached volume.",
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -1465,6 +1554,52 @@ func dataSourceIBMISBareMetalServerRead(context context.Context, d *schema.Resou
 		if err = d.Set(isBareMetalServerMetadataService, metadataServiceList); err != nil {
 			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting metadata service: %s", err), "(Data) ibm_is_bare_metal_server", "read", "set-metadata-service").GetDiag()
 		}
+	}
+
+	if bareMetalServer.NvmeQualifiedName != nil {
+		if err = d.Set(isBareMetalServerNvmeQualifiedName, *bareMetalServer.NvmeQualifiedName); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting nvme_qualified_name: %s", err), "(Data) ibm_is_bare_metal_server", "read", "set-nvme_qualified_name").GetDiag()
+		}
+	}
+	storageAccessList := make([]map[string]interface{}, 0)
+	if bareMetalServer.StorageAccess != nil {
+		storageAccess := map[string]interface{}{}
+		storageAccess[isBMSStorageAccessCreatedAt] = bareMetalServer.StorageAccess.CreatedAt.String()
+		storageAccess[isBMSStorageAccessStatus] = *bareMetalServer.StorageAccess.Status
+		if bareMetalServer.StorageAccess.EncryptedSecret != nil {
+			storageAccess[isBMSStorageAccessEncryptedSecret] = string(*bareMetalServer.StorageAccess.EncryptedSecret)
+		}
+		if bareMetalServer.StorageAccess.PublicKey != nil && bareMetalServer.StorageAccess.PublicKey.Fingerprint != nil {
+			storageAccess[isBMSStorageAccessPublicKey] = *bareMetalServer.StorageAccess.PublicKey.Fingerprint
+		}
+		if bareMetalServer.StorageAccess.RotatedAt != nil {
+			storageAccess[isBMSStorageAccessRotatedAt] = bareMetalServer.StorageAccess.RotatedAt.String()
+		}
+		storageAccessList = append(storageAccessList, storageAccess)
+	}
+	if err = d.Set(isBareMetalServerStorageAccess, storageAccessList); err != nil {
+		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting storage_access: %s", err), "(Data) ibm_is_bare_metal_server", "read", "set-storage_access").GetDiag()
+	}
+	volumeAttachmentsList := make([]map[string]interface{}, 0)
+	for _, volumeAttachment := range bareMetalServer.VolumeAttachments {
+		currentVolumeAttachment := map[string]interface{}{
+			isBMSVolAttId:   *volumeAttachment.ID,
+			isBMSVolAttName: *volumeAttachment.Name,
+			isBMSVolAttHref: *volumeAttachment.Href,
+		}
+		if volumeAttachment.Device != nil && volumeAttachment.Device.ID != nil {
+			currentVolumeAttachment[isBMSVolAttDevice] = *volumeAttachment.Device.ID
+		}
+		if volumeAttachment.Volume != nil {
+			currentVolumeAttachment[isBMSVolAttVol] = *volumeAttachment.Volume.ID
+			currentVolumeAttachment[isBMSVolAttVolName] = *volumeAttachment.Volume.Name
+			currentVolumeAttachment[isBMSVolAttVolCRN] = *volumeAttachment.Volume.CRN
+			currentVolumeAttachment[isBMSVolAttVolHref] = *volumeAttachment.Volume.Href
+		}
+		volumeAttachmentsList = append(volumeAttachmentsList, currentVolumeAttachment)
+	}
+	if err = d.Set(isBareMetalServerVolumeAttachments, volumeAttachmentsList); err != nil {
+		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting volume_attachments: %s", err), "(Data) ibm_is_bare_metal_server", "read", "set-volume_attachments").GetDiag()
 	}
 
 	return nil

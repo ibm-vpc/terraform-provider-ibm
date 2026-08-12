@@ -523,8 +523,14 @@ func imgCreateByVolume(context context.Context, d *schema.ResourceData, meta int
 		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
 		return tfErr.GetDiag()
 	}
-	volAtt := &vol.VolumeAttachments[0]
-	if *volAtt.Type != "boot" {
+	volAttIntf := vol.VolumeAttachments[0]
+	volAtt, ok := volAttIntf.(*vpcv1.VolumeAttachmentReferenceVolumeContext)
+	if !ok || volAtt == nil {
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error creating Image because the specified source_volume %s has an unexpected volume attachment type", volume), "ibm_is_image", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
+	}
+	if volAtt.Type == nil || *volAtt.Type != "boot" {
 		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error creating Image because the specified source_volume %s is not boot volume", volume), "ibm_is_image", "create")
 		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
 		return tfErr.GetDiag()

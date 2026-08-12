@@ -45,4 +45,6 @@ You can access the following attribute references after your data source is crea
     - `values` - (List) The attachment states that support adjustable IOPS for a volume with this profile. Allowable list items are: `attached`, `unattached`, `unusable`.
 	- `name` - (String) The name of the virtual server volume profile.
 	- `family` - (String) The family of the virtual server volume profile.
+	- `supported_attachment_modes` - (List) The supported attachment modes for a volume with this profile. Allowable list items are: `single`, `multiple`. `single`: the volume can only be attached to a single bare metal server or instance concurrently. `multiple`: the volume can be attached to multiple bare metal servers concurrently (nvme_tcp only).
+	- `supported_attachment_protocols` - (List) The supported attachment protocols for a volume with this profile. Allowable list items are: `virtio_blk`, `nvme_tcp`. `virtio_blk`: VirtIO block device for virtual server instances. `nvme_tcp`: NVMe over TCP/IP for bare metal servers.
 

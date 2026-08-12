@@ -55,7 +55,10 @@ In addition to all argument reference list, you can access the following attribu
 - `match_resource_types` - (List) A resource type this backup policy applies to. Resources that have both a matching type and a matching user tag will be subject to the backup policy.
 ~> **Note**
   `match_resource_types` is deprecated. Please use `match_resource_type` instead.
-- `match_resource_type` - (Optional, String) The resource type this backup policy will apply to. Resources that have both a matching type and a matching user tag will be subject to the backup policy.
+- `match_resource_type` - (String)  The resource type this backup policy will apply to. Resources that have both a matching type and a matching user tag will be subject to the backup policy.
+- `included_content` - (List) The included content for backups created using this policy.
+  - When `match_resource_type` is `instance`: `boot_volume` (the instance's boot volume), `data_volumes` (the instance's data volumes).
+  - When `match_resource_type` is `bare_metal_server`: only `data_volumes` is supported (the bare metal server's data volumes).
 - `match_user_tags` - (List) The user tags this backup policy applies to. Resources that have both a matching user tag and a matching type will be subject to the backup policy.
 - `name` - (String) The unique user-defined name for this backup policy.
 - `plans` - (List) The plans for the backup policy.

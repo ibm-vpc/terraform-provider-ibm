@@ -155,7 +155,7 @@ func DataSourceIBMIsSnapshotConsistencyGroup() *schema.Resource {
 			"service_tags": &schema.Schema{
 				Type:        schema.TypeList,
 				Computed:    true,
-				Description: "The [service tags](https://cloud.ibm.com/apidocs/tagging#types-of-tags)[`is.instance:` prefix](https://cloud.ibm.com/docs/vpc?topic=vpc-snapshots-vpc-faqs) associated with this snapshot consistency group.",
+				Description: "The [service tags](https://cloud.ibm.com/apidocs/tagging#types-of-tags) associated with this snapshot consistency group. Each tag is prefixed with `is.instance:` or `is.bare-metal-server:`. For more information, see [service tag prefixes](https://cloud.ibm.com/docs/vpc?topic=vpc-snapshots-vpc-faqs).",
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},

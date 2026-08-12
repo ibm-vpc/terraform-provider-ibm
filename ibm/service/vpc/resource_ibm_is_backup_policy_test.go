@@ -289,3 +289,47 @@ func testAccCheckIBMIsBackupPolicyConfigBasicWithScope(backupPolicyName, entCrn 
 		}
 	}`, backupPolicyName, entCrn)
 }
+
+func TestAccIBMIsBackupPolicyBareMetalServer(t *testing.T) {
+	backupPolicyName := fmt.Sprintf("tfbakuppolicyname%d", acctest.RandIntRange(10, 100))
+	backupPolicyNameUpdate := fmt.Sprintf("tfbakuppolicyname%d", acctest.RandIntRange(10, 100))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acc.TestAccPreCheck(t) },
+		Providers:    acc.TestAccProviders,
+		CheckDestroy: testAccCheckIBMIsBackupPolicyDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckIBMIsBackupPolicyConfigBareMetalServer(backupPolicyName),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("ibm_is_backup_policy.is_backup_policy", "match_resource_type", "bare_metal_server"),
+					resource.TestCheckResourceAttr("ibm_is_backup_policy.is_backup_policy", "included_content.#", "1"),
+					resource.TestCheckResourceAttrSet("ibm_is_backup_policy.is_backup_policy", "lifecycle_state"),
+				),
+			},
+			{
+				Config: testAccCheckIBMIsBackupPolicyConfigBareMetalServer(backupPolicyNameUpdate),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("ibm_is_backup_policy.is_backup_policy", "name", backupPolicyNameUpdate),
+					resource.TestCheckResourceAttr("ibm_is_backup_policy.is_backup_policy", "match_resource_type", "bare_metal_server"),
+					resource.TestCheckResourceAttr("ibm_is_backup_policy.is_backup_policy", "included_content.#", "1"),
+				),
+			},
+			{
+				ResourceName:      "ibm_is_backup_policy.is_backup_policy",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+		},
+	})
+}
+
+func testAccCheckIBMIsBackupPolicyConfigBareMetalServer(backupPolicyName string) string {
+	return fmt.Sprintf(`
+	resource "ibm_is_backup_policy" "is_backup_policy" {
+		match_user_tags     = ["bms:backup"]
+		match_resource_type = "bare_metal_server"
+		included_content    = ["data_volumes"]
+		name                = "%s"
+	}`, backupPolicyName)
+}

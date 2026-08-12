@@ -221,6 +221,22 @@ func DataSourceIBMISVolumeProfile() *schema.Resource {
 					},
 				},
 			},
+			"supported_attachment_modes": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "The supported attachment modes for a volume with this profile. single: volume can only be attached to a single bare metal server or instance concurrently. multiple: volume can be attached to multiple bare metal servers concurrently, and each bare metal server has full read write access to the volume. Boot volumes must be single. Data volumes can be either single or multiple. To attach to a volume with attachment_mode single, the attachment protocol can be either virtio_blk or nvme_tcp. To attach to a volume with attachment_mode multiple, the attachment protocol must be nvme_tcp. The enumerated values for this property may expand in the future.",
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
+			"supported_attachment_protocols": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "The supported attachment protocols for a volume with this profile. virtio_blk: VirtIO block device, which provides block device access for virtual server instances. nvme_tcp: Non-Volatile Memory Express (NVMe) over TCP/IP, which allows bare metal servers to connect to volumes over the network using the NVMe protocol. The attachment protocol is specified during creation of an instance or bare metal server volume attachment resource. The enumerated values for this property may expand in the future.",
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
+			},
 		},
 	}
 }
@@ -322,6 +338,18 @@ func volumeProfileGet(context context.Context, d *schema.ResourceData, meta inte
 	}
 	if err = d.Set("adjustable_iops_states", adjustableIopsStates); err != nil {
 		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting adjustable_iops_states: %s", err), "(Data) ibm_is_volume_profile", "read", "set-adjustable_iops_states").GetDiag()
+	}
+
+	if volumeProfile.SupportedAttachmentModes != nil {
+		if err = d.Set("supported_attachment_modes", volumeProfile.SupportedAttachmentModes); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting supported_attachment_modes: %s", err), "(Data) ibm_is_volume_profile", "read", "set-supported_attachment_modes").GetDiag()
+		}
+	}
+
+	if volumeProfile.SupportedAttachmentProtocols != nil {
+		if err = d.Set("supported_attachment_protocols", volumeProfile.SupportedAttachmentProtocols); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting supported_attachment_protocols: %s", err), "(Data) ibm_is_volume_profile", "read", "set-supported_attachment_protocols").GetDiag()
+		}
 	}
 
 	return nil

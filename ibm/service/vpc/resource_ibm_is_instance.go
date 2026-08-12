@@ -2613,7 +2613,7 @@ func instanceCreateByImage(context context.Context, d *schema.ResourceData, meta
 		}
 		deleteboolIntf := bootvol[isInstanceVolAttVolAutoDelete]
 		deletebool := deleteboolIntf.(bool)
-		instanceproto.BootVolumeAttachment = &vpcv1.VolumeAttachmentPrototypeInstanceByImageContext{
+		instanceproto.BootVolumeAttachment = &vpcv1.InstanceByImageBootVolumeAttachment{
 			DeleteVolumeOnInstanceDelete: &deletebool,
 			Volume:                       volTemplate,
 		}
@@ -3239,7 +3239,7 @@ func instanceCreateByCatalogOffering(context context.Context, d *schema.Resource
 		}
 		deleteboolIntf := bootvol[isInstanceVolAttVolAutoDelete]
 		deletebool := deleteboolIntf.(bool)
-		instanceproto.BootVolumeAttachment = &vpcv1.VolumeAttachmentPrototypeInstanceByImageContext{
+		instanceproto.BootVolumeAttachment = &vpcv1.InstanceByCatalogOfferingBootVolumeAttachment{
 			DeleteVolumeOnInstanceDelete: &deletebool,
 			Volume:                       volTemplate,
 		}
@@ -3847,7 +3847,7 @@ func instanceCreateByTemplate(context context.Context, d *schema.ResourceData, m
 		deleteboolIntf := bootvol[isInstanceVolAttVolAutoDelete]
 		deletebool := deleteboolIntf.(bool)
 
-		instanceproto.BootVolumeAttachment = &vpcv1.VolumeAttachmentPrototypeInstanceByImageContext{
+		instanceproto.BootVolumeAttachment = &vpcv1.InstanceBySourceTemplateBootVolumeAttachment{
 			DeleteVolumeOnInstanceDelete: &deletebool,
 			Volume:                       volTemplate,
 		}
@@ -4454,7 +4454,7 @@ func instanceCreateBySnapshot(context context.Context, d *schema.ResourceData, m
 		}
 		deleteboolIntf := bootvol[isInstanceVolAttVolAutoDelete]
 		deletebool := deleteboolIntf.(bool)
-		instanceproto.BootVolumeAttachment = &vpcv1.VolumeAttachmentPrototypeInstanceBySourceSnapshotContext{
+		instanceproto.BootVolumeAttachment = &vpcv1.InstanceBySourceSnapshotBootVolumeAttachment{
 			DeleteVolumeOnInstanceDelete: &deletebool,
 			Volume:                       volTemplate,
 		}

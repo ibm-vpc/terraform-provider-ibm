@@ -205,7 +205,7 @@ func ResourceIBMIsBackupPolicyValidator() *validate.ResourceValidator {
 			ValidateFunctionIdentifier: validate.ValidateAllowedStringValue,
 			Type:                       validate.TypeString,
 			Required:                   true,
-			AllowedValues:              "instance, volume, share",
+			AllowedValues:              "instance, volume, share, bare_metal_server",
 		},
 	)
 	resourceValidator := validate.ResourceValidator{ResourceName: "ibm_is_backup_policy", Schema: validateSchema}

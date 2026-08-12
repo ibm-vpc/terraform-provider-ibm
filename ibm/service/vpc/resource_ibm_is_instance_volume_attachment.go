@@ -954,7 +954,11 @@ func instanceVolAttUpdate(context context.Context, d *schema.ResourceData, meta 
 			return tfErr.GetDiag()
 		}
 		if *vol.Profile.Name != "sdp" {
-			if vol.VolumeAttachments == nil || len(vol.VolumeAttachments) == 0 || *vol.VolumeAttachments[0].Name == "" {
+			var firstAttachment *vpcv1.VolumeAttachmentReferenceVolumeContext
+			if len(vol.VolumeAttachments) > 0 {
+				firstAttachment, _ = vol.VolumeAttachments[0].(*vpcv1.VolumeAttachmentReferenceVolumeContext)
+			}
+			if firstAttachment == nil || firstAttachment.Name == nil || *firstAttachment.Name == "" {
 				err = fmt.Errorf("Error volume capacity can't be updated since volume %s is not attached to any instance for VolumePatch", id)
 				tfErr := flex.TerraformErrorf(err, fmt.Sprintf("GetVolumeWithContext failed: %s", err.Error()), "ibm_is_instance_volume_attachment", "update")
 				log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())

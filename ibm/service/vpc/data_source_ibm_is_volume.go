@@ -64,6 +64,11 @@ func DataSourceIBMISVolume() *schema.Resource {
 					Type: schema.TypeString,
 				},
 			},
+			"attachment_mode": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The attachment mode of this volume (single or multiple).",
+			},
 			isVolumeAttachmentState: {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -351,6 +356,159 @@ func DataSourceIBMISVolume() *schema.Resource {
 					},
 				},
 			},
+			"volume_attachments": &schema.Schema{
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "The volume attachments for this volume.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"delete_volume_on_instance_delete": {
+							Type:        schema.TypeBool,
+							Computed:    true,
+							Description: "Indicates whether deleting the instance will also delete the attached volume.",
+						},
+						"delete_volume_on_bare_metal_server_delete": {
+							Type:        schema.TypeBool,
+							Computed:    true,
+							Description: "Indicates whether deleting the bare metal server will also delete the attached volume. This property must be false if the volume's attachment_mode is multiple.",
+						},
+						"deleted": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "If present, this property indicates the referenced resource has been deleted and provides some supplementary information.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"more_info": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "Link to documentation about deleted resources.",
+									},
+								},
+							},
+						},
+						"device": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "Information about how the volume is exposed to the instance or bare metal server operating system. This property may be absent if the volume attachment's status is not attached.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"id": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "A unique identifier for the device which is exposed to the instance or bare metal server operating system.",
+									},
+								},
+							},
+						},
+						"href": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The URL for this volume attachment.",
+						},
+						"id": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The unique identifier for this volume attachment.",
+						},
+						"instance": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "The attached instance.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"crn": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The CRN for this virtual server instance.",
+									},
+									"deleted": {
+										Type:        schema.TypeList,
+										Computed:    true,
+										Description: "If present, this property indicates the referenced resource has been deleted and provides some supplementary information.",
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"more_info": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "Link to documentation about deleted resources.",
+												},
+											},
+										},
+									},
+									"href": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The URL for this virtual server instance.",
+									},
+									"id": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The unique identifier for this virtual server instance.",
+									},
+									"name": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The user-defined name for this virtual server instance (and default system hostname).",
+									},
+								},
+							},
+						},
+						"bare_metal_server": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "The attached bare metal server.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"crn": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The CRN for this bare metal server.",
+									},
+									"deleted": {
+										Type:        schema.TypeList,
+										Computed:    true,
+										Description: "If present, this property indicates the referenced resource has been deleted and provides some supplementary information.",
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"more_info": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "Link to documentation about deleted resources.",
+												},
+											},
+										},
+									},
+									"href": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The URL for this bare metal server.",
+									},
+									"id": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The unique identifier for this bare metal server.",
+									},
+									"name": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The user-defined name for this bare metal server.",
+									},
+								},
+							},
+						},
+						"name": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The user-defined name for this volume attachment.",
+						},
+						"type": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The type of volume attachment.",
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -612,6 +770,23 @@ func volumeGet(context context.Context, d *schema.ResourceData, meta interface{}
 	}
 	if err = d.Set("adjustable_iops_states", volume.AdjustableIopsStates); err != nil {
 		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting adjustable_iops_states: %s", err), "(Data) ibm_is_volume", "read", "set-adjustable_iops_states").GetDiag()
+	}
+	if volume.AttachmentMode != nil {
+		if err = d.Set("attachment_mode", *volume.AttachmentMode); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting attachment_mode: %s", err), "(Data) ibm_is_volume", "read", "set-attachment_mode").GetDiag()
+		}
+	}
+	if volume.VolumeAttachments != nil {
+		volumeAttachmentsList := []map[string]interface{}{}
+		for _, volumeAttachmentsItemIntf := range volume.VolumeAttachments {
+			volumeAttachmentsMap, err := dataSourceVolumeCollectionVolumesVolumeAttachmentsToMap(volumeAttachmentsItemIntf)
+			if err == nil {
+				volumeAttachmentsList = append(volumeAttachmentsList, volumeAttachmentsMap)
+			}
+		}
+		if err = d.Set("volume_attachments", volumeAttachmentsList); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting volume_attachments: %s", err), "(Data) ibm_is_volume", "read", "set-volume_attachments").GetDiag()
+		}
 	}
 
 	allowedUses := []map[string]interface{}{}

@@ -1,0 +1,307 @@
+BareMetalServerVolumeAttachmentPrototype{
+description:	
+
+A prototype object for a new bare metal server volume attachment.
+delete_volume_on_bare_metal_server_delete	boolean
+default: false
+
+Indicates whether deleting the bare metal server will also delete the attached volume.
+
+This property must be false if the volume's attachment_mode is multiple.
+name	string
+example: my-volume-attachment
+maxLength: 63
+minLength: 1
+pattern: ^([a-z]|[a-z][-a-z0-9]*[a-z0-9])$
+
+The name for this volume attachment. The name must not be used by another volume attachment on the bare metal server. If unspecified, the name will be a hyphenated list of randomly-selected words.
+volume*	BareMetalServerVolumeAttachmentPrototypeVolume{
+description:	
+
+An existing volume to attach to the bare metal server, or a prototype object for a new volume. The volume's profile must support the attachment protocol specified in protocol
+ 
+oneOf ->	
+VolumeIdentity{...}
+VolumePrototypeBareMetalServerContext{
+attachment_mode	string
+example: single
+maxLength: 128
+minLength: 1
+pattern: ^[a-z][a-z0-9]*(_[a-z0-9]+)*$
+title: VolumeAttachmentMode
+default: single
+
+The attachment mode of the volume:
+
+    single: volume can only be attached to a single bare metal server or instance concurrently.
+    multiple: volume can be attached to multiple bare metal servers concurrently. Each bare metal server has full read write access to the volume. To maintain data consistency, the application using the volume must use volume reservations or use a data partitioning scheme.
+
+Boot volumes must be single. Data volumes can be either single or multiple.
+
+To attach to a volume with an attachment_mode of single, the attachment_protocol of the instance or bare metal server's volume attachment resource can be either virtio_blk ornvme_tcp.
+
+To attach to a volume with an attachment_mode of multiple, the attachment_protocol of the instance or bare metal server's volume attachment resource must be nvme_tcp.
+
+If unspecified, the default is single.
+Enum:
+Array [ 2 ]
+bandwidth	integer($int32)
+example: 1000
+maximum: 8192
+minimum: 1000
+
+The maximum bandwidth (in megabits per second) for the volume.
+
+If the volume profile has a bandwidth.type of dependent, this property is system-managed and must not be specified.
+
+Provided the property is user-managed, if it is unspecified, its value will be set based on the specified iops and capacity.
+iops	integer
+example: 10000
+
+The maximum I/O operations per second (IOPS) to use for this volume.
+
+If the volume profile has a iops.type of dependent, this property is system-managed and must not be specified.
+
+Provided the property is user-managed, if it is unspecified, its value will be set based on the specified capacity.
+name	string
+example: my-volume
+maxLength: 63
+minLength: 1
+pattern: ^([a-z]|[a-z][-a-z0-9]*[a-z0-9])$
+
+The name for this volume. The name must not be used by another volume in the region. If unspecified, the name will be a hyphenated list of randomly-selected words.
+profile*	VolumeProfileIdentity{...}
+resource_group	ResourceGroupIdentity{...}
+user_tags	[...]
+ 
+anyOf ->	
+VolumeByCapacity{
+capacity*	integer
+example: 100
+
+The capacity to use for the volume (in gigabytes). The specified value must be within the capacity range of the volume's profile.
+encryption_key	EncryptionKeyIdentity{...}
+ 
+}
+VolumeBySourceSnapshot{
+allowed_use	VolumeAllowedUsePrototype{...}
+capacity	integer
+example: 100
+
+The capacity to use for the volume (in gigabytes). The specified value must be at least the snapshot's minimum_capacity, and must be within the capacity range of the volume's profile.
+
+If unspecified, the capacity will be the source snapshot's minimum_capacity.
+encryption_key	EncryptionKeyIdentity{...}
+source_snapshot*	SnapshotIdentity{...}
+ 
+}
+}
+}
+ 
+oneOf ->	
+BareMetalServerVolumeAttachmentProtocolPrototype{...}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+
+The volume attachment was created successfully, attaching the specified volume to the bare metal server.
+Controls Accept header.
+
+    Example Value
+    Model
+
+BareMetalServerVolumeAttachment{
+bandwidth	integer($int32)
+example: 1000
+maximum: 8192
+minimum: 1000
+
+The maximum bandwidth (in megabits per second) for the volume when attached to this bare metal server.
+created_at*	string($date-time)
+example: 2026-01-02T03:04:05.006Z
+maxLength: 64
+minLength: 10
+pattern: ^((?:(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2}:\d{2}(?:\.\d+)?))(Z|[\+-]\d{2}:\d{2})?)$
+
+The date and time that the volume attachment was created.
+delete_volume_on_bare_metal_server_delete*	boolean
+
+Indicates whether deleting the bare metal server will also delete the attached volume.
+
+This property must be false if the volume's attachment_mode is multiple.
+device	BareMetalServerVolumeAttachmentDevice{
+description:	
+
+The configuration for the volume as a device in the bare metal server operating system.
+
+This property may be absent if the status of the volume attachment is not available.
+id*	string
+maxLength: 64
+minLength: 1
+pattern: ^[-0-9a-z_]+$
+
+A unique identifier for the device which is exposed to the bare metal server operating system
+ 
+}
+href*	string
+example: https://us-south.iaas.cloud.ibm.com/v1/bare_metal_servers/1e09281b-f177-46fb-baf1-bc152b2e391a/volume_attachments/82cbf856-9cbb-45fb-b62f-d7bcef32399a
+maxLength: 8000
+minLength: 10
+pattern: ^http(s)?:\/\/([^\/?#]*)([^?#]*)(\?([^#]*))?(#(.*))?$
+
+The URL for this bare metal server volume attachment
+id*	string
+example: 82cbf856-9cbb-45fb-b62f-d7bcef32399a
+maxLength: 64
+minLength: 1
+pattern: ^[-0-9a-z_]+$
+
+The unique identifier for this bare metal volume attachment
+name*	string
+example: my-volume-attachment
+maxLength: 63
+minLength: 1
+pattern: ^-?([a-z]|[a-z][-a-z0-9]*[a-z0-9]|[0-9][-a-z0-9]*([a-z]|[-a-z][-a-z0-9]*[a-z0-9]))$
+
+The name for this volume attachment. The name is unique across all volume attachments on the instance or bare metal server.
+status*	BareMetalServerVolumeAttachmentStatusstring
+maxLength: 128
+minLength: 1
+pattern: ^[a-z][a-z0-9]*(_[a-z0-9]+)*$
+title: BareMetalServerVolumeAttachmentStatus
+
+The status of this volume attachment.
+
+    attaching: volume attachment is being initialized and not yet usable
+    detaching: volume attachment is being removed.
+    available: volume attachment is usable, connection to the volume can be established from the server's operating system.
+    unusable: volume attachment is unusable due to the underlying volume state
+
+The enumerated values for this property may expand in the future.
+Enum:
+Array [ 4 ]
+status_reason	BareMetalServerVolumeAttachmentStatusReason{
+description:	
+
+The reasons for the current status (if any).
+code*	string
+example: volume_encryption_key_deleted
+maxLength: 128
+minLength: 1
+pattern: ^[a-z][a-z0-9]*(_[a-z0-9]+)*$
+
+The status reason code:
+
+    volume_encryption_key_deleted: The key associated with the data volume attached to the bare metal server is deleted
+
+The enumerated values for this property may expand in the future.
+Enum:
+Array [ 1 ]
+message*	string
+example: A failure occurred
+maxLength: 512
+minLength: 1
+pattern: ^[ -~\n\r\t]*$
+
+An explanation of the status reason
+more_info	string
+example: https://cloud.ibm.com/docs/key-protect?topic=key-protect-restore-keys
+maxLength: 8000
+minLength: 10
+pattern: ^http(s)?:\/\/([^\/?#]*)([^?#]*)(\?([^#]*))?(#(.*))?$
+
+A link to documentation about this status reason
+ 
+}
+type*	string
+maxLength: 128
+minLength: 1
+pattern: ^[a-z][a-z0-9]*(_[a-z0-9]+)*$
+
+The type of volume attachment.
+
+The enumerated values for this property may expand in the future.
+Enum:
+Array [ 1 ]
+volume*	VolumeReferenceVolumeAttachmentContext{
+description:	
+
+The volume attached to the bare metal server.
+
+This property will be absent if the volume has not yet been provisioned.
+crn*	string
+example: crn:v1:bluemix:public:is:us-south-1:a/aa2432b1fa4d4ace891e9b80fc104e34::volume:r006-1a6b7274-678d-4dfb-8981-c71dd9d4daa5
+maxLength: 512
+minLength: 17
+pattern: ^crn:v[0-9]+:[a-z0-9-]+:[a-z0-9-]+:[a-z0-9-]+:[a-z0-9-]*:([a-z]\/[a-z0-9-]+)?:[a-z0-9-]*:[a-z0-9-]*:[a-zA-Z0-9-_\.\/]*$
+
+The CRN for this volume
+deleted	Deleted{...}
+href*	string
+example: https://us-south.iaas.cloud.ibm.com/v1/volumes/r006-1a6b7274-678d-4dfb-8981-c71dd9d4daa5
+maxLength: 8000
+minLength: 10
+pattern: ^https:\/\/([^\/?#]*)([^?#]*)/volumes/[-0-9a-z_]+$
+
+The URL for this volume
+id*	string
+example: r006-1a6b7274-678d-4dfb-8981-c71dd9d4daa5
+maxLength: 64
+minLength: 1
+pattern: ^[-0-9a-z_]+$
+
+The unique identifier for this volume
+name*	string
+example: my-volume
+maxLength: 63
+minLength: 1
+pattern: ^-?([a-z]|[a-z][-a-z0-9]*[a-z0-9]|[0-9][-a-z0-9]*([a-z]|[-a-z][-a-z0-9]*[a-z0-9]))$
+
+The name for this volume. The name is unique across all volumes in the region.
+resource_type*	string
+maxLength: 128
+minLength: 1
+pattern: ^[a-z][a-z0-9]*(_[a-z0-9]+)*$
+
+The resource type
+Enum:
+Array [ 1 ]
+ 
+}
+ 
+oneOf ->	
+BareMetalServerVolumeAttachmentNetwork{
+ips*	[...]
+nvme_qualified_name	string
+example: nqn.2014-08.org.nvmexpress:uuid:f81d4fae-7dec-11d0-a765-00a0c91e6bf6
+maxLength: 223
+minLength: 16
+pattern: ^nqn.[0-9]{4}-[0-9]{2}.[a-zA-Z0-9-.]+:.*$
+title: NVMeQualifiedName
+
+The NVMe Qualified Name (NQN) of the subsystem. This unique identifier is used by the bare metal server to establish a connection to the volume over the nvme-tcp protocol. The NQN must be used when configuring the NVMe initiator on the bare metal server to access the attached volume.
+protocol*	string
+example: nvme_tcp
+
+The protocol used for this volume attachment:
+
+    nvme_tcp: Non-Volatile Memory Express (NVMe) over TCP/IP. This protocol allows bare metal servers to connect to volumes over the network using the NVMe protocol.
+
+The enumerated values for this property may expand in the future.
+Enum:
+Array [ 1 ]
+ 
+}
+}

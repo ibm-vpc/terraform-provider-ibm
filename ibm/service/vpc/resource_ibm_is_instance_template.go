@@ -1815,7 +1815,7 @@ func instanceTemplateCreateBySourceSnapshot(context context.Context, d *schema.R
 			volTemplate.AllowedUse = AllowedUseModel
 		}
 
-		instanceproto.BootVolumeAttachment = &vpcv1.VolumeAttachmentPrototypeInstanceBySourceSnapshotContext{
+		instanceproto.BootVolumeAttachment = &vpcv1.InstanceTemplateBySourceSnapshotBootVolumeAttachment{
 			DeleteVolumeOnInstanceDelete: &deleteVolumeOption,
 			Volume:                       volTemplate,
 		}
@@ -2406,7 +2406,7 @@ func instanceTemplateCreateByCatalogOffering(context context.Context, d *schema.
 			volTemplate.AllowedUse = AllowedUseModel
 		}
 
-		instanceproto.BootVolumeAttachment = &vpcv1.VolumeAttachmentPrototypeInstanceByImageContext{
+		instanceproto.BootVolumeAttachment = &vpcv1.InstanceTemplateByCatalogOfferingBootVolumeAttachment{
 			DeleteVolumeOnInstanceDelete: &deleteVolumeOption,
 			Volume:                       volTemplate,
 		}
@@ -2991,7 +2991,7 @@ func instanceTemplateCreate(context context.Context, d *schema.ResourceData, met
 			volTemplate.AllowedUse = AllowedUseModel
 		}
 
-		instanceproto.BootVolumeAttachment = &vpcv1.VolumeAttachmentPrototypeInstanceByImageContext{
+		instanceproto.BootVolumeAttachment = &vpcv1.InstanceTemplateByImageBootVolumeAttachment{
 			DeleteVolumeOnInstanceDelete: &deleteVolumeOption,
 			Volume:                       volTemplate,
 		}

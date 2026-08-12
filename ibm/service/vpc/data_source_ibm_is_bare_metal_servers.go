@@ -979,6 +979,95 @@ func DataSourceIBMIsBareMetalServers() *schema.Resource {
 					},
 				},
 			},
+			isBareMetalServerNvmeQualifiedName: {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The NVMe Qualified Name (NQN) for this bare metal server.",
+			},
+			isBareMetalServerStorageAccess: {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "The storage access secret required to connect to remote storage.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						isBMSStorageAccessCreatedAt: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The date and time the storage access secret was created.",
+						},
+						isBMSStorageAccessEncryptedSecret: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Sensitive:   true,
+							Description: "The storage access secret, encrypted using public_key and returned as a base64-encoded string. This property will only be present when the status of the storage_access secret is active.",
+						},
+						isBMSStorageAccessPublicKey: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The fingerprint of the public SSH key used to encrypt the storage access secret.",
+						},
+						isBMSStorageAccessRotatedAt: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The date and time the storage access secret was last rotated.",
+						},
+						isBMSStorageAccessStatus: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The status of the storage access secret.",
+						},
+					},
+				},
+			},
+			isBareMetalServerVolumeAttachments: {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "The volume attachments for this bare metal server.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						isBMSVolAttId: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The unique identifier for this volume attachment.",
+						},
+						isBMSVolAttName: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The name for this volume attachment.",
+						},
+						isBMSVolAttHref: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The URL for this volume attachment.",
+						},
+						isBMSVolAttDevice: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "A unique identifier for the device exposed to the bare metal server OS.",
+						},
+						isBMSVolAttVol: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The ID of the attached volume.",
+						},
+						isBMSVolAttVolName: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The name of the attached volume.",
+						},
+						isBMSVolAttVolCRN: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The CRN of the attached volume.",
+						},
+						isBMSVolAttVolHref: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The URL of the attached volume.",
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -1438,6 +1527,45 @@ func dataSourceIBMISBareMetalServersRead(context context.Context, d *schema.Reso
 			metadataServiceList = append(metadataServiceList, metadataServiceMap)
 			l[isBareMetalServerMetadataService] = metadataServiceList
 		}
+		if bms.NvmeQualifiedName != nil {
+			l[isBareMetalServerNvmeQualifiedName] = *bms.NvmeQualifiedName
+		}
+		storageAccessList := make([]map[string]interface{}, 0)
+		if bms.StorageAccess != nil {
+			storageAccess := map[string]interface{}{}
+			storageAccess[isBMSStorageAccessCreatedAt] = bms.StorageAccess.CreatedAt.String()
+			storageAccess[isBMSStorageAccessStatus] = *bms.StorageAccess.Status
+			if bms.StorageAccess.EncryptedSecret != nil {
+				storageAccess[isBMSStorageAccessEncryptedSecret] = string(*bms.StorageAccess.EncryptedSecret)
+			}
+			if bms.StorageAccess.PublicKey != nil && bms.StorageAccess.PublicKey.Fingerprint != nil {
+				storageAccess[isBMSStorageAccessPublicKey] = *bms.StorageAccess.PublicKey.Fingerprint
+			}
+			if bms.StorageAccess.RotatedAt != nil {
+				storageAccess[isBMSStorageAccessRotatedAt] = bms.StorageAccess.RotatedAt.String()
+			}
+			storageAccessList = append(storageAccessList, storageAccess)
+		}
+		l[isBareMetalServerStorageAccess] = storageAccessList
+		volumeAttachmentsList := make([]map[string]interface{}, 0)
+		for _, volumeAttachment := range bms.VolumeAttachments {
+			currentVolumeAttachment := map[string]interface{}{
+				isBMSVolAttId:   *volumeAttachment.ID,
+				isBMSVolAttName: *volumeAttachment.Name,
+				isBMSVolAttHref: *volumeAttachment.Href,
+			}
+			if volumeAttachment.Device != nil && volumeAttachment.Device.ID != nil {
+				currentVolumeAttachment[isBMSVolAttDevice] = *volumeAttachment.Device.ID
+			}
+			if volumeAttachment.Volume != nil {
+				currentVolumeAttachment[isBMSVolAttVol] = *volumeAttachment.Volume.ID
+				currentVolumeAttachment[isBMSVolAttVolName] = *volumeAttachment.Volume.Name
+				currentVolumeAttachment[isBMSVolAttVolCRN] = *volumeAttachment.Volume.CRN
+				currentVolumeAttachment[isBMSVolAttVolHref] = *volumeAttachment.Volume.Href
+			}
+			volumeAttachmentsList = append(volumeAttachmentsList, currentVolumeAttachment)
+		}
+		l[isBareMetalServerVolumeAttachments] = volumeAttachmentsList
 		serversInfo = append(serversInfo, l)
 	}
 	d.SetId(dataSourceIBMISBareMetalServersID(d))

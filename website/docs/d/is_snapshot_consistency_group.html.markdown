@@ -70,7 +70,7 @@ After your data source is created, you can read values from the following attrib
 	- `name` - (String) The name for this resource group.
 
 - `resource_type` - (String) The resource type.
-- `service_tags` - (List) The [service tags](https://cloud.ibm.com/apidocs/tagging#types-of-tags)[`is.instance:` prefix](https://cloud.ibm.com/docs/vpc?topic=vpc-snapshots-vpc-faqs) associated with this snapshot consistency group.
+- `service_tags` - (List) The [service tags](https://cloud.ibm.com/apidocs/tagging#types-of-tags) associated with this snapshot consistency group. Each tag is prefixed with `is.instance:` or `is.bare-metal-server:`. For more information, see [service tag prefixes](https://cloud.ibm.com/docs/vpc?topic=vpc-snapshots-vpc-faqs).
 - `snapshots` - (List) The member snapshots that are data-consistent with respect to captured time. (may be[deleted](https://cloud.ibm.com/apidocs/vpc#deleted-resources)).
 	Nested schema for `snapshots`:
 	- `crn` - (String) The CRN of this snapshot.

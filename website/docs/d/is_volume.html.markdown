@@ -111,7 +111,35 @@ In addition to all argument reference list, you can access the following attribu
   - `code` - (String)  A snake case string identifying the status reason.
   - `message` - (String)  An explanation of the status reason
   - `more_info` - (String) Link to documentation about this status reason
+- `attachment_mode` - (String) The attachment mode of the volume. Allowable values are: `single`, `multiple`. `single`: the volume can only be attached to a single bare metal server or instance at a time. `multiple`: the volume can be attached to multiple bare metal servers concurrently (nvme_tcp only).
 - `storage_generation` - (Int) The storage generation indicates which generation the profile family belongs to. For the custom and tiered profiles, this value is 1. For the sdp profile, this value is 2.
 - `tags` - (String) User Tags associated with the volume. (https://cloud.ibm.com/apidocs/tagging#types-of-tags)
 - `unattached_capacity_update_supported` - (Boolean) Indicates whether the capacity for the volume can be changed when not attached to a running virtual server instance.
 - `unattached_iops_update_supported` - (Boolean) Indicates whether the IOPS for the volume can be changed when not attached to a running virtual server instance.
+- `volume_attachments` - (List) The volume attachments for this volume, including any attachments to instances or bare metal servers.
+
+  Nested scheme for `volume_attachments`:
+  - `bare_metal_server` - (List) The bare metal server to which this volume is attached, if the attachment is to a bare metal server.
+    Nested scheme for `bare_metal_server`:
+    - `crn` - (String) The CRN for this bare metal server.
+    - `href` - (String) The URL for this bare metal server.
+    - `id` - (String) The unique identifier for this bare metal server.
+    - `name` - (String) The name for this bare metal server.
+  - `delete_volume_on_bare_metal_server_delete` - (Boolean) If set to true, when the bare metal server is deleted, the volume is also deleted.
+  - `delete_volume_on_instance_delete` - (Boolean) If set to true, when the instance is deleted, the volume is also deleted.
+  - `deleted` - (List) If present, this property indicates the referenced resource has been deleted.
+    Nested scheme for `deleted`:
+    - `more_info` - (String) Link to documentation about deleted resources.
+  - `device` - (List) Information about how the volume is exposed to the instance or bare metal server operating system.
+    Nested scheme for `device`:
+    - `id` - (String) A unique identifier for the device which is exposed to the instance or bare metal server operating system.
+  - `href` - (String) The URL for this volume attachment.
+  - `id` - (String) The unique identifier for this volume attachment.
+  - `instance` - (List) The instance to which this volume is attached, if the attachment is to an instance.
+    Nested scheme for `instance`:
+    - `crn` - (String) The CRN for this virtual server instance.
+    - `href` - (String) The URL for this virtual server instance.
+    - `id` - (String) The unique identifier for this virtual server instance.
+    - `name` - (String) The name for this virtual server instance.
+  - `name` - (String) The name for this volume attachment.
+  - `type` - (String) The type of volume attachment. Allowable values are: `boot`, `data`.

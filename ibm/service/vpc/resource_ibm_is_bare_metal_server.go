@@ -88,6 +88,29 @@ const (
 	isBareMetalServerMetadataService                     = "metadata_service"
 	isBareMetalServerMetadataServiceEnabled              = "enabled"
 	isBareMetalServerMetadataServiceProtocol             = "protocol"
+	isBareMetalServerNvmeQualifiedName                   = "nvme_qualified_name"
+	isBareMetalServerStorageAccess                       = "storage_access"
+	isBareMetalServerVolumeAttachments                   = "volume_attachments"
+	isBareMetalServerVolumePrototypes                    = "volume_prototypes"
+
+	// volume_prototypes sub-fields — attachment level
+	isBMSVolProtoAttID             = "id"
+	isBMSVolProtoAttName           = "name"
+	isBMSVolProtoAttDeleteOnDelete = "delete_volume_on_bare_metal_server_delete"
+	isBMSVolProtoAttVolume         = "volume"
+	// volume_prototypes sub-fields — volume level
+	isBMSVolProtoVolID             = "volume_id"
+	isBMSVolProtoVolName           = "volume_name"
+	isBMSVolProtoVolCRN            = "volume_crn"
+	isBMSVolProtoVolCapacity       = "volume_capacity"
+	isBMSVolProtoVolProfile        = "volume_profile"
+	isBMSVolProtoVolIops           = "volume_iops"
+	isBMSVolProtoVolBandwidth      = "volume_bandwidth"
+	isBMSVolProtoVolEncryptionKey  = "volume_encryption_key"
+	isBMSVolProtoVolAttachmentMode = "volume_attachment_mode"
+	isBMSVolProtoVolResourceGroup  = "volume_resource_group"
+	isBMSVolProtoVolSourceSnapshot = "volume_source_snapshot"
+	isBMSVolProtoVolTags           = "volume_tags"
 )
 
 func ResourceIBMIsBareMetalServer() *schema.Resource {
@@ -1406,6 +1429,206 @@ func ResourceIBMIsBareMetalServer() *schema.Resource {
 					},
 				},
 			},
+			isBareMetalServerNvmeQualifiedName: {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The NVMe Qualified Name (NQN) for this bare metal server.",
+			},
+			isBareMetalServerStorageAccess: {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "The storage access secret required to connect to remote storage.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						isBMSStorageAccessCreatedAt: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The date and time the storage access secret was created.",
+						},
+						isBMSStorageAccessEncryptedSecret: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Sensitive:   true,
+							Description: "The storage access secret, encrypted using public_key and returned as a base64-encoded string.",
+						},
+						isBMSStorageAccessPublicKey: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The fingerprint of the public SSH key used to encrypt the storage access secret.",
+						},
+						isBMSStorageAccessRotatedAt: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The date and time the storage access secret was last rotated.",
+						},
+						isBMSStorageAccessStatus: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The status of the storage access secret.",
+						},
+					},
+				},
+			},
+			isBareMetalServerVolumeAttachments: {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "The volume attachments for this bare metal server.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						isBMSVolAttId: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The unique identifier for this volume attachment",
+						},
+						isBMSVolAttName: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The name for this volume attachment",
+						},
+						isBMSVolAttHref: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The URL for this volume attachment",
+						},
+						isBMSVolAttDevice: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "A unique identifier for the device exposed to the bare metal server OS",
+						},
+						isBMSVolAttVol: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The ID of the attached volume",
+						},
+						isBMSVolAttVolName: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The name of the attached volume",
+						},
+						isBMSVolAttVolCRN: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The CRN of the attached volume",
+						},
+						isBMSVolAttVolHref: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The URL of the attached volume",
+						},
+					},
+				},
+			},
+			isBareMetalServerVolumePrototypes: {
+				Type:             schema.TypeList,
+				Optional:         true,
+				Computed:         true,
+				DiffSuppressFunc: diffSuppressBMSVolumePrototypes,
+				Description:      "The additional volume attachments to create for the bare metal server",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						isBMSVolProtoAttID: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The unique identifier for this volume attachment.",
+						},
+						isBMSVolProtoAttName: {
+							Type:             schema.TypeString,
+							Required:         true,
+							DiffSuppressFunc: flex.ApplyOnce,
+							Description:      "The name for this volume attachment.",
+						},
+						isBMSVolProtoAttDeleteOnDelete: {
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Computed:    true,
+							Description: "If true, deleting the bare metal server also deletes the attached volume.",
+						},
+						// ── attach existing volume by ID ────────────────────────
+						isBMSVolProtoAttVolume: {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Computed:    true,
+							ForceNew:    true,
+							Description: "The ID of an existing volume to attach.",
+						},
+						// ── computed outputs ────────────────────────────────────
+						isBMSVolProtoVolID: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The ID of the resulting volume.",
+						},
+						isBMSVolProtoVolName: {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Computed:    true,
+							Description: "The name for the new volume.",
+						},
+						isBMSVolProtoVolCRN: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The CRN of the resulting volume.",
+						},
+						// ── inline new-volume fields (volume_ prefix) ───────────
+						isBMSVolProtoVolCapacity: {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Computed:    true,
+							Description: "The capacity of the new volume in gigabytes.",
+						},
+						isBMSVolProtoVolProfile: {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Computed:    true,
+							Description: "The profile name for the new volume (e.g. sdp).",
+						},
+						isBMSVolProtoVolIops: {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Computed:    true,
+							Description: "The maximum I/O operations per second for the new volume.",
+						},
+						isBMSVolProtoVolBandwidth: {
+							Type:        schema.TypeInt,
+							Optional:    true,
+							Computed:    true,
+							Description: "The maximum bandwidth (in megabits per second) for the new volume.",
+						},
+						isBMSVolProtoVolEncryptionKey: {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Computed:    true,
+							Description: "The CRN of the encryption key for the new volume.",
+						},
+						isBMSVolProtoVolAttachmentMode: {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Computed:     true,
+							ValidateFunc: validate.ValidateAllowedStringValues([]string{"single", "multiple"}),
+							Description:  "The attachment mode of the new volume: single or multiple.",
+						},
+						isBMSVolProtoVolResourceGroup: {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Computed:    true,
+							Description: "The resource group ID for the new volume.",
+						},
+						isBMSVolProtoVolSourceSnapshot: {
+							Type:        schema.TypeString,
+							Optional:    true,
+							Computed:    true,
+							Description: "The snapshot ID to use as the source for the new volume.",
+						},
+						isBMSVolProtoVolTags: {
+							Type:        schema.TypeSet,
+							Optional:    true,
+							Computed:    true,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+							Set:         flex.ResourceIBMVPCHash,
+							Description: "User tags for the new volume.",
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -2198,6 +2421,105 @@ func resourceIBMISBareMetalServerCreate(context context.Context, d *schema.Resou
 			ID: &vpc,
 		}
 	}
+
+	if volProtosIntf, ok := d.GetOk(isBareMetalServerVolumePrototypes); ok {
+		volProtos := volProtosIntf.([]interface{})
+		volAttProtos := make([]vpcv1.BareMetalServerVolumeAttachmentPrototypeIntf, 0, len(volProtos))
+		for i := range volProtos {
+			proto := &vpcv1.BareMetalServerVolumeAttachmentPrototype{}
+
+			if attNameOk, ok := d.GetOk(fmt.Sprintf("volume_prototypes.%d.name", i)); ok {
+				attName := attNameOk.(string)
+				if attName != "" {
+					proto.Name = &attName
+				}
+			}
+			if volAutoDelete, ok := d.GetOk(fmt.Sprintf("volume_prototypes.%d.delete_volume_on_bare_metal_server_delete", i)); ok {
+				proto.DeleteVolumeOnBareMetalServerDelete = core.BoolPtr(volAutoDelete.(bool))
+			}
+
+			// existing volume by ID
+			if volIDOk, ok := d.GetOk(fmt.Sprintf("volume_prototypes.%d.volume", i)); ok {
+				volID := volIDOk.(string)
+				if volID != "" {
+					proto.Volume = &vpcv1.BareMetalServerVolumeAttachmentPrototypeVolumeVolumeIdentity{
+						ID: &volID,
+					}
+				}
+			}
+			if proto.Volume == nil {
+				// inline new volume
+				newVol := &vpcv1.BareMetalServerVolumeAttachmentPrototypeVolumeVolumePrototypeBareMetalServerContext{}
+
+				if vname, ok := d.GetOk(fmt.Sprintf("volume_prototypes.%d.volume_name", i)); ok {
+					volName := vname.(string)
+					if volName != "" {
+						newVol.Name = &volName
+					}
+				}
+				volProfileStr := "sdp"
+				if volProfileOk, ok := d.GetOk(fmt.Sprintf("volume_prototypes.%d.volume_profile", i)); ok {
+					volProfile := volProfileOk.(string)
+					if volProfile != "" {
+						volProfileStr = volProfile
+					}
+				}
+				newVol.Profile = &vpcv1.VolumeProfileIdentity{Name: &volProfileStr}
+				if volCapacity, ok := d.GetOk(fmt.Sprintf("volume_prototypes.%d.volume_capacity", i)); ok {
+					if volCapacity.(int) != 0 {
+						newVol.Capacity = core.Int64Ptr(int64(volCapacity.(int)))
+					}
+				}
+				if volIops, ok := d.GetOk(fmt.Sprintf("volume_prototypes.%d.volume_iops", i)); ok {
+					if volIops.(int) != 0 {
+						newVol.Iops = core.Int64Ptr(int64(volIops.(int)))
+					}
+				}
+				if volBandwidthOk, ok := d.GetOk(fmt.Sprintf("volume_prototypes.%d.volume_bandwidth", i)); ok {
+					volBandwidth := volBandwidthOk.(int)
+					if volBandwidth != 0 {
+						newVol.Bandwidth = core.Int64Ptr(int64(volBandwidth))
+					}
+				}
+				if volEncKeyOk, ok := d.GetOk(fmt.Sprintf("volume_prototypes.%d.volume_encryption_key", i)); ok {
+					volEncKey := volEncKeyOk.(string)
+					if volEncKey != "" {
+						newVol.EncryptionKey = &vpcv1.EncryptionKeyIdentity{CRN: &volEncKey}
+					}
+				}
+				if volAttModeOk, ok := d.GetOk(fmt.Sprintf("volume_prototypes.%d.volume_attachment_mode", i)); ok {
+					volAttMode := volAttModeOk.(string)
+					if volAttMode != "" {
+						newVol.AttachmentMode = &volAttMode
+					}
+				}
+				if volRgOk, ok := d.GetOk(fmt.Sprintf("volume_prototypes.%d.volume_resource_group", i)); ok {
+					volRg := volRgOk.(string)
+					if volRg != "" {
+						newVol.ResourceGroup = &vpcv1.ResourceGroupIdentity{ID: &volRg}
+					}
+				}
+				if volSnapshotOk, ok := d.GetOk(fmt.Sprintf("volume_prototypes.%d.volume_source_snapshot", i)); ok {
+					volSnapshot := volSnapshotOk.(string)
+					if volSnapshot != "" {
+						newVol.SourceSnapshot = &vpcv1.SnapshotIdentity{ID: &volSnapshot}
+					}
+				}
+				volTags := d.Get(fmt.Sprintf("volume_prototypes.%d.volume_tags", i)).(*schema.Set)
+				if volTags != nil && volTags.Len() != 0 {
+					userTagsArray := make([]string, volTags.Len())
+					for j, userTag := range volTags.List() {
+						userTagsArray[j] = userTag.(string)
+					}
+					newVol.UserTags = userTagsArray
+				}
+				proto.Volume = newVol
+			}
+			volAttProtos = append(volAttProtos, proto)
+		}
+		options.VolumeAttachments = volAttProtos
+	}
+
 	createbmsoptions.BareMetalServerPrototype = options
 	bms, response, err := sess.CreateBareMetalServerWithContext(context, createbmsoptions)
 	if err != nil {
@@ -2612,6 +2934,77 @@ func bareMetalServerGet(context context.Context, d *schema.ResourceData, meta in
 		}
 	}
 
+	if bms.NvmeQualifiedName != nil {
+		if err = d.Set(isBareMetalServerNvmeQualifiedName, *bms.NvmeQualifiedName); err != nil {
+			err = fmt.Errorf("Error setting nvme_qualified_name: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_bare_metal_server", "read", "set-nvme_qualified_name").GetDiag()
+		}
+	}
+	storageAccessList := make([]map[string]interface{}, 0)
+	if bms.StorageAccess != nil {
+		storageAccess := map[string]interface{}{}
+		storageAccess[isBMSStorageAccessCreatedAt] = bms.StorageAccess.CreatedAt.String()
+		storageAccess[isBMSStorageAccessStatus] = *bms.StorageAccess.Status
+		if bms.StorageAccess.EncryptedSecret != nil {
+			storageAccess[isBMSStorageAccessEncryptedSecret] = string(*bms.StorageAccess.EncryptedSecret)
+		}
+		if bms.StorageAccess.PublicKey != nil && bms.StorageAccess.PublicKey.Fingerprint != nil {
+			storageAccess[isBMSStorageAccessPublicKey] = *bms.StorageAccess.PublicKey.Fingerprint
+		}
+		if bms.StorageAccess.RotatedAt != nil {
+			storageAccess[isBMSStorageAccessRotatedAt] = bms.StorageAccess.RotatedAt.String()
+		}
+		storageAccessList = append(storageAccessList, storageAccess)
+	}
+	if err = d.Set(isBareMetalServerStorageAccess, storageAccessList); err != nil {
+		err = fmt.Errorf("Error setting storage_access: %s", err)
+		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_bare_metal_server", "read", "set-storage_access").GetDiag()
+	}
+	volumeAttachmentsList := make([]map[string]interface{}, 0)
+	for _, volumeAttachment := range bms.VolumeAttachments {
+		if volumeAttachment.ID == nil || volumeAttachment.Name == nil || volumeAttachment.Href == nil {
+			continue
+		}
+		currentVolumeAttachment := map[string]interface{}{
+			isBMSVolAttId:   *volumeAttachment.ID,
+			isBMSVolAttName: *volumeAttachment.Name,
+			isBMSVolAttHref: *volumeAttachment.Href,
+		}
+		if volumeAttachment.Device != nil && volumeAttachment.Device.ID != nil {
+			currentVolumeAttachment[isBMSVolAttDevice] = *volumeAttachment.Device.ID
+		}
+		if volumeAttachment.Volume != nil {
+			if volumeAttachment.Volume.ID != nil {
+				currentVolumeAttachment[isBMSVolAttVol] = *volumeAttachment.Volume.ID
+			}
+			if volumeAttachment.Volume.Name != nil {
+				currentVolumeAttachment[isBMSVolAttVolName] = *volumeAttachment.Volume.Name
+			}
+			if volumeAttachment.Volume.CRN != nil {
+				currentVolumeAttachment[isBMSVolAttVolCRN] = *volumeAttachment.Volume.CRN
+			}
+			if volumeAttachment.Volume.Href != nil {
+				currentVolumeAttachment[isBMSVolAttVolHref] = *volumeAttachment.Volume.Href
+			}
+		}
+		volumeAttachmentsList = append(volumeAttachmentsList, currentVolumeAttachment)
+	}
+	if err = d.Set(isBareMetalServerVolumeAttachments, volumeAttachmentsList); err != nil {
+		err = fmt.Errorf("Error setting volume_attachments: %s", err)
+		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_bare_metal_server", "read", "set-volume_attachments").GetDiag()
+	}
+
+	volProtosList, err := setBMSVolumePrototypesInState(context, d, bms, sess)
+	if err != nil {
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("setBMSVolumePrototypesInState failed: %s", err.Error()), "ibm_is_bare_metal_server", "read")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
+	}
+	if err = d.Set(isBareMetalServerVolumePrototypes, volProtosList); err != nil {
+		err = fmt.Errorf("Error setting volume_prototypes: %s", err)
+		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_bare_metal_server", "read", "set-volume_prototypes").GetDiag()
+	}
+
 	if !core.IsNil(bms.PrimaryNetworkAttachment) {
 		pnaId := *bms.PrimaryNetworkAttachment.ID
 		getBareMetalServerNetworkAttachment := &vpcv1.GetBareMetalServerNetworkAttachmentOptions{
@@ -2878,6 +3271,14 @@ func bareMetalServerUpdate(context context.Context, d *schema.ResourceData, meta
 		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
 		return tfErr.GetDiag()
 	}
+
+	err = handleBMSVolumePrototypesUpdate(context, d, sess)
+	if err != nil {
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("handleBMSVolumePrototypesUpdate failed: %s", err.Error()), "ibm_is_bare_metal_server", "update")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
+	}
+
 	if d.HasChange("image") || d.HasChange("keys") || d.HasChange("user_data") || d.HasChange("default_trusted_profile") {
 		stopServerIfStartingForInitialization := false
 		newImageId := d.Get("image").(string)
@@ -4495,6 +4896,39 @@ func bareMetalServerDelete(context context.Context, d *schema.ResourceData, meta
 			return tfErr.GetDiag()
 		}
 	}
+	listVolAttOptions := &vpcv1.ListBareMetalServerVolumeAttachmentsOptions{
+		BareMetalServerID: &id,
+	}
+	volAtts, _, err := sess.ListBareMetalServerVolumeAttachmentsWithContext(context, listVolAttOptions)
+	if err != nil {
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("ListBareMetalServerVolumeAttachmentsWithContext failed: %s", err.Error()), "ibm_is_bare_metal_server", "delete")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
+	}
+	for _, volAttIntf := range volAtts.VolumeAttachments {
+		volAtt, ok := volAttIntf.(*vpcv1.BareMetalServerVolumeAttachment)
+		if !ok || volAtt == nil {
+			continue
+		}
+		if *volAtt.Type == "data" && *volAtt.DeleteVolumeOnBareMetalServerDelete {
+			delVolAttOptions := &vpcv1.DeleteBareMetalServerVolumeAttachmentOptions{
+				BareMetalServerID: &id,
+				ID:                volAtt.ID,
+			}
+			_, err := sess.DeleteBareMetalServerVolumeAttachmentWithContext(context, delVolAttOptions)
+			if err != nil {
+				tfErr := flex.TerraformErrorf(err, fmt.Sprintf("DeleteBareMetalServerVolumeAttachmentWithContext failed: %s", err.Error()), "ibm_is_bare_metal_server", "delete")
+				log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+				return tfErr.GetDiag()
+			}
+			_, err = isWaitForBMSVolumeDetached(sess, d, id, *volAtt.ID)
+			if err != nil {
+				tfErr := flex.TerraformErrorf(err, fmt.Sprintf("isWaitForBMSVolumeDetached failed: %s", err.Error()), "ibm_is_bare_metal_server", "delete")
+				log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+				return tfErr.GetDiag()
+			}
+		}
+	}
 	options := &vpcv1.DeleteBareMetalServerOptions{
 		ID: &id,
 	}
@@ -5746,6 +6180,428 @@ func validateBareMetalServerNicNames(ctx context.Context, d *schema.ResourceDiff
 				}
 				nicNames[name.(string)] = true
 			}
+		}
+	}
+
+	return nil
+}
+
+func setBMSVolumePrototypesInState(ctx context.Context, d *schema.ResourceData, bms *vpcv1.BareMetalServer, sess *vpcv1.VpcV1) ([]map[string]interface{}, error) {
+	if bms.VolumeAttachments == nil {
+		return nil, nil
+	}
+
+	// Build a position map from the user-declared config (attachment name → index).
+	configPositions := make(map[string]int)
+	if configList, ok := d.GetOk(isBareMetalServerVolumePrototypes); ok {
+		for i, v := range configList.([]interface{}) {
+			vol := v.(map[string]interface{})
+			if name, ok := vol[isBMSVolProtoAttName].(string); ok && name != "" {
+				configPositions[name] = i
+			}
+		}
+	}
+
+	// If there is nothing in the config, there is nothing to reconcile.
+	if len(configPositions) == 0 {
+		return nil, nil
+	}
+
+	bmsID := d.Id()
+	currentVolumes := make(map[string]map[string]interface{})
+	maxPosition := -1
+
+	for _, attRef := range bms.VolumeAttachments {
+		if attRef.ID == nil || attRef.Name == nil {
+			continue
+		}
+
+		vol := map[string]interface{}{}
+		vol[isBMSVolProtoAttID] = *attRef.ID
+		vol[isBMSVolProtoAttName] = *attRef.Name
+
+		// GetBareMetalServerVolumeAttachment to obtain delete_volume_on_bare_metal_server_delete.
+		getAttOpts := &vpcv1.GetBareMetalServerVolumeAttachmentOptions{
+			BareMetalServerID: &bmsID,
+			ID:                attRef.ID,
+		}
+		attIntf, _, err := sess.GetBareMetalServerVolumeAttachmentWithContext(ctx, getAttOpts)
+		if err != nil {
+			vol[isBMSVolProtoAttDeleteOnDelete] = true
+		} else if att, ok := attIntf.(*vpcv1.BareMetalServerVolumeAttachment); ok && att != nil {
+			vol[isBMSVolProtoAttDeleteOnDelete] = att.DeleteVolumeOnBareMetalServerDelete
+		} else {
+			vol[isBMSVolProtoAttDeleteOnDelete] = true
+		}
+
+		// GetVolume to obtain all volume-level fields.
+		if attRef.Volume != nil && attRef.Volume.ID != nil {
+			volID := *attRef.Volume.ID
+			vol[isBMSVolProtoAttVolume] = volID
+			vol[isBMSVolProtoVolID] = volID
+			if attRef.Volume.CRN != nil {
+				vol[isBMSVolProtoVolCRN] = *attRef.Volume.CRN
+			}
+
+			volumeRef, _, err := sess.GetVolumeWithContext(ctx, &vpcv1.GetVolumeOptions{ID: &volID})
+			if err != nil || volumeRef == nil {
+				// Fallback: populate minimal fields from the reference.
+				if attRef.Volume.Name != nil {
+					vol[isBMSVolProtoVolName] = *attRef.Volume.Name
+				}
+			} else {
+				if volumeRef.Name != nil {
+					vol[isBMSVolProtoVolName] = *volumeRef.Name
+				}
+				if volumeRef.Profile != nil && volumeRef.Profile.Name != nil {
+					vol[isBMSVolProtoVolProfile] = *volumeRef.Profile.Name
+				}
+				if volumeRef.Iops != nil {
+					vol[isBMSVolProtoVolIops] = int(*volumeRef.Iops)
+				}
+				if volumeRef.Capacity != nil {
+					vol[isBMSVolProtoVolCapacity] = int(*volumeRef.Capacity)
+				}
+				if volumeRef.Bandwidth != nil {
+					vol[isBMSVolProtoVolBandwidth] = int(*volumeRef.Bandwidth)
+				}
+				if volumeRef.EncryptionKey != nil && volumeRef.EncryptionKey.CRN != nil {
+					vol[isBMSVolProtoVolEncryptionKey] = *volumeRef.EncryptionKey.CRN
+				}
+				if volumeRef.AttachmentMode != nil {
+					vol[isBMSVolProtoVolAttachmentMode] = *volumeRef.AttachmentMode
+				}
+				if volumeRef.ResourceGroup != nil && volumeRef.ResourceGroup.ID != nil {
+					vol[isBMSVolProtoVolResourceGroup] = *volumeRef.ResourceGroup.ID
+				}
+				if volumeRef.SourceSnapshot != nil && volumeRef.SourceSnapshot.ID != nil {
+					vol[isBMSVolProtoVolSourceSnapshot] = *volumeRef.SourceSnapshot.ID
+				}
+				tags := make([]interface{}, len(volumeRef.UserTags))
+				for i, t := range volumeRef.UserTags {
+					tags[i] = t
+				}
+				vol[isBMSVolProtoVolTags] = schema.NewSet(schema.HashString, tags)
+			}
+		}
+
+		currentVolumes[*attRef.Name] = vol
+
+		if pos, exists := configPositions[*attRef.Name]; exists && pos > maxPosition {
+			maxPosition = pos
+		}
+	}
+
+	// Build an ordered list matching the config positions; extras go at the end.
+	orderedList := make([]map[string]interface{}, maxPosition+1)
+	var unordered []map[string]interface{}
+	for name, vol := range currentVolumes {
+		if pos, exists := configPositions[name]; exists {
+			orderedList[pos] = vol
+		} else {
+			unordered = append(unordered, vol)
+		}
+	}
+
+	finalList := make([]map[string]interface{}, 0, len(currentVolumes))
+	for _, vol := range orderedList {
+		if vol != nil {
+			finalList = append(finalList, vol)
+		}
+	}
+	finalList = append(finalList, unordered...)
+
+	return finalList, nil
+}
+
+func diffSuppressBMSVolumePrototypes(k, old, new string, d *schema.ResourceData) bool {
+	o, n := d.GetChange(isBareMetalServerVolumePrototypes)
+	oldList := o.([]interface{})
+	newList := n.([]interface{})
+
+	if len(oldList) != len(newList) {
+		return false
+	}
+
+	// index new list by attachment name
+	nameToNew := make(map[string]map[string]interface{})
+	for _, v := range newList {
+		vol := v.(map[string]interface{})
+		if name, ok := vol[isBMSVolProtoAttName].(string); ok && name != "" {
+			nameToNew[name] = vol
+		}
+	}
+
+	for _, v := range oldList {
+		oldVol := v.(map[string]interface{})
+		attachmentName, _ := oldVol[isBMSVolProtoAttName].(string)
+		newVol, exists := nameToNew[attachmentName]
+		if !exists {
+			return false
+		}
+		// compare stable fields
+		for _, field := range []string{
+			isBMSVolProtoAttDeleteOnDelete,
+			isBMSVolProtoVolName,
+			isBMSVolProtoVolCapacity,
+			isBMSVolProtoVolProfile,
+			isBMSVolProtoVolBandwidth,
+			isBMSVolProtoVolEncryptionKey,
+			isBMSVolProtoVolAttachmentMode,
+			isBMSVolProtoVolResourceGroup,
+			isBMSVolProtoVolSourceSnapshot,
+		} {
+			if !reflect.DeepEqual(oldVol[field], newVol[field]) {
+				return false
+			}
+		}
+		// iops only relevant for non-tiered profiles
+		profile, _ := oldVol[isBMSVolProtoVolProfile].(string)
+		if !isTieredProfile(profile) {
+			if !reflect.DeepEqual(oldVol[isBMSVolProtoVolIops], newVol[isBMSVolProtoVolIops]) {
+				return false
+			}
+		}
+		// tags: compare as sets
+		if !compareVolumeTags(oldVol[isBMSVolProtoVolTags], newVol[isBMSVolProtoVolTags]) {
+			return false
+		}
+	}
+	return true
+}
+
+func handleBMSVolumePrototypesUpdate(context context.Context, d *schema.ResourceData, sess *vpcv1.VpcV1) error {
+	if !d.HasChange(isBareMetalServerVolumePrototypes) || d.IsNewResource() {
+		return nil
+	}
+
+	bmsID := d.Id()
+	o, n := d.GetChange(isBareMetalServerVolumePrototypes)
+	oldList := o.([]interface{})
+	newList := n.([]interface{})
+
+	// index old entries by attachment name
+	oldVolMap := make(map[string]map[string]interface{})
+	for _, v := range oldList {
+		vol := v.(map[string]interface{})
+		name, _ := vol[isBMSVolProtoAttName].(string)
+		if name != "" {
+			oldVolMap[name] = vol
+		}
+	}
+
+	// track which old entries were matched
+	processedOldVols := make(map[string]bool)
+
+	// process new list: updates and additions
+	for i, newVolIntf := range newList {
+		newVol := newVolIntf.(map[string]interface{})
+		name, _ := newVol[isBMSVolProtoAttName].(string)
+
+		if oldVol, exists := oldVolMap[name]; exists {
+			processedOldVols[name] = true
+
+			// handle in-place volume field updates
+			volID, _ := oldVol[isBMSVolProtoVolID].(string)
+			if volID == "" {
+				volID, _ = oldVol[isBMSVolProtoAttVolume].(string)
+			}
+			if volID != "" {
+				volchanged := false
+				volumePatchModel := &vpcv1.VolumePatch{}
+
+				if newVol[isBMSVolProtoVolName].(string) != oldVol[isBMSVolProtoVolName].(string) {
+					volumePatchModel.Name = core.StringPtr(newVol[isBMSVolProtoVolName].(string))
+					volchanged = true
+				}
+				if newVol[isBMSVolProtoVolProfile].(string) != oldVol[isBMSVolProtoVolProfile].(string) && isTieredProfile(newVol[isBMSVolProtoVolProfile].(string)) {
+					volumePatchModel.Profile = &vpcv1.VolumeProfileIdentity{
+						Name: core.StringPtr(newVol[isBMSVolProtoVolProfile].(string)),
+					}
+					volchanged = true
+				}
+
+				newTagsIntf := newVol[isBMSVolProtoVolTags]
+				oldTagsIntf := oldVol[isBMSVolProtoVolTags]
+				if newTagsIntf == nil && oldTagsIntf == nil {
+					// no change
+				} else if newTagsIntf == nil && oldTagsIntf != nil {
+					volumePatchModel.UserTags = nil
+					volchanged = true
+				} else if (newTagsIntf != nil && oldTagsIntf == nil) || (!newTagsIntf.(*schema.Set).Equal(oldTagsIntf.(*schema.Set))) {
+					userTagsSet := newTagsIntf.(*schema.Set)
+					userTagsArray := make([]string, userTagsSet.Len())
+					for j, t := range userTagsSet.List() {
+						userTagsArray[j] = t.(string)
+					}
+					volumePatchModel.UserTags = userTagsArray
+					volchanged = true
+				}
+
+				getvoloptions := &vpcv1.GetVolumeOptions{ID: &volID}
+				_, res, err := sess.GetVolumeWithContext(context, getvoloptions)
+				if err != nil {
+					return fmt.Errorf("error getting volume for patch for %s: %w", name, err)
+				}
+				eTag := res.Headers.Get("ETag")
+				voloptions := &vpcv1.UpdateVolumeOptions{ID: &volID}
+
+				if volchanged {
+					volumePatch, err := volumePatchModel.AsPatch()
+					if err != nil {
+						return fmt.Errorf("error creating volume patch for %s: %w", name, err)
+					}
+					voloptions.VolumePatch = volumePatch
+					voloptions.SetIfMatch(eTag)
+					_, response, err := sess.UpdateVolumeWithContext(context, voloptions)
+					if err != nil {
+						return fmt.Errorf("error updating volume %s: %s\n%s", name, err, response)
+					}
+					eTag = response.Headers.Get("ETag")
+				}
+
+				if !isTieredProfile(newVol[isBMSVolProtoVolProfile].(string)) && int64(newVol[isBMSVolProtoVolIops].(int)) != int64(oldVol[isBMSVolProtoVolIops].(int)) {
+					iopsPatch := &vpcv1.VolumePatch{Iops: core.Int64Ptr(int64(newVol[isBMSVolProtoVolIops].(int)))}
+					volumePatch, err := iopsPatch.AsPatch()
+					if err != nil {
+						return fmt.Errorf("error creating iops patch for %s: %w", name, err)
+					}
+					voloptions.VolumePatch = volumePatch
+					voloptions.SetIfMatch(eTag)
+					_, response, err := sess.UpdateVolumeWithContext(context, voloptions)
+					if err != nil {
+						return fmt.Errorf("error updating iops for volume %s: %s\n%s", name, err, response)
+					}
+					eTag = response.Headers.Get("ETag")
+				}
+
+				if int64(newVol[isBMSVolProtoVolCapacity].(int)) != int64(oldVol[isBMSVolProtoVolCapacity].(int)) {
+					capPatch := &vpcv1.VolumePatch{Capacity: core.Int64Ptr(int64(newVol[isBMSVolProtoVolCapacity].(int)))}
+					volumePatch, err := capPatch.AsPatch()
+					if err != nil {
+						return fmt.Errorf("error creating capacity patch for %s: %w", name, err)
+					}
+					voloptions.VolumePatch = volumePatch
+					voloptions.SetIfMatch(eTag)
+					_, response, err := sess.UpdateVolumeWithContext(context, voloptions)
+					if err != nil {
+						return fmt.Errorf("error updating capacity for volume %s: %s\n%s", name, err, response)
+					}
+					eTag = response.Headers.Get("ETag")
+				}
+
+				if int64(newVol[isBMSVolProtoVolBandwidth].(int)) != int64(oldVol[isBMSVolProtoVolBandwidth].(int)) {
+					bwPatch := &vpcv1.VolumePatch{Bandwidth: core.Int64Ptr(int64(newVol[isBMSVolProtoVolBandwidth].(int)))}
+					volumePatch, err := bwPatch.AsPatch()
+					if err != nil {
+						return fmt.Errorf("error creating bandwidth patch for %s: %w", name, err)
+					}
+					voloptions.VolumePatch = volumePatch
+					voloptions.SetIfMatch(eTag)
+					_, response, err := sess.UpdateVolumeWithContext(context, voloptions)
+					if err != nil {
+						return fmt.Errorf("error updating bandwidth for volume %s: %s\n%s", name, err, response)
+					}
+				}
+			}
+		} else {
+			// addition: attach a new volume
+			volID, _ := newVol[isBMSVolProtoAttVolume].(string)
+			proto := &vpcv1.BareMetalServerVolumeAttachmentPrototype{}
+			if volID != "" {
+				proto.Volume = &vpcv1.BareMetalServerVolumeAttachmentPrototypeVolumeVolumeIdentity{
+					ID: &volID,
+				}
+			} else {
+				newVolInline := &vpcv1.BareMetalServerVolumeAttachmentPrototypeVolumeVolumePrototypeBareMetalServerContext{}
+				volProfileStr := "sdp"
+				if p, _ := newVol[isBMSVolProtoVolProfile].(string); p != "" {
+					volProfileStr = p
+				}
+				newVolInline.Profile = &vpcv1.VolumeProfileIdentity{Name: &volProfileStr}
+				if cap, _ := newVol[isBMSVolProtoVolCapacity].(int); cap != 0 {
+					newVolInline.Capacity = core.Int64Ptr(int64(cap))
+				}
+				if iops, _ := newVol[isBMSVolProtoVolIops].(int); iops != 0 {
+					newVolInline.Iops = core.Int64Ptr(int64(iops))
+				}
+				if bw, _ := newVol[isBMSVolProtoVolBandwidth].(int); bw != 0 {
+					newVolInline.Bandwidth = core.Int64Ptr(int64(bw))
+				}
+				if vn, _ := newVol[isBMSVolProtoVolName].(string); vn != "" {
+					newVolInline.Name = &vn
+				}
+				if ek, _ := newVol[isBMSVolProtoVolEncryptionKey].(string); ek != "" {
+					newVolInline.EncryptionKey = &vpcv1.EncryptionKeyIdentity{CRN: &ek}
+				}
+				if am, _ := newVol[isBMSVolProtoVolAttachmentMode].(string); am != "" {
+					newVolInline.AttachmentMode = &am
+				}
+				if rg, _ := newVol[isBMSVolProtoVolResourceGroup].(string); rg != "" {
+					newVolInline.ResourceGroup = &vpcv1.ResourceGroupIdentity{ID: &rg}
+				}
+				if ss, _ := newVol[isBMSVolProtoVolSourceSnapshot].(string); ss != "" {
+					newVolInline.SourceSnapshot = &vpcv1.SnapshotIdentity{ID: &ss}
+				}
+				if tagsIntf := d.Get(fmt.Sprintf("volume_prototypes.%d.%s", i, isBMSVolProtoVolTags)); tagsIntf != nil {
+					tagsSet := tagsIntf.(*schema.Set)
+					if tagsSet.Len() > 0 {
+						tags := make([]string, tagsSet.Len())
+						for j, t := range tagsSet.List() {
+							tags[j] = t.(string)
+						}
+						newVolInline.UserTags = tags
+					}
+				}
+				proto.Volume = newVolInline
+			}
+			if name != "" {
+				proto.Name = &name
+			}
+			if autoDelete, ok := d.GetOk(fmt.Sprintf("volume_prototypes.%d.%s", i, isBMSVolProtoAttDeleteOnDelete)); ok {
+				proto.DeleteVolumeOnBareMetalServerDelete = core.BoolPtr(autoDelete.(bool))
+			}
+			createOpts := &vpcv1.CreateBareMetalServerVolumeAttachmentOptions{
+				BareMetalServerID:                        &bmsID,
+				BareMetalServerVolumeAttachmentPrototype: proto,
+			}
+			volAttIntf, _, err := sess.CreateBareMetalServerVolumeAttachmentWithContext(context, createOpts)
+			if err != nil {
+				return fmt.Errorf("error attaching volume %s: %w", name, err)
+			}
+			volAtt, ok := volAttIntf.(*vpcv1.BareMetalServerVolumeAttachment)
+			if !ok || volAtt == nil {
+				return fmt.Errorf("unexpected type from CreateBareMetalServerVolumeAttachment for %s", name)
+			}
+			_, err = isWaitForBMSVolumeAttached(sess, d, bmsID, *volAtt.ID)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	// handle deletions: old entries not matched in new list
+	for _, oldVolIntf := range oldList {
+		oldVol := oldVolIntf.(map[string]interface{})
+		name, _ := oldVol[isBMSVolProtoAttName].(string)
+		if processedOldVols[name] {
+			continue
+		}
+		attID, _ := oldVol[isBMSVolProtoAttID].(string)
+		if attID == "" {
+			continue
+		}
+		delOpts := &vpcv1.DeleteBareMetalServerVolumeAttachmentOptions{
+			BareMetalServerID: &bmsID,
+			ID:                &attID,
+		}
+		_, err := sess.DeleteBareMetalServerVolumeAttachmentWithContext(context, delOpts)
+		if err != nil {
+			return fmt.Errorf("error removing volume attachment %s: %w", name, err)
+		}
+		_, err = isWaitForBMSVolumeDetached(sess, d, bmsID, attID)
+		if err != nil {
+			return err
 		}
 	}
 
