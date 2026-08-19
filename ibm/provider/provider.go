@@ -514,6 +514,8 @@ func Provider() *schema.Provider {
 			"ibm_is_placement_groups":                 vpc.DataSourceIbmIsPlacementGroups(),
 			"ibm_is_floating_ip":                      vpc.DataSourceIBMISFloatingIP(),
 			"ibm_is_floating_ips":                     vpc.DataSourceIBMIsFloatingIps(),
+			"ibm_is_floating_ip_profile":              vpc.DataSourceIBMIsFloatingIPProfile(),
+			"ibm_is_floating_ip_profiles":             vpc.DataSourceIBMIsFloatingIPProfiles(),
 			"ibm_is_flow_log":                         vpc.DataSourceIBMIsFlowLog(),
 			"ibm_is_flow_logs":                        vpc.DataSourceIBMISFlowLogs(),
 			"ibm_is_image":                            vpc.DataSourceIBMISImage(),
@@ -625,6 +627,8 @@ func Provider() *schema.Provider {
 			"ibm_is_public_address_range_authorized_cidrs":            vpc.DataSourceIBMIsPublicAddressRangeAuthorizedCidrs(),
 			"ibm_is_public_address_range_authorized_cidr_allocation":  vpc.DataSourceIBMIsPublicAddressRangeAuthorizedCIDRAllocation(),
 			"ibm_is_public_address_range_authorized_cidr_allocations": vpc.DataSourceIBMIsPublicAddressRangeAuthorizedCIDRAllocations(),
+			"ibm_is_public_address_range_profile":                     vpc.DataSourceIBMIsPublicAddressRangeProfile(),
+			"ibm_is_public_address_range_profiles":                    vpc.DataSourceIBMIsPublicAddressRangeProfiles(),
 			// vni
 
 			"ibm_is_virtual_network_interface_floating_ip":  vpc.DataSourceIBMIsVirtualNetworkInterfaceFloatingIP(),

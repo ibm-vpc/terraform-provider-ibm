@@ -149,6 +149,48 @@ func dataSourceIBMIsPublicAddressRangeAuthorizedCIDRAllocationRead(context conte
 		if err = d.Set("resource_type", allocation.ResourceType); err != nil {
 			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting resource_type: %s", err), "(Data) ibm_is_public_address_range_authorized_cidr_allocation", "read", "set-resource_type").GetDiag()
 		}
+	case *vpcv1.PublicAddressRangeAuthorizedCIDRAllocationItem:
+		// Base type returned when SDK unmarshaler doesn't dispatch to a concrete subtype.
+		// Dispatch manually based on resource_type.
+		if allocation.ID != nil {
+			d.SetId(*allocation.ID)
+		}
+		if allocation.ResourceType != nil {
+			if err = d.Set("resource_type", allocation.ResourceType); err != nil {
+				return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting resource_type: %s", err), "(Data) ibm_is_public_address_range_authorized_cidr_allocation", "read", "set-resource_type").GetDiag()
+			}
+		}
+		if allocation.CIDR != nil {
+			if err = d.Set("cidr", allocation.CIDR); err != nil {
+				return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting cidr: %s", err), "(Data) ibm_is_public_address_range_authorized_cidr_allocation", "read", "set-cidr").GetDiag()
+			}
+		}
+		if allocation.Address != nil {
+			if err = d.Set("address", allocation.Address); err != nil {
+				return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting address: %s", err), "(Data) ibm_is_public_address_range_authorized_cidr_allocation", "read", "set-address").GetDiag()
+			}
+		}
+		if allocation.CRN != nil {
+			if err = d.Set("crn", allocation.CRN); err != nil {
+				return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting crn: %s", err), "(Data) ibm_is_public_address_range_authorized_cidr_allocation", "read", "set-crn").GetDiag()
+			}
+		}
+		if allocation.Deleted != nil {
+			deleted := []map[string]interface{}{{"more_info": *allocation.Deleted.MoreInfo}}
+			if err = d.Set("deleted", deleted); err != nil {
+				return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting deleted: %s", err), "(Data) ibm_is_public_address_range_authorized_cidr_allocation", "read", "set-deleted").GetDiag()
+			}
+		}
+		if allocation.Href != nil {
+			if err = d.Set("href", allocation.Href); err != nil {
+				return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting href: %s", err), "(Data) ibm_is_public_address_range_authorized_cidr_allocation", "read", "set-href").GetDiag()
+			}
+		}
+		if allocation.Name != nil {
+			if err = d.Set("name", allocation.Name); err != nil {
+				return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting name: %s", err), "(Data) ibm_is_public_address_range_authorized_cidr_allocation", "read", "set-name").GetDiag()
+			}
+		}
 	default:
 		return flex.DiscriminatedTerraformErrorf(fmt.Errorf("unrecognized allocation type"), "unrecognized allocation type", "(Data) ibm_is_public_address_range_authorized_cidr_allocation", "read", "type-switch").GetDiag()
 	}
