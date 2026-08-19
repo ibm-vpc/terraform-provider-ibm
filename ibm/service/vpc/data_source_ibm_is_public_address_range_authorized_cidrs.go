@@ -18,6 +18,7 @@ import (
 
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/conns"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
+	"github.com/IBM/go-sdk-core/v5/core"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
 )
 
@@ -85,6 +86,35 @@ func DataSourceIBMIsPublicAddressRangeAuthorizedCidrs() *schema.Resource {
 							Computed:    true,
 							Description: "The IP version for this public address range authorized CIDR:- `ipv4`: An IPv4 public address range authorized CIDR.The enumerated values for this property may[expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.",
 						},
+						"lifecycle_reasons": &schema.Schema{
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "The reasons for the current `lifecycle_state` (if any).",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"code": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "A reason code for this lifecycle state:- `finalizing`: System reconciliation in progress.- `internal_error`: internal error (contact IBM support)- `resource_suspended_by_provider`: The resource has been suspended (contact IBM support)The enumerated values for this property may [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.",
+									},
+									"message": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "An explanation of the reason for this lifecycle state.",
+									},
+									"more_info": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "Link to documentation about the reason for this lifecycle state.",
+									},
+								},
+							},
+						},
+						"lifecycle_state": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The lifecycle state of the public address range authorized CIDR.",
+						},
 						"name": &schema.Schema{
 							Type:        schema.TypeString,
 							Computed:    true,
@@ -94,6 +124,30 @@ func DataSourceIBMIsPublicAddressRangeAuthorizedCidrs() *schema.Resource {
 							Type:        schema.TypeInt,
 							Computed:    true,
 							Description: "The network prefix length for this public address range authorized CIDR.",
+						},
+						"resource_group": &schema.Schema{
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "The resource group for this public address range authorized CIDR.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"href": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The URL for this resource group.",
+									},
+									"id": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The unique identifier for this resource group.",
+									},
+									"name": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The name for this resource group.",
+									},
+								},
+							},
 						},
 						"resource_type": &schema.Schema{
 							Type:        schema.TypeString,
@@ -193,8 +247,27 @@ func DataSourceIBMIsPublicAddressRangeAuthorizedCidrsPublicAddressRangeAuthorize
 	modelMap["href"] = *model.Href
 	modelMap["id"] = *model.ID
 	modelMap["ip_version"] = *model.IPVersion
+	lifecycleReasons := []map[string]interface{}{}
+	for _, lifecycleReasonsItem := range model.LifecycleReasons {
+		lifecycleReasonsItemMap, err := DataSourceIBMIsPublicAddressRangeAuthorizedCidrsLifecycleReasonToMap(&lifecycleReasonsItem) // #nosec G601
+		if err != nil {
+			return modelMap, err
+		}
+		lifecycleReasons = append(lifecycleReasons, lifecycleReasonsItemMap)
+	}
+	modelMap["lifecycle_reasons"] = lifecycleReasons
+	modelMap["lifecycle_state"] = *model.LifecycleState
 	modelMap["name"] = *model.Name
 	modelMap["network_prefix_length"] = flex.IntValue(model.NetworkPrefixLength)
+	resourceGroup := []map[string]interface{}{}
+	if !core.IsNil(model.ResourceGroup) {
+		resourceGroupMap, err := DataSourceIBMIsPublicAddressRangeAuthorizedCidrsResourceGroupReferenceToMap(model.ResourceGroup)
+		if err != nil {
+			return modelMap, err
+		}
+		resourceGroup = append(resourceGroup, resourceGroupMap)
+	}
+	modelMap["resource_group"] = resourceGroup
 	modelMap["resource_type"] = *model.ResourceType
 	if model.Zone != nil {
 		zoneMap, err := DataSourceIBMIsPublicAddressRangeAuthorizedCidrsZoneReferenceToMap(model.Zone)
@@ -210,6 +283,24 @@ func DataSourceIBMIsPublicAddressRangeAuthorizedCidrsPublicAddressRangeAuthorize
 	modelMap := make(map[string]interface{})
 	modelMap["count"] = flex.IntValue(model.Count)
 	modelMap["profile_family"] = *model.ProfileFamily
+	return modelMap, nil
+}
+
+func DataSourceIBMIsPublicAddressRangeAuthorizedCidrsLifecycleReasonToMap(model *vpcv1.PublicAddressRangeAuthorizedCIDRLifecycleReason) (map[string]interface{}, error) {
+	modelMap := make(map[string]interface{})
+	modelMap["code"] = *model.Code
+	modelMap["message"] = *model.Message
+	if model.MoreInfo != nil {
+		modelMap["more_info"] = *model.MoreInfo
+	}
+	return modelMap, nil
+}
+
+func DataSourceIBMIsPublicAddressRangeAuthorizedCidrsResourceGroupReferenceToMap(model *vpcv1.ResourceGroupReference) (map[string]interface{}, error) {
+	modelMap := make(map[string]interface{})
+	modelMap["href"] = *model.Href
+	modelMap["id"] = *model.ID
+	modelMap["name"] = *model.Name
 	return modelMap, nil
 }
 

@@ -26,7 +26,7 @@ func DataSourceIBMIsPublicAddressRangeAuthorizedCIDR() *schema.Resource {
 		ReadContext: dataSourceIBMIsPublicAddressRangeAuthorizedCIDRRead,
 
 		Schema: map[string]*schema.Schema{
-			"is_public_address_range_authorized_cidr_id": &schema.Schema{
+			"authorized_cidr_id": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "The public address range authorized CIDR identifier.",
@@ -69,6 +69,35 @@ func DataSourceIBMIsPublicAddressRangeAuthorizedCIDR() *schema.Resource {
 				Computed:    true,
 				Description: "The IP version for this public address range authorized CIDR:- `ipv4`: An IPv4 public address range authorized CIDR.The enumerated values for this property may[expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.",
 			},
+			"lifecycle_reasons": &schema.Schema{
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "The reasons for the current `lifecycle_state` (if any).",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"code": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "A reason code for this lifecycle state:- `finalizing`: System reconciliation in progress.- `internal_error`: internal error (contact IBM support)- `resource_suspended_by_provider`: The resource has been suspended (contact IBM support)The enumerated values for this property may [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.",
+						},
+						"message": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "An explanation of the reason for this lifecycle state.",
+						},
+						"more_info": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Link to documentation about the reason for this lifecycle state.",
+						},
+					},
+				},
+			},
+			"lifecycle_state": &schema.Schema{
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The lifecycle state of the public address range authorized CIDR.",
+			},
 			"name": &schema.Schema{
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -78,6 +107,30 @@ func DataSourceIBMIsPublicAddressRangeAuthorizedCIDR() *schema.Resource {
 				Type:        schema.TypeInt,
 				Computed:    true,
 				Description: "The network prefix length for this public address range authorized CIDR.",
+			},
+			"resource_group": &schema.Schema{
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "The resource group for this public address range authorized CIDR.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"href": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The URL for this resource group.",
+						},
+						"id": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The unique identifier for this resource group.",
+						},
+						"name": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The name for this resource group.",
+						},
+					},
+				},
 			},
 			"resource_type": &schema.Schema{
 				Type:        schema.TypeString,
@@ -117,7 +170,7 @@ func dataSourceIBMIsPublicAddressRangeAuthorizedCIDRRead(context context.Context
 
 	getPublicAddressRangeAuthorizedCIDROptions := &vpcv1.GetPublicAddressRangeAuthorizedCIDROptions{}
 
-	getPublicAddressRangeAuthorizedCIDROptions.SetID(d.Get("is_public_address_range_authorized_cidr_id").(string))
+	getPublicAddressRangeAuthorizedCIDROptions.SetID(d.Get("authorized_cidr_id").(string))
 
 	publicAddressRangeAuthorizedCIDR, _, err := vpcClient.GetPublicAddressRangeAuthorizedCIDRWithContext(context, getPublicAddressRangeAuthorizedCIDROptions)
 	if err != nil {
@@ -154,12 +207,40 @@ func dataSourceIBMIsPublicAddressRangeAuthorizedCIDRRead(context context.Context
 		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting ip_version: %s", err), "(Data) ibm_is_public_address_range_authorized_cidr", "read", "set-ip_version").GetDiag()
 	}
 
+	lifecycleReasons := []map[string]interface{}{}
+	for _, lifecycleReasonsItem := range publicAddressRangeAuthorizedCIDR.LifecycleReasons {
+		lifecycleReasonsItemMap, err := DataSourceIBMIsPublicAddressRangeAuthorizedCIDRLifecycleReasonToMap(&lifecycleReasonsItem) // #nosec G601
+		if err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_public_address_range_authorized_cidr", "read", "lifecycle_reasons-to-map").GetDiag()
+		}
+		lifecycleReasons = append(lifecycleReasons, lifecycleReasonsItemMap)
+	}
+	if err = d.Set("lifecycle_reasons", lifecycleReasons); err != nil {
+		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting lifecycle_reasons: %s", err), "(Data) ibm_is_public_address_range_authorized_cidr", "read", "set-lifecycle_reasons").GetDiag()
+	}
+
+	if err = d.Set("lifecycle_state", publicAddressRangeAuthorizedCIDR.LifecycleState); err != nil {
+		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting lifecycle_state: %s", err), "(Data) ibm_is_public_address_range_authorized_cidr", "read", "set-lifecycle_state").GetDiag()
+	}
+
 	if err = d.Set("name", publicAddressRangeAuthorizedCIDR.Name); err != nil {
 		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting name: %s", err), "(Data) ibm_is_public_address_range_authorized_cidr", "read", "set-name").GetDiag()
 	}
 
 	if err = d.Set("network_prefix_length", flex.IntValue(publicAddressRangeAuthorizedCIDR.NetworkPrefixLength)); err != nil {
 		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting network_prefix_length: %s", err), "(Data) ibm_is_public_address_range_authorized_cidr", "read", "set-network_prefix_length").GetDiag()
+	}
+
+	resourceGroup := []map[string]interface{}{}
+	if !core.IsNil(publicAddressRangeAuthorizedCIDR.ResourceGroup) {
+		resourceGroupMap, err := DataSourceIBMIsPublicAddressRangeAuthorizedCIDRResourceGroupReferenceToMap(publicAddressRangeAuthorizedCIDR.ResourceGroup)
+		if err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_public_address_range_authorized_cidr", "read", "resource_group-to-map").GetDiag()
+		}
+		resourceGroup = append(resourceGroup, resourceGroupMap)
+	}
+	if err = d.Set("resource_group", resourceGroup); err != nil {
+		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting resource_group: %s", err), "(Data) ibm_is_public_address_range_authorized_cidr", "read", "set-resource_group").GetDiag()
 	}
 
 	if err = d.Set("resource_type", publicAddressRangeAuthorizedCIDR.ResourceType); err != nil {
@@ -185,6 +266,24 @@ func DataSourceIBMIsPublicAddressRangeAuthorizedCIDRPublicAddressRangeAuthorized
 	modelMap := make(map[string]interface{})
 	modelMap["count"] = flex.IntValue(model.Count)
 	modelMap["profile_family"] = *model.ProfileFamily
+	return modelMap, nil
+}
+
+func DataSourceIBMIsPublicAddressRangeAuthorizedCIDRLifecycleReasonToMap(model *vpcv1.PublicAddressRangeAuthorizedCIDRLifecycleReason) (map[string]interface{}, error) {
+	modelMap := make(map[string]interface{})
+	modelMap["code"] = *model.Code
+	modelMap["message"] = *model.Message
+	if model.MoreInfo != nil {
+		modelMap["more_info"] = *model.MoreInfo
+	}
+	return modelMap, nil
+}
+
+func DataSourceIBMIsPublicAddressRangeAuthorizedCIDRResourceGroupReferenceToMap(model *vpcv1.ResourceGroupReference) (map[string]interface{}, error) {
+	modelMap := make(map[string]interface{})
+	modelMap["href"] = *model.Href
+	modelMap["id"] = *model.ID
+	modelMap["name"] = *model.Name
 	return modelMap, nil
 }
 
