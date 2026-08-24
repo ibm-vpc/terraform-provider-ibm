@@ -47,6 +47,19 @@ resource "ibm_is_floating_ip" "example" {
 ```
   -> **Note:** To access the instance using floating ip, make sure the target security group has the respective inbound rule
 
+### Example: Create a floating IP from a BYOIP authorized CIDR
+
+To request a specific IP address from a public address range authorized CIDR (BYOIP), specify the `address` argument. The address must be an unallocated address within an authorized CIDR.
+
+```terraform
+resource "ibm_is_floating_ip" "from_byoip" {
+  name    = "my-fip-byoip"
+  address = "46.16.188.26"
+}
+```
+
+  -> **Note:** When `address` is specified, do not specify `zone` or `target`. The zone is determined by the authorized CIDR the address belongs to. The `address` argument is `ForceNew` — changing it destroys and recreates the floating IP.
+
 ## Timeouts
 The `ibm_is_instance` provides the following [Timeouts](https://www.terraform.io/docs/language/resources/syntax.html) configuration options:
 
@@ -70,9 +83,10 @@ Review the argument references that you can specify for your resource.
 
   ~> **Note:** `target` conflicts with `zone`. A change in `target` which is in a different `zone` will show a change to replace current floating ip with a new one.
 - `tags` (Optional, Array of Strings) Enter any tags that you want to associate with your VPC. Tags might help you find your VPC more easily after it is created. Separate multiple tags with a comma (`,`).
-- `zone` - (Optional, Force New Resource, String) Enter the name of the zone where you want to create the floating IP address. To list available zones, run `ibmcloud is zones`. If you specify this option, do not specify `target` at the same time. 
+- `address` - (Optional, Force New Resource, String) The IP address to request for this floating IP. Must be an unallocated address in a public address range authorized CIDR (BYOIP). Conflicts with `zone` and `target`.
+- `zone` - (Optional, Force New Resource, String) Enter the name of the zone where you want to create the floating IP address. To list available zones, run `ibmcloud is zones`. If you specify this option, do not specify `target` at the same time.
   
-  ~> **Note:** Conflicts with `target` and one of `target`, or `zone` is mandatory.
+  ~> **Note:** Conflicts with `target` and one of `target`, `zone`, or `address` is mandatory.
 
   ~> **Note**  `target` cannot be used in conjunction with the `floating_ip` argument of `ibm_is_instance_network_interface` resource and might cause cyclic dependency/unexpected issues if used used both ways.
 
