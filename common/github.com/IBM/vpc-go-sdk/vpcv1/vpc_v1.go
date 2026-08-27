@@ -2282,6 +2282,8 @@ func (vpc *VpcV1) ListBareMetalServerNetworkInterfacesWithContext(ctx context.Co
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("maturity", "development")
+
 	if listBareMetalServerNetworkInterfacesOptions.Start != nil {
 		builder.AddQuery("start", fmt.Sprint(*listBareMetalServerNetworkInterfacesOptions.Start))
 	}
@@ -2369,6 +2371,7 @@ func (vpc *VpcV1) CreateBareMetalServerNetworkInterfaceWithContext(ctx context.C
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("maturity", "development")
 
 	_, err = builder.SetBodyContentJSON(createBareMetalServerNetworkInterfaceOptions.BareMetalServerNetworkInterfacePrototype)
 	if err != nil {
@@ -2521,6 +2524,7 @@ func (vpc *VpcV1) GetBareMetalServerNetworkInterfaceWithContext(ctx context.Cont
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("maturity", "development")
 
 	request, err := builder.Build()
 	if err != nil {
@@ -2601,6 +2605,7 @@ func (vpc *VpcV1) UpdateBareMetalServerNetworkInterfaceWithContext(ctx context.C
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("maturity", "development")
 
 	_, err = builder.SetBodyContentJSON(updateBareMetalServerNetworkInterfaceOptions.BareMetalServerNetworkInterfacePatch)
 	if err != nil {
@@ -2680,6 +2685,7 @@ func (vpc *VpcV1) ListBareMetalServerNetworkInterfaceFloatingIpsWithContext(ctx 
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("maturity", "development")
 
 	request, err := builder.Build()
 	if err != nil {
@@ -2819,6 +2825,9 @@ func (vpc *VpcV1) GetBareMetalServerNetworkInterfaceFloatingIPWithContext(ctx co
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("maturity", "development")
+
+	builder.AddQuery("maturity", "development")
 
 	request, err := builder.Build()
 	if err != nil {
@@ -2902,6 +2911,7 @@ func (vpc *VpcV1) AddBareMetalServerNetworkInterfaceFloatingIPWithContext(ctx co
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("maturity", "development")
 
 	request, err := builder.Build()
 	if err != nil {
@@ -8043,10 +8053,9 @@ func (vpc *VpcV1) CreateFloatingIPWithContext(ctx context.Context, createFloatin
 	}
 	builder.AddHeader("Accept", "application/json")
 	builder.AddHeader("Content-Type", "application/json")
-	builder.AddQuery("maturity", "development")
-
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("maturity", "development")
 
 	body := make(map[string]interface{})
 	if createFloatingIPOptions.Address != nil {
@@ -8069,8 +8078,6 @@ func (vpc *VpcV1) CreateFloatingIPWithContext(ctx context.Context, createFloatin
 		err = core.SDKErrorf(err, "", "set-json-body-error", common.GetComponentInfo())
 		return
 	}
-	builder.AddQuery("maturity", "development")
-
 	request, err := builder.Build()
 	if err != nil {
 		err = core.SDKErrorf(err, "", "build-error", common.GetComponentInfo())
@@ -8280,6 +8287,7 @@ func (vpc *VpcV1) UpdateFloatingIPWithContext(ctx context.Context, updateFloatin
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("maturity", "development")
 
 	_, err = builder.SetBodyContentJSON(updateFloatingIPOptions.FloatingIPPatch)
 	if err != nil {
@@ -14485,6 +14493,7 @@ func (vpc *VpcV1) ListInstanceNetworkInterfacesWithContext(ctx context.Context, 
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("maturity", "development")
 
 	request, err := builder.Build()
 	if err != nil {
@@ -14565,6 +14574,7 @@ func (vpc *VpcV1) CreateInstanceNetworkInterfaceWithContext(ctx context.Context,
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("maturity", "development")
 
 	body := make(map[string]interface{})
 	if createInstanceNetworkInterfaceOptions.Subnet != nil {
@@ -14734,6 +14744,7 @@ func (vpc *VpcV1) GetInstanceNetworkInterfaceWithContext(ctx context.Context, ge
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("maturity", "development")
 
 	request, err := builder.Build()
 	if err != nil {
@@ -14814,6 +14825,7 @@ func (vpc *VpcV1) UpdateInstanceNetworkInterfaceWithContext(ctx context.Context,
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("maturity", "development")
 
 	_, err = builder.SetBodyContentJSON(updateInstanceNetworkInterfaceOptions.NetworkInterfacePatch)
 	if err != nil {
@@ -14893,6 +14905,7 @@ func (vpc *VpcV1) ListInstanceNetworkInterfaceFloatingIpsWithContext(ctx context
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("maturity", "development")
 
 	request, err := builder.Build()
 	if err != nil {
@@ -14966,6 +14979,7 @@ func (vpc *VpcV1) RemoveInstanceNetworkInterfaceFloatingIPWithContext(ctx contex
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("maturity", "development")
 
 	request, err := builder.Build()
 	if err != nil {
@@ -15032,6 +15046,7 @@ func (vpc *VpcV1) GetInstanceNetworkInterfaceFloatingIPWithContext(ctx context.C
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("maturity", "development")
 
 	request, err := builder.Build()
 	if err != nil {
@@ -15114,6 +15129,7 @@ func (vpc *VpcV1) AddInstanceNetworkInterfaceFloatingIPWithContext(ctx context.C
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("maturity", "development")
 
 	request, err := builder.Build()
 	if err != nil {
@@ -22269,6 +22285,8 @@ func (vpc *VpcV1) ListPublicGatewaysWithContext(ctx context.Context, listPublicG
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("maturity", "development")
+
 	if listPublicGatewaysOptions.Start != nil {
 		builder.AddQuery("start", fmt.Sprint(*listPublicGatewaysOptions.Start))
 	}
@@ -22352,6 +22370,7 @@ func (vpc *VpcV1) CreatePublicGatewayWithContext(ctx context.Context, createPubl
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("maturity", "development")
 
 	body := make(map[string]interface{})
 	if createPublicGatewayOptions.VPC != nil {
@@ -22510,6 +22529,7 @@ func (vpc *VpcV1) GetPublicGatewayWithContext(ctx context.Context, getPublicGate
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("maturity", "development")
 
 	request, err := builder.Build()
 	if err != nil {
@@ -22583,6 +22603,7 @@ func (vpc *VpcV1) UpdatePublicGatewayWithContext(ctx context.Context, updatePubl
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("maturity", "development")
 
 	_, err = builder.SetBodyContentJSON(updatePublicGatewayOptions.PublicGatewayPatch)
 	if err != nil {
@@ -27853,6 +27874,7 @@ func (vpc *VpcV1) GetSubnetPublicGatewayWithContext(ctx context.Context, getSubn
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("maturity", "development")
 
 	request, err := builder.Build()
 	if err != nil {
@@ -27927,6 +27949,7 @@ func (vpc *VpcV1) SetSubnetPublicGatewayWithContext(ctx context.Context, setSubn
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("maturity", "development")
 
 	_, err = builder.SetBodyContentJSON(setSubnetPublicGatewayOptions.PublicGatewayIdentity)
 	if err != nil {
@@ -28565,6 +28588,7 @@ func (vpc *VpcV1) ListVirtualNetworkInterfacesWithContext(ctx context.Context, l
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("maturity", "development")
 	if listVirtualNetworkInterfacesOptions.Start != nil {
 		builder.AddQuery("start", fmt.Sprint(*listVirtualNetworkInterfacesOptions.Start))
 	}
@@ -28645,6 +28669,7 @@ func (vpc *VpcV1) CreateVirtualNetworkInterfaceWithContext(ctx context.Context, 
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("maturity", "development")
 
 	body := make(map[string]interface{})
 	if createVirtualNetworkInterfaceOptions.AllowIPSpoofing != nil {
@@ -28759,6 +28784,7 @@ func (vpc *VpcV1) DeleteVirtualNetworkInterfacesWithContext(ctx context.Context,
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("maturity", "development")
 
 	request, err := builder.Build()
 	if err != nil {
@@ -28831,6 +28857,7 @@ func (vpc *VpcV1) GetVirtualNetworkInterfaceWithContext(ctx context.Context, get
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("maturity", "development")
 
 	request, err := builder.Build()
 	if err != nil {
@@ -28909,6 +28936,7 @@ func (vpc *VpcV1) UpdateVirtualNetworkInterfaceWithContext(ctx context.Context, 
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("maturity", "development")
 
 	_, err = builder.SetBodyContentJSON(updateVirtualNetworkInterfaceOptions.VirtualNetworkInterfacePatch)
 	if err != nil {
@@ -28987,6 +29015,8 @@ func (vpc *VpcV1) ListNetworkInterfaceFloatingIpsWithContext(ctx context.Context
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("maturity", "development")
+
 	if listNetworkInterfaceFloatingIpsOptions.Start != nil {
 		builder.AddQuery("start", fmt.Sprint(*listNetworkInterfaceFloatingIpsOptions.Start))
 	}
@@ -29133,6 +29163,7 @@ func (vpc *VpcV1) GetNetworkInterfaceFloatingIPWithContext(ctx context.Context, 
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("maturity", "development")
 
 	request, err := builder.Build()
 	if err != nil {
@@ -29221,6 +29252,7 @@ func (vpc *VpcV1) AddNetworkInterfaceFloatingIPWithContext(ctx context.Context, 
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("maturity", "development")
 
 	request, err := builder.Build()
 	if err != nil {
@@ -30659,6 +30691,8 @@ func (vpc *VpcV1) ListVpcsWithContext(ctx context.Context, listVpcsOptions *List
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("maturity", "development")
+
 	if listVpcsOptions.Start != nil {
 		builder.AddQuery("start", fmt.Sprint(*listVpcsOptions.Start))
 	}
@@ -30746,6 +30780,7 @@ func (vpc *VpcV1) CreateVPCWithContext(ctx context.Context, createVPCOptions *Cr
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("maturity", "development")
 
 	body := make(map[string]interface{})
 	if createVPCOptions.AddressPrefixManagement != nil {
@@ -30916,6 +30951,8 @@ func (vpc *VpcV1) GetVPCWithContext(ctx context.Context, getVPCOptions *GetVPCOp
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
 
+	builder.AddQuery("maturity", "development")
+
 	request, err := builder.Build()
 	if err != nil {
 		err = core.SDKErrorf(err, "", "build-error", common.GetComponentInfo())
@@ -30992,6 +31029,7 @@ func (vpc *VpcV1) UpdateVPCWithContext(ctx context.Context, updateVPCOptions *Up
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("maturity", "development")
 
 	_, err = builder.SetBodyContentJSON(updateVPCOptions.VPCPatch)
 	if err != nil {
