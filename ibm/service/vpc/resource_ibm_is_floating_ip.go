@@ -333,21 +333,21 @@ func fipCreate(context context.Context, d *schema.ResourceData, meta interface{}
 		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
 		return tfErr.GetDiag()
 	}
-
-	floatingIPPrototype := &vpcv1.FloatingIPPrototype{
+	createFloatingIPOptions := &vpcv1.CreateFloatingIPOptions{
 		Name: &name,
 	}
+
 	zone, target := "", ""
 	if zn, ok := d.GetOk(isFloatingIPZone); ok {
 		zone = zn.(string)
-		floatingIPPrototype.Zone = &vpcv1.ZoneIdentity{
+		createFloatingIPOptions.Zone = &vpcv1.ZoneIdentity{
 			Name: &zone,
 		}
 	}
 
 	if tgt, ok := d.GetOk(isFloatingIPTarget); ok {
 		target = tgt.(string)
-		floatingIPPrototype.Target = &vpcv1.FloatingIPTargetPrototypeNetworkInterfaceIdentity{
+		createFloatingIPOptions.Target = &vpcv1.FloatingIPTargetPrototypeNetworkInterfaceIdentity{
 			ID: &target,
 		}
 	}
@@ -359,13 +359,9 @@ func fipCreate(context context.Context, d *schema.ResourceData, meta interface{}
 
 	if rgrp, ok := d.GetOk(isFloatingIPResourceGroup); ok {
 		rg := rgrp.(string)
-		floatingIPPrototype.ResourceGroup = &vpcv1.ResourceGroupIdentity{
+		createFloatingIPOptions.ResourceGroup = &vpcv1.ResourceGroupIdentity{
 			ID: &rg,
 		}
-	}
-
-	createFloatingIPOptions := &vpcv1.CreateFloatingIPOptions{
-		FloatingIPPrototype: floatingIPPrototype,
 	}
 
 	floatingip, response, err := vpcClient.CreateFloatingIPWithContext(context, createFloatingIPOptions)
