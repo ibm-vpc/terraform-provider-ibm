@@ -353,6 +353,11 @@ func resourceIBMISFlowLogRead(context context.Context, d *schema.ResourceData, m
 		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_ibm_is_flow_log", "read", "set-auto_delete").GetDiag()
 	}
 
+	if err = d.Set(isFlowLogAutoDelete, flowLogCollector.AutoDelete); err != nil {
+		err = fmt.Errorf("Error setting auto_delete: %s", err)
+		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_ibm_is_flow_log", "read", "set-auto_delete").GetDiag()
+	}
+
 	if flowLogCollector.VPC != nil {
 		if err = d.Set(isFlowLogVpc, *flowLogCollector.VPC.ID); err != nil {
 			err = fmt.Errorf("Error setting vpc: %s", err)
