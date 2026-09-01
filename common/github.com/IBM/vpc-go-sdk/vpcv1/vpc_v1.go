@@ -1211,6 +1211,81 @@ func (vpc *VpcV1) UpdateBackupPolicyWithContext(ctx context.Context, updateBacku
 	return
 }
 
+// ListBareMetalServerCapacities : List capacities for bare metal servers
+// This request lists bare metal server capacities in the region.
+func (vpc *VpcV1) ListBareMetalServerCapacities(listBareMetalServerCapacitiesOptions *ListBareMetalServerCapacitiesOptions) (result *BareMetalServerCapacityCollection, response *core.DetailedResponse, err error) {
+	result, response, err = vpc.ListBareMetalServerCapacitiesWithContext(context.Background(), listBareMetalServerCapacitiesOptions)
+	err = core.RepurposeSDKProblem(err, "")
+	return
+}
+
+// ListBareMetalServerCapacitiesWithContext is an alternate form of the ListBareMetalServerCapacities method which supports a Context parameter
+func (vpc *VpcV1) ListBareMetalServerCapacitiesWithContext(ctx context.Context, listBareMetalServerCapacitiesOptions *ListBareMetalServerCapacitiesOptions) (result *BareMetalServerCapacityCollection, response *core.DetailedResponse, err error) {
+	err = core.ValidateStruct(listBareMetalServerCapacitiesOptions, "listBareMetalServerCapacitiesOptions")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "struct-validation-error", common.GetComponentInfo())
+		return
+	}
+
+	builder := core.NewRequestBuilder(core.GET)
+	builder = builder.WithContext(ctx)
+	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
+	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/bare_metal_server/capacities`, nil)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "url-resolve-error", common.GetComponentInfo())
+		return
+	}
+
+	for headerName, headerValue := range listBareMetalServerCapacitiesOptions.Headers {
+		builder.AddHeader(headerName, headerValue)
+	}
+
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListBareMetalServerCapacities")
+	for headerName, headerValue := range sdkHeaders {
+		builder.AddHeader(headerName, headerValue)
+	}
+	builder.AddHeader("Accept", "application/json")
+
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	if listBareMetalServerCapacitiesOptions.Start != nil {
+		builder.AddQuery("start", fmt.Sprint(*listBareMetalServerCapacitiesOptions.Start))
+	}
+	if listBareMetalServerCapacitiesOptions.Limit != nil {
+		builder.AddQuery("limit", fmt.Sprint(*listBareMetalServerCapacitiesOptions.Limit))
+	}
+	if listBareMetalServerCapacitiesOptions.ProfileName != nil {
+		builder.AddQuery("profile.name", fmt.Sprint(*listBareMetalServerCapacitiesOptions.ProfileName))
+	}
+	if listBareMetalServerCapacitiesOptions.ZoneName != nil {
+		builder.AddQuery("zone.name", fmt.Sprint(*listBareMetalServerCapacitiesOptions.ZoneName))
+	}
+
+	request, err := builder.Build()
+	if err != nil {
+		err = core.SDKErrorf(err, "", "build-error", common.GetComponentInfo())
+		return
+	}
+
+	var rawResponse map[string]json.RawMessage
+	response, err = vpc.Service.Request(request, &rawResponse)
+	if err != nil {
+		core.EnrichHTTPProblem(err, "list_bare_metal_server_capacities", getServiceComponentInfo())
+		err = core.SDKErrorf(err, "", "http-request-err", common.GetComponentInfo())
+		return
+	}
+	if rawResponse != nil {
+		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalBareMetalServerCapacityCollection)
+		if err != nil {
+			err = core.SDKErrorf(err, "", "unmarshal-resp-error", common.GetComponentInfo())
+			return
+		}
+		response.Result = result
+	}
+
+	return
+}
+
 // ListBareMetalServerProfiles : List bare metal server profiles
 // This request lists [bare metal server profiles](https://cloud.ibm.com/docs/vpc?topic=vpc-bare-metal-servers-profile)
 // available in the region. A bare metal server profile specifies the performance characteristics and pricing model for
@@ -40130,6 +40205,99 @@ func UnmarshalBareMetalServerCpu(m map[string]json.RawMessage, result interface{
 	return
 }
 
+// BareMetalServerCapacity : A `zone` that has available bare metal servers with a `profile`.
+type BareMetalServerCapacity struct {
+	// The [profile](https://cloud.ibm.com/docs/vpc?topic=vpc-bare-metal-servers-profile)
+	// available in the `zone`.
+	Profile *BareMetalServerProfileReference `json:"profile" validate:"required"`
+
+	// The zone where one or more bare metal servers of the `profile` are available.
+	Zone *ZoneReference `json:"zone" validate:"required"`
+}
+
+// UnmarshalBareMetalServerCapacity unmarshals an instance of BareMetalServerCapacity from the specified map of raw messages.
+func UnmarshalBareMetalServerCapacity(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(BareMetalServerCapacity)
+	err = core.UnmarshalModel(m, "profile", &obj.Profile, UnmarshalBareMetalServerProfileReference)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "profile-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "zone", &obj.Zone, UnmarshalZoneReference)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "zone-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// BareMetalServerCapacityCollection : Available bare metal server capacities.
+type BareMetalServerCapacityCollection struct {
+	// A page of available bare metal server capacities.
+	Capacities []BareMetalServerCapacity `json:"capacities" validate:"required"`
+
+	// A link to the first page of resources.
+	First *PageLink `json:"first" validate:"required"`
+
+	// The maximum number of resources that can be returned by the request.
+	Limit *int64 `json:"limit" validate:"required"`
+
+	// A link to the next page of resources. This property is present for all pages
+	// except the last page.
+	Next *PageLink `json:"next,omitempty"`
+
+	// The total number of resources across all pages.
+	TotalCount *int64 `json:"total_count" validate:"required"`
+}
+
+// UnmarshalBareMetalServerCapacityCollection unmarshals an instance of BareMetalServerCapacityCollection from the specified map of raw messages.
+func UnmarshalBareMetalServerCapacityCollection(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(BareMetalServerCapacityCollection)
+	err = core.UnmarshalModel(m, "capacities", &obj.Capacities, UnmarshalBareMetalServerCapacity)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "capacities-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "first", &obj.First, UnmarshalPageLink)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "first-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "limit", &obj.Limit)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "limit-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "next", &obj.Next, UnmarshalPageLink)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "next-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "total_count", &obj.TotalCount)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "total_count-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// Retrieve the value to be passed to a request to access the next page of results
+func (resp *BareMetalServerCapacityCollection) GetNextStart() (*string, error) {
+	if core.IsNil(resp.Next) {
+		return nil, nil
+	}
+	start, err := core.GetQueryParam(resp.Next.Href, "start")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "read-query-param-error", common.GetComponentInfo())
+		return nil, err
+	} else if start == nil {
+		return nil, nil
+	}
+	return start, nil
+}
+
 // BareMetalServerCollection : BareMetalServerCollection struct
 type BareMetalServerCollection struct {
 	// A page of bare metal servers.
@@ -42578,6 +42746,9 @@ type BareMetalServerProfile struct {
 
 	// Indicates whether this profile supports virtual network interfaces.
 	VirtualNetworkInterfacesSupported *BareMetalServerProfileVirtualNetworkInterfacesSupported `json:"virtual_network_interfaces_supported" validate:"required"`
+
+	// The zones in this region that support this bare metal server profile.
+	Zones []ZoneReference `json:"zones" validate:"required"`
 }
 
 // Constants associated with the BareMetalServerProfile.ResourceType property.
@@ -42672,6 +42843,11 @@ func UnmarshalBareMetalServerProfile(m map[string]json.RawMessage, result interf
 	err = core.UnmarshalModel(m, "virtual_network_interfaces_supported", &obj.VirtualNetworkInterfacesSupported, UnmarshalBareMetalServerProfileVirtualNetworkInterfacesSupported)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "virtual_network_interfaces_supported-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "zones", &obj.Zones, UnmarshalZoneReference)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "zones-error", common.GetComponentInfo())
 		return
 	}
 	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
@@ -77531,6 +77707,59 @@ func (_options *ListBackupPolicyPlansOptions) SetName(name string) *ListBackupPo
 
 // SetHeaders : Allow user to set Headers
 func (options *ListBackupPolicyPlansOptions) SetHeaders(param map[string]string) *ListBackupPolicyPlansOptions {
+	options.Headers = param
+	return options
+}
+
+// ListBareMetalServerCapacitiesOptions : The ListBareMetalServerCapacities options.
+type ListBareMetalServerCapacitiesOptions struct {
+	// A server-provided token determining what resource to start the page on.
+	Start *string `json:"start,omitempty"`
+
+	// The number of resources to return on a page.
+	Limit *int64 `json:"limit,omitempty"`
+
+	// Filters the collection to resources with a `profile.name` property matching the specified profile name.
+	ProfileName *string `json:"profile.name,omitempty"`
+
+	// Filters the collection to resources with a `zone.name` property matching the exact specified name.
+	ZoneName *string `json:"zone.name,omitempty"`
+
+	// Allows users to set headers on API requests.
+	Headers map[string]string
+}
+
+// NewListBareMetalServerCapacitiesOptions : Instantiate ListBareMetalServerCapacitiesOptions
+func (*VpcV1) NewListBareMetalServerCapacitiesOptions() *ListBareMetalServerCapacitiesOptions {
+	return &ListBareMetalServerCapacitiesOptions{}
+}
+
+// SetStart : Allow user to set Start
+func (_options *ListBareMetalServerCapacitiesOptions) SetStart(start string) *ListBareMetalServerCapacitiesOptions {
+	_options.Start = core.StringPtr(start)
+	return _options
+}
+
+// SetLimit : Allow user to set Limit
+func (_options *ListBareMetalServerCapacitiesOptions) SetLimit(limit int64) *ListBareMetalServerCapacitiesOptions {
+	_options.Limit = core.Int64Ptr(limit)
+	return _options
+}
+
+// SetProfileName : Allow user to set ProfileName
+func (_options *ListBareMetalServerCapacitiesOptions) SetProfileName(profileName string) *ListBareMetalServerCapacitiesOptions {
+	_options.ProfileName = core.StringPtr(profileName)
+	return _options
+}
+
+// SetZoneName : Allow user to set ZoneName
+func (_options *ListBareMetalServerCapacitiesOptions) SetZoneName(zoneName string) *ListBareMetalServerCapacitiesOptions {
+	_options.ZoneName = core.StringPtr(zoneName)
+	return _options
+}
+
+// SetHeaders : Allow user to set Headers
+func (options *ListBareMetalServerCapacitiesOptions) SetHeaders(param map[string]string) *ListBareMetalServerCapacitiesOptions {
 	options.Headers = param
 	return options
 }
