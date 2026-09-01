@@ -81,11 +81,12 @@ The following arguments are supported:
 - `instance` - (Required, Forces new resource, String) The instance identifier.
 - `name` - (Required, String) The user-defined name for this network interface.
 - `primary_ip` - (Optional, List) The primary IP address to bind to the network interface. This can be specified using an existing reserved IP, or a prototype object for a new reserved IP.
-    Nested scheme for `primary_ip`:
-    - `auto_delete` - (Optional, Bool) Indicates whether this reserved IP member will be automatically deleted when either target is deleted, or the reserved IP is unbound.
-    - `address` - (Optional, String) The IP address. Same as `primary_ipv4_address`
-    - `name`- (Optional, String) The user-defined or system-provided name for this reserved IP
-    - `reserved_ip`- (Optional, String) The unique identifier for this reserved IP
+
+  Nested scheme for `primary_ip`:
+  - `auto_delete` - (Optional, Bool) Indicates whether this reserved IP member will be automatically deleted when either target is deleted, or the reserved IP is unbound.
+  - `address` - (Optional, String) The IP address. Same as `primary_ipv4_address`
+  - `name`- (Optional, String) The user-defined or system-provided name for this reserved IP
+  - `reserved_ip`- (Optional, String) The unique identifier for this reserved IP
 - `primary_ipv4_address` - (Optional, Forces new resource, String) The primary IPv4 address. If specified, it must be an available address on the network interface's subnet. If unspecified, an available address on the subnet will be automatically selected.
 - `security_groups` - (Optional, List of strings) A comma separated list of security groups to add to the primary network interface.
 - `subnet` - (Required, Forces new resource, String) The unique identifier of the associated subnet.
@@ -126,7 +127,7 @@ The `id` property can be formed from `instance_ID`, and `network_interface_ID`. 
 
 ```terraform
 import {
-  to = ibm_is_instance_network_interface.is_instance_network_interface
+  to = ibm_is_instance_network_interface.example
   id = "<instance>/<network_interface_ID>"
 }
 ```
@@ -134,5 +135,5 @@ import {
 Using `terraform import`. For example:
 
 ```console
-% terraform import ibm_is_instance_network_interface.is_instance_network_interface <instance>/<network_interface_ID>
+% terraform import ibm_is_instance_network_interface.example <instance>/<network_interface_ID>
 ```
