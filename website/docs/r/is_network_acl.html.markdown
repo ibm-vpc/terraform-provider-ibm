@@ -128,6 +128,37 @@ resource "ibm_is_network_acl" "example" {
 }
 ```
 
+An example shows how to create an IPv6 network ACL with `ipv6_icmp` rules.
+
+```terraform
+resource "ibm_is_network_acl" "example_ipv6" {
+  name = "example-acl-ipv6"
+  vpc  = ibm_is_vpc.example.id
+  rules {
+    name        = "ipv6-icmp-inbound"
+    action      = "allow"
+    source      = "::/0"
+    destination = "::/0"
+    direction   = "inbound"
+    ip_version  = "ipv6"
+    protocol    = "ipv6_icmp"
+    type        = 135
+    code        = 0
+  }
+  rules {
+    name        = "ipv6-tcp-outbound"
+    action      = "allow"
+    source      = "::/0"
+    destination = "::/0"
+    direction   = "outbound"
+    ip_version  = "ipv6"
+    protocol    = "tcp"
+    port_min    = 80
+    port_max    = 80
+  }
+}
+```
+
 ## Argument reference
 Review the argument references that you can specify for your resource.
 
@@ -164,7 +195,8 @@ Review the argument references that you can specify for your resource.
     - `type` - (Optional, Integer) The ICMP traffic type to allow. Valid values from 0 to 254. If unspecified, all types are allowed by this rule.
   - `port_max` - (Optional, Integer) The highest port in the range of ports to be matched; if unspecified, **65535** is used.
   - `port_min` - (Optional, Integer) The lowest port in the range of ports to be matched; if unspecified, **1** is used.  
-  - `protocol` - (Optional, String) The name of the network protocol.  
+  - `ip_version` - (Optional, String) The IP version for this rule. Supported values are `ipv4` and `ipv6`. When set to `ipv6`, the `source` and `destination` fields must use IPv6 CIDR format.
+  - `protocol` - (Optional, String) The name of the network protocol.
   - `source_port_max` - (Optional, Integer) The highest port in the range of ports to be matched; if unspecified, **65535** is used.
   - `source_port_min` - (Optional, Integer) The lowest port in the range of ports to be matched; if unspecified, **1** is used.
   - `tcp`- (Optional, DEPRECATED, List) TCP protocol. `tcp` is deprecated and use `protocol`, `port_min`, `port_max`, `source_port_max` and `source_port_min` argument instead.

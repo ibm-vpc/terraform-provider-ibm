@@ -230,14 +230,15 @@ In addition to all argument reference list, you can access the following attribu
 
   Nested schema for `public_address_ranges`:
 	- `cidr` - (String) The public IPv4 range, expressed in CIDR format.
-	- `crn` - (String) The CRN for this public address range.
-	- `deleted` - (List) If present, this property indicates the referenced resource has been deleted, and providessome supplementary information.
-	  Nested schema for `deleted`:
-		- `more_info` - (String) Link to documentation about deleted resources.
-	- `href` - (String) The URL for this public address range.
-	- `id` - (String) The unique identifier for this public address range.
-	- `name` - (String) The name for this public address range. The name is unique across all public address ranges in the region.
-	- `resource_type` - (String) The resource type.
+  - `crn` - (String) The CRN for this public address range.
+  - `deleted` - (List) If present, this property indicates the referenced resource has been deleted, and providessome supplementary information.
+
+    Nested schema for `deleted`:
+    - `more_info` - (String) Link to documentation about deleted resources.
+  - `href` - (String) The URL for this public address range.
+  - `id` - (String) The unique identifier for this public address range.
+  - `name` - (String) The name for this public address range. The name is unique across all public address ranges in the region.
+  - `resource_type` - (String) The resource type.
 - `subnets`- (List of Strings) A list of subnets that are attached to a VPC.
 
   Nested scheme for `subnets`:
