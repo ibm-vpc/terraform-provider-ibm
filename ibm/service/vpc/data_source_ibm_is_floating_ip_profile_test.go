@@ -39,7 +39,7 @@ func TestAccIBMIsFloatingIPProfileDataSourceBasic(t *testing.T) {
 func testAccCheckIBMIsFloatingIPProfileDataSourceConfigBasic() string {
 	return fmt.Sprintf(`
 		data "ibm_is_floating_ip_profile" "is_floating_ip_profile_instance" {
-			name = "user-ipv4"
+			name = "floating-ip-provider-ipv4"
 		}
 	`)
 }

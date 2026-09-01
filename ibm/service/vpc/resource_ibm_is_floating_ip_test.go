@@ -56,7 +56,6 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCKVmnMOlHKcZK8tpt3MP1lqOLAcqcJzhsvJcjscgVE
 					resource.TestCheckResourceAttrSet(resourceKey, "target_list.0.primary_ip.0.href"),
 					resource.TestCheckResourceAttrSet(resourceKey, "target_list.0.primary_ip.0.reserved_ip"),
 					resource.TestCheckResourceAttrSet(resourceKey, "target_list.0.primary_ip.0.resource_type"),
-					resource.TestCheckResourceAttrSet(resourceKey, "resource_type"),
 					resource.TestCheckResourceAttrSet(resourceKey, "crn"),
 					resource.TestCheckResourceAttrSet(resourceKey, "resource_controller_url"),
 					resource.TestCheckResourceAttrSet(resourceKey, "resource_name"),
@@ -372,4 +371,38 @@ func testAccCheckIBMISFloatingIPTagsUpdateConfig(name string) string {
 		tags = ["tag1", "tag2", "tag3"]
 	}
 `, name, acc.ISZoneName)
+}
+
+func TestAccIBMISFloatingIP_Byoip(t *testing.T) {
+	var ip string
+	name := "my-byoip-fip"
+	address := "46.16.188.26"
+	resourceKey := "ibm_is_floating_ip.from_byoip"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acc.TestAccPreCheck(t) },
+		Providers:    acc.TestAccProviders,
+		CheckDestroy: testAccCheckIBMISFloatingIPDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckIBMISFloatingIPByoipConfig(name, address),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckIBMISFloatingIPExists(resourceKey, ip),
+					resource.TestCheckResourceAttr(resourceKey, "name", name),
+					resource.TestCheckResourceAttr(resourceKey, "address", address),
+					resource.TestCheckResourceAttrSet(resourceKey, "status"),
+					resource.TestCheckResourceAttrSet(resourceKey, "crn"),
+				),
+			},
+		},
+	})
+}
+
+func testAccCheckIBMISFloatingIPByoipConfig(name, address string) string {
+	return fmt.Sprintf(`
+	resource "ibm_is_floating_ip" "from_byoip" {
+		name    = "%s"
+		address = "%s"
+	}
+`, name, address)
 }

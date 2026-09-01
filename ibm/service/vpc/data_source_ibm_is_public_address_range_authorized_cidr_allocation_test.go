@@ -40,8 +40,8 @@ func TestAccIBMIsPublicAddressRangeAuthorizedCIDRAllocationDataSourceBasic(t *te
 func testAccCheckIBMIsPublicAddressRangeAuthorizedCIDRAllocationDataSourceConfigBasic() string {
 	return fmt.Sprintf(`
 		data "ibm_is_public_address_range_authorized_cidr_allocation" "is_public_address_range_authorized_cidr_allocation_instance" {
-			authorized_cidr_id            = "authorized_cidr_id"
-			authorized_cidr_allocation_id = "authorized_cidr_allocation_id"
+			authorized_cidr_id = "r134-7be42030-e392-43b0-9ae8-2a8f2798c6f1"
+			authorized_cidr_allocation_id = "r134-703cae15-af08-4438-927b-4588d42c108c"
 		}
 	`)
 }
