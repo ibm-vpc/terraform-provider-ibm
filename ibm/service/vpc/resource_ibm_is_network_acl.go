@@ -173,8 +173,12 @@ func ResourceIBMISNetworkACL() *schema.Resource {
 							ValidateFunc: validate.InvokeValidator("ibm_is_network_acl", isNetworkACLRuleAction),
 						},
 						isNetworkACLRuleIPVersion: {
-							Type:     schema.TypeString,
-							Computed: true,
+							Type:         schema.TypeString,
+							Optional:     true,
+							Computed:     true,
+							Default:      "ipv4",
+							Description:  "The IP version for this rule. Supported values are ipv4 and ipv6. If unspecified, ipv4 is used.",
+							ValidateFunc: validate.InvokeValidator("ibm_is_network_acl", isNetworkACLRuleIPVersion),
 						},
 						isNetworkACLRuleSource: {
 							Type:         schema.TypeString,
@@ -391,7 +395,7 @@ func ResourceIBMISNetworkACLValidator() *validate.ResourceValidator {
 	validateSchema := make([]validate.ValidateSchema, 0)
 	direction := "inbound, outbound"
 	action := "allow, deny"
-	protocol := "tcp, udp, icmp, ah, any, esp, gre, icmp_tcp_udp, ip_in_ip, l2tp, number_10, number_100, number_101, number_102, number_103, number_104, number_105, number_106, number_107, number_108, number_109, number_11, number_110, number_111, number_113, number_114, number_116, number_117, number_118, number_119, number_12, number_120, number_121, number_122, number_123, number_124, number_125, number_126, number_127, number_128, number_129, number_13, number_130, number_131, number_133, number_134, number_136, number_137, number_138, number_139, number_14, number_140, number_141, number_142, number_143, number_144, number_145, number_146, number_147, number_148, number_149, number_15, number_150, number_151, number_152, number_153, number_154, number_155, number_156, number_157, number_158, number_159, number_16, number_160, number_161, number_162, number_163, number_164, number_165, number_166, number_167, number_168, number_169, number_170, number_171, number_172, number_173, number_174, number_175, number_176, number_177, number_178, number_179, number_18, number_180, number_181, number_182, number_183, number_184, number_185, number_186, number_187, number_188, number_189, number_19, number_190, number_191, number_192, number_193, number_194, number_195, number_196, number_197, number_198, number_199, number_2, number_20, number_200, number_201, number_202, number_203, number_204, number_205, number_206, number_207, number_208, number_209, number_21, number_210, number_211, number_212, number_213, number_214, number_215, number_216, number_217, number_218, number_219, number_22, number_220, number_221, number_222, number_223, number_224, number_225, number_226, number_227, number_228, number_229, number_23, number_230, number_231, number_232, number_233, number_234, number_235, number_236, number_237, number_238, number_239, number_24, number_240, number_241, number_242, number_243, number_244, number_245, number_246, number_247, number_248, number_249, number_25, number_250, number_251, number_252, number_253, number_254, number_255, number_26, number_27, number_28, number_29, number_3, number_30, number_31, number_32, number_33, number_34, number_35, number_36, number_37, number_38, number_39, number_40, number_41, number_42, number_45, number_48, number_49, number_5, number_52, number_53, number_54, number_55, number_56, number_57, number_61, number_62, number_63, number_64, number_65, number_66, number_67, number_68, number_69, number_7, number_70, number_71, number_72, number_73, number_74, number_75, number_76, number_77, number_78, number_79, number_8, number_80, number_81, number_82, number_83, number_84, number_85, number_86, number_87, number_88, number_89, number_9, number_90, number_91, number_92, number_93, number_94, number_95, number_96, number_97, number_98, number_99, rsvp, sctp, vrrp"
+	protocol := "tcp, udp, icmp, ipv6_icmp, ipv6_dest_opts, ipv6_frag, ipv6_hop_opt, ipv6_mobility, ipv6_no_next, ipv6_route, ah, any, esp, gre, icmp_tcp_udp, ip_in_ip, l2tp, number_10, number_100, number_101, number_102, number_103, number_104, number_105, number_106, number_107, number_108, number_109, number_11, number_110, number_111, number_113, number_114, number_116, number_117, number_118, number_119, number_12, number_120, number_121, number_122, number_123, number_124, number_125, number_126, number_127, number_128, number_129, number_13, number_130, number_131, number_133, number_134, number_136, number_137, number_138, number_139, number_14, number_140, number_141, number_142, number_143, number_144, number_145, number_146, number_147, number_148, number_149, number_15, number_150, number_151, number_152, number_153, number_154, number_155, number_156, number_157, number_158, number_159, number_16, number_160, number_161, number_162, number_163, number_164, number_165, number_166, number_167, number_168, number_169, number_170, number_171, number_172, number_173, number_174, number_175, number_176, number_177, number_178, number_179, number_18, number_180, number_181, number_182, number_183, number_184, number_185, number_186, number_187, number_188, number_189, number_19, number_190, number_191, number_192, number_193, number_194, number_195, number_196, number_197, number_198, number_199, number_2, number_20, number_200, number_201, number_202, number_203, number_204, number_205, number_206, number_207, number_208, number_209, number_21, number_210, number_211, number_212, number_213, number_214, number_215, number_216, number_217, number_218, number_219, number_22, number_220, number_221, number_222, number_223, number_224, number_225, number_226, number_227, number_228, number_229, number_23, number_230, number_231, number_232, number_233, number_234, number_235, number_236, number_237, number_238, number_239, number_24, number_240, number_241, number_242, number_243, number_244, number_245, number_246, number_247, number_248, number_249, number_25, number_250, number_251, number_252, number_253, number_254, number_255, number_26, number_27, number_28, number_29, number_3, number_30, number_31, number_32, number_33, number_34, number_35, number_36, number_37, number_38, number_39, number_40, number_41, number_42, number_45, number_48, number_49, number_5, number_52, number_53, number_54, number_55, number_56, number_57, number_61, number_62, number_63, number_64, number_65, number_66, number_67, number_68, number_69, number_7, number_70, number_71, number_72, number_73, number_74, number_75, number_76, number_77, number_78, number_79, number_8, number_80, number_81, number_82, number_83, number_84, number_85, number_86, number_87, number_88, number_89, number_9, number_90, number_91, number_92, number_93, number_94, number_95, number_96, number_97, number_98, number_99, rsvp, sctp, vrrp"
 	validateSchema = append(validateSchema,
 		validate.ValidateSchema{
 			Identifier:                 isNetworkACLRuleAction,
@@ -502,6 +506,12 @@ func ResourceIBMISNetworkACLValidator() *validate.ResourceValidator {
 			ValidateFunctionIdentifier: validate.ValidateAllowedStringValue,
 			Type:                       validate.TypeString,
 			AllowedValues:              protocol})
+	validateSchema = append(validateSchema,
+		validate.ValidateSchema{
+			Identifier:                 isNetworkACLRuleIPVersion,
+			ValidateFunctionIdentifier: validate.ValidateAllowedStringValue,
+			Type:                       validate.TypeString,
+			AllowedValues:              "ipv4, ipv6"})
 
 	ibmISNetworkACLResourceValidator := validate.ResourceValidator{ResourceName: "ibm_is_network_acl", Schema: validateSchema}
 	return &ibmISNetworkACLResourceValidator
@@ -817,6 +827,42 @@ func nwaclGet(context context.Context, d *schema.ResourceData, meta interface{},
 			case "*vpcv1.NetworkACLRuleItemNetworkACLRuleProtocolIndividual":
 				{
 					rulex := rulex.(*vpcv1.NetworkACLRuleItemNetworkACLRuleProtocolIndividual)
+					rule[isNetworkACLRuleID] = *rulex.ID
+					rule[isNetworkACLRuleName] = *rulex.Name
+					rule[isNetworkACLRuleAction] = *rulex.Action
+					rule[isNetworkACLRuleIPVersion] = *rulex.IPVersion
+					rule[isNetworkACLRuleProtocol] = *rulex.Protocol
+					rule[isNetworkACLRuleSource] = *rulex.Source
+					rule[isNetworkACLRuleDestination] = *rulex.Destination
+					rule[isNetworkACLRuleDirection] = *rulex.Direction
+					rule[isNetworkACLRuleICMP] = make([]map[string]int, 0, 0)
+					rule[isNetworkACLRuleTCP] = make([]map[string]int, 0, 0)
+					rule[isNetworkACLRuleUDP] = make([]map[string]int, 0, 0)
+				}
+			case "*vpcv1.NetworkACLRuleItemNetworkACLRuleProtocolIPv6Icmp":
+				{
+					rulex := rulex.(*vpcv1.NetworkACLRuleItemNetworkACLRuleProtocolIPv6Icmp)
+					rule[isNetworkACLRuleID] = *rulex.ID
+					rule[isNetworkACLRuleName] = *rulex.Name
+					rule[isNetworkACLRuleAction] = *rulex.Action
+					rule[isNetworkACLRuleIPVersion] = *rulex.IPVersion
+					rule[isNetworkACLRuleProtocol] = *rulex.Protocol
+					rule[isNetworkACLRuleSource] = *rulex.Source
+					rule[isNetworkACLRuleDestination] = *rulex.Destination
+					rule[isNetworkACLRuleDirection] = *rulex.Direction
+					if rulex.Code != nil {
+						rule[isNetworkACLRuleICMPCode] = int(*rulex.Code)
+					}
+					if rulex.Type != nil {
+						rule[isNetworkACLRuleICMPType] = int(*rulex.Type)
+					}
+					rule[isNetworkACLRuleICMP] = make([]map[string]int, 0, 0)
+					rule[isNetworkACLRuleTCP] = make([]map[string]int, 0, 0)
+					rule[isNetworkACLRuleUDP] = make([]map[string]int, 0, 0)
+				}
+			case "*vpcv1.NetworkACLRuleItemNetworkACLRuleProtocolIndividualIPv6":
+				{
+					rulex := rulex.(*vpcv1.NetworkACLRuleItemNetworkACLRuleProtocolIndividualIPv6)
 					rule[isNetworkACLRuleID] = *rulex.ID
 					rule[isNetworkACLRuleName] = *rulex.Name
 					rule[isNetworkACLRuleAction] = *rulex.Action
@@ -1531,6 +1577,12 @@ func clearRules(nwaclC *vpcv1.VpcV1, nwaclid string) error {
 		case "*vpcv1.NetworkACLRuleItemNetworkACLRuleProtocolIndividual":
 			rule := rule.(*vpcv1.NetworkACLRuleItemNetworkACLRuleProtocolIndividual)
 			deleteNetworkAclRuleOptions.ID = rule.ID
+		case "*vpcv1.NetworkACLRuleItemNetworkACLRuleProtocolIPv6Icmp":
+			rule := rule.(*vpcv1.NetworkACLRuleItemNetworkACLRuleProtocolIPv6Icmp)
+			deleteNetworkAclRuleOptions.ID = rule.ID
+		case "*vpcv1.NetworkACLRuleItemNetworkACLRuleProtocolIndividualIPv6":
+			rule := rule.(*vpcv1.NetworkACLRuleItemNetworkACLRuleProtocolIndividualIPv6)
+			deleteNetworkAclRuleOptions.ID = rule.ID
 		case "*vpcv1.NetworkACLRuleItem":
 			rule := rule.(*vpcv1.NetworkACLRuleItem)
 			deleteNetworkAclRuleOptions.ID = rule.ID
@@ -1590,12 +1642,12 @@ func validateInlineRules(d *schema.ResourceData, rules []interface{}) error {
 		portMax := fmt.Sprintf("rules.%d.port_max", i)
 		srcPortMin := fmt.Sprintf("rules.%d.source_port_min", i)
 		srcPortMax := fmt.Sprintf("rules.%d.source_port_max", i)
-		if protocol != "icmp" && protocol != "" {
+		if protocol != "icmp" && protocol != "ipv6_icmp" && protocol != "" {
 			if _, ok := d.GetOk(icmpType); ok {
-				return fmt.Errorf("attribute 'type' conflicts with protocol %q; 'type' is only valid for icmp protocol", protocol)
+				return fmt.Errorf("attribute 'type' conflicts with protocol %q; 'type' is only valid for icmp or ipv6_icmp protocol", protocol)
 			}
 			if _, ok := d.GetOk(icmpCode); ok {
-				return fmt.Errorf("attribute 'code' conflicts with protocol %q; 'code' is only valid for icmp protocol", protocol)
+				return fmt.Errorf("attribute 'code' conflicts with protocol %q; 'code' is only valid for icmp or ipv6_icmp protocol", protocol)
 			}
 		}
 
@@ -1679,12 +1731,12 @@ func validateInlineRulesForUpdate(d *schema.ResourceData) error {
 			return fmt.Errorf("Only one of icmp|tcp|udp can be defined per rule")
 		}
 
-		if protocol != "icmp" && protocol != "" {
+		if protocol != "icmp" && protocol != "ipv6_icmp" && protocol != "" {
 			if hasIcmpType {
-				return fmt.Errorf("attribute 'type' conflicts with protocol %q; 'type' is only valid for icmp protocol", protocol)
+				return fmt.Errorf("attribute 'type' conflicts with protocol %q; 'type' is only valid for icmp or ipv6_icmp protocol", protocol)
 			}
 			if hasIcmpCode {
-				return fmt.Errorf("attribute 'code' conflicts with protocol %q; 'code' is only valid for icmp protocol", protocol)
+				return fmt.Errorf("attribute 'code' conflicts with protocol %q; 'code' is only valid for icmp or ipv6_icmp protocol", protocol)
 			}
 		}
 
@@ -1735,12 +1787,20 @@ func createInlineRules(d *schema.ResourceData, nwaclC *vpcv1.VpcV1, nwaclid stri
 				protocol = str
 			}
 		}
+		ipVersion := "ipv4"
+		if v, ok := rulex[isNetworkACLRuleIPVersion]; ok {
+			if str, ok := v.(string); ok && str != "" {
+				ipVersion = str
+			}
+		}
+
 		ruleTemplate := &vpcv1.NetworkACLRulePrototype{
 			Action:      &action,
 			Destination: &destination,
 			Direction:   &direction,
 			Source:      &source,
 			Name:        &name,
+			IPVersion:   &ipVersion,
 		}
 
 		if before != "" {
@@ -1794,7 +1854,7 @@ func createInlineRules(d *schema.ResourceData, nwaclC *vpcv1.VpcV1, nwaclid stri
 					ruleTemplate.Type = &v
 				}
 			}
-		} else if protocol == "icmp" {
+		} else if protocol == "icmp" || protocol == "ipv6_icmp" {
 			icmpType := fmt.Sprintf("rules.%d.type", i)
 			icmpCode := fmt.Sprintf("rules.%d.code", i)
 			ruleTemplate.Protocol = &protocol

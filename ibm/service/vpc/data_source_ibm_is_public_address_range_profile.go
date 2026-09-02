@@ -51,6 +51,26 @@ func DataSourceIBMIsPublicAddressRangeProfile() *schema.Resource {
 				Computed:    true,
 				Description: "The resource type.",
 			},
+			"targetable_resource_types": &schema.Schema{
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "The resource types that public address ranges with this profile can target.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"type": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The type for this profile field.",
+						},
+						"values": &schema.Schema{
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "The resource types that public address ranges with this profile can target.",
+							Elem:        &schema.Schema{Type: schema.TypeString},
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -90,6 +110,16 @@ func dataSourceIBMIsPublicAddressRangeProfileRead(context context.Context, d *sc
 
 	if err = d.Set("resource_type", publicAddressRangeProfile.ResourceType); err != nil {
 		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting resource_type: %s", err), "(Data) ibm_is_public_address_range_profile", "read", "set-resource_type").GetDiag()
+	}
+
+	if publicAddressRangeProfile.TargetableResourceTypes != nil {
+		targetableResourceTypesMap := map[string]interface{}{
+			"type":   *publicAddressRangeProfile.TargetableResourceTypes.Type,
+			"values": publicAddressRangeProfile.TargetableResourceTypes.Values,
+		}
+		if err = d.Set("targetable_resource_types", []map[string]interface{}{targetableResourceTypesMap}); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting targetable_resource_types: %s", err), "(Data) ibm_is_public_address_range_profile", "read", "set-targetable_resource_types").GetDiag()
+		}
 	}
 
 	return nil

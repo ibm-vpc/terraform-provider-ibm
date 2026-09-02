@@ -123,13 +123,41 @@ resource "ibm_is_security_group_rule" "example_security_group_rule_tcp" {
 
 ```
 
+An example shows how to create an IPv6 security group rule using `ipv6_icmp` protocol.
+
+```terraform
+resource "ibm_is_security_group_rule" "example_ipv6_icmp" {
+  group      = ibm_is_security_group.example.id
+  direction  = "inbound"
+  remote     = "::/0"
+  ip_version = "ipv6"
+  protocol   = "ipv6_icmp"
+  type       = 135
+  code       = 0
+}
+```
+
+An example shows how to create an IPv6 security group rule using `tcp` with `ip_version = "ipv6"`.
+
+```terraform
+resource "ibm_is_security_group_rule" "example_ipv6_tcp" {
+  group      = ibm_is_security_group.example.id
+  direction  = "inbound"
+  remote     = "::/0"
+  ip_version = "ipv6"
+  protocol   = "tcp"
+  port_min   = 443
+  port_max   = 443
+}
+```
+
 ## Argument reference
-Review the argument references that you can specify for your resource. 
+Review the argument references that you can specify for your resource.
 - `code` - (Optional, Integer) The ICMP traffic code to allow. Valid values from 0 to 255. If unspecified, all codes are allowed.
 - `direction` - (Required, String) The direction of the traffic either `inbound` or `outbound`.
 - `group` - (Required, Forces new resource, String) The security group ID.
 - `local` - (String) 	The local IP address or range of local IP addresses to which this rule will allow inbound traffic (or from which, for outbound traffic). A CIDR block of 0.0.0.0/0 allows traffic to all local IP addresses (or from all local IP addresses, for outbound rules). an IP address, a `CIDR` block.
-- `ip_version` - (Optional, String) The IP version to enforce. The format of local.address, remote.address, local.cidr_block or remote.cidr_block must match this property, if they are used. If remote references a security group, then this rule only applies to IP addresses (network interfaces) in that group matching this IP version. Supported value is [`ipv4`].
+- `ip_version` - (Optional, String) The IP version to enforce. The format of local.address, remote.address, local.cidr_block or remote.cidr_block must match this property, if they are used. If remote references a security group, then this rule only applies to IP addresses (network interfaces) in that group matching this IP version. Supported values are `ipv4` and `ipv6`.
 - `icmp` - (Optional, DEPRECATED, List) A nested block describes the `icmp` protocol of this security group rule. `icmp` is deprecated and use `protocol`, `code`, and `type` argument instead.
 
   Nested scheme for `icmp`:

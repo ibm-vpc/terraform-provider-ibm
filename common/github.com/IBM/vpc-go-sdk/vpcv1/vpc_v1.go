@@ -47,7 +47,7 @@ type VpcV1 struct {
 	Generation *int64
 
 	// The API version, in format `YYYY-MM-DD`. For the API behavior documented here, specify any date between `2026-04-07`
-	// and `2026-07-23`.
+	// and `2026-08-10`.
 	Version *string
 }
 
@@ -68,8 +68,8 @@ type VpcV1Options struct {
 	Generation *int64
 
 	// The API version, in format `YYYY-MM-DD`. For the API behavior documented here, specify any date between `2026-04-07`
-	// and `2026-07-23`.
-	Version *string
+	// and `2026-08-10`.
+	Version *string `validate:"required"`
 }
 
 // NewVpcV1UsingExternalConfig : constructs an instance of VpcV1 with passed in options and external configuration.
@@ -132,21 +132,10 @@ func NewVpcV1(options *VpcV1Options) (service *VpcV1, err error) {
 		}
 	}
 
-	now := time.Now().UTC()
-
-	if options.Version == nil {
-
-		options.Version = core.StringPtr(now.Format("2006-01-02"))
-
-	}
 	service = &VpcV1{
 		Service:    baseService,
 		Generation: options.Generation,
 		Version:    options.Version,
-	}
-
-	if options.Version == nil {
-		options.Version = core.StringPtr("2026-03-24")
 	}
 
 	if service.Generation == nil {
@@ -2357,8 +2346,6 @@ func (vpc *VpcV1) ListBareMetalServerNetworkInterfacesWithContext(ctx context.Co
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
-	builder.AddQuery("maturity", "development")
-
 	if listBareMetalServerNetworkInterfacesOptions.Start != nil {
 		builder.AddQuery("start", fmt.Sprint(*listBareMetalServerNetworkInterfacesOptions.Start))
 	}
@@ -2446,7 +2433,6 @@ func (vpc *VpcV1) CreateBareMetalServerNetworkInterfaceWithContext(ctx context.C
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
-	builder.AddQuery("maturity", "development")
 
 	_, err = builder.SetBodyContentJSON(createBareMetalServerNetworkInterfaceOptions.BareMetalServerNetworkInterfacePrototype)
 	if err != nil {
@@ -2599,7 +2585,6 @@ func (vpc *VpcV1) GetBareMetalServerNetworkInterfaceWithContext(ctx context.Cont
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
-	builder.AddQuery("maturity", "development")
 
 	request, err := builder.Build()
 	if err != nil {
@@ -2680,7 +2665,6 @@ func (vpc *VpcV1) UpdateBareMetalServerNetworkInterfaceWithContext(ctx context.C
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
-	builder.AddQuery("maturity", "development")
 
 	_, err = builder.SetBodyContentJSON(updateBareMetalServerNetworkInterfaceOptions.BareMetalServerNetworkInterfacePatch)
 	if err != nil {
@@ -2760,7 +2744,6 @@ func (vpc *VpcV1) ListBareMetalServerNetworkInterfaceFloatingIpsWithContext(ctx 
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
-	builder.AddQuery("maturity", "development")
 
 	request, err := builder.Build()
 	if err != nil {
@@ -2900,9 +2883,6 @@ func (vpc *VpcV1) GetBareMetalServerNetworkInterfaceFloatingIPWithContext(ctx co
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
-	builder.AddQuery("maturity", "development")
-
-	builder.AddQuery("maturity", "development")
 
 	request, err := builder.Build()
 	if err != nil {
@@ -2986,7 +2966,6 @@ func (vpc *VpcV1) AddBareMetalServerNetworkInterfaceFloatingIPWithContext(ctx co
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
-	builder.AddQuery("maturity", "development")
 
 	request, err := builder.Build()
 	if err != nil {
@@ -7894,7 +7873,6 @@ func (vpc *VpcV1) ListFloatingIPProfilesWithContext(ctx context.Context, listFlo
 	if listFloatingIPProfilesOptions.Limit != nil {
 		builder.AddQuery("limit", fmt.Sprint(*listFloatingIPProfilesOptions.Limit))
 	}
-	builder.AddQuery("maturity", "development")
 
 	request, err := builder.Build()
 	if err != nil {
@@ -7967,7 +7945,6 @@ func (vpc *VpcV1) GetFloatingIPProfileWithContext(ctx context.Context, getFloati
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
-	builder.AddQuery("maturity", "development")
 
 	request, err := builder.Build()
 	if err != nil {
@@ -8032,12 +8009,9 @@ func (vpc *VpcV1) ListFloatingIpsWithContext(ctx context.Context, listFloatingIp
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
-	builder.AddQuery("maturity", "development")
-
 	if listFloatingIpsOptions.Start != nil {
 		builder.AddQuery("start", fmt.Sprint(*listFloatingIpsOptions.Start))
 	}
-
 	if listFloatingIpsOptions.Limit != nil {
 		builder.AddQuery("limit", fmt.Sprint(*listFloatingIpsOptions.Limit))
 	}
@@ -8128,9 +8102,9 @@ func (vpc *VpcV1) CreateFloatingIPWithContext(ctx context.Context, createFloatin
 	}
 	builder.AddHeader("Accept", "application/json")
 	builder.AddHeader("Content-Type", "application/json")
+
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
-	builder.AddQuery("maturity", "development")
 
 	body := make(map[string]interface{})
 	if createFloatingIPOptions.Address != nil {
@@ -8153,6 +8127,7 @@ func (vpc *VpcV1) CreateFloatingIPWithContext(ctx context.Context, createFloatin
 		err = core.SDKErrorf(err, "", "set-json-body-error", common.GetComponentInfo())
 		return
 	}
+
 	request, err := builder.Build()
 	if err != nil {
 		err = core.SDKErrorf(err, "", "build-error", common.GetComponentInfo())
@@ -8224,7 +8199,6 @@ func (vpc *VpcV1) DeleteFloatingIPWithContext(ctx context.Context, deleteFloatin
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
-	builder.AddQuery("maturity", "development")
 
 	request, err := builder.Build()
 	if err != nil {
@@ -8288,7 +8262,6 @@ func (vpc *VpcV1) GetFloatingIPWithContext(ctx context.Context, getFloatingIPOpt
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
-	builder.AddQuery("maturity", "development")
 
 	request, err := builder.Build()
 	if err != nil {
@@ -8362,14 +8335,12 @@ func (vpc *VpcV1) UpdateFloatingIPWithContext(ctx context.Context, updateFloatin
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
-	builder.AddQuery("maturity", "development")
 
 	_, err = builder.SetBodyContentJSON(updateFloatingIPOptions.FloatingIPPatch)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "set-json-body-error", common.GetComponentInfo())
 		return
 	}
-	builder.AddQuery("maturity", "development")
 
 	request, err := builder.Build()
 	if err != nil {
@@ -14568,7 +14539,6 @@ func (vpc *VpcV1) ListInstanceNetworkInterfacesWithContext(ctx context.Context, 
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
-	builder.AddQuery("maturity", "development")
 
 	request, err := builder.Build()
 	if err != nil {
@@ -14649,7 +14619,6 @@ func (vpc *VpcV1) CreateInstanceNetworkInterfaceWithContext(ctx context.Context,
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
-	builder.AddQuery("maturity", "development")
 
 	body := make(map[string]interface{})
 	if createInstanceNetworkInterfaceOptions.Subnet != nil {
@@ -14819,7 +14788,6 @@ func (vpc *VpcV1) GetInstanceNetworkInterfaceWithContext(ctx context.Context, ge
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
-	builder.AddQuery("maturity", "development")
 
 	request, err := builder.Build()
 	if err != nil {
@@ -14900,7 +14868,6 @@ func (vpc *VpcV1) UpdateInstanceNetworkInterfaceWithContext(ctx context.Context,
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
-	builder.AddQuery("maturity", "development")
 
 	_, err = builder.SetBodyContentJSON(updateInstanceNetworkInterfaceOptions.NetworkInterfacePatch)
 	if err != nil {
@@ -14980,7 +14947,6 @@ func (vpc *VpcV1) ListInstanceNetworkInterfaceFloatingIpsWithContext(ctx context
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
-	builder.AddQuery("maturity", "development")
 
 	request, err := builder.Build()
 	if err != nil {
@@ -15054,7 +15020,6 @@ func (vpc *VpcV1) RemoveInstanceNetworkInterfaceFloatingIPWithContext(ctx contex
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
-	builder.AddQuery("maturity", "development")
 
 	request, err := builder.Build()
 	if err != nil {
@@ -15121,7 +15086,6 @@ func (vpc *VpcV1) GetInstanceNetworkInterfaceFloatingIPWithContext(ctx context.C
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
-	builder.AddQuery("maturity", "development")
 
 	request, err := builder.Build()
 	if err != nil {
@@ -15204,7 +15168,6 @@ func (vpc *VpcV1) AddInstanceNetworkInterfaceFloatingIPWithContext(ctx context.C
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
-	builder.AddQuery("maturity", "development")
 
 	request, err := builder.Build()
 	if err != nil {
@@ -21511,8 +21474,6 @@ func (vpc *VpcV1) ListPublicAddressRangeAuthorizedCIDRsWithContext(ctx context.C
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
-	builder.AddQuery("maturity", "development")
-
 	if listPublicAddressRangeAuthorizedCIDRsOptions.Start != nil {
 		builder.AddQuery("start", fmt.Sprint(*listPublicAddressRangeAuthorizedCIDRsOptions.Start))
 	}
@@ -21541,6 +21502,83 @@ func (vpc *VpcV1) ListPublicAddressRangeAuthorizedCIDRsWithContext(ctx context.C
 	}
 	if rawResponse != nil {
 		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalPublicAddressRangeAuthorizedCIDRCollection)
+		if err != nil {
+			err = core.SDKErrorf(err, "", "unmarshal-resp-error", common.GetComponentInfo())
+			return
+		}
+		response.Result = result
+	}
+
+	return
+}
+
+// CreatePublicAddressRangeAuthorizedCIDR : Create a public address range authorized CIDR
+// This request creates a new public address range authorized CIDRs from a public address range authorized CIDR
+// prototype object. The prototype object is structured in the same way as a retrieved public address range authorized
+// CIDR, and contains the information necessary to create the new public address range authorized CIDR.
+func (vpc *VpcV1) CreatePublicAddressRangeAuthorizedCIDR(createPublicAddressRangeAuthorizedCIDROptions *CreatePublicAddressRangeAuthorizedCIDROptions) (result *PublicAddressRangeAuthorizedCIDR, response *core.DetailedResponse, err error) {
+	result, response, err = vpc.CreatePublicAddressRangeAuthorizedCIDRWithContext(context.Background(), createPublicAddressRangeAuthorizedCIDROptions)
+	err = core.RepurposeSDKProblem(err, "")
+	return
+}
+
+// CreatePublicAddressRangeAuthorizedCIDRWithContext is an alternate form of the CreatePublicAddressRangeAuthorizedCIDR method which supports a Context parameter
+func (vpc *VpcV1) CreatePublicAddressRangeAuthorizedCIDRWithContext(ctx context.Context, createPublicAddressRangeAuthorizedCIDROptions *CreatePublicAddressRangeAuthorizedCIDROptions) (result *PublicAddressRangeAuthorizedCIDR, response *core.DetailedResponse, err error) {
+	err = core.ValidateNotNil(createPublicAddressRangeAuthorizedCIDROptions, "createPublicAddressRangeAuthorizedCIDROptions cannot be nil")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "unexpected-nil-param", common.GetComponentInfo())
+		return
+	}
+	err = core.ValidateStruct(createPublicAddressRangeAuthorizedCIDROptions, "createPublicAddressRangeAuthorizedCIDROptions")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "struct-validation-error", common.GetComponentInfo())
+		return
+	}
+
+	builder := core.NewRequestBuilder(core.POST)
+	builder = builder.WithContext(ctx)
+	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
+	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/public_address_range/authorized_cidrs`, nil)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "url-resolve-error", common.GetComponentInfo())
+		return
+	}
+
+	for headerName, headerValue := range createPublicAddressRangeAuthorizedCIDROptions.Headers {
+		builder.AddHeader(headerName, headerValue)
+	}
+
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreatePublicAddressRangeAuthorizedCIDR")
+	for headerName, headerValue := range sdkHeaders {
+		builder.AddHeader(headerName, headerValue)
+	}
+	builder.AddHeader("Accept", "application/json")
+	builder.AddHeader("Content-Type", "application/json")
+
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+
+	_, err = builder.SetBodyContentJSON(createPublicAddressRangeAuthorizedCIDROptions.PublicAddressRangeAuthorizedCIDRPrototype)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "set-json-body-error", common.GetComponentInfo())
+		return
+	}
+
+	request, err := builder.Build()
+	if err != nil {
+		err = core.SDKErrorf(err, "", "build-error", common.GetComponentInfo())
+		return
+	}
+
+	var rawResponse map[string]json.RawMessage
+	response, err = vpc.Service.Request(request, &rawResponse)
+	if err != nil {
+		core.EnrichHTTPProblem(err, "create_public_address_range_authorized_cidr", getServiceComponentInfo())
+		err = core.SDKErrorf(err, "", "http-request-err", common.GetComponentInfo())
+		return
+	}
+	if rawResponse != nil {
+		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalPublicAddressRangeAuthorizedCIDR)
 		if err != nil {
 			err = core.SDKErrorf(err, "", "unmarshal-resp-error", common.GetComponentInfo())
 			return
@@ -21600,8 +21638,6 @@ func (vpc *VpcV1) ListPublicAddressRangeAuthorizedCIDRAllocationsWithContext(ctx
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
-	builder.AddQuery("maturity", "development")
-
 	if listPublicAddressRangeAuthorizedCIDRAllocationsOptions.Start != nil {
 		builder.AddQuery("start", fmt.Sprint(*listPublicAddressRangeAuthorizedCIDRAllocationsOptions.Start))
 	}
@@ -21681,7 +21717,6 @@ func (vpc *VpcV1) GetPublicAddressRangeAuthorizedCIDRAllocationWithContext(ctx c
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
-	builder.AddQuery("maturity", "development")
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
@@ -21706,6 +21741,73 @@ func (vpc *VpcV1) GetPublicAddressRangeAuthorizedCIDRAllocationWithContext(ctx c
 			return
 		}
 		response.Result = result
+	}
+
+	return
+}
+
+// DeletePublicAddressRangeAuthorizedCIDR : Delete a public address range authorized CIDR
+// This request deletes a public address range authorized CIDR. This operation cannot be reversed.
+//
+// For this request to succeed, `allocation.count` must be `0`.
+//
+// If its `name` begins with `ibm-`, then the authorized CIDR is managed by the provider and is not allowed to be
+// deleted.
+func (vpc *VpcV1) DeletePublicAddressRangeAuthorizedCIDR(deletePublicAddressRangeAuthorizedCIDROptions *DeletePublicAddressRangeAuthorizedCIDROptions) (response *core.DetailedResponse, err error) {
+	response, err = vpc.DeletePublicAddressRangeAuthorizedCIDRWithContext(context.Background(), deletePublicAddressRangeAuthorizedCIDROptions)
+	err = core.RepurposeSDKProblem(err, "")
+	return
+}
+
+// DeletePublicAddressRangeAuthorizedCIDRWithContext is an alternate form of the DeletePublicAddressRangeAuthorizedCIDR method which supports a Context parameter
+func (vpc *VpcV1) DeletePublicAddressRangeAuthorizedCIDRWithContext(ctx context.Context, deletePublicAddressRangeAuthorizedCIDROptions *DeletePublicAddressRangeAuthorizedCIDROptions) (response *core.DetailedResponse, err error) {
+	err = core.ValidateNotNil(deletePublicAddressRangeAuthorizedCIDROptions, "deletePublicAddressRangeAuthorizedCIDROptions cannot be nil")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "unexpected-nil-param", common.GetComponentInfo())
+		return
+	}
+	err = core.ValidateStruct(deletePublicAddressRangeAuthorizedCIDROptions, "deletePublicAddressRangeAuthorizedCIDROptions")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "struct-validation-error", common.GetComponentInfo())
+		return
+	}
+
+	pathParamsMap := map[string]string{
+		"id": *deletePublicAddressRangeAuthorizedCIDROptions.ID,
+	}
+
+	builder := core.NewRequestBuilder(core.DELETE)
+	builder = builder.WithContext(ctx)
+	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
+	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/public_address_range/authorized_cidrs/{id}`, pathParamsMap)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "url-resolve-error", common.GetComponentInfo())
+		return
+	}
+
+	for headerName, headerValue := range deletePublicAddressRangeAuthorizedCIDROptions.Headers {
+		builder.AddHeader(headerName, headerValue)
+	}
+
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeletePublicAddressRangeAuthorizedCIDR")
+	for headerName, headerValue := range sdkHeaders {
+		builder.AddHeader(headerName, headerValue)
+	}
+
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+
+	request, err := builder.Build()
+	if err != nil {
+		err = core.SDKErrorf(err, "", "build-error", common.GetComponentInfo())
+		return
+	}
+
+	response, err = vpc.Service.Request(request, nil)
+	if err != nil {
+		core.EnrichHTTPProblem(err, "delete_public_address_range_authorized_cidr", getServiceComponentInfo())
+		err = core.SDKErrorf(err, "", "http-request-err", common.GetComponentInfo())
+		return
 	}
 
 	return
@@ -21757,7 +21859,6 @@ func (vpc *VpcV1) GetPublicAddressRangeAuthorizedCIDRWithContext(ctx context.Con
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
-	builder.AddQuery("maturity", "development")
 
 	request, err := builder.Build()
 	if err != nil {
@@ -21769,6 +21870,87 @@ func (vpc *VpcV1) GetPublicAddressRangeAuthorizedCIDRWithContext(ctx context.Con
 	response, err = vpc.Service.Request(request, &rawResponse)
 	if err != nil {
 		core.EnrichHTTPProblem(err, "get_public_address_range_authorized_cidr", getServiceComponentInfo())
+		err = core.SDKErrorf(err, "", "http-request-err", common.GetComponentInfo())
+		return
+	}
+	if rawResponse != nil {
+		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalPublicAddressRangeAuthorizedCIDR)
+		if err != nil {
+			err = core.SDKErrorf(err, "", "unmarshal-resp-error", common.GetComponentInfo())
+			return
+		}
+		response.Result = result
+	}
+
+	return
+}
+
+// UpdatePublicAddressRangeAuthorizedCIDR : Update a public address range authorized CIDR
+// This request updates a public address range authorized CIDR with the information in a provided public address range
+// authorized CIDR patch. The public address range authorized CIDR patch object is structured in the same way as a
+// retrieved public address range authorized CIDR and contains only the information to be updated.
+func (vpc *VpcV1) UpdatePublicAddressRangeAuthorizedCIDR(updatePublicAddressRangeAuthorizedCIDROptions *UpdatePublicAddressRangeAuthorizedCIDROptions) (result *PublicAddressRangeAuthorizedCIDR, response *core.DetailedResponse, err error) {
+	result, response, err = vpc.UpdatePublicAddressRangeAuthorizedCIDRWithContext(context.Background(), updatePublicAddressRangeAuthorizedCIDROptions)
+	err = core.RepurposeSDKProblem(err, "")
+	return
+}
+
+// UpdatePublicAddressRangeAuthorizedCIDRWithContext is an alternate form of the UpdatePublicAddressRangeAuthorizedCIDR method which supports a Context parameter
+func (vpc *VpcV1) UpdatePublicAddressRangeAuthorizedCIDRWithContext(ctx context.Context, updatePublicAddressRangeAuthorizedCIDROptions *UpdatePublicAddressRangeAuthorizedCIDROptions) (result *PublicAddressRangeAuthorizedCIDR, response *core.DetailedResponse, err error) {
+	err = core.ValidateNotNil(updatePublicAddressRangeAuthorizedCIDROptions, "updatePublicAddressRangeAuthorizedCIDROptions cannot be nil")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "unexpected-nil-param", common.GetComponentInfo())
+		return
+	}
+	err = core.ValidateStruct(updatePublicAddressRangeAuthorizedCIDROptions, "updatePublicAddressRangeAuthorizedCIDROptions")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "struct-validation-error", common.GetComponentInfo())
+		return
+	}
+
+	pathParamsMap := map[string]string{
+		"id": *updatePublicAddressRangeAuthorizedCIDROptions.ID,
+	}
+
+	builder := core.NewRequestBuilder(core.PATCH)
+	builder = builder.WithContext(ctx)
+	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
+	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/public_address_range/authorized_cidrs/{id}`, pathParamsMap)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "url-resolve-error", common.GetComponentInfo())
+		return
+	}
+
+	for headerName, headerValue := range updatePublicAddressRangeAuthorizedCIDROptions.Headers {
+		builder.AddHeader(headerName, headerValue)
+	}
+
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdatePublicAddressRangeAuthorizedCIDR")
+	for headerName, headerValue := range sdkHeaders {
+		builder.AddHeader(headerName, headerValue)
+	}
+	builder.AddHeader("Accept", "application/json")
+	builder.AddHeader("Content-Type", "application/merge-patch+json")
+
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+
+	_, err = builder.SetBodyContentJSON(updatePublicAddressRangeAuthorizedCIDROptions.PublicAddressRangeAuthorizedCIDRPatch)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "set-json-body-error", common.GetComponentInfo())
+		return
+	}
+
+	request, err := builder.Build()
+	if err != nil {
+		err = core.SDKErrorf(err, "", "build-error", common.GetComponentInfo())
+		return
+	}
+
+	var rawResponse map[string]json.RawMessage
+	response, err = vpc.Service.Request(request, &rawResponse)
+	if err != nil {
+		core.EnrichHTTPProblem(err, "update_public_address_range_authorized_cidr", getServiceComponentInfo())
 		err = core.SDKErrorf(err, "", "http-request-err", common.GetComponentInfo())
 		return
 	}
@@ -21822,8 +22004,6 @@ func (vpc *VpcV1) ListPublicAddressRangeProfilesWithContext(ctx context.Context,
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
-	builder.AddQuery("maturity", "development")
-
 	if listPublicAddressRangeProfilesOptions.Start != nil {
 		builder.AddQuery("start", fmt.Sprint(*listPublicAddressRangeProfilesOptions.Start))
 	}
@@ -21899,7 +22079,6 @@ func (vpc *VpcV1) GetPublicAddressRangeProfileWithContext(ctx context.Context, g
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
-	builder.AddQuery("maturity", "development")
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
@@ -21973,8 +22152,6 @@ func (vpc *VpcV1) ListPublicAddressRangesWithContext(ctx context.Context, listPu
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
-	builder.AddQuery("maturity", "development")
-
 	if listPublicAddressRangesOptions.Start != nil {
 		builder.AddQuery("start", fmt.Sprint(*listPublicAddressRangesOptions.Start))
 	}
@@ -22055,7 +22232,6 @@ func (vpc *VpcV1) CreatePublicAddressRangeWithContext(ctx context.Context, creat
 	}
 	builder.AddHeader("Accept", "application/json")
 	builder.AddHeader("Content-Type", "application/json")
-	builder.AddQuery("maturity", "development")
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
@@ -22065,7 +22241,6 @@ func (vpc *VpcV1) CreatePublicAddressRangeWithContext(ctx context.Context, creat
 		err = core.SDKErrorf(err, "", "set-json-body-error", common.GetComponentInfo())
 		return
 	}
-	builder.AddQuery("maturity", "development")
 
 	request, err := builder.Build()
 	if err != nil {
@@ -22139,7 +22314,6 @@ func (vpc *VpcV1) DeletePublicAddressRangeWithContext(ctx context.Context, delet
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
-	builder.AddQuery("maturity", "development")
 
 	request, err := builder.Build()
 	if err != nil {
@@ -22212,7 +22386,6 @@ func (vpc *VpcV1) GetPublicAddressRangeWithContext(ctx context.Context, getPubli
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
-	builder.AddQuery("maturity", "development")
 
 	request, err := builder.Build()
 	if err != nil {
@@ -22288,7 +22461,6 @@ func (vpc *VpcV1) UpdatePublicAddressRangeWithContext(ctx context.Context, updat
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
-	builder.AddQuery("maturity", "development")
 
 	_, err = builder.SetBodyContentJSON(updatePublicAddressRangeOptions.PublicAddressRangePatch)
 	if err != nil {
@@ -22360,8 +22532,6 @@ func (vpc *VpcV1) ListPublicGatewaysWithContext(ctx context.Context, listPublicG
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
-	builder.AddQuery("maturity", "development")
-
 	if listPublicGatewaysOptions.Start != nil {
 		builder.AddQuery("start", fmt.Sprint(*listPublicGatewaysOptions.Start))
 	}
@@ -22445,7 +22615,6 @@ func (vpc *VpcV1) CreatePublicGatewayWithContext(ctx context.Context, createPubl
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
-	builder.AddQuery("maturity", "development")
 
 	body := make(map[string]interface{})
 	if createPublicGatewayOptions.VPC != nil {
@@ -22604,7 +22773,6 @@ func (vpc *VpcV1) GetPublicGatewayWithContext(ctx context.Context, getPublicGate
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
-	builder.AddQuery("maturity", "development")
 
 	request, err := builder.Build()
 	if err != nil {
@@ -22678,7 +22846,6 @@ func (vpc *VpcV1) UpdatePublicGatewayWithContext(ctx context.Context, updatePubl
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
-	builder.AddQuery("maturity", "development")
 
 	_, err = builder.SetBodyContentJSON(updatePublicGatewayOptions.PublicGatewayPatch)
 	if err != nil {
@@ -27949,7 +28116,6 @@ func (vpc *VpcV1) GetSubnetPublicGatewayWithContext(ctx context.Context, getSubn
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
-	builder.AddQuery("maturity", "development")
 
 	request, err := builder.Build()
 	if err != nil {
@@ -28024,7 +28190,6 @@ func (vpc *VpcV1) SetSubnetPublicGatewayWithContext(ctx context.Context, setSubn
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
-	builder.AddQuery("maturity", "development")
 
 	_, err = builder.SetBodyContentJSON(setSubnetPublicGatewayOptions.PublicGatewayIdentity)
 	if err != nil {
@@ -28663,7 +28828,6 @@ func (vpc *VpcV1) ListVirtualNetworkInterfacesWithContext(ctx context.Context, l
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
-	builder.AddQuery("maturity", "development")
 	if listVirtualNetworkInterfacesOptions.Start != nil {
 		builder.AddQuery("start", fmt.Sprint(*listVirtualNetworkInterfacesOptions.Start))
 	}
@@ -28744,7 +28908,6 @@ func (vpc *VpcV1) CreateVirtualNetworkInterfaceWithContext(ctx context.Context, 
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
-	builder.AddQuery("maturity", "development")
 
 	body := make(map[string]interface{})
 	if createVirtualNetworkInterfaceOptions.AllowIPSpoofing != nil {
@@ -28859,7 +29022,6 @@ func (vpc *VpcV1) DeleteVirtualNetworkInterfacesWithContext(ctx context.Context,
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
-	builder.AddQuery("maturity", "development")
 
 	request, err := builder.Build()
 	if err != nil {
@@ -28932,7 +29094,6 @@ func (vpc *VpcV1) GetVirtualNetworkInterfaceWithContext(ctx context.Context, get
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
-	builder.AddQuery("maturity", "development")
 
 	request, err := builder.Build()
 	if err != nil {
@@ -29011,7 +29172,6 @@ func (vpc *VpcV1) UpdateVirtualNetworkInterfaceWithContext(ctx context.Context, 
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
-	builder.AddQuery("maturity", "development")
 
 	_, err = builder.SetBodyContentJSON(updateVirtualNetworkInterfaceOptions.VirtualNetworkInterfacePatch)
 	if err != nil {
@@ -29090,8 +29250,6 @@ func (vpc *VpcV1) ListNetworkInterfaceFloatingIpsWithContext(ctx context.Context
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
-	builder.AddQuery("maturity", "development")
-
 	if listNetworkInterfaceFloatingIpsOptions.Start != nil {
 		builder.AddQuery("start", fmt.Sprint(*listNetworkInterfaceFloatingIpsOptions.Start))
 	}
@@ -29238,7 +29396,6 @@ func (vpc *VpcV1) GetNetworkInterfaceFloatingIPWithContext(ctx context.Context, 
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
-	builder.AddQuery("maturity", "development")
 
 	request, err := builder.Build()
 	if err != nil {
@@ -29327,7 +29484,6 @@ func (vpc *VpcV1) AddNetworkInterfaceFloatingIPWithContext(ctx context.Context, 
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
-	builder.AddQuery("maturity", "development")
 
 	request, err := builder.Build()
 	if err != nil {
@@ -30766,8 +30922,6 @@ func (vpc *VpcV1) ListVpcsWithContext(ctx context.Context, listVpcsOptions *List
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
-	builder.AddQuery("maturity", "development")
-
 	if listVpcsOptions.Start != nil {
 		builder.AddQuery("start", fmt.Sprint(*listVpcsOptions.Start))
 	}
@@ -30855,7 +31009,6 @@ func (vpc *VpcV1) CreateVPCWithContext(ctx context.Context, createVPCOptions *Cr
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
-	builder.AddQuery("maturity", "development")
 
 	body := make(map[string]interface{})
 	if createVPCOptions.AddressPrefixManagement != nil {
@@ -31026,8 +31179,6 @@ func (vpc *VpcV1) GetVPCWithContext(ctx context.Context, getVPCOptions *GetVPCOp
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
 
-	builder.AddQuery("maturity", "development")
-
 	request, err := builder.Build()
 	if err != nil {
 		err = core.SDKErrorf(err, "", "build-error", common.GetComponentInfo())
@@ -31104,7 +31255,6 @@ func (vpc *VpcV1) UpdateVPCWithContext(ctx context.Context, updateVPCOptions *Up
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
-	builder.AddQuery("maturity", "development")
 
 	_, err = builder.SetBodyContentJSON(updateVPCOptions.VPCPatch)
 	if err != nil {
@@ -50549,6 +50699,34 @@ func (options *CreatePrivatePathServiceGatewayOptions) SetHeaders(param map[stri
 	return options
 }
 
+// CreatePublicAddressRangeAuthorizedCIDROptions : The CreatePublicAddressRangeAuthorizedCIDR options.
+type CreatePublicAddressRangeAuthorizedCIDROptions struct {
+	// The public address range authorized CIDR prototype object.
+	PublicAddressRangeAuthorizedCIDRPrototype PublicAddressRangeAuthorizedCIDRPrototypeIntf `json:"PublicAddressRangeAuthorizedCIDRPrototype" validate:"required"`
+
+	// Allows users to set headers on API requests.
+	Headers map[string]string
+}
+
+// NewCreatePublicAddressRangeAuthorizedCIDROptions : Instantiate CreatePublicAddressRangeAuthorizedCIDROptions
+func (*VpcV1) NewCreatePublicAddressRangeAuthorizedCIDROptions(publicAddressRangeAuthorizedCIDRPrototype PublicAddressRangeAuthorizedCIDRPrototypeIntf) *CreatePublicAddressRangeAuthorizedCIDROptions {
+	return &CreatePublicAddressRangeAuthorizedCIDROptions{
+		PublicAddressRangeAuthorizedCIDRPrototype: publicAddressRangeAuthorizedCIDRPrototype,
+	}
+}
+
+// SetPublicAddressRangeAuthorizedCIDRPrototype : Allow user to set PublicAddressRangeAuthorizedCIDRPrototype
+func (_options *CreatePublicAddressRangeAuthorizedCIDROptions) SetPublicAddressRangeAuthorizedCIDRPrototype(publicAddressRangeAuthorizedCIDRPrototype PublicAddressRangeAuthorizedCIDRPrototypeIntf) *CreatePublicAddressRangeAuthorizedCIDROptions {
+	_options.PublicAddressRangeAuthorizedCIDRPrototype = publicAddressRangeAuthorizedCIDRPrototype
+	return _options
+}
+
+// SetHeaders : Allow user to set Headers
+func (options *CreatePublicAddressRangeAuthorizedCIDROptions) SetHeaders(param map[string]string) *CreatePublicAddressRangeAuthorizedCIDROptions {
+	options.Headers = param
+	return options
+}
+
 // CreatePublicAddressRangeOptions : The CreatePublicAddressRange options.
 type CreatePublicAddressRangeOptions struct {
 	// The public address range prototype.
@@ -56594,6 +56772,34 @@ func (_options *DeletePrivatePathServiceGatewayOptions) SetID(id string) *Delete
 
 // SetHeaders : Allow user to set Headers
 func (options *DeletePrivatePathServiceGatewayOptions) SetHeaders(param map[string]string) *DeletePrivatePathServiceGatewayOptions {
+	options.Headers = param
+	return options
+}
+
+// DeletePublicAddressRangeAuthorizedCIDROptions : The DeletePublicAddressRangeAuthorizedCIDR options.
+type DeletePublicAddressRangeAuthorizedCIDROptions struct {
+	// The public address range authorized CIDR identifier.
+	ID *string `json:"id" validate:"required,ne="`
+
+	// Allows users to set headers on API requests.
+	Headers map[string]string
+}
+
+// NewDeletePublicAddressRangeAuthorizedCIDROptions : Instantiate DeletePublicAddressRangeAuthorizedCIDROptions
+func (*VpcV1) NewDeletePublicAddressRangeAuthorizedCIDROptions(id string) *DeletePublicAddressRangeAuthorizedCIDROptions {
+	return &DeletePublicAddressRangeAuthorizedCIDROptions{
+		ID: core.StringPtr(id),
+	}
+}
+
+// SetID : Allow user to set ID
+func (_options *DeletePublicAddressRangeAuthorizedCIDROptions) SetID(id string) *DeletePublicAddressRangeAuthorizedCIDROptions {
+	_options.ID = core.StringPtr(id)
+	return _options
+}
+
+// SetHeaders : Allow user to set Headers
+func (options *DeletePublicAddressRangeAuthorizedCIDROptions) SetHeaders(param map[string]string) *DeletePublicAddressRangeAuthorizedCIDROptions {
 	options.Headers = param
 	return options
 }
@@ -90740,8 +90946,10 @@ func UnmarshalNetworkACLReference(m map[string]json.RawMessage, result interface
 // - NetworkACLRuleNetworkACLRuleProtocolAny
 // - NetworkACLRuleNetworkACLRuleProtocolIcmptcpudp
 // - NetworkACLRuleNetworkACLRuleProtocolIcmp
+// - NetworkACLRuleNetworkACLRuleProtocolIPv6Icmp
 // - NetworkACLRuleNetworkACLRuleProtocolTcpudp
 // - NetworkACLRuleNetworkACLRuleProtocolIndividual
+// - NetworkACLRuleNetworkACLRuleProtocolIndividualIPv6
 type NetworkACLRule struct {
 	// The action to perform for a packet matching the rule.
 	Action *string `json:"action" validate:"required"`
@@ -90752,10 +90960,8 @@ type NetworkACLRule struct {
 	// The date and time that the rule was created.
 	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
 
-	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all destination addresses.
-	//
-	// This property may [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support IPv6 addresses or
-	// CIDR blocks in the future.
+	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` (or `::/0` if `ip_version` is `ipv6`)
+	// matches all destination addresses.
 	Destination *string `json:"destination" validate:"required"`
 
 	// The direction of traffic to match.
@@ -90768,9 +90974,6 @@ type NetworkACLRule struct {
 	ID *string `json:"id" validate:"required"`
 
 	// The IP version for this rule.
-	//
-	// The enumerated values for this property may
-	// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support `ipv6` in the future.
 	IPVersion *string `json:"ip_version" validate:"required"`
 
 	// The name for this network ACL rule. The name is unique across all rules for the network ACL.
@@ -90782,10 +90985,8 @@ type NetworkACLRule struct {
 	// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.
 	Protocol *string `json:"protocol" validate:"required"`
 
-	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all source addresses.
-	//
-	// This property may [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support IPv6 CIDR blocks
-	// in the future.
+	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` (or `::/0` if
+	// `ip_version` is `ipv6`) matches all source addresses.
 	Source *string `json:"source" validate:"required"`
 
 	// The ICMP traffic code to match.
@@ -90827,11 +91028,9 @@ const (
 
 // Constants associated with the NetworkACLRule.IPVersion property.
 // The IP version for this rule.
-//
-// The enumerated values for this property may
-// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support `ipv6` in the future.
 const (
 	NetworkACLRuleIPVersionIpv4Const = "ipv4"
+	NetworkACLRuleIPVersionIpv6Const = "ipv6"
 )
 
 // Constants associated with the NetworkACLRule.Protocol property.
@@ -90840,264 +91039,264 @@ const (
 // The enumerated values for this property may
 // [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.
 const (
-	NetworkACLRuleProtocolAhConst         = "ah"
-	NetworkACLRuleProtocolAnyConst        = "any"
-	NetworkACLRuleProtocolEspConst        = "esp"
-	NetworkACLRuleProtocolGreConst        = "gre"
-	NetworkACLRuleProtocolIPInIPConst     = "ip_in_ip"
-	NetworkACLRuleProtocolIcmpConst       = "icmp"
-	NetworkACLRuleProtocolIcmpTCPUDPConst = "icmp_tcp_udp"
-	NetworkACLRuleProtocolL2tpConst       = "l2tp"
-	NetworkACLRuleProtocolNumber0Const    = "number_0"
-	NetworkACLRuleProtocolNumber10Const   = "number_10"
-	NetworkACLRuleProtocolNumber100Const  = "number_100"
-	NetworkACLRuleProtocolNumber101Const  = "number_101"
-	NetworkACLRuleProtocolNumber102Const  = "number_102"
-	NetworkACLRuleProtocolNumber103Const  = "number_103"
-	NetworkACLRuleProtocolNumber104Const  = "number_104"
-	NetworkACLRuleProtocolNumber105Const  = "number_105"
-	NetworkACLRuleProtocolNumber106Const  = "number_106"
-	NetworkACLRuleProtocolNumber107Const  = "number_107"
-	NetworkACLRuleProtocolNumber108Const  = "number_108"
-	NetworkACLRuleProtocolNumber109Const  = "number_109"
-	NetworkACLRuleProtocolNumber11Const   = "number_11"
-	NetworkACLRuleProtocolNumber110Const  = "number_110"
-	NetworkACLRuleProtocolNumber111Const  = "number_111"
-	NetworkACLRuleProtocolNumber113Const  = "number_113"
-	NetworkACLRuleProtocolNumber114Const  = "number_114"
-	NetworkACLRuleProtocolNumber116Const  = "number_116"
-	NetworkACLRuleProtocolNumber117Const  = "number_117"
-	NetworkACLRuleProtocolNumber118Const  = "number_118"
-	NetworkACLRuleProtocolNumber119Const  = "number_119"
-	NetworkACLRuleProtocolNumber12Const   = "number_12"
-	NetworkACLRuleProtocolNumber120Const  = "number_120"
-	NetworkACLRuleProtocolNumber121Const  = "number_121"
-	NetworkACLRuleProtocolNumber122Const  = "number_122"
-	NetworkACLRuleProtocolNumber123Const  = "number_123"
-	NetworkACLRuleProtocolNumber124Const  = "number_124"
-	NetworkACLRuleProtocolNumber125Const  = "number_125"
-	NetworkACLRuleProtocolNumber126Const  = "number_126"
-	NetworkACLRuleProtocolNumber127Const  = "number_127"
-	NetworkACLRuleProtocolNumber128Const  = "number_128"
-	NetworkACLRuleProtocolNumber129Const  = "number_129"
-	NetworkACLRuleProtocolNumber13Const   = "number_13"
-	NetworkACLRuleProtocolNumber130Const  = "number_130"
-	NetworkACLRuleProtocolNumber131Const  = "number_131"
-	NetworkACLRuleProtocolNumber133Const  = "number_133"
-	NetworkACLRuleProtocolNumber134Const  = "number_134"
-	NetworkACLRuleProtocolNumber135Const  = "number_135"
-	NetworkACLRuleProtocolNumber136Const  = "number_136"
-	NetworkACLRuleProtocolNumber137Const  = "number_137"
-	NetworkACLRuleProtocolNumber138Const  = "number_138"
-	NetworkACLRuleProtocolNumber139Const  = "number_139"
-	NetworkACLRuleProtocolNumber14Const   = "number_14"
-	NetworkACLRuleProtocolNumber140Const  = "number_140"
-	NetworkACLRuleProtocolNumber141Const  = "number_141"
-	NetworkACLRuleProtocolNumber142Const  = "number_142"
-	NetworkACLRuleProtocolNumber143Const  = "number_143"
-	NetworkACLRuleProtocolNumber144Const  = "number_144"
-	NetworkACLRuleProtocolNumber145Const  = "number_145"
-	NetworkACLRuleProtocolNumber146Const  = "number_146"
-	NetworkACLRuleProtocolNumber147Const  = "number_147"
-	NetworkACLRuleProtocolNumber148Const  = "number_148"
-	NetworkACLRuleProtocolNumber149Const  = "number_149"
-	NetworkACLRuleProtocolNumber15Const   = "number_15"
-	NetworkACLRuleProtocolNumber150Const  = "number_150"
-	NetworkACLRuleProtocolNumber151Const  = "number_151"
-	NetworkACLRuleProtocolNumber152Const  = "number_152"
-	NetworkACLRuleProtocolNumber153Const  = "number_153"
-	NetworkACLRuleProtocolNumber154Const  = "number_154"
-	NetworkACLRuleProtocolNumber155Const  = "number_155"
-	NetworkACLRuleProtocolNumber156Const  = "number_156"
-	NetworkACLRuleProtocolNumber157Const  = "number_157"
-	NetworkACLRuleProtocolNumber158Const  = "number_158"
-	NetworkACLRuleProtocolNumber159Const  = "number_159"
-	NetworkACLRuleProtocolNumber16Const   = "number_16"
-	NetworkACLRuleProtocolNumber160Const  = "number_160"
-	NetworkACLRuleProtocolNumber161Const  = "number_161"
-	NetworkACLRuleProtocolNumber162Const  = "number_162"
-	NetworkACLRuleProtocolNumber163Const  = "number_163"
-	NetworkACLRuleProtocolNumber164Const  = "number_164"
-	NetworkACLRuleProtocolNumber165Const  = "number_165"
-	NetworkACLRuleProtocolNumber166Const  = "number_166"
-	NetworkACLRuleProtocolNumber167Const  = "number_167"
-	NetworkACLRuleProtocolNumber168Const  = "number_168"
-	NetworkACLRuleProtocolNumber169Const  = "number_169"
-	NetworkACLRuleProtocolNumber170Const  = "number_170"
-	NetworkACLRuleProtocolNumber171Const  = "number_171"
-	NetworkACLRuleProtocolNumber172Const  = "number_172"
-	NetworkACLRuleProtocolNumber173Const  = "number_173"
-	NetworkACLRuleProtocolNumber174Const  = "number_174"
-	NetworkACLRuleProtocolNumber175Const  = "number_175"
-	NetworkACLRuleProtocolNumber176Const  = "number_176"
-	NetworkACLRuleProtocolNumber177Const  = "number_177"
-	NetworkACLRuleProtocolNumber178Const  = "number_178"
-	NetworkACLRuleProtocolNumber179Const  = "number_179"
-	NetworkACLRuleProtocolNumber18Const   = "number_18"
-	NetworkACLRuleProtocolNumber180Const  = "number_180"
-	NetworkACLRuleProtocolNumber181Const  = "number_181"
-	NetworkACLRuleProtocolNumber182Const  = "number_182"
-	NetworkACLRuleProtocolNumber183Const  = "number_183"
-	NetworkACLRuleProtocolNumber184Const  = "number_184"
-	NetworkACLRuleProtocolNumber185Const  = "number_185"
-	NetworkACLRuleProtocolNumber186Const  = "number_186"
-	NetworkACLRuleProtocolNumber187Const  = "number_187"
-	NetworkACLRuleProtocolNumber188Const  = "number_188"
-	NetworkACLRuleProtocolNumber189Const  = "number_189"
-	NetworkACLRuleProtocolNumber19Const   = "number_19"
-	NetworkACLRuleProtocolNumber190Const  = "number_190"
-	NetworkACLRuleProtocolNumber191Const  = "number_191"
-	NetworkACLRuleProtocolNumber192Const  = "number_192"
-	NetworkACLRuleProtocolNumber193Const  = "number_193"
-	NetworkACLRuleProtocolNumber194Const  = "number_194"
-	NetworkACLRuleProtocolNumber195Const  = "number_195"
-	NetworkACLRuleProtocolNumber196Const  = "number_196"
-	NetworkACLRuleProtocolNumber197Const  = "number_197"
-	NetworkACLRuleProtocolNumber198Const  = "number_198"
-	NetworkACLRuleProtocolNumber199Const  = "number_199"
-	NetworkACLRuleProtocolNumber2Const    = "number_2"
-	NetworkACLRuleProtocolNumber20Const   = "number_20"
-	NetworkACLRuleProtocolNumber200Const  = "number_200"
-	NetworkACLRuleProtocolNumber201Const  = "number_201"
-	NetworkACLRuleProtocolNumber202Const  = "number_202"
-	NetworkACLRuleProtocolNumber203Const  = "number_203"
-	NetworkACLRuleProtocolNumber204Const  = "number_204"
-	NetworkACLRuleProtocolNumber205Const  = "number_205"
-	NetworkACLRuleProtocolNumber206Const  = "number_206"
-	NetworkACLRuleProtocolNumber207Const  = "number_207"
-	NetworkACLRuleProtocolNumber208Const  = "number_208"
-	NetworkACLRuleProtocolNumber209Const  = "number_209"
-	NetworkACLRuleProtocolNumber21Const   = "number_21"
-	NetworkACLRuleProtocolNumber210Const  = "number_210"
-	NetworkACLRuleProtocolNumber211Const  = "number_211"
-	NetworkACLRuleProtocolNumber212Const  = "number_212"
-	NetworkACLRuleProtocolNumber213Const  = "number_213"
-	NetworkACLRuleProtocolNumber214Const  = "number_214"
-	NetworkACLRuleProtocolNumber215Const  = "number_215"
-	NetworkACLRuleProtocolNumber216Const  = "number_216"
-	NetworkACLRuleProtocolNumber217Const  = "number_217"
-	NetworkACLRuleProtocolNumber218Const  = "number_218"
-	NetworkACLRuleProtocolNumber219Const  = "number_219"
-	NetworkACLRuleProtocolNumber22Const   = "number_22"
-	NetworkACLRuleProtocolNumber220Const  = "number_220"
-	NetworkACLRuleProtocolNumber221Const  = "number_221"
-	NetworkACLRuleProtocolNumber222Const  = "number_222"
-	NetworkACLRuleProtocolNumber223Const  = "number_223"
-	NetworkACLRuleProtocolNumber224Const  = "number_224"
-	NetworkACLRuleProtocolNumber225Const  = "number_225"
-	NetworkACLRuleProtocolNumber226Const  = "number_226"
-	NetworkACLRuleProtocolNumber227Const  = "number_227"
-	NetworkACLRuleProtocolNumber228Const  = "number_228"
-	NetworkACLRuleProtocolNumber229Const  = "number_229"
-	NetworkACLRuleProtocolNumber23Const   = "number_23"
-	NetworkACLRuleProtocolNumber230Const  = "number_230"
-	NetworkACLRuleProtocolNumber231Const  = "number_231"
-	NetworkACLRuleProtocolNumber232Const  = "number_232"
-	NetworkACLRuleProtocolNumber233Const  = "number_233"
-	NetworkACLRuleProtocolNumber234Const  = "number_234"
-	NetworkACLRuleProtocolNumber235Const  = "number_235"
-	NetworkACLRuleProtocolNumber236Const  = "number_236"
-	NetworkACLRuleProtocolNumber237Const  = "number_237"
-	NetworkACLRuleProtocolNumber238Const  = "number_238"
-	NetworkACLRuleProtocolNumber239Const  = "number_239"
-	NetworkACLRuleProtocolNumber24Const   = "number_24"
-	NetworkACLRuleProtocolNumber240Const  = "number_240"
-	NetworkACLRuleProtocolNumber241Const  = "number_241"
-	NetworkACLRuleProtocolNumber242Const  = "number_242"
-	NetworkACLRuleProtocolNumber243Const  = "number_243"
-	NetworkACLRuleProtocolNumber244Const  = "number_244"
-	NetworkACLRuleProtocolNumber245Const  = "number_245"
-	NetworkACLRuleProtocolNumber246Const  = "number_246"
-	NetworkACLRuleProtocolNumber247Const  = "number_247"
-	NetworkACLRuleProtocolNumber248Const  = "number_248"
-	NetworkACLRuleProtocolNumber249Const  = "number_249"
-	NetworkACLRuleProtocolNumber25Const   = "number_25"
-	NetworkACLRuleProtocolNumber250Const  = "number_250"
-	NetworkACLRuleProtocolNumber251Const  = "number_251"
-	NetworkACLRuleProtocolNumber252Const  = "number_252"
-	NetworkACLRuleProtocolNumber253Const  = "number_253"
-	NetworkACLRuleProtocolNumber254Const  = "number_254"
-	NetworkACLRuleProtocolNumber255Const  = "number_255"
-	NetworkACLRuleProtocolNumber26Const   = "number_26"
-	NetworkACLRuleProtocolNumber27Const   = "number_27"
-	NetworkACLRuleProtocolNumber28Const   = "number_28"
-	NetworkACLRuleProtocolNumber29Const   = "number_29"
-	NetworkACLRuleProtocolNumber3Const    = "number_3"
-	NetworkACLRuleProtocolNumber30Const   = "number_30"
-	NetworkACLRuleProtocolNumber31Const   = "number_31"
-	NetworkACLRuleProtocolNumber32Const   = "number_32"
-	NetworkACLRuleProtocolNumber33Const   = "number_33"
-	NetworkACLRuleProtocolNumber34Const   = "number_34"
-	NetworkACLRuleProtocolNumber35Const   = "number_35"
-	NetworkACLRuleProtocolNumber36Const   = "number_36"
-	NetworkACLRuleProtocolNumber37Const   = "number_37"
-	NetworkACLRuleProtocolNumber38Const   = "number_38"
-	NetworkACLRuleProtocolNumber39Const   = "number_39"
-	NetworkACLRuleProtocolNumber40Const   = "number_40"
-	NetworkACLRuleProtocolNumber41Const   = "number_41"
-	NetworkACLRuleProtocolNumber42Const   = "number_42"
-	NetworkACLRuleProtocolNumber43Const   = "number_43"
-	NetworkACLRuleProtocolNumber44Const   = "number_44"
-	NetworkACLRuleProtocolNumber45Const   = "number_45"
-	NetworkACLRuleProtocolNumber48Const   = "number_48"
-	NetworkACLRuleProtocolNumber49Const   = "number_49"
-	NetworkACLRuleProtocolNumber5Const    = "number_5"
-	NetworkACLRuleProtocolNumber52Const   = "number_52"
-	NetworkACLRuleProtocolNumber53Const   = "number_53"
-	NetworkACLRuleProtocolNumber54Const   = "number_54"
-	NetworkACLRuleProtocolNumber55Const   = "number_55"
-	NetworkACLRuleProtocolNumber56Const   = "number_56"
-	NetworkACLRuleProtocolNumber57Const   = "number_57"
-	NetworkACLRuleProtocolNumber58Const   = "number_58"
-	NetworkACLRuleProtocolNumber59Const   = "number_59"
-	NetworkACLRuleProtocolNumber60Const   = "number_60"
-	NetworkACLRuleProtocolNumber61Const   = "number_61"
-	NetworkACLRuleProtocolNumber62Const   = "number_62"
-	NetworkACLRuleProtocolNumber63Const   = "number_63"
-	NetworkACLRuleProtocolNumber64Const   = "number_64"
-	NetworkACLRuleProtocolNumber65Const   = "number_65"
-	NetworkACLRuleProtocolNumber66Const   = "number_66"
-	NetworkACLRuleProtocolNumber67Const   = "number_67"
-	NetworkACLRuleProtocolNumber68Const   = "number_68"
-	NetworkACLRuleProtocolNumber69Const   = "number_69"
-	NetworkACLRuleProtocolNumber7Const    = "number_7"
-	NetworkACLRuleProtocolNumber70Const   = "number_70"
-	NetworkACLRuleProtocolNumber71Const   = "number_71"
-	NetworkACLRuleProtocolNumber72Const   = "number_72"
-	NetworkACLRuleProtocolNumber73Const   = "number_73"
-	NetworkACLRuleProtocolNumber74Const   = "number_74"
-	NetworkACLRuleProtocolNumber75Const   = "number_75"
-	NetworkACLRuleProtocolNumber76Const   = "number_76"
-	NetworkACLRuleProtocolNumber77Const   = "number_77"
-	NetworkACLRuleProtocolNumber78Const   = "number_78"
-	NetworkACLRuleProtocolNumber79Const   = "number_79"
-	NetworkACLRuleProtocolNumber8Const    = "number_8"
-	NetworkACLRuleProtocolNumber80Const   = "number_80"
-	NetworkACLRuleProtocolNumber81Const   = "number_81"
-	NetworkACLRuleProtocolNumber82Const   = "number_82"
-	NetworkACLRuleProtocolNumber83Const   = "number_83"
-	NetworkACLRuleProtocolNumber84Const   = "number_84"
-	NetworkACLRuleProtocolNumber85Const   = "number_85"
-	NetworkACLRuleProtocolNumber86Const   = "number_86"
-	NetworkACLRuleProtocolNumber87Const   = "number_87"
-	NetworkACLRuleProtocolNumber88Const   = "number_88"
-	NetworkACLRuleProtocolNumber89Const   = "number_89"
-	NetworkACLRuleProtocolNumber9Const    = "number_9"
-	NetworkACLRuleProtocolNumber90Const   = "number_90"
-	NetworkACLRuleProtocolNumber91Const   = "number_91"
-	NetworkACLRuleProtocolNumber92Const   = "number_92"
-	NetworkACLRuleProtocolNumber93Const   = "number_93"
-	NetworkACLRuleProtocolNumber94Const   = "number_94"
-	NetworkACLRuleProtocolNumber95Const   = "number_95"
-	NetworkACLRuleProtocolNumber96Const   = "number_96"
-	NetworkACLRuleProtocolNumber97Const   = "number_97"
-	NetworkACLRuleProtocolNumber98Const   = "number_98"
-	NetworkACLRuleProtocolNumber99Const   = "number_99"
-	NetworkACLRuleProtocolRsvpConst       = "rsvp"
-	NetworkACLRuleProtocolSctpConst       = "sctp"
-	NetworkACLRuleProtocolTCPConst        = "tcp"
-	NetworkACLRuleProtocolUDPConst        = "udp"
-	NetworkACLRuleProtocolVrrpConst       = "vrrp"
+	NetworkACLRuleProtocolAhConst           = "ah"
+	NetworkACLRuleProtocolAnyConst          = "any"
+	NetworkACLRuleProtocolEspConst          = "esp"
+	NetworkACLRuleProtocolGreConst          = "gre"
+	NetworkACLRuleProtocolIPInIPConst       = "ip_in_ip"
+	NetworkACLRuleProtocolIcmpConst         = "icmp"
+	NetworkACLRuleProtocolIcmpTCPUDPConst   = "icmp_tcp_udp"
+	NetworkACLRuleProtocolIpv6DestOptsConst = "ipv6_dest_opts"
+	NetworkACLRuleProtocolIpv6FragConst     = "ipv6_frag"
+	NetworkACLRuleProtocolIpv6HopOptConst   = "ipv6_hop_opt"
+	NetworkACLRuleProtocolIpv6IcmpConst     = "ipv6_icmp"
+	NetworkACLRuleProtocolIpv6MobilityConst = "ipv6_mobility"
+	NetworkACLRuleProtocolIpv6NoNextConst   = "ipv6_no_next"
+	NetworkACLRuleProtocolIpv6RouteConst    = "ipv6_route"
+	NetworkACLRuleProtocolL2tpConst         = "l2tp"
+	NetworkACLRuleProtocolNumber10Const     = "number_10"
+	NetworkACLRuleProtocolNumber100Const    = "number_100"
+	NetworkACLRuleProtocolNumber101Const    = "number_101"
+	NetworkACLRuleProtocolNumber102Const    = "number_102"
+	NetworkACLRuleProtocolNumber103Const    = "number_103"
+	NetworkACLRuleProtocolNumber104Const    = "number_104"
+	NetworkACLRuleProtocolNumber105Const    = "number_105"
+	NetworkACLRuleProtocolNumber106Const    = "number_106"
+	NetworkACLRuleProtocolNumber107Const    = "number_107"
+	NetworkACLRuleProtocolNumber108Const    = "number_108"
+	NetworkACLRuleProtocolNumber109Const    = "number_109"
+	NetworkACLRuleProtocolNumber11Const     = "number_11"
+	NetworkACLRuleProtocolNumber110Const    = "number_110"
+	NetworkACLRuleProtocolNumber111Const    = "number_111"
+	NetworkACLRuleProtocolNumber113Const    = "number_113"
+	NetworkACLRuleProtocolNumber114Const    = "number_114"
+	NetworkACLRuleProtocolNumber116Const    = "number_116"
+	NetworkACLRuleProtocolNumber117Const    = "number_117"
+	NetworkACLRuleProtocolNumber118Const    = "number_118"
+	NetworkACLRuleProtocolNumber119Const    = "number_119"
+	NetworkACLRuleProtocolNumber12Const     = "number_12"
+	NetworkACLRuleProtocolNumber120Const    = "number_120"
+	NetworkACLRuleProtocolNumber121Const    = "number_121"
+	NetworkACLRuleProtocolNumber122Const    = "number_122"
+	NetworkACLRuleProtocolNumber123Const    = "number_123"
+	NetworkACLRuleProtocolNumber124Const    = "number_124"
+	NetworkACLRuleProtocolNumber125Const    = "number_125"
+	NetworkACLRuleProtocolNumber126Const    = "number_126"
+	NetworkACLRuleProtocolNumber127Const    = "number_127"
+	NetworkACLRuleProtocolNumber128Const    = "number_128"
+	NetworkACLRuleProtocolNumber129Const    = "number_129"
+	NetworkACLRuleProtocolNumber13Const     = "number_13"
+	NetworkACLRuleProtocolNumber130Const    = "number_130"
+	NetworkACLRuleProtocolNumber131Const    = "number_131"
+	NetworkACLRuleProtocolNumber133Const    = "number_133"
+	NetworkACLRuleProtocolNumber134Const    = "number_134"
+	NetworkACLRuleProtocolNumber136Const    = "number_136"
+	NetworkACLRuleProtocolNumber137Const    = "number_137"
+	NetworkACLRuleProtocolNumber138Const    = "number_138"
+	NetworkACLRuleProtocolNumber139Const    = "number_139"
+	NetworkACLRuleProtocolNumber14Const     = "number_14"
+	NetworkACLRuleProtocolNumber140Const    = "number_140"
+	NetworkACLRuleProtocolNumber141Const    = "number_141"
+	NetworkACLRuleProtocolNumber142Const    = "number_142"
+	NetworkACLRuleProtocolNumber143Const    = "number_143"
+	NetworkACLRuleProtocolNumber144Const    = "number_144"
+	NetworkACLRuleProtocolNumber145Const    = "number_145"
+	NetworkACLRuleProtocolNumber146Const    = "number_146"
+	NetworkACLRuleProtocolNumber147Const    = "number_147"
+	NetworkACLRuleProtocolNumber148Const    = "number_148"
+	NetworkACLRuleProtocolNumber149Const    = "number_149"
+	NetworkACLRuleProtocolNumber15Const     = "number_15"
+	NetworkACLRuleProtocolNumber150Const    = "number_150"
+	NetworkACLRuleProtocolNumber151Const    = "number_151"
+	NetworkACLRuleProtocolNumber152Const    = "number_152"
+	NetworkACLRuleProtocolNumber153Const    = "number_153"
+	NetworkACLRuleProtocolNumber154Const    = "number_154"
+	NetworkACLRuleProtocolNumber155Const    = "number_155"
+	NetworkACLRuleProtocolNumber156Const    = "number_156"
+	NetworkACLRuleProtocolNumber157Const    = "number_157"
+	NetworkACLRuleProtocolNumber158Const    = "number_158"
+	NetworkACLRuleProtocolNumber159Const    = "number_159"
+	NetworkACLRuleProtocolNumber16Const     = "number_16"
+	NetworkACLRuleProtocolNumber160Const    = "number_160"
+	NetworkACLRuleProtocolNumber161Const    = "number_161"
+	NetworkACLRuleProtocolNumber162Const    = "number_162"
+	NetworkACLRuleProtocolNumber163Const    = "number_163"
+	NetworkACLRuleProtocolNumber164Const    = "number_164"
+	NetworkACLRuleProtocolNumber165Const    = "number_165"
+	NetworkACLRuleProtocolNumber166Const    = "number_166"
+	NetworkACLRuleProtocolNumber167Const    = "number_167"
+	NetworkACLRuleProtocolNumber168Const    = "number_168"
+	NetworkACLRuleProtocolNumber169Const    = "number_169"
+	NetworkACLRuleProtocolNumber170Const    = "number_170"
+	NetworkACLRuleProtocolNumber171Const    = "number_171"
+	NetworkACLRuleProtocolNumber172Const    = "number_172"
+	NetworkACLRuleProtocolNumber173Const    = "number_173"
+	NetworkACLRuleProtocolNumber174Const    = "number_174"
+	NetworkACLRuleProtocolNumber175Const    = "number_175"
+	NetworkACLRuleProtocolNumber176Const    = "number_176"
+	NetworkACLRuleProtocolNumber177Const    = "number_177"
+	NetworkACLRuleProtocolNumber178Const    = "number_178"
+	NetworkACLRuleProtocolNumber179Const    = "number_179"
+	NetworkACLRuleProtocolNumber18Const     = "number_18"
+	NetworkACLRuleProtocolNumber180Const    = "number_180"
+	NetworkACLRuleProtocolNumber181Const    = "number_181"
+	NetworkACLRuleProtocolNumber182Const    = "number_182"
+	NetworkACLRuleProtocolNumber183Const    = "number_183"
+	NetworkACLRuleProtocolNumber184Const    = "number_184"
+	NetworkACLRuleProtocolNumber185Const    = "number_185"
+	NetworkACLRuleProtocolNumber186Const    = "number_186"
+	NetworkACLRuleProtocolNumber187Const    = "number_187"
+	NetworkACLRuleProtocolNumber188Const    = "number_188"
+	NetworkACLRuleProtocolNumber189Const    = "number_189"
+	NetworkACLRuleProtocolNumber19Const     = "number_19"
+	NetworkACLRuleProtocolNumber190Const    = "number_190"
+	NetworkACLRuleProtocolNumber191Const    = "number_191"
+	NetworkACLRuleProtocolNumber192Const    = "number_192"
+	NetworkACLRuleProtocolNumber193Const    = "number_193"
+	NetworkACLRuleProtocolNumber194Const    = "number_194"
+	NetworkACLRuleProtocolNumber195Const    = "number_195"
+	NetworkACLRuleProtocolNumber196Const    = "number_196"
+	NetworkACLRuleProtocolNumber197Const    = "number_197"
+	NetworkACLRuleProtocolNumber198Const    = "number_198"
+	NetworkACLRuleProtocolNumber199Const    = "number_199"
+	NetworkACLRuleProtocolNumber2Const      = "number_2"
+	NetworkACLRuleProtocolNumber20Const     = "number_20"
+	NetworkACLRuleProtocolNumber200Const    = "number_200"
+	NetworkACLRuleProtocolNumber201Const    = "number_201"
+	NetworkACLRuleProtocolNumber202Const    = "number_202"
+	NetworkACLRuleProtocolNumber203Const    = "number_203"
+	NetworkACLRuleProtocolNumber204Const    = "number_204"
+	NetworkACLRuleProtocolNumber205Const    = "number_205"
+	NetworkACLRuleProtocolNumber206Const    = "number_206"
+	NetworkACLRuleProtocolNumber207Const    = "number_207"
+	NetworkACLRuleProtocolNumber208Const    = "number_208"
+	NetworkACLRuleProtocolNumber209Const    = "number_209"
+	NetworkACLRuleProtocolNumber21Const     = "number_21"
+	NetworkACLRuleProtocolNumber210Const    = "number_210"
+	NetworkACLRuleProtocolNumber211Const    = "number_211"
+	NetworkACLRuleProtocolNumber212Const    = "number_212"
+	NetworkACLRuleProtocolNumber213Const    = "number_213"
+	NetworkACLRuleProtocolNumber214Const    = "number_214"
+	NetworkACLRuleProtocolNumber215Const    = "number_215"
+	NetworkACLRuleProtocolNumber216Const    = "number_216"
+	NetworkACLRuleProtocolNumber217Const    = "number_217"
+	NetworkACLRuleProtocolNumber218Const    = "number_218"
+	NetworkACLRuleProtocolNumber219Const    = "number_219"
+	NetworkACLRuleProtocolNumber22Const     = "number_22"
+	NetworkACLRuleProtocolNumber220Const    = "number_220"
+	NetworkACLRuleProtocolNumber221Const    = "number_221"
+	NetworkACLRuleProtocolNumber222Const    = "number_222"
+	NetworkACLRuleProtocolNumber223Const    = "number_223"
+	NetworkACLRuleProtocolNumber224Const    = "number_224"
+	NetworkACLRuleProtocolNumber225Const    = "number_225"
+	NetworkACLRuleProtocolNumber226Const    = "number_226"
+	NetworkACLRuleProtocolNumber227Const    = "number_227"
+	NetworkACLRuleProtocolNumber228Const    = "number_228"
+	NetworkACLRuleProtocolNumber229Const    = "number_229"
+	NetworkACLRuleProtocolNumber23Const     = "number_23"
+	NetworkACLRuleProtocolNumber230Const    = "number_230"
+	NetworkACLRuleProtocolNumber231Const    = "number_231"
+	NetworkACLRuleProtocolNumber232Const    = "number_232"
+	NetworkACLRuleProtocolNumber233Const    = "number_233"
+	NetworkACLRuleProtocolNumber234Const    = "number_234"
+	NetworkACLRuleProtocolNumber235Const    = "number_235"
+	NetworkACLRuleProtocolNumber236Const    = "number_236"
+	NetworkACLRuleProtocolNumber237Const    = "number_237"
+	NetworkACLRuleProtocolNumber238Const    = "number_238"
+	NetworkACLRuleProtocolNumber239Const    = "number_239"
+	NetworkACLRuleProtocolNumber24Const     = "number_24"
+	NetworkACLRuleProtocolNumber240Const    = "number_240"
+	NetworkACLRuleProtocolNumber241Const    = "number_241"
+	NetworkACLRuleProtocolNumber242Const    = "number_242"
+	NetworkACLRuleProtocolNumber243Const    = "number_243"
+	NetworkACLRuleProtocolNumber244Const    = "number_244"
+	NetworkACLRuleProtocolNumber245Const    = "number_245"
+	NetworkACLRuleProtocolNumber246Const    = "number_246"
+	NetworkACLRuleProtocolNumber247Const    = "number_247"
+	NetworkACLRuleProtocolNumber248Const    = "number_248"
+	NetworkACLRuleProtocolNumber249Const    = "number_249"
+	NetworkACLRuleProtocolNumber25Const     = "number_25"
+	NetworkACLRuleProtocolNumber250Const    = "number_250"
+	NetworkACLRuleProtocolNumber251Const    = "number_251"
+	NetworkACLRuleProtocolNumber252Const    = "number_252"
+	NetworkACLRuleProtocolNumber253Const    = "number_253"
+	NetworkACLRuleProtocolNumber254Const    = "number_254"
+	NetworkACLRuleProtocolNumber255Const    = "number_255"
+	NetworkACLRuleProtocolNumber26Const     = "number_26"
+	NetworkACLRuleProtocolNumber27Const     = "number_27"
+	NetworkACLRuleProtocolNumber28Const     = "number_28"
+	NetworkACLRuleProtocolNumber29Const     = "number_29"
+	NetworkACLRuleProtocolNumber3Const      = "number_3"
+	NetworkACLRuleProtocolNumber30Const     = "number_30"
+	NetworkACLRuleProtocolNumber31Const     = "number_31"
+	NetworkACLRuleProtocolNumber32Const     = "number_32"
+	NetworkACLRuleProtocolNumber33Const     = "number_33"
+	NetworkACLRuleProtocolNumber34Const     = "number_34"
+	NetworkACLRuleProtocolNumber35Const     = "number_35"
+	NetworkACLRuleProtocolNumber36Const     = "number_36"
+	NetworkACLRuleProtocolNumber37Const     = "number_37"
+	NetworkACLRuleProtocolNumber38Const     = "number_38"
+	NetworkACLRuleProtocolNumber39Const     = "number_39"
+	NetworkACLRuleProtocolNumber40Const     = "number_40"
+	NetworkACLRuleProtocolNumber41Const     = "number_41"
+	NetworkACLRuleProtocolNumber42Const     = "number_42"
+	NetworkACLRuleProtocolNumber45Const     = "number_45"
+	NetworkACLRuleProtocolNumber48Const     = "number_48"
+	NetworkACLRuleProtocolNumber49Const     = "number_49"
+	NetworkACLRuleProtocolNumber5Const      = "number_5"
+	NetworkACLRuleProtocolNumber52Const     = "number_52"
+	NetworkACLRuleProtocolNumber53Const     = "number_53"
+	NetworkACLRuleProtocolNumber54Const     = "number_54"
+	NetworkACLRuleProtocolNumber55Const     = "number_55"
+	NetworkACLRuleProtocolNumber56Const     = "number_56"
+	NetworkACLRuleProtocolNumber57Const     = "number_57"
+	NetworkACLRuleProtocolNumber61Const     = "number_61"
+	NetworkACLRuleProtocolNumber62Const     = "number_62"
+	NetworkACLRuleProtocolNumber63Const     = "number_63"
+	NetworkACLRuleProtocolNumber64Const     = "number_64"
+	NetworkACLRuleProtocolNumber65Const     = "number_65"
+	NetworkACLRuleProtocolNumber66Const     = "number_66"
+	NetworkACLRuleProtocolNumber67Const     = "number_67"
+	NetworkACLRuleProtocolNumber68Const     = "number_68"
+	NetworkACLRuleProtocolNumber69Const     = "number_69"
+	NetworkACLRuleProtocolNumber7Const      = "number_7"
+	NetworkACLRuleProtocolNumber70Const     = "number_70"
+	NetworkACLRuleProtocolNumber71Const     = "number_71"
+	NetworkACLRuleProtocolNumber72Const     = "number_72"
+	NetworkACLRuleProtocolNumber73Const     = "number_73"
+	NetworkACLRuleProtocolNumber74Const     = "number_74"
+	NetworkACLRuleProtocolNumber75Const     = "number_75"
+	NetworkACLRuleProtocolNumber76Const     = "number_76"
+	NetworkACLRuleProtocolNumber77Const     = "number_77"
+	NetworkACLRuleProtocolNumber78Const     = "number_78"
+	NetworkACLRuleProtocolNumber79Const     = "number_79"
+	NetworkACLRuleProtocolNumber8Const      = "number_8"
+	NetworkACLRuleProtocolNumber80Const     = "number_80"
+	NetworkACLRuleProtocolNumber81Const     = "number_81"
+	NetworkACLRuleProtocolNumber82Const     = "number_82"
+	NetworkACLRuleProtocolNumber83Const     = "number_83"
+	NetworkACLRuleProtocolNumber84Const     = "number_84"
+	NetworkACLRuleProtocolNumber85Const     = "number_85"
+	NetworkACLRuleProtocolNumber86Const     = "number_86"
+	NetworkACLRuleProtocolNumber87Const     = "number_87"
+	NetworkACLRuleProtocolNumber88Const     = "number_88"
+	NetworkACLRuleProtocolNumber89Const     = "number_89"
+	NetworkACLRuleProtocolNumber9Const      = "number_9"
+	NetworkACLRuleProtocolNumber90Const     = "number_90"
+	NetworkACLRuleProtocolNumber91Const     = "number_91"
+	NetworkACLRuleProtocolNumber92Const     = "number_92"
+	NetworkACLRuleProtocolNumber93Const     = "number_93"
+	NetworkACLRuleProtocolNumber94Const     = "number_94"
+	NetworkACLRuleProtocolNumber95Const     = "number_95"
+	NetworkACLRuleProtocolNumber96Const     = "number_96"
+	NetworkACLRuleProtocolNumber97Const     = "number_97"
+	NetworkACLRuleProtocolNumber98Const     = "number_98"
+	NetworkACLRuleProtocolNumber99Const     = "number_99"
+	NetworkACLRuleProtocolRsvpConst         = "rsvp"
+	NetworkACLRuleProtocolSctpConst         = "sctp"
+	NetworkACLRuleProtocolTCPConst          = "tcp"
+	NetworkACLRuleProtocolUDPConst          = "udp"
+	NetworkACLRuleProtocolVrrpConst         = "vrrp"
 )
 
 func (*NetworkACLRule) isaNetworkACLRule() bool {
@@ -91157,12 +91356,42 @@ func UnmarshalNetworkACLRule(m map[string]json.RawMessage, result interface{}) (
 		if err != nil {
 			err = core.SDKErrorf(err, "", "unmarshal-NetworkACLRuleNetworkACLRuleProtocolIndividual-error", common.GetComponentInfo())
 		}
-	} else if discValue == "l2tp" {
-		err = core.UnmarshalModel(m, "", result, UnmarshalNetworkACLRuleNetworkACLRuleProtocolIndividual)
+	} else if discValue == "ipv6_dest_opts" {
+		err = core.UnmarshalModel(m, "", result, UnmarshalNetworkACLRuleNetworkACLRuleProtocolIndividualIPv6)
 		if err != nil {
-			err = core.SDKErrorf(err, "", "unmarshal-NetworkACLRuleNetworkACLRuleProtocolIndividual-error", common.GetComponentInfo())
+			err = core.SDKErrorf(err, "", "unmarshal-NetworkACLRuleNetworkACLRuleProtocolIndividualIPv6-error", common.GetComponentInfo())
 		}
-	} else if discValue == "number_0" {
+	} else if discValue == "ipv6_frag" {
+		err = core.UnmarshalModel(m, "", result, UnmarshalNetworkACLRuleNetworkACLRuleProtocolIndividualIPv6)
+		if err != nil {
+			err = core.SDKErrorf(err, "", "unmarshal-NetworkACLRuleNetworkACLRuleProtocolIndividualIPv6-error", common.GetComponentInfo())
+		}
+	} else if discValue == "ipv6_hop_opt" {
+		err = core.UnmarshalModel(m, "", result, UnmarshalNetworkACLRuleNetworkACLRuleProtocolIndividualIPv6)
+		if err != nil {
+			err = core.SDKErrorf(err, "", "unmarshal-NetworkACLRuleNetworkACLRuleProtocolIndividualIPv6-error", common.GetComponentInfo())
+		}
+	} else if discValue == "ipv6_icmp" {
+		err = core.UnmarshalModel(m, "", result, UnmarshalNetworkACLRuleNetworkACLRuleProtocolIPv6Icmp)
+		if err != nil {
+			err = core.SDKErrorf(err, "", "unmarshal-NetworkACLRuleNetworkACLRuleProtocolIPv6Icmp-error", common.GetComponentInfo())
+		}
+	} else if discValue == "ipv6_mobility" {
+		err = core.UnmarshalModel(m, "", result, UnmarshalNetworkACLRuleNetworkACLRuleProtocolIndividualIPv6)
+		if err != nil {
+			err = core.SDKErrorf(err, "", "unmarshal-NetworkACLRuleNetworkACLRuleProtocolIndividualIPv6-error", common.GetComponentInfo())
+		}
+	} else if discValue == "ipv6_no_next" {
+		err = core.UnmarshalModel(m, "", result, UnmarshalNetworkACLRuleNetworkACLRuleProtocolIndividualIPv6)
+		if err != nil {
+			err = core.SDKErrorf(err, "", "unmarshal-NetworkACLRuleNetworkACLRuleProtocolIndividualIPv6-error", common.GetComponentInfo())
+		}
+	} else if discValue == "ipv6_route" {
+		err = core.UnmarshalModel(m, "", result, UnmarshalNetworkACLRuleNetworkACLRuleProtocolIndividualIPv6)
+		if err != nil {
+			err = core.SDKErrorf(err, "", "unmarshal-NetworkACLRuleNetworkACLRuleProtocolIndividualIPv6-error", common.GetComponentInfo())
+		}
+	} else if discValue == "l2tp" {
 		err = core.UnmarshalModel(m, "", result, UnmarshalNetworkACLRuleNetworkACLRuleProtocolIndividual)
 		if err != nil {
 			err = core.SDKErrorf(err, "", "unmarshal-NetworkACLRuleNetworkACLRuleProtocolIndividual-error", common.GetComponentInfo())
@@ -91343,11 +91572,6 @@ func UnmarshalNetworkACLRule(m map[string]json.RawMessage, result interface{}) (
 			err = core.SDKErrorf(err, "", "unmarshal-NetworkACLRuleNetworkACLRuleProtocolIndividual-error", common.GetComponentInfo())
 		}
 	} else if discValue == "number_134" {
-		err = core.UnmarshalModel(m, "", result, UnmarshalNetworkACLRuleNetworkACLRuleProtocolIndividual)
-		if err != nil {
-			err = core.SDKErrorf(err, "", "unmarshal-NetworkACLRuleNetworkACLRuleProtocolIndividual-error", common.GetComponentInfo())
-		}
-	} else if discValue == "number_135" {
 		err = core.UnmarshalModel(m, "", result, UnmarshalNetworkACLRuleNetworkACLRuleProtocolIndividual)
 		if err != nil {
 			err = core.SDKErrorf(err, "", "unmarshal-NetworkACLRuleNetworkACLRuleProtocolIndividual-error", common.GetComponentInfo())
@@ -92102,16 +92326,6 @@ func UnmarshalNetworkACLRule(m map[string]json.RawMessage, result interface{}) (
 		if err != nil {
 			err = core.SDKErrorf(err, "", "unmarshal-NetworkACLRuleNetworkACLRuleProtocolIndividual-error", common.GetComponentInfo())
 		}
-	} else if discValue == "number_43" {
-		err = core.UnmarshalModel(m, "", result, UnmarshalNetworkACLRuleNetworkACLRuleProtocolIndividual)
-		if err != nil {
-			err = core.SDKErrorf(err, "", "unmarshal-NetworkACLRuleNetworkACLRuleProtocolIndividual-error", common.GetComponentInfo())
-		}
-	} else if discValue == "number_44" {
-		err = core.UnmarshalModel(m, "", result, UnmarshalNetworkACLRuleNetworkACLRuleProtocolIndividual)
-		if err != nil {
-			err = core.SDKErrorf(err, "", "unmarshal-NetworkACLRuleNetworkACLRuleProtocolIndividual-error", common.GetComponentInfo())
-		}
 	} else if discValue == "number_45" {
 		err = core.UnmarshalModel(m, "", result, UnmarshalNetworkACLRuleNetworkACLRuleProtocolIndividual)
 		if err != nil {
@@ -92158,21 +92372,6 @@ func UnmarshalNetworkACLRule(m map[string]json.RawMessage, result interface{}) (
 			err = core.SDKErrorf(err, "", "unmarshal-NetworkACLRuleNetworkACLRuleProtocolIndividual-error", common.GetComponentInfo())
 		}
 	} else if discValue == "number_57" {
-		err = core.UnmarshalModel(m, "", result, UnmarshalNetworkACLRuleNetworkACLRuleProtocolIndividual)
-		if err != nil {
-			err = core.SDKErrorf(err, "", "unmarshal-NetworkACLRuleNetworkACLRuleProtocolIndividual-error", common.GetComponentInfo())
-		}
-	} else if discValue == "number_58" {
-		err = core.UnmarshalModel(m, "", result, UnmarshalNetworkACLRuleNetworkACLRuleProtocolIndividual)
-		if err != nil {
-			err = core.SDKErrorf(err, "", "unmarshal-NetworkACLRuleNetworkACLRuleProtocolIndividual-error", common.GetComponentInfo())
-		}
-	} else if discValue == "number_59" {
-		err = core.UnmarshalModel(m, "", result, UnmarshalNetworkACLRuleNetworkACLRuleProtocolIndividual)
-		if err != nil {
-			err = core.SDKErrorf(err, "", "unmarshal-NetworkACLRuleNetworkACLRuleProtocolIndividual-error", common.GetComponentInfo())
-		}
-	} else if discValue == "number_60" {
 		err = core.UnmarshalModel(m, "", result, UnmarshalNetworkACLRuleNetworkACLRuleProtocolIndividual)
 		if err != nil {
 			err = core.SDKErrorf(err, "", "unmarshal-NetworkACLRuleNetworkACLRuleProtocolIndividual-error", common.GetComponentInfo())
@@ -92582,8 +92781,10 @@ func (resp *NetworkACLRuleCollection) GetNextStart() (*string, error) {
 // - NetworkACLRuleItemNetworkACLRuleProtocolAny
 // - NetworkACLRuleItemNetworkACLRuleProtocolIcmptcpudp
 // - NetworkACLRuleItemNetworkACLRuleProtocolIcmp
+// - NetworkACLRuleItemNetworkACLRuleProtocolIPv6Icmp
 // - NetworkACLRuleItemNetworkACLRuleProtocolTcpudp
 // - NetworkACLRuleItemNetworkACLRuleProtocolIndividual
+// - NetworkACLRuleItemNetworkACLRuleProtocolIndividualIPv6
 type NetworkACLRuleItem struct {
 	// The action to perform for a packet matching the rule.
 	Action *string `json:"action" validate:"required"`
@@ -92595,10 +92796,8 @@ type NetworkACLRuleItem struct {
 	// The date and time that the rule was created.
 	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
 
-	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all destination addresses.
-	//
-	// This property may [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support IPv6 addresses or
-	// CIDR blocks in the future.
+	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` (or `::/0` if `ip_version` is `ipv6`)
+	// matches all destination addresses.
 	Destination *string `json:"destination" validate:"required"`
 
 	// The direction of traffic to match.
@@ -92611,9 +92810,6 @@ type NetworkACLRuleItem struct {
 	ID *string `json:"id" validate:"required"`
 
 	// The IP version for this rule.
-	//
-	// The enumerated values for this property may
-	// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support `ipv6` in the future.
 	IPVersion *string `json:"ip_version" validate:"required"`
 
 	// The name for this network ACL rule. The name is unique across all rules for the network ACL.
@@ -92625,10 +92821,8 @@ type NetworkACLRuleItem struct {
 	// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.
 	Protocol *string `json:"protocol" validate:"required"`
 
-	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all source addresses.
-	//
-	// This property may [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support IPv6 CIDR blocks
-	// in the future.
+	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` (or `::/0` if
+	// `ip_version` is `ipv6`) matches all source addresses.
 	Source *string `json:"source" validate:"required"`
 
 	// The ICMP traffic code to match.
@@ -92670,11 +92864,9 @@ const (
 
 // Constants associated with the NetworkACLRuleItem.IPVersion property.
 // The IP version for this rule.
-//
-// The enumerated values for this property may
-// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support `ipv6` in the future.
 const (
 	NetworkACLRuleItemIPVersionIpv4Const = "ipv4"
+	NetworkACLRuleItemIPVersionIpv6Const = "ipv6"
 )
 
 // Constants associated with the NetworkACLRuleItem.Protocol property.
@@ -92683,264 +92875,264 @@ const (
 // The enumerated values for this property may
 // [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.
 const (
-	NetworkACLRuleItemProtocolAhConst         = "ah"
-	NetworkACLRuleItemProtocolAnyConst        = "any"
-	NetworkACLRuleItemProtocolEspConst        = "esp"
-	NetworkACLRuleItemProtocolGreConst        = "gre"
-	NetworkACLRuleItemProtocolIPInIPConst     = "ip_in_ip"
-	NetworkACLRuleItemProtocolIcmpConst       = "icmp"
-	NetworkACLRuleItemProtocolIcmpTCPUDPConst = "icmp_tcp_udp"
-	NetworkACLRuleItemProtocolL2tpConst       = "l2tp"
-	NetworkACLRuleItemProtocolNumber0Const    = "number_0"
-	NetworkACLRuleItemProtocolNumber10Const   = "number_10"
-	NetworkACLRuleItemProtocolNumber100Const  = "number_100"
-	NetworkACLRuleItemProtocolNumber101Const  = "number_101"
-	NetworkACLRuleItemProtocolNumber102Const  = "number_102"
-	NetworkACLRuleItemProtocolNumber103Const  = "number_103"
-	NetworkACLRuleItemProtocolNumber104Const  = "number_104"
-	NetworkACLRuleItemProtocolNumber105Const  = "number_105"
-	NetworkACLRuleItemProtocolNumber106Const  = "number_106"
-	NetworkACLRuleItemProtocolNumber107Const  = "number_107"
-	NetworkACLRuleItemProtocolNumber108Const  = "number_108"
-	NetworkACLRuleItemProtocolNumber109Const  = "number_109"
-	NetworkACLRuleItemProtocolNumber11Const   = "number_11"
-	NetworkACLRuleItemProtocolNumber110Const  = "number_110"
-	NetworkACLRuleItemProtocolNumber111Const  = "number_111"
-	NetworkACLRuleItemProtocolNumber113Const  = "number_113"
-	NetworkACLRuleItemProtocolNumber114Const  = "number_114"
-	NetworkACLRuleItemProtocolNumber116Const  = "number_116"
-	NetworkACLRuleItemProtocolNumber117Const  = "number_117"
-	NetworkACLRuleItemProtocolNumber118Const  = "number_118"
-	NetworkACLRuleItemProtocolNumber119Const  = "number_119"
-	NetworkACLRuleItemProtocolNumber12Const   = "number_12"
-	NetworkACLRuleItemProtocolNumber120Const  = "number_120"
-	NetworkACLRuleItemProtocolNumber121Const  = "number_121"
-	NetworkACLRuleItemProtocolNumber122Const  = "number_122"
-	NetworkACLRuleItemProtocolNumber123Const  = "number_123"
-	NetworkACLRuleItemProtocolNumber124Const  = "number_124"
-	NetworkACLRuleItemProtocolNumber125Const  = "number_125"
-	NetworkACLRuleItemProtocolNumber126Const  = "number_126"
-	NetworkACLRuleItemProtocolNumber127Const  = "number_127"
-	NetworkACLRuleItemProtocolNumber128Const  = "number_128"
-	NetworkACLRuleItemProtocolNumber129Const  = "number_129"
-	NetworkACLRuleItemProtocolNumber13Const   = "number_13"
-	NetworkACLRuleItemProtocolNumber130Const  = "number_130"
-	NetworkACLRuleItemProtocolNumber131Const  = "number_131"
-	NetworkACLRuleItemProtocolNumber133Const  = "number_133"
-	NetworkACLRuleItemProtocolNumber134Const  = "number_134"
-	NetworkACLRuleItemProtocolNumber135Const  = "number_135"
-	NetworkACLRuleItemProtocolNumber136Const  = "number_136"
-	NetworkACLRuleItemProtocolNumber137Const  = "number_137"
-	NetworkACLRuleItemProtocolNumber138Const  = "number_138"
-	NetworkACLRuleItemProtocolNumber139Const  = "number_139"
-	NetworkACLRuleItemProtocolNumber14Const   = "number_14"
-	NetworkACLRuleItemProtocolNumber140Const  = "number_140"
-	NetworkACLRuleItemProtocolNumber141Const  = "number_141"
-	NetworkACLRuleItemProtocolNumber142Const  = "number_142"
-	NetworkACLRuleItemProtocolNumber143Const  = "number_143"
-	NetworkACLRuleItemProtocolNumber144Const  = "number_144"
-	NetworkACLRuleItemProtocolNumber145Const  = "number_145"
-	NetworkACLRuleItemProtocolNumber146Const  = "number_146"
-	NetworkACLRuleItemProtocolNumber147Const  = "number_147"
-	NetworkACLRuleItemProtocolNumber148Const  = "number_148"
-	NetworkACLRuleItemProtocolNumber149Const  = "number_149"
-	NetworkACLRuleItemProtocolNumber15Const   = "number_15"
-	NetworkACLRuleItemProtocolNumber150Const  = "number_150"
-	NetworkACLRuleItemProtocolNumber151Const  = "number_151"
-	NetworkACLRuleItemProtocolNumber152Const  = "number_152"
-	NetworkACLRuleItemProtocolNumber153Const  = "number_153"
-	NetworkACLRuleItemProtocolNumber154Const  = "number_154"
-	NetworkACLRuleItemProtocolNumber155Const  = "number_155"
-	NetworkACLRuleItemProtocolNumber156Const  = "number_156"
-	NetworkACLRuleItemProtocolNumber157Const  = "number_157"
-	NetworkACLRuleItemProtocolNumber158Const  = "number_158"
-	NetworkACLRuleItemProtocolNumber159Const  = "number_159"
-	NetworkACLRuleItemProtocolNumber16Const   = "number_16"
-	NetworkACLRuleItemProtocolNumber160Const  = "number_160"
-	NetworkACLRuleItemProtocolNumber161Const  = "number_161"
-	NetworkACLRuleItemProtocolNumber162Const  = "number_162"
-	NetworkACLRuleItemProtocolNumber163Const  = "number_163"
-	NetworkACLRuleItemProtocolNumber164Const  = "number_164"
-	NetworkACLRuleItemProtocolNumber165Const  = "number_165"
-	NetworkACLRuleItemProtocolNumber166Const  = "number_166"
-	NetworkACLRuleItemProtocolNumber167Const  = "number_167"
-	NetworkACLRuleItemProtocolNumber168Const  = "number_168"
-	NetworkACLRuleItemProtocolNumber169Const  = "number_169"
-	NetworkACLRuleItemProtocolNumber170Const  = "number_170"
-	NetworkACLRuleItemProtocolNumber171Const  = "number_171"
-	NetworkACLRuleItemProtocolNumber172Const  = "number_172"
-	NetworkACLRuleItemProtocolNumber173Const  = "number_173"
-	NetworkACLRuleItemProtocolNumber174Const  = "number_174"
-	NetworkACLRuleItemProtocolNumber175Const  = "number_175"
-	NetworkACLRuleItemProtocolNumber176Const  = "number_176"
-	NetworkACLRuleItemProtocolNumber177Const  = "number_177"
-	NetworkACLRuleItemProtocolNumber178Const  = "number_178"
-	NetworkACLRuleItemProtocolNumber179Const  = "number_179"
-	NetworkACLRuleItemProtocolNumber18Const   = "number_18"
-	NetworkACLRuleItemProtocolNumber180Const  = "number_180"
-	NetworkACLRuleItemProtocolNumber181Const  = "number_181"
-	NetworkACLRuleItemProtocolNumber182Const  = "number_182"
-	NetworkACLRuleItemProtocolNumber183Const  = "number_183"
-	NetworkACLRuleItemProtocolNumber184Const  = "number_184"
-	NetworkACLRuleItemProtocolNumber185Const  = "number_185"
-	NetworkACLRuleItemProtocolNumber186Const  = "number_186"
-	NetworkACLRuleItemProtocolNumber187Const  = "number_187"
-	NetworkACLRuleItemProtocolNumber188Const  = "number_188"
-	NetworkACLRuleItemProtocolNumber189Const  = "number_189"
-	NetworkACLRuleItemProtocolNumber19Const   = "number_19"
-	NetworkACLRuleItemProtocolNumber190Const  = "number_190"
-	NetworkACLRuleItemProtocolNumber191Const  = "number_191"
-	NetworkACLRuleItemProtocolNumber192Const  = "number_192"
-	NetworkACLRuleItemProtocolNumber193Const  = "number_193"
-	NetworkACLRuleItemProtocolNumber194Const  = "number_194"
-	NetworkACLRuleItemProtocolNumber195Const  = "number_195"
-	NetworkACLRuleItemProtocolNumber196Const  = "number_196"
-	NetworkACLRuleItemProtocolNumber197Const  = "number_197"
-	NetworkACLRuleItemProtocolNumber198Const  = "number_198"
-	NetworkACLRuleItemProtocolNumber199Const  = "number_199"
-	NetworkACLRuleItemProtocolNumber2Const    = "number_2"
-	NetworkACLRuleItemProtocolNumber20Const   = "number_20"
-	NetworkACLRuleItemProtocolNumber200Const  = "number_200"
-	NetworkACLRuleItemProtocolNumber201Const  = "number_201"
-	NetworkACLRuleItemProtocolNumber202Const  = "number_202"
-	NetworkACLRuleItemProtocolNumber203Const  = "number_203"
-	NetworkACLRuleItemProtocolNumber204Const  = "number_204"
-	NetworkACLRuleItemProtocolNumber205Const  = "number_205"
-	NetworkACLRuleItemProtocolNumber206Const  = "number_206"
-	NetworkACLRuleItemProtocolNumber207Const  = "number_207"
-	NetworkACLRuleItemProtocolNumber208Const  = "number_208"
-	NetworkACLRuleItemProtocolNumber209Const  = "number_209"
-	NetworkACLRuleItemProtocolNumber21Const   = "number_21"
-	NetworkACLRuleItemProtocolNumber210Const  = "number_210"
-	NetworkACLRuleItemProtocolNumber211Const  = "number_211"
-	NetworkACLRuleItemProtocolNumber212Const  = "number_212"
-	NetworkACLRuleItemProtocolNumber213Const  = "number_213"
-	NetworkACLRuleItemProtocolNumber214Const  = "number_214"
-	NetworkACLRuleItemProtocolNumber215Const  = "number_215"
-	NetworkACLRuleItemProtocolNumber216Const  = "number_216"
-	NetworkACLRuleItemProtocolNumber217Const  = "number_217"
-	NetworkACLRuleItemProtocolNumber218Const  = "number_218"
-	NetworkACLRuleItemProtocolNumber219Const  = "number_219"
-	NetworkACLRuleItemProtocolNumber22Const   = "number_22"
-	NetworkACLRuleItemProtocolNumber220Const  = "number_220"
-	NetworkACLRuleItemProtocolNumber221Const  = "number_221"
-	NetworkACLRuleItemProtocolNumber222Const  = "number_222"
-	NetworkACLRuleItemProtocolNumber223Const  = "number_223"
-	NetworkACLRuleItemProtocolNumber224Const  = "number_224"
-	NetworkACLRuleItemProtocolNumber225Const  = "number_225"
-	NetworkACLRuleItemProtocolNumber226Const  = "number_226"
-	NetworkACLRuleItemProtocolNumber227Const  = "number_227"
-	NetworkACLRuleItemProtocolNumber228Const  = "number_228"
-	NetworkACLRuleItemProtocolNumber229Const  = "number_229"
-	NetworkACLRuleItemProtocolNumber23Const   = "number_23"
-	NetworkACLRuleItemProtocolNumber230Const  = "number_230"
-	NetworkACLRuleItemProtocolNumber231Const  = "number_231"
-	NetworkACLRuleItemProtocolNumber232Const  = "number_232"
-	NetworkACLRuleItemProtocolNumber233Const  = "number_233"
-	NetworkACLRuleItemProtocolNumber234Const  = "number_234"
-	NetworkACLRuleItemProtocolNumber235Const  = "number_235"
-	NetworkACLRuleItemProtocolNumber236Const  = "number_236"
-	NetworkACLRuleItemProtocolNumber237Const  = "number_237"
-	NetworkACLRuleItemProtocolNumber238Const  = "number_238"
-	NetworkACLRuleItemProtocolNumber239Const  = "number_239"
-	NetworkACLRuleItemProtocolNumber24Const   = "number_24"
-	NetworkACLRuleItemProtocolNumber240Const  = "number_240"
-	NetworkACLRuleItemProtocolNumber241Const  = "number_241"
-	NetworkACLRuleItemProtocolNumber242Const  = "number_242"
-	NetworkACLRuleItemProtocolNumber243Const  = "number_243"
-	NetworkACLRuleItemProtocolNumber244Const  = "number_244"
-	NetworkACLRuleItemProtocolNumber245Const  = "number_245"
-	NetworkACLRuleItemProtocolNumber246Const  = "number_246"
-	NetworkACLRuleItemProtocolNumber247Const  = "number_247"
-	NetworkACLRuleItemProtocolNumber248Const  = "number_248"
-	NetworkACLRuleItemProtocolNumber249Const  = "number_249"
-	NetworkACLRuleItemProtocolNumber25Const   = "number_25"
-	NetworkACLRuleItemProtocolNumber250Const  = "number_250"
-	NetworkACLRuleItemProtocolNumber251Const  = "number_251"
-	NetworkACLRuleItemProtocolNumber252Const  = "number_252"
-	NetworkACLRuleItemProtocolNumber253Const  = "number_253"
-	NetworkACLRuleItemProtocolNumber254Const  = "number_254"
-	NetworkACLRuleItemProtocolNumber255Const  = "number_255"
-	NetworkACLRuleItemProtocolNumber26Const   = "number_26"
-	NetworkACLRuleItemProtocolNumber27Const   = "number_27"
-	NetworkACLRuleItemProtocolNumber28Const   = "number_28"
-	NetworkACLRuleItemProtocolNumber29Const   = "number_29"
-	NetworkACLRuleItemProtocolNumber3Const    = "number_3"
-	NetworkACLRuleItemProtocolNumber30Const   = "number_30"
-	NetworkACLRuleItemProtocolNumber31Const   = "number_31"
-	NetworkACLRuleItemProtocolNumber32Const   = "number_32"
-	NetworkACLRuleItemProtocolNumber33Const   = "number_33"
-	NetworkACLRuleItemProtocolNumber34Const   = "number_34"
-	NetworkACLRuleItemProtocolNumber35Const   = "number_35"
-	NetworkACLRuleItemProtocolNumber36Const   = "number_36"
-	NetworkACLRuleItemProtocolNumber37Const   = "number_37"
-	NetworkACLRuleItemProtocolNumber38Const   = "number_38"
-	NetworkACLRuleItemProtocolNumber39Const   = "number_39"
-	NetworkACLRuleItemProtocolNumber40Const   = "number_40"
-	NetworkACLRuleItemProtocolNumber41Const   = "number_41"
-	NetworkACLRuleItemProtocolNumber42Const   = "number_42"
-	NetworkACLRuleItemProtocolNumber43Const   = "number_43"
-	NetworkACLRuleItemProtocolNumber44Const   = "number_44"
-	NetworkACLRuleItemProtocolNumber45Const   = "number_45"
-	NetworkACLRuleItemProtocolNumber48Const   = "number_48"
-	NetworkACLRuleItemProtocolNumber49Const   = "number_49"
-	NetworkACLRuleItemProtocolNumber5Const    = "number_5"
-	NetworkACLRuleItemProtocolNumber52Const   = "number_52"
-	NetworkACLRuleItemProtocolNumber53Const   = "number_53"
-	NetworkACLRuleItemProtocolNumber54Const   = "number_54"
-	NetworkACLRuleItemProtocolNumber55Const   = "number_55"
-	NetworkACLRuleItemProtocolNumber56Const   = "number_56"
-	NetworkACLRuleItemProtocolNumber57Const   = "number_57"
-	NetworkACLRuleItemProtocolNumber58Const   = "number_58"
-	NetworkACLRuleItemProtocolNumber59Const   = "number_59"
-	NetworkACLRuleItemProtocolNumber60Const   = "number_60"
-	NetworkACLRuleItemProtocolNumber61Const   = "number_61"
-	NetworkACLRuleItemProtocolNumber62Const   = "number_62"
-	NetworkACLRuleItemProtocolNumber63Const   = "number_63"
-	NetworkACLRuleItemProtocolNumber64Const   = "number_64"
-	NetworkACLRuleItemProtocolNumber65Const   = "number_65"
-	NetworkACLRuleItemProtocolNumber66Const   = "number_66"
-	NetworkACLRuleItemProtocolNumber67Const   = "number_67"
-	NetworkACLRuleItemProtocolNumber68Const   = "number_68"
-	NetworkACLRuleItemProtocolNumber69Const   = "number_69"
-	NetworkACLRuleItemProtocolNumber7Const    = "number_7"
-	NetworkACLRuleItemProtocolNumber70Const   = "number_70"
-	NetworkACLRuleItemProtocolNumber71Const   = "number_71"
-	NetworkACLRuleItemProtocolNumber72Const   = "number_72"
-	NetworkACLRuleItemProtocolNumber73Const   = "number_73"
-	NetworkACLRuleItemProtocolNumber74Const   = "number_74"
-	NetworkACLRuleItemProtocolNumber75Const   = "number_75"
-	NetworkACLRuleItemProtocolNumber76Const   = "number_76"
-	NetworkACLRuleItemProtocolNumber77Const   = "number_77"
-	NetworkACLRuleItemProtocolNumber78Const   = "number_78"
-	NetworkACLRuleItemProtocolNumber79Const   = "number_79"
-	NetworkACLRuleItemProtocolNumber8Const    = "number_8"
-	NetworkACLRuleItemProtocolNumber80Const   = "number_80"
-	NetworkACLRuleItemProtocolNumber81Const   = "number_81"
-	NetworkACLRuleItemProtocolNumber82Const   = "number_82"
-	NetworkACLRuleItemProtocolNumber83Const   = "number_83"
-	NetworkACLRuleItemProtocolNumber84Const   = "number_84"
-	NetworkACLRuleItemProtocolNumber85Const   = "number_85"
-	NetworkACLRuleItemProtocolNumber86Const   = "number_86"
-	NetworkACLRuleItemProtocolNumber87Const   = "number_87"
-	NetworkACLRuleItemProtocolNumber88Const   = "number_88"
-	NetworkACLRuleItemProtocolNumber89Const   = "number_89"
-	NetworkACLRuleItemProtocolNumber9Const    = "number_9"
-	NetworkACLRuleItemProtocolNumber90Const   = "number_90"
-	NetworkACLRuleItemProtocolNumber91Const   = "number_91"
-	NetworkACLRuleItemProtocolNumber92Const   = "number_92"
-	NetworkACLRuleItemProtocolNumber93Const   = "number_93"
-	NetworkACLRuleItemProtocolNumber94Const   = "number_94"
-	NetworkACLRuleItemProtocolNumber95Const   = "number_95"
-	NetworkACLRuleItemProtocolNumber96Const   = "number_96"
-	NetworkACLRuleItemProtocolNumber97Const   = "number_97"
-	NetworkACLRuleItemProtocolNumber98Const   = "number_98"
-	NetworkACLRuleItemProtocolNumber99Const   = "number_99"
-	NetworkACLRuleItemProtocolRsvpConst       = "rsvp"
-	NetworkACLRuleItemProtocolSctpConst       = "sctp"
-	NetworkACLRuleItemProtocolTCPConst        = "tcp"
-	NetworkACLRuleItemProtocolUDPConst        = "udp"
-	NetworkACLRuleItemProtocolVrrpConst       = "vrrp"
+	NetworkACLRuleItemProtocolAhConst           = "ah"
+	NetworkACLRuleItemProtocolAnyConst          = "any"
+	NetworkACLRuleItemProtocolEspConst          = "esp"
+	NetworkACLRuleItemProtocolGreConst          = "gre"
+	NetworkACLRuleItemProtocolIPInIPConst       = "ip_in_ip"
+	NetworkACLRuleItemProtocolIcmpConst         = "icmp"
+	NetworkACLRuleItemProtocolIcmpTCPUDPConst   = "icmp_tcp_udp"
+	NetworkACLRuleItemProtocolIpv6DestOptsConst = "ipv6_dest_opts"
+	NetworkACLRuleItemProtocolIpv6FragConst     = "ipv6_frag"
+	NetworkACLRuleItemProtocolIpv6HopOptConst   = "ipv6_hop_opt"
+	NetworkACLRuleItemProtocolIpv6IcmpConst     = "ipv6_icmp"
+	NetworkACLRuleItemProtocolIpv6MobilityConst = "ipv6_mobility"
+	NetworkACLRuleItemProtocolIpv6NoNextConst   = "ipv6_no_next"
+	NetworkACLRuleItemProtocolIpv6RouteConst    = "ipv6_route"
+	NetworkACLRuleItemProtocolL2tpConst         = "l2tp"
+	NetworkACLRuleItemProtocolNumber10Const     = "number_10"
+	NetworkACLRuleItemProtocolNumber100Const    = "number_100"
+	NetworkACLRuleItemProtocolNumber101Const    = "number_101"
+	NetworkACLRuleItemProtocolNumber102Const    = "number_102"
+	NetworkACLRuleItemProtocolNumber103Const    = "number_103"
+	NetworkACLRuleItemProtocolNumber104Const    = "number_104"
+	NetworkACLRuleItemProtocolNumber105Const    = "number_105"
+	NetworkACLRuleItemProtocolNumber106Const    = "number_106"
+	NetworkACLRuleItemProtocolNumber107Const    = "number_107"
+	NetworkACLRuleItemProtocolNumber108Const    = "number_108"
+	NetworkACLRuleItemProtocolNumber109Const    = "number_109"
+	NetworkACLRuleItemProtocolNumber11Const     = "number_11"
+	NetworkACLRuleItemProtocolNumber110Const    = "number_110"
+	NetworkACLRuleItemProtocolNumber111Const    = "number_111"
+	NetworkACLRuleItemProtocolNumber113Const    = "number_113"
+	NetworkACLRuleItemProtocolNumber114Const    = "number_114"
+	NetworkACLRuleItemProtocolNumber116Const    = "number_116"
+	NetworkACLRuleItemProtocolNumber117Const    = "number_117"
+	NetworkACLRuleItemProtocolNumber118Const    = "number_118"
+	NetworkACLRuleItemProtocolNumber119Const    = "number_119"
+	NetworkACLRuleItemProtocolNumber12Const     = "number_12"
+	NetworkACLRuleItemProtocolNumber120Const    = "number_120"
+	NetworkACLRuleItemProtocolNumber121Const    = "number_121"
+	NetworkACLRuleItemProtocolNumber122Const    = "number_122"
+	NetworkACLRuleItemProtocolNumber123Const    = "number_123"
+	NetworkACLRuleItemProtocolNumber124Const    = "number_124"
+	NetworkACLRuleItemProtocolNumber125Const    = "number_125"
+	NetworkACLRuleItemProtocolNumber126Const    = "number_126"
+	NetworkACLRuleItemProtocolNumber127Const    = "number_127"
+	NetworkACLRuleItemProtocolNumber128Const    = "number_128"
+	NetworkACLRuleItemProtocolNumber129Const    = "number_129"
+	NetworkACLRuleItemProtocolNumber13Const     = "number_13"
+	NetworkACLRuleItemProtocolNumber130Const    = "number_130"
+	NetworkACLRuleItemProtocolNumber131Const    = "number_131"
+	NetworkACLRuleItemProtocolNumber133Const    = "number_133"
+	NetworkACLRuleItemProtocolNumber134Const    = "number_134"
+	NetworkACLRuleItemProtocolNumber136Const    = "number_136"
+	NetworkACLRuleItemProtocolNumber137Const    = "number_137"
+	NetworkACLRuleItemProtocolNumber138Const    = "number_138"
+	NetworkACLRuleItemProtocolNumber139Const    = "number_139"
+	NetworkACLRuleItemProtocolNumber14Const     = "number_14"
+	NetworkACLRuleItemProtocolNumber140Const    = "number_140"
+	NetworkACLRuleItemProtocolNumber141Const    = "number_141"
+	NetworkACLRuleItemProtocolNumber142Const    = "number_142"
+	NetworkACLRuleItemProtocolNumber143Const    = "number_143"
+	NetworkACLRuleItemProtocolNumber144Const    = "number_144"
+	NetworkACLRuleItemProtocolNumber145Const    = "number_145"
+	NetworkACLRuleItemProtocolNumber146Const    = "number_146"
+	NetworkACLRuleItemProtocolNumber147Const    = "number_147"
+	NetworkACLRuleItemProtocolNumber148Const    = "number_148"
+	NetworkACLRuleItemProtocolNumber149Const    = "number_149"
+	NetworkACLRuleItemProtocolNumber15Const     = "number_15"
+	NetworkACLRuleItemProtocolNumber150Const    = "number_150"
+	NetworkACLRuleItemProtocolNumber151Const    = "number_151"
+	NetworkACLRuleItemProtocolNumber152Const    = "number_152"
+	NetworkACLRuleItemProtocolNumber153Const    = "number_153"
+	NetworkACLRuleItemProtocolNumber154Const    = "number_154"
+	NetworkACLRuleItemProtocolNumber155Const    = "number_155"
+	NetworkACLRuleItemProtocolNumber156Const    = "number_156"
+	NetworkACLRuleItemProtocolNumber157Const    = "number_157"
+	NetworkACLRuleItemProtocolNumber158Const    = "number_158"
+	NetworkACLRuleItemProtocolNumber159Const    = "number_159"
+	NetworkACLRuleItemProtocolNumber16Const     = "number_16"
+	NetworkACLRuleItemProtocolNumber160Const    = "number_160"
+	NetworkACLRuleItemProtocolNumber161Const    = "number_161"
+	NetworkACLRuleItemProtocolNumber162Const    = "number_162"
+	NetworkACLRuleItemProtocolNumber163Const    = "number_163"
+	NetworkACLRuleItemProtocolNumber164Const    = "number_164"
+	NetworkACLRuleItemProtocolNumber165Const    = "number_165"
+	NetworkACLRuleItemProtocolNumber166Const    = "number_166"
+	NetworkACLRuleItemProtocolNumber167Const    = "number_167"
+	NetworkACLRuleItemProtocolNumber168Const    = "number_168"
+	NetworkACLRuleItemProtocolNumber169Const    = "number_169"
+	NetworkACLRuleItemProtocolNumber170Const    = "number_170"
+	NetworkACLRuleItemProtocolNumber171Const    = "number_171"
+	NetworkACLRuleItemProtocolNumber172Const    = "number_172"
+	NetworkACLRuleItemProtocolNumber173Const    = "number_173"
+	NetworkACLRuleItemProtocolNumber174Const    = "number_174"
+	NetworkACLRuleItemProtocolNumber175Const    = "number_175"
+	NetworkACLRuleItemProtocolNumber176Const    = "number_176"
+	NetworkACLRuleItemProtocolNumber177Const    = "number_177"
+	NetworkACLRuleItemProtocolNumber178Const    = "number_178"
+	NetworkACLRuleItemProtocolNumber179Const    = "number_179"
+	NetworkACLRuleItemProtocolNumber18Const     = "number_18"
+	NetworkACLRuleItemProtocolNumber180Const    = "number_180"
+	NetworkACLRuleItemProtocolNumber181Const    = "number_181"
+	NetworkACLRuleItemProtocolNumber182Const    = "number_182"
+	NetworkACLRuleItemProtocolNumber183Const    = "number_183"
+	NetworkACLRuleItemProtocolNumber184Const    = "number_184"
+	NetworkACLRuleItemProtocolNumber185Const    = "number_185"
+	NetworkACLRuleItemProtocolNumber186Const    = "number_186"
+	NetworkACLRuleItemProtocolNumber187Const    = "number_187"
+	NetworkACLRuleItemProtocolNumber188Const    = "number_188"
+	NetworkACLRuleItemProtocolNumber189Const    = "number_189"
+	NetworkACLRuleItemProtocolNumber19Const     = "number_19"
+	NetworkACLRuleItemProtocolNumber190Const    = "number_190"
+	NetworkACLRuleItemProtocolNumber191Const    = "number_191"
+	NetworkACLRuleItemProtocolNumber192Const    = "number_192"
+	NetworkACLRuleItemProtocolNumber193Const    = "number_193"
+	NetworkACLRuleItemProtocolNumber194Const    = "number_194"
+	NetworkACLRuleItemProtocolNumber195Const    = "number_195"
+	NetworkACLRuleItemProtocolNumber196Const    = "number_196"
+	NetworkACLRuleItemProtocolNumber197Const    = "number_197"
+	NetworkACLRuleItemProtocolNumber198Const    = "number_198"
+	NetworkACLRuleItemProtocolNumber199Const    = "number_199"
+	NetworkACLRuleItemProtocolNumber2Const      = "number_2"
+	NetworkACLRuleItemProtocolNumber20Const     = "number_20"
+	NetworkACLRuleItemProtocolNumber200Const    = "number_200"
+	NetworkACLRuleItemProtocolNumber201Const    = "number_201"
+	NetworkACLRuleItemProtocolNumber202Const    = "number_202"
+	NetworkACLRuleItemProtocolNumber203Const    = "number_203"
+	NetworkACLRuleItemProtocolNumber204Const    = "number_204"
+	NetworkACLRuleItemProtocolNumber205Const    = "number_205"
+	NetworkACLRuleItemProtocolNumber206Const    = "number_206"
+	NetworkACLRuleItemProtocolNumber207Const    = "number_207"
+	NetworkACLRuleItemProtocolNumber208Const    = "number_208"
+	NetworkACLRuleItemProtocolNumber209Const    = "number_209"
+	NetworkACLRuleItemProtocolNumber21Const     = "number_21"
+	NetworkACLRuleItemProtocolNumber210Const    = "number_210"
+	NetworkACLRuleItemProtocolNumber211Const    = "number_211"
+	NetworkACLRuleItemProtocolNumber212Const    = "number_212"
+	NetworkACLRuleItemProtocolNumber213Const    = "number_213"
+	NetworkACLRuleItemProtocolNumber214Const    = "number_214"
+	NetworkACLRuleItemProtocolNumber215Const    = "number_215"
+	NetworkACLRuleItemProtocolNumber216Const    = "number_216"
+	NetworkACLRuleItemProtocolNumber217Const    = "number_217"
+	NetworkACLRuleItemProtocolNumber218Const    = "number_218"
+	NetworkACLRuleItemProtocolNumber219Const    = "number_219"
+	NetworkACLRuleItemProtocolNumber22Const     = "number_22"
+	NetworkACLRuleItemProtocolNumber220Const    = "number_220"
+	NetworkACLRuleItemProtocolNumber221Const    = "number_221"
+	NetworkACLRuleItemProtocolNumber222Const    = "number_222"
+	NetworkACLRuleItemProtocolNumber223Const    = "number_223"
+	NetworkACLRuleItemProtocolNumber224Const    = "number_224"
+	NetworkACLRuleItemProtocolNumber225Const    = "number_225"
+	NetworkACLRuleItemProtocolNumber226Const    = "number_226"
+	NetworkACLRuleItemProtocolNumber227Const    = "number_227"
+	NetworkACLRuleItemProtocolNumber228Const    = "number_228"
+	NetworkACLRuleItemProtocolNumber229Const    = "number_229"
+	NetworkACLRuleItemProtocolNumber23Const     = "number_23"
+	NetworkACLRuleItemProtocolNumber230Const    = "number_230"
+	NetworkACLRuleItemProtocolNumber231Const    = "number_231"
+	NetworkACLRuleItemProtocolNumber232Const    = "number_232"
+	NetworkACLRuleItemProtocolNumber233Const    = "number_233"
+	NetworkACLRuleItemProtocolNumber234Const    = "number_234"
+	NetworkACLRuleItemProtocolNumber235Const    = "number_235"
+	NetworkACLRuleItemProtocolNumber236Const    = "number_236"
+	NetworkACLRuleItemProtocolNumber237Const    = "number_237"
+	NetworkACLRuleItemProtocolNumber238Const    = "number_238"
+	NetworkACLRuleItemProtocolNumber239Const    = "number_239"
+	NetworkACLRuleItemProtocolNumber24Const     = "number_24"
+	NetworkACLRuleItemProtocolNumber240Const    = "number_240"
+	NetworkACLRuleItemProtocolNumber241Const    = "number_241"
+	NetworkACLRuleItemProtocolNumber242Const    = "number_242"
+	NetworkACLRuleItemProtocolNumber243Const    = "number_243"
+	NetworkACLRuleItemProtocolNumber244Const    = "number_244"
+	NetworkACLRuleItemProtocolNumber245Const    = "number_245"
+	NetworkACLRuleItemProtocolNumber246Const    = "number_246"
+	NetworkACLRuleItemProtocolNumber247Const    = "number_247"
+	NetworkACLRuleItemProtocolNumber248Const    = "number_248"
+	NetworkACLRuleItemProtocolNumber249Const    = "number_249"
+	NetworkACLRuleItemProtocolNumber25Const     = "number_25"
+	NetworkACLRuleItemProtocolNumber250Const    = "number_250"
+	NetworkACLRuleItemProtocolNumber251Const    = "number_251"
+	NetworkACLRuleItemProtocolNumber252Const    = "number_252"
+	NetworkACLRuleItemProtocolNumber253Const    = "number_253"
+	NetworkACLRuleItemProtocolNumber254Const    = "number_254"
+	NetworkACLRuleItemProtocolNumber255Const    = "number_255"
+	NetworkACLRuleItemProtocolNumber26Const     = "number_26"
+	NetworkACLRuleItemProtocolNumber27Const     = "number_27"
+	NetworkACLRuleItemProtocolNumber28Const     = "number_28"
+	NetworkACLRuleItemProtocolNumber29Const     = "number_29"
+	NetworkACLRuleItemProtocolNumber3Const      = "number_3"
+	NetworkACLRuleItemProtocolNumber30Const     = "number_30"
+	NetworkACLRuleItemProtocolNumber31Const     = "number_31"
+	NetworkACLRuleItemProtocolNumber32Const     = "number_32"
+	NetworkACLRuleItemProtocolNumber33Const     = "number_33"
+	NetworkACLRuleItemProtocolNumber34Const     = "number_34"
+	NetworkACLRuleItemProtocolNumber35Const     = "number_35"
+	NetworkACLRuleItemProtocolNumber36Const     = "number_36"
+	NetworkACLRuleItemProtocolNumber37Const     = "number_37"
+	NetworkACLRuleItemProtocolNumber38Const     = "number_38"
+	NetworkACLRuleItemProtocolNumber39Const     = "number_39"
+	NetworkACLRuleItemProtocolNumber40Const     = "number_40"
+	NetworkACLRuleItemProtocolNumber41Const     = "number_41"
+	NetworkACLRuleItemProtocolNumber42Const     = "number_42"
+	NetworkACLRuleItemProtocolNumber45Const     = "number_45"
+	NetworkACLRuleItemProtocolNumber48Const     = "number_48"
+	NetworkACLRuleItemProtocolNumber49Const     = "number_49"
+	NetworkACLRuleItemProtocolNumber5Const      = "number_5"
+	NetworkACLRuleItemProtocolNumber52Const     = "number_52"
+	NetworkACLRuleItemProtocolNumber53Const     = "number_53"
+	NetworkACLRuleItemProtocolNumber54Const     = "number_54"
+	NetworkACLRuleItemProtocolNumber55Const     = "number_55"
+	NetworkACLRuleItemProtocolNumber56Const     = "number_56"
+	NetworkACLRuleItemProtocolNumber57Const     = "number_57"
+	NetworkACLRuleItemProtocolNumber61Const     = "number_61"
+	NetworkACLRuleItemProtocolNumber62Const     = "number_62"
+	NetworkACLRuleItemProtocolNumber63Const     = "number_63"
+	NetworkACLRuleItemProtocolNumber64Const     = "number_64"
+	NetworkACLRuleItemProtocolNumber65Const     = "number_65"
+	NetworkACLRuleItemProtocolNumber66Const     = "number_66"
+	NetworkACLRuleItemProtocolNumber67Const     = "number_67"
+	NetworkACLRuleItemProtocolNumber68Const     = "number_68"
+	NetworkACLRuleItemProtocolNumber69Const     = "number_69"
+	NetworkACLRuleItemProtocolNumber7Const      = "number_7"
+	NetworkACLRuleItemProtocolNumber70Const     = "number_70"
+	NetworkACLRuleItemProtocolNumber71Const     = "number_71"
+	NetworkACLRuleItemProtocolNumber72Const     = "number_72"
+	NetworkACLRuleItemProtocolNumber73Const     = "number_73"
+	NetworkACLRuleItemProtocolNumber74Const     = "number_74"
+	NetworkACLRuleItemProtocolNumber75Const     = "number_75"
+	NetworkACLRuleItemProtocolNumber76Const     = "number_76"
+	NetworkACLRuleItemProtocolNumber77Const     = "number_77"
+	NetworkACLRuleItemProtocolNumber78Const     = "number_78"
+	NetworkACLRuleItemProtocolNumber79Const     = "number_79"
+	NetworkACLRuleItemProtocolNumber8Const      = "number_8"
+	NetworkACLRuleItemProtocolNumber80Const     = "number_80"
+	NetworkACLRuleItemProtocolNumber81Const     = "number_81"
+	NetworkACLRuleItemProtocolNumber82Const     = "number_82"
+	NetworkACLRuleItemProtocolNumber83Const     = "number_83"
+	NetworkACLRuleItemProtocolNumber84Const     = "number_84"
+	NetworkACLRuleItemProtocolNumber85Const     = "number_85"
+	NetworkACLRuleItemProtocolNumber86Const     = "number_86"
+	NetworkACLRuleItemProtocolNumber87Const     = "number_87"
+	NetworkACLRuleItemProtocolNumber88Const     = "number_88"
+	NetworkACLRuleItemProtocolNumber89Const     = "number_89"
+	NetworkACLRuleItemProtocolNumber9Const      = "number_9"
+	NetworkACLRuleItemProtocolNumber90Const     = "number_90"
+	NetworkACLRuleItemProtocolNumber91Const     = "number_91"
+	NetworkACLRuleItemProtocolNumber92Const     = "number_92"
+	NetworkACLRuleItemProtocolNumber93Const     = "number_93"
+	NetworkACLRuleItemProtocolNumber94Const     = "number_94"
+	NetworkACLRuleItemProtocolNumber95Const     = "number_95"
+	NetworkACLRuleItemProtocolNumber96Const     = "number_96"
+	NetworkACLRuleItemProtocolNumber97Const     = "number_97"
+	NetworkACLRuleItemProtocolNumber98Const     = "number_98"
+	NetworkACLRuleItemProtocolNumber99Const     = "number_99"
+	NetworkACLRuleItemProtocolRsvpConst         = "rsvp"
+	NetworkACLRuleItemProtocolSctpConst         = "sctp"
+	NetworkACLRuleItemProtocolTCPConst          = "tcp"
+	NetworkACLRuleItemProtocolUDPConst          = "udp"
+	NetworkACLRuleItemProtocolVrrpConst         = "vrrp"
 )
 
 func (*NetworkACLRuleItem) isaNetworkACLRuleItem() bool {
@@ -93000,12 +93192,42 @@ func UnmarshalNetworkACLRuleItem(m map[string]json.RawMessage, result interface{
 		if err != nil {
 			err = core.SDKErrorf(err, "", "unmarshal-NetworkACLRuleItemNetworkACLRuleProtocolIndividual-error", common.GetComponentInfo())
 		}
-	} else if discValue == "l2tp" {
-		err = core.UnmarshalModel(m, "", result, UnmarshalNetworkACLRuleItemNetworkACLRuleProtocolIndividual)
+	} else if discValue == "ipv6_dest_opts" {
+		err = core.UnmarshalModel(m, "", result, UnmarshalNetworkACLRuleItemNetworkACLRuleProtocolIndividualIPv6)
 		if err != nil {
-			err = core.SDKErrorf(err, "", "unmarshal-NetworkACLRuleItemNetworkACLRuleProtocolIndividual-error", common.GetComponentInfo())
+			err = core.SDKErrorf(err, "", "unmarshal-NetworkACLRuleItemNetworkACLRuleProtocolIndividualIPv6-error", common.GetComponentInfo())
 		}
-	} else if discValue == "number_0" {
+	} else if discValue == "ipv6_frag" {
+		err = core.UnmarshalModel(m, "", result, UnmarshalNetworkACLRuleItemNetworkACLRuleProtocolIndividualIPv6)
+		if err != nil {
+			err = core.SDKErrorf(err, "", "unmarshal-NetworkACLRuleItemNetworkACLRuleProtocolIndividualIPv6-error", common.GetComponentInfo())
+		}
+	} else if discValue == "ipv6_hop_opt" {
+		err = core.UnmarshalModel(m, "", result, UnmarshalNetworkACLRuleItemNetworkACLRuleProtocolIndividualIPv6)
+		if err != nil {
+			err = core.SDKErrorf(err, "", "unmarshal-NetworkACLRuleItemNetworkACLRuleProtocolIndividualIPv6-error", common.GetComponentInfo())
+		}
+	} else if discValue == "ipv6_icmp" {
+		err = core.UnmarshalModel(m, "", result, UnmarshalNetworkACLRuleItemNetworkACLRuleProtocolIPv6Icmp)
+		if err != nil {
+			err = core.SDKErrorf(err, "", "unmarshal-NetworkACLRuleItemNetworkACLRuleProtocolIPv6Icmp-error", common.GetComponentInfo())
+		}
+	} else if discValue == "ipv6_mobility" {
+		err = core.UnmarshalModel(m, "", result, UnmarshalNetworkACLRuleItemNetworkACLRuleProtocolIndividualIPv6)
+		if err != nil {
+			err = core.SDKErrorf(err, "", "unmarshal-NetworkACLRuleItemNetworkACLRuleProtocolIndividualIPv6-error", common.GetComponentInfo())
+		}
+	} else if discValue == "ipv6_no_next" {
+		err = core.UnmarshalModel(m, "", result, UnmarshalNetworkACLRuleItemNetworkACLRuleProtocolIndividualIPv6)
+		if err != nil {
+			err = core.SDKErrorf(err, "", "unmarshal-NetworkACLRuleItemNetworkACLRuleProtocolIndividualIPv6-error", common.GetComponentInfo())
+		}
+	} else if discValue == "ipv6_route" {
+		err = core.UnmarshalModel(m, "", result, UnmarshalNetworkACLRuleItemNetworkACLRuleProtocolIndividualIPv6)
+		if err != nil {
+			err = core.SDKErrorf(err, "", "unmarshal-NetworkACLRuleItemNetworkACLRuleProtocolIndividualIPv6-error", common.GetComponentInfo())
+		}
+	} else if discValue == "l2tp" {
 		err = core.UnmarshalModel(m, "", result, UnmarshalNetworkACLRuleItemNetworkACLRuleProtocolIndividual)
 		if err != nil {
 			err = core.SDKErrorf(err, "", "unmarshal-NetworkACLRuleItemNetworkACLRuleProtocolIndividual-error", common.GetComponentInfo())
@@ -93186,11 +93408,6 @@ func UnmarshalNetworkACLRuleItem(m map[string]json.RawMessage, result interface{
 			err = core.SDKErrorf(err, "", "unmarshal-NetworkACLRuleItemNetworkACLRuleProtocolIndividual-error", common.GetComponentInfo())
 		}
 	} else if discValue == "number_134" {
-		err = core.UnmarshalModel(m, "", result, UnmarshalNetworkACLRuleItemNetworkACLRuleProtocolIndividual)
-		if err != nil {
-			err = core.SDKErrorf(err, "", "unmarshal-NetworkACLRuleItemNetworkACLRuleProtocolIndividual-error", common.GetComponentInfo())
-		}
-	} else if discValue == "number_135" {
 		err = core.UnmarshalModel(m, "", result, UnmarshalNetworkACLRuleItemNetworkACLRuleProtocolIndividual)
 		if err != nil {
 			err = core.SDKErrorf(err, "", "unmarshal-NetworkACLRuleItemNetworkACLRuleProtocolIndividual-error", common.GetComponentInfo())
@@ -93945,16 +94162,6 @@ func UnmarshalNetworkACLRuleItem(m map[string]json.RawMessage, result interface{
 		if err != nil {
 			err = core.SDKErrorf(err, "", "unmarshal-NetworkACLRuleItemNetworkACLRuleProtocolIndividual-error", common.GetComponentInfo())
 		}
-	} else if discValue == "number_43" {
-		err = core.UnmarshalModel(m, "", result, UnmarshalNetworkACLRuleItemNetworkACLRuleProtocolIndividual)
-		if err != nil {
-			err = core.SDKErrorf(err, "", "unmarshal-NetworkACLRuleItemNetworkACLRuleProtocolIndividual-error", common.GetComponentInfo())
-		}
-	} else if discValue == "number_44" {
-		err = core.UnmarshalModel(m, "", result, UnmarshalNetworkACLRuleItemNetworkACLRuleProtocolIndividual)
-		if err != nil {
-			err = core.SDKErrorf(err, "", "unmarshal-NetworkACLRuleItemNetworkACLRuleProtocolIndividual-error", common.GetComponentInfo())
-		}
 	} else if discValue == "number_45" {
 		err = core.UnmarshalModel(m, "", result, UnmarshalNetworkACLRuleItemNetworkACLRuleProtocolIndividual)
 		if err != nil {
@@ -94001,21 +94208,6 @@ func UnmarshalNetworkACLRuleItem(m map[string]json.RawMessage, result interface{
 			err = core.SDKErrorf(err, "", "unmarshal-NetworkACLRuleItemNetworkACLRuleProtocolIndividual-error", common.GetComponentInfo())
 		}
 	} else if discValue == "number_57" {
-		err = core.UnmarshalModel(m, "", result, UnmarshalNetworkACLRuleItemNetworkACLRuleProtocolIndividual)
-		if err != nil {
-			err = core.SDKErrorf(err, "", "unmarshal-NetworkACLRuleItemNetworkACLRuleProtocolIndividual-error", common.GetComponentInfo())
-		}
-	} else if discValue == "number_58" {
-		err = core.UnmarshalModel(m, "", result, UnmarshalNetworkACLRuleItemNetworkACLRuleProtocolIndividual)
-		if err != nil {
-			err = core.SDKErrorf(err, "", "unmarshal-NetworkACLRuleItemNetworkACLRuleProtocolIndividual-error", common.GetComponentInfo())
-		}
-	} else if discValue == "number_59" {
-		err = core.UnmarshalModel(m, "", result, UnmarshalNetworkACLRuleItemNetworkACLRuleProtocolIndividual)
-		if err != nil {
-			err = core.SDKErrorf(err, "", "unmarshal-NetworkACLRuleItemNetworkACLRuleProtocolIndividual-error", common.GetComponentInfo())
-		}
-	} else if discValue == "number_60" {
 		err = core.UnmarshalModel(m, "", result, UnmarshalNetworkACLRuleItemNetworkACLRuleProtocolIndividual)
 		if err != nil {
 			err = core.SDKErrorf(err, "", "unmarshal-NetworkACLRuleItemNetworkACLRuleProtocolIndividual-error", common.GetComponentInfo())
@@ -94279,7 +94471,8 @@ type NetworkACLRulePatch struct {
 	// Specify `null` to remove an existing ICMP traffic code.
 	Code *int64 `json:"code,omitempty"`
 
-	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` will match all destination addresses.
+	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` (or `::/0` if `ip_version` is `ipv6`)
+	// will match all destination addresses.
 	Destination *string `json:"destination,omitempty"`
 
 	// The inclusive upper bound of the TCP or UDP destination port range.
@@ -94298,7 +94491,8 @@ type NetworkACLRulePatch struct {
 	// The name for this network ACL rule. The name must not be used by another rule for the network ACL.
 	Name *string `json:"name,omitempty"`
 
-	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` will match all source addresses.
+	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` (or `::/0` if
+	// `ip_version` is `ipv6`) will match all source addresses.
 	Source *string `json:"source,omitempty"`
 
 	// The inclusive upper bound of the TCP or UDP source port range.
@@ -94448,8 +94642,10 @@ func (networkACLRulePatch *NetworkACLRulePatch) AsPatch() (_patch map[string]int
 // - NetworkACLRulePrototypeNetworkACLRuleProtocolAnyPrototype
 // - NetworkACLRulePrototypeNetworkACLRuleProtocolIcmptcpudpPrototype
 // - NetworkACLRulePrototypeNetworkACLRuleProtocolIcmpPrototype
+// - NetworkACLRulePrototypeNetworkACLRuleProtocolIPv6IcmpPrototype
 // - NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudpPrototype
 // - NetworkACLRulePrototypeNetworkACLRuleProtocolIndividualPrototype
+// - NetworkACLRulePrototypeNetworkACLRuleProtocolIndividualIPv6Prototype
 type NetworkACLRulePrototype struct {
 	// The action to perform for a packet matching the rule.
 	//
@@ -94461,7 +94657,8 @@ type NetworkACLRulePrototype struct {
 	// If unspecified, this rule will be inserted after all existing rules.
 	Before NetworkACLRuleBeforePrototypeIntf `json:"before,omitempty"`
 
-	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` will match all destination addresses.
+	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` (or `::/0` if `ip_version` is `ipv6`)
+	// will match all destination addresses.
 	Destination *string `json:"destination" validate:"required"`
 
 	// The direction of traffic to match.
@@ -94477,7 +94674,8 @@ type NetworkACLRulePrototype struct {
 	// The network protocol.
 	Protocol *string `json:"protocol" validate:"required"`
 
-	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` will match all source addresses.
+	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` (or `::/0` if
+	// `ip_version` is `ipv6`) will match all source addresses.
 	Source *string `json:"source" validate:"required"`
 
 	// The ICMP traffic code to match.
@@ -94535,269 +94733,270 @@ const (
 // The IP version to match. The format of `source` and `destination` must match this property.
 const (
 	NetworkACLRulePrototypeIPVersionIpv4Const = "ipv4"
+	NetworkACLRulePrototypeIPVersionIpv6Const = "ipv6"
 )
 
 // Constants associated with the NetworkACLRulePrototype.Protocol property.
 // The network protocol.
 const (
-	NetworkACLRulePrototypeProtocolAhConst         = "ah"
-	NetworkACLRulePrototypeProtocolAnyConst        = "any"
-	NetworkACLRulePrototypeProtocolEspConst        = "esp"
-	NetworkACLRulePrototypeProtocolGreConst        = "gre"
-	NetworkACLRulePrototypeProtocolIPInIPConst     = "ip_in_ip"
-	NetworkACLRulePrototypeProtocolIcmpConst       = "icmp"
-	NetworkACLRulePrototypeProtocolIcmpTCPUDPConst = "icmp_tcp_udp"
-	NetworkACLRulePrototypeProtocolL2tpConst       = "l2tp"
-	NetworkACLRulePrototypeProtocolNumber0Const    = "number_0"
-	NetworkACLRulePrototypeProtocolNumber10Const   = "number_10"
-	NetworkACLRulePrototypeProtocolNumber100Const  = "number_100"
-	NetworkACLRulePrototypeProtocolNumber101Const  = "number_101"
-	NetworkACLRulePrototypeProtocolNumber102Const  = "number_102"
-	NetworkACLRulePrototypeProtocolNumber103Const  = "number_103"
-	NetworkACLRulePrototypeProtocolNumber104Const  = "number_104"
-	NetworkACLRulePrototypeProtocolNumber105Const  = "number_105"
-	NetworkACLRulePrototypeProtocolNumber106Const  = "number_106"
-	NetworkACLRulePrototypeProtocolNumber107Const  = "number_107"
-	NetworkACLRulePrototypeProtocolNumber108Const  = "number_108"
-	NetworkACLRulePrototypeProtocolNumber109Const  = "number_109"
-	NetworkACLRulePrototypeProtocolNumber11Const   = "number_11"
-	NetworkACLRulePrototypeProtocolNumber110Const  = "number_110"
-	NetworkACLRulePrototypeProtocolNumber111Const  = "number_111"
-	NetworkACLRulePrototypeProtocolNumber113Const  = "number_113"
-	NetworkACLRulePrototypeProtocolNumber114Const  = "number_114"
-	NetworkACLRulePrototypeProtocolNumber116Const  = "number_116"
-	NetworkACLRulePrototypeProtocolNumber117Const  = "number_117"
-	NetworkACLRulePrototypeProtocolNumber118Const  = "number_118"
-	NetworkACLRulePrototypeProtocolNumber119Const  = "number_119"
-	NetworkACLRulePrototypeProtocolNumber12Const   = "number_12"
-	NetworkACLRulePrototypeProtocolNumber120Const  = "number_120"
-	NetworkACLRulePrototypeProtocolNumber121Const  = "number_121"
-	NetworkACLRulePrototypeProtocolNumber122Const  = "number_122"
-	NetworkACLRulePrototypeProtocolNumber123Const  = "number_123"
-	NetworkACLRulePrototypeProtocolNumber124Const  = "number_124"
-	NetworkACLRulePrototypeProtocolNumber125Const  = "number_125"
-	NetworkACLRulePrototypeProtocolNumber126Const  = "number_126"
-	NetworkACLRulePrototypeProtocolNumber127Const  = "number_127"
-	NetworkACLRulePrototypeProtocolNumber128Const  = "number_128"
-	NetworkACLRulePrototypeProtocolNumber129Const  = "number_129"
-	NetworkACLRulePrototypeProtocolNumber13Const   = "number_13"
-	NetworkACLRulePrototypeProtocolNumber130Const  = "number_130"
-	NetworkACLRulePrototypeProtocolNumber131Const  = "number_131"
-	NetworkACLRulePrototypeProtocolNumber133Const  = "number_133"
-	NetworkACLRulePrototypeProtocolNumber134Const  = "number_134"
-	NetworkACLRulePrototypeProtocolNumber135Const  = "number_135"
-	NetworkACLRulePrototypeProtocolNumber136Const  = "number_136"
-	NetworkACLRulePrototypeProtocolNumber137Const  = "number_137"
-	NetworkACLRulePrototypeProtocolNumber138Const  = "number_138"
-	NetworkACLRulePrototypeProtocolNumber139Const  = "number_139"
-	NetworkACLRulePrototypeProtocolNumber14Const   = "number_14"
-	NetworkACLRulePrototypeProtocolNumber140Const  = "number_140"
-	NetworkACLRulePrototypeProtocolNumber141Const  = "number_141"
-	NetworkACLRulePrototypeProtocolNumber142Const  = "number_142"
-	NetworkACLRulePrototypeProtocolNumber143Const  = "number_143"
-	NetworkACLRulePrototypeProtocolNumber144Const  = "number_144"
-	NetworkACLRulePrototypeProtocolNumber145Const  = "number_145"
-	NetworkACLRulePrototypeProtocolNumber146Const  = "number_146"
-	NetworkACLRulePrototypeProtocolNumber147Const  = "number_147"
-	NetworkACLRulePrototypeProtocolNumber148Const  = "number_148"
-	NetworkACLRulePrototypeProtocolNumber149Const  = "number_149"
-	NetworkACLRulePrototypeProtocolNumber15Const   = "number_15"
-	NetworkACLRulePrototypeProtocolNumber150Const  = "number_150"
-	NetworkACLRulePrototypeProtocolNumber151Const  = "number_151"
-	NetworkACLRulePrototypeProtocolNumber152Const  = "number_152"
-	NetworkACLRulePrototypeProtocolNumber153Const  = "number_153"
-	NetworkACLRulePrototypeProtocolNumber154Const  = "number_154"
-	NetworkACLRulePrototypeProtocolNumber155Const  = "number_155"
-	NetworkACLRulePrototypeProtocolNumber156Const  = "number_156"
-	NetworkACLRulePrototypeProtocolNumber157Const  = "number_157"
-	NetworkACLRulePrototypeProtocolNumber158Const  = "number_158"
-	NetworkACLRulePrototypeProtocolNumber159Const  = "number_159"
-	NetworkACLRulePrototypeProtocolNumber16Const   = "number_16"
-	NetworkACLRulePrototypeProtocolNumber160Const  = "number_160"
-	NetworkACLRulePrototypeProtocolNumber161Const  = "number_161"
-	NetworkACLRulePrototypeProtocolNumber162Const  = "number_162"
-	NetworkACLRulePrototypeProtocolNumber163Const  = "number_163"
-	NetworkACLRulePrototypeProtocolNumber164Const  = "number_164"
-	NetworkACLRulePrototypeProtocolNumber165Const  = "number_165"
-	NetworkACLRulePrototypeProtocolNumber166Const  = "number_166"
-	NetworkACLRulePrototypeProtocolNumber167Const  = "number_167"
-	NetworkACLRulePrototypeProtocolNumber168Const  = "number_168"
-	NetworkACLRulePrototypeProtocolNumber169Const  = "number_169"
-	NetworkACLRulePrototypeProtocolNumber170Const  = "number_170"
-	NetworkACLRulePrototypeProtocolNumber171Const  = "number_171"
-	NetworkACLRulePrototypeProtocolNumber172Const  = "number_172"
-	NetworkACLRulePrototypeProtocolNumber173Const  = "number_173"
-	NetworkACLRulePrototypeProtocolNumber174Const  = "number_174"
-	NetworkACLRulePrototypeProtocolNumber175Const  = "number_175"
-	NetworkACLRulePrototypeProtocolNumber176Const  = "number_176"
-	NetworkACLRulePrototypeProtocolNumber177Const  = "number_177"
-	NetworkACLRulePrototypeProtocolNumber178Const  = "number_178"
-	NetworkACLRulePrototypeProtocolNumber179Const  = "number_179"
-	NetworkACLRulePrototypeProtocolNumber18Const   = "number_18"
-	NetworkACLRulePrototypeProtocolNumber180Const  = "number_180"
-	NetworkACLRulePrototypeProtocolNumber181Const  = "number_181"
-	NetworkACLRulePrototypeProtocolNumber182Const  = "number_182"
-	NetworkACLRulePrototypeProtocolNumber183Const  = "number_183"
-	NetworkACLRulePrototypeProtocolNumber184Const  = "number_184"
-	NetworkACLRulePrototypeProtocolNumber185Const  = "number_185"
-	NetworkACLRulePrototypeProtocolNumber186Const  = "number_186"
-	NetworkACLRulePrototypeProtocolNumber187Const  = "number_187"
-	NetworkACLRulePrototypeProtocolNumber188Const  = "number_188"
-	NetworkACLRulePrototypeProtocolNumber189Const  = "number_189"
-	NetworkACLRulePrototypeProtocolNumber19Const   = "number_19"
-	NetworkACLRulePrototypeProtocolNumber190Const  = "number_190"
-	NetworkACLRulePrototypeProtocolNumber191Const  = "number_191"
-	NetworkACLRulePrototypeProtocolNumber192Const  = "number_192"
-	NetworkACLRulePrototypeProtocolNumber193Const  = "number_193"
-	NetworkACLRulePrototypeProtocolNumber194Const  = "number_194"
-	NetworkACLRulePrototypeProtocolNumber195Const  = "number_195"
-	NetworkACLRulePrototypeProtocolNumber196Const  = "number_196"
-	NetworkACLRulePrototypeProtocolNumber197Const  = "number_197"
-	NetworkACLRulePrototypeProtocolNumber198Const  = "number_198"
-	NetworkACLRulePrototypeProtocolNumber199Const  = "number_199"
-	NetworkACLRulePrototypeProtocolNumber2Const    = "number_2"
-	NetworkACLRulePrototypeProtocolNumber20Const   = "number_20"
-	NetworkACLRulePrototypeProtocolNumber200Const  = "number_200"
-	NetworkACLRulePrototypeProtocolNumber201Const  = "number_201"
-	NetworkACLRulePrototypeProtocolNumber202Const  = "number_202"
-	NetworkACLRulePrototypeProtocolNumber203Const  = "number_203"
-	NetworkACLRulePrototypeProtocolNumber204Const  = "number_204"
-	NetworkACLRulePrototypeProtocolNumber205Const  = "number_205"
-	NetworkACLRulePrototypeProtocolNumber206Const  = "number_206"
-	NetworkACLRulePrototypeProtocolNumber207Const  = "number_207"
-	NetworkACLRulePrototypeProtocolNumber208Const  = "number_208"
-	NetworkACLRulePrototypeProtocolNumber209Const  = "number_209"
-	NetworkACLRulePrototypeProtocolNumber21Const   = "number_21"
-	NetworkACLRulePrototypeProtocolNumber210Const  = "number_210"
-	NetworkACLRulePrototypeProtocolNumber211Const  = "number_211"
-	NetworkACLRulePrototypeProtocolNumber212Const  = "number_212"
-	NetworkACLRulePrototypeProtocolNumber213Const  = "number_213"
-	NetworkACLRulePrototypeProtocolNumber214Const  = "number_214"
-	NetworkACLRulePrototypeProtocolNumber215Const  = "number_215"
-	NetworkACLRulePrototypeProtocolNumber216Const  = "number_216"
-	NetworkACLRulePrototypeProtocolNumber217Const  = "number_217"
-	NetworkACLRulePrototypeProtocolNumber218Const  = "number_218"
-	NetworkACLRulePrototypeProtocolNumber219Const  = "number_219"
-	NetworkACLRulePrototypeProtocolNumber22Const   = "number_22"
-	NetworkACLRulePrototypeProtocolNumber220Const  = "number_220"
-	NetworkACLRulePrototypeProtocolNumber221Const  = "number_221"
-	NetworkACLRulePrototypeProtocolNumber222Const  = "number_222"
-	NetworkACLRulePrototypeProtocolNumber223Const  = "number_223"
-	NetworkACLRulePrototypeProtocolNumber224Const  = "number_224"
-	NetworkACLRulePrototypeProtocolNumber225Const  = "number_225"
-	NetworkACLRulePrototypeProtocolNumber226Const  = "number_226"
-	NetworkACLRulePrototypeProtocolNumber227Const  = "number_227"
-	NetworkACLRulePrototypeProtocolNumber228Const  = "number_228"
-	NetworkACLRulePrototypeProtocolNumber229Const  = "number_229"
-	NetworkACLRulePrototypeProtocolNumber23Const   = "number_23"
-	NetworkACLRulePrototypeProtocolNumber230Const  = "number_230"
-	NetworkACLRulePrototypeProtocolNumber231Const  = "number_231"
-	NetworkACLRulePrototypeProtocolNumber232Const  = "number_232"
-	NetworkACLRulePrototypeProtocolNumber233Const  = "number_233"
-	NetworkACLRulePrototypeProtocolNumber234Const  = "number_234"
-	NetworkACLRulePrototypeProtocolNumber235Const  = "number_235"
-	NetworkACLRulePrototypeProtocolNumber236Const  = "number_236"
-	NetworkACLRulePrototypeProtocolNumber237Const  = "number_237"
-	NetworkACLRulePrototypeProtocolNumber238Const  = "number_238"
-	NetworkACLRulePrototypeProtocolNumber239Const  = "number_239"
-	NetworkACLRulePrototypeProtocolNumber24Const   = "number_24"
-	NetworkACLRulePrototypeProtocolNumber240Const  = "number_240"
-	NetworkACLRulePrototypeProtocolNumber241Const  = "number_241"
-	NetworkACLRulePrototypeProtocolNumber242Const  = "number_242"
-	NetworkACLRulePrototypeProtocolNumber243Const  = "number_243"
-	NetworkACLRulePrototypeProtocolNumber244Const  = "number_244"
-	NetworkACLRulePrototypeProtocolNumber245Const  = "number_245"
-	NetworkACLRulePrototypeProtocolNumber246Const  = "number_246"
-	NetworkACLRulePrototypeProtocolNumber247Const  = "number_247"
-	NetworkACLRulePrototypeProtocolNumber248Const  = "number_248"
-	NetworkACLRulePrototypeProtocolNumber249Const  = "number_249"
-	NetworkACLRulePrototypeProtocolNumber25Const   = "number_25"
-	NetworkACLRulePrototypeProtocolNumber250Const  = "number_250"
-	NetworkACLRulePrototypeProtocolNumber251Const  = "number_251"
-	NetworkACLRulePrototypeProtocolNumber252Const  = "number_252"
-	NetworkACLRulePrototypeProtocolNumber253Const  = "number_253"
-	NetworkACLRulePrototypeProtocolNumber254Const  = "number_254"
-	NetworkACLRulePrototypeProtocolNumber255Const  = "number_255"
-	NetworkACLRulePrototypeProtocolNumber26Const   = "number_26"
-	NetworkACLRulePrototypeProtocolNumber27Const   = "number_27"
-	NetworkACLRulePrototypeProtocolNumber28Const   = "number_28"
-	NetworkACLRulePrototypeProtocolNumber29Const   = "number_29"
-	NetworkACLRulePrototypeProtocolNumber3Const    = "number_3"
-	NetworkACLRulePrototypeProtocolNumber30Const   = "number_30"
-	NetworkACLRulePrototypeProtocolNumber31Const   = "number_31"
-	NetworkACLRulePrototypeProtocolNumber32Const   = "number_32"
-	NetworkACLRulePrototypeProtocolNumber33Const   = "number_33"
-	NetworkACLRulePrototypeProtocolNumber34Const   = "number_34"
-	NetworkACLRulePrototypeProtocolNumber35Const   = "number_35"
-	NetworkACLRulePrototypeProtocolNumber36Const   = "number_36"
-	NetworkACLRulePrototypeProtocolNumber37Const   = "number_37"
-	NetworkACLRulePrototypeProtocolNumber38Const   = "number_38"
-	NetworkACLRulePrototypeProtocolNumber39Const   = "number_39"
-	NetworkACLRulePrototypeProtocolNumber40Const   = "number_40"
-	NetworkACLRulePrototypeProtocolNumber41Const   = "number_41"
-	NetworkACLRulePrototypeProtocolNumber42Const   = "number_42"
-	NetworkACLRulePrototypeProtocolNumber43Const   = "number_43"
-	NetworkACLRulePrototypeProtocolNumber44Const   = "number_44"
-	NetworkACLRulePrototypeProtocolNumber45Const   = "number_45"
-	NetworkACLRulePrototypeProtocolNumber48Const   = "number_48"
-	NetworkACLRulePrototypeProtocolNumber49Const   = "number_49"
-	NetworkACLRulePrototypeProtocolNumber5Const    = "number_5"
-	NetworkACLRulePrototypeProtocolNumber52Const   = "number_52"
-	NetworkACLRulePrototypeProtocolNumber53Const   = "number_53"
-	NetworkACLRulePrototypeProtocolNumber54Const   = "number_54"
-	NetworkACLRulePrototypeProtocolNumber55Const   = "number_55"
-	NetworkACLRulePrototypeProtocolNumber56Const   = "number_56"
-	NetworkACLRulePrototypeProtocolNumber57Const   = "number_57"
-	NetworkACLRulePrototypeProtocolNumber58Const   = "number_58"
-	NetworkACLRulePrototypeProtocolNumber59Const   = "number_59"
-	NetworkACLRulePrototypeProtocolNumber60Const   = "number_60"
-	NetworkACLRulePrototypeProtocolNumber61Const   = "number_61"
-	NetworkACLRulePrototypeProtocolNumber62Const   = "number_62"
-	NetworkACLRulePrototypeProtocolNumber63Const   = "number_63"
-	NetworkACLRulePrototypeProtocolNumber64Const   = "number_64"
-	NetworkACLRulePrototypeProtocolNumber65Const   = "number_65"
-	NetworkACLRulePrototypeProtocolNumber66Const   = "number_66"
-	NetworkACLRulePrototypeProtocolNumber67Const   = "number_67"
-	NetworkACLRulePrototypeProtocolNumber68Const   = "number_68"
-	NetworkACLRulePrototypeProtocolNumber69Const   = "number_69"
-	NetworkACLRulePrototypeProtocolNumber7Const    = "number_7"
-	NetworkACLRulePrototypeProtocolNumber70Const   = "number_70"
-	NetworkACLRulePrototypeProtocolNumber71Const   = "number_71"
-	NetworkACLRulePrototypeProtocolNumber72Const   = "number_72"
-	NetworkACLRulePrototypeProtocolNumber73Const   = "number_73"
-	NetworkACLRulePrototypeProtocolNumber74Const   = "number_74"
-	NetworkACLRulePrototypeProtocolNumber75Const   = "number_75"
-	NetworkACLRulePrototypeProtocolNumber76Const   = "number_76"
-	NetworkACLRulePrototypeProtocolNumber77Const   = "number_77"
-	NetworkACLRulePrototypeProtocolNumber78Const   = "number_78"
-	NetworkACLRulePrototypeProtocolNumber79Const   = "number_79"
-	NetworkACLRulePrototypeProtocolNumber8Const    = "number_8"
-	NetworkACLRulePrototypeProtocolNumber80Const   = "number_80"
-	NetworkACLRulePrototypeProtocolNumber81Const   = "number_81"
-	NetworkACLRulePrototypeProtocolNumber82Const   = "number_82"
-	NetworkACLRulePrototypeProtocolNumber83Const   = "number_83"
-	NetworkACLRulePrototypeProtocolNumber84Const   = "number_84"
-	NetworkACLRulePrototypeProtocolNumber85Const   = "number_85"
-	NetworkACLRulePrototypeProtocolNumber86Const   = "number_86"
-	NetworkACLRulePrototypeProtocolNumber87Const   = "number_87"
-	NetworkACLRulePrototypeProtocolNumber88Const   = "number_88"
-	NetworkACLRulePrototypeProtocolNumber89Const   = "number_89"
-	NetworkACLRulePrototypeProtocolNumber9Const    = "number_9"
-	NetworkACLRulePrototypeProtocolNumber90Const   = "number_90"
-	NetworkACLRulePrototypeProtocolNumber91Const   = "number_91"
-	NetworkACLRulePrototypeProtocolNumber92Const   = "number_92"
-	NetworkACLRulePrototypeProtocolNumber93Const   = "number_93"
-	NetworkACLRulePrototypeProtocolNumber94Const   = "number_94"
-	NetworkACLRulePrototypeProtocolNumber95Const   = "number_95"
-	NetworkACLRulePrototypeProtocolNumber96Const   = "number_96"
-	NetworkACLRulePrototypeProtocolNumber97Const   = "number_97"
-	NetworkACLRulePrototypeProtocolNumber98Const   = "number_98"
-	NetworkACLRulePrototypeProtocolNumber99Const   = "number_99"
-	NetworkACLRulePrototypeProtocolRsvpConst       = "rsvp"
-	NetworkACLRulePrototypeProtocolSctpConst       = "sctp"
-	NetworkACLRulePrototypeProtocolTCPConst        = "tcp"
-	NetworkACLRulePrototypeProtocolUDPConst        = "udp"
-	NetworkACLRulePrototypeProtocolVrrpConst       = "vrrp"
+	NetworkACLRulePrototypeProtocolAhConst           = "ah"
+	NetworkACLRulePrototypeProtocolAnyConst          = "any"
+	NetworkACLRulePrototypeProtocolEspConst          = "esp"
+	NetworkACLRulePrototypeProtocolGreConst          = "gre"
+	NetworkACLRulePrototypeProtocolIPInIPConst       = "ip_in_ip"
+	NetworkACLRulePrototypeProtocolIcmpConst         = "icmp"
+	NetworkACLRulePrototypeProtocolIcmpTCPUDPConst   = "icmp_tcp_udp"
+	NetworkACLRulePrototypeProtocolIpv6DestOptsConst = "ipv6_dest_opts"
+	NetworkACLRulePrototypeProtocolIpv6FragConst     = "ipv6_frag"
+	NetworkACLRulePrototypeProtocolIpv6HopOptConst   = "ipv6_hop_opt"
+	NetworkACLRulePrototypeProtocolIpv6IcmpConst     = "ipv6_icmp"
+	NetworkACLRulePrototypeProtocolIpv6MobilityConst = "ipv6_mobility"
+	NetworkACLRulePrototypeProtocolIpv6NoNextConst   = "ipv6_no_next"
+	NetworkACLRulePrototypeProtocolIpv6RouteConst    = "ipv6_route"
+	NetworkACLRulePrototypeProtocolL2tpConst         = "l2tp"
+	NetworkACLRulePrototypeProtocolNumber10Const     = "number_10"
+	NetworkACLRulePrototypeProtocolNumber100Const    = "number_100"
+	NetworkACLRulePrototypeProtocolNumber101Const    = "number_101"
+	NetworkACLRulePrototypeProtocolNumber102Const    = "number_102"
+	NetworkACLRulePrototypeProtocolNumber103Const    = "number_103"
+	NetworkACLRulePrototypeProtocolNumber104Const    = "number_104"
+	NetworkACLRulePrototypeProtocolNumber105Const    = "number_105"
+	NetworkACLRulePrototypeProtocolNumber106Const    = "number_106"
+	NetworkACLRulePrototypeProtocolNumber107Const    = "number_107"
+	NetworkACLRulePrototypeProtocolNumber108Const    = "number_108"
+	NetworkACLRulePrototypeProtocolNumber109Const    = "number_109"
+	NetworkACLRulePrototypeProtocolNumber11Const     = "number_11"
+	NetworkACLRulePrototypeProtocolNumber110Const    = "number_110"
+	NetworkACLRulePrototypeProtocolNumber111Const    = "number_111"
+	NetworkACLRulePrototypeProtocolNumber113Const    = "number_113"
+	NetworkACLRulePrototypeProtocolNumber114Const    = "number_114"
+	NetworkACLRulePrototypeProtocolNumber116Const    = "number_116"
+	NetworkACLRulePrototypeProtocolNumber117Const    = "number_117"
+	NetworkACLRulePrototypeProtocolNumber118Const    = "number_118"
+	NetworkACLRulePrototypeProtocolNumber119Const    = "number_119"
+	NetworkACLRulePrototypeProtocolNumber12Const     = "number_12"
+	NetworkACLRulePrototypeProtocolNumber120Const    = "number_120"
+	NetworkACLRulePrototypeProtocolNumber121Const    = "number_121"
+	NetworkACLRulePrototypeProtocolNumber122Const    = "number_122"
+	NetworkACLRulePrototypeProtocolNumber123Const    = "number_123"
+	NetworkACLRulePrototypeProtocolNumber124Const    = "number_124"
+	NetworkACLRulePrototypeProtocolNumber125Const    = "number_125"
+	NetworkACLRulePrototypeProtocolNumber126Const    = "number_126"
+	NetworkACLRulePrototypeProtocolNumber127Const    = "number_127"
+	NetworkACLRulePrototypeProtocolNumber128Const    = "number_128"
+	NetworkACLRulePrototypeProtocolNumber129Const    = "number_129"
+	NetworkACLRulePrototypeProtocolNumber13Const     = "number_13"
+	NetworkACLRulePrototypeProtocolNumber130Const    = "number_130"
+	NetworkACLRulePrototypeProtocolNumber131Const    = "number_131"
+	NetworkACLRulePrototypeProtocolNumber133Const    = "number_133"
+	NetworkACLRulePrototypeProtocolNumber134Const    = "number_134"
+	NetworkACLRulePrototypeProtocolNumber136Const    = "number_136"
+	NetworkACLRulePrototypeProtocolNumber137Const    = "number_137"
+	NetworkACLRulePrototypeProtocolNumber138Const    = "number_138"
+	NetworkACLRulePrototypeProtocolNumber139Const    = "number_139"
+	NetworkACLRulePrototypeProtocolNumber14Const     = "number_14"
+	NetworkACLRulePrototypeProtocolNumber140Const    = "number_140"
+	NetworkACLRulePrototypeProtocolNumber141Const    = "number_141"
+	NetworkACLRulePrototypeProtocolNumber142Const    = "number_142"
+	NetworkACLRulePrototypeProtocolNumber143Const    = "number_143"
+	NetworkACLRulePrototypeProtocolNumber144Const    = "number_144"
+	NetworkACLRulePrototypeProtocolNumber145Const    = "number_145"
+	NetworkACLRulePrototypeProtocolNumber146Const    = "number_146"
+	NetworkACLRulePrototypeProtocolNumber147Const    = "number_147"
+	NetworkACLRulePrototypeProtocolNumber148Const    = "number_148"
+	NetworkACLRulePrototypeProtocolNumber149Const    = "number_149"
+	NetworkACLRulePrototypeProtocolNumber15Const     = "number_15"
+	NetworkACLRulePrototypeProtocolNumber150Const    = "number_150"
+	NetworkACLRulePrototypeProtocolNumber151Const    = "number_151"
+	NetworkACLRulePrototypeProtocolNumber152Const    = "number_152"
+	NetworkACLRulePrototypeProtocolNumber153Const    = "number_153"
+	NetworkACLRulePrototypeProtocolNumber154Const    = "number_154"
+	NetworkACLRulePrototypeProtocolNumber155Const    = "number_155"
+	NetworkACLRulePrototypeProtocolNumber156Const    = "number_156"
+	NetworkACLRulePrototypeProtocolNumber157Const    = "number_157"
+	NetworkACLRulePrototypeProtocolNumber158Const    = "number_158"
+	NetworkACLRulePrototypeProtocolNumber159Const    = "number_159"
+	NetworkACLRulePrototypeProtocolNumber16Const     = "number_16"
+	NetworkACLRulePrototypeProtocolNumber160Const    = "number_160"
+	NetworkACLRulePrototypeProtocolNumber161Const    = "number_161"
+	NetworkACLRulePrototypeProtocolNumber162Const    = "number_162"
+	NetworkACLRulePrototypeProtocolNumber163Const    = "number_163"
+	NetworkACLRulePrototypeProtocolNumber164Const    = "number_164"
+	NetworkACLRulePrototypeProtocolNumber165Const    = "number_165"
+	NetworkACLRulePrototypeProtocolNumber166Const    = "number_166"
+	NetworkACLRulePrototypeProtocolNumber167Const    = "number_167"
+	NetworkACLRulePrototypeProtocolNumber168Const    = "number_168"
+	NetworkACLRulePrototypeProtocolNumber169Const    = "number_169"
+	NetworkACLRulePrototypeProtocolNumber170Const    = "number_170"
+	NetworkACLRulePrototypeProtocolNumber171Const    = "number_171"
+	NetworkACLRulePrototypeProtocolNumber172Const    = "number_172"
+	NetworkACLRulePrototypeProtocolNumber173Const    = "number_173"
+	NetworkACLRulePrototypeProtocolNumber174Const    = "number_174"
+	NetworkACLRulePrototypeProtocolNumber175Const    = "number_175"
+	NetworkACLRulePrototypeProtocolNumber176Const    = "number_176"
+	NetworkACLRulePrototypeProtocolNumber177Const    = "number_177"
+	NetworkACLRulePrototypeProtocolNumber178Const    = "number_178"
+	NetworkACLRulePrototypeProtocolNumber179Const    = "number_179"
+	NetworkACLRulePrototypeProtocolNumber18Const     = "number_18"
+	NetworkACLRulePrototypeProtocolNumber180Const    = "number_180"
+	NetworkACLRulePrototypeProtocolNumber181Const    = "number_181"
+	NetworkACLRulePrototypeProtocolNumber182Const    = "number_182"
+	NetworkACLRulePrototypeProtocolNumber183Const    = "number_183"
+	NetworkACLRulePrototypeProtocolNumber184Const    = "number_184"
+	NetworkACLRulePrototypeProtocolNumber185Const    = "number_185"
+	NetworkACLRulePrototypeProtocolNumber186Const    = "number_186"
+	NetworkACLRulePrototypeProtocolNumber187Const    = "number_187"
+	NetworkACLRulePrototypeProtocolNumber188Const    = "number_188"
+	NetworkACLRulePrototypeProtocolNumber189Const    = "number_189"
+	NetworkACLRulePrototypeProtocolNumber19Const     = "number_19"
+	NetworkACLRulePrototypeProtocolNumber190Const    = "number_190"
+	NetworkACLRulePrototypeProtocolNumber191Const    = "number_191"
+	NetworkACLRulePrototypeProtocolNumber192Const    = "number_192"
+	NetworkACLRulePrototypeProtocolNumber193Const    = "number_193"
+	NetworkACLRulePrototypeProtocolNumber194Const    = "number_194"
+	NetworkACLRulePrototypeProtocolNumber195Const    = "number_195"
+	NetworkACLRulePrototypeProtocolNumber196Const    = "number_196"
+	NetworkACLRulePrototypeProtocolNumber197Const    = "number_197"
+	NetworkACLRulePrototypeProtocolNumber198Const    = "number_198"
+	NetworkACLRulePrototypeProtocolNumber199Const    = "number_199"
+	NetworkACLRulePrototypeProtocolNumber2Const      = "number_2"
+	NetworkACLRulePrototypeProtocolNumber20Const     = "number_20"
+	NetworkACLRulePrototypeProtocolNumber200Const    = "number_200"
+	NetworkACLRulePrototypeProtocolNumber201Const    = "number_201"
+	NetworkACLRulePrototypeProtocolNumber202Const    = "number_202"
+	NetworkACLRulePrototypeProtocolNumber203Const    = "number_203"
+	NetworkACLRulePrototypeProtocolNumber204Const    = "number_204"
+	NetworkACLRulePrototypeProtocolNumber205Const    = "number_205"
+	NetworkACLRulePrototypeProtocolNumber206Const    = "number_206"
+	NetworkACLRulePrototypeProtocolNumber207Const    = "number_207"
+	NetworkACLRulePrototypeProtocolNumber208Const    = "number_208"
+	NetworkACLRulePrototypeProtocolNumber209Const    = "number_209"
+	NetworkACLRulePrototypeProtocolNumber21Const     = "number_21"
+	NetworkACLRulePrototypeProtocolNumber210Const    = "number_210"
+	NetworkACLRulePrototypeProtocolNumber211Const    = "number_211"
+	NetworkACLRulePrototypeProtocolNumber212Const    = "number_212"
+	NetworkACLRulePrototypeProtocolNumber213Const    = "number_213"
+	NetworkACLRulePrototypeProtocolNumber214Const    = "number_214"
+	NetworkACLRulePrototypeProtocolNumber215Const    = "number_215"
+	NetworkACLRulePrototypeProtocolNumber216Const    = "number_216"
+	NetworkACLRulePrototypeProtocolNumber217Const    = "number_217"
+	NetworkACLRulePrototypeProtocolNumber218Const    = "number_218"
+	NetworkACLRulePrototypeProtocolNumber219Const    = "number_219"
+	NetworkACLRulePrototypeProtocolNumber22Const     = "number_22"
+	NetworkACLRulePrototypeProtocolNumber220Const    = "number_220"
+	NetworkACLRulePrototypeProtocolNumber221Const    = "number_221"
+	NetworkACLRulePrototypeProtocolNumber222Const    = "number_222"
+	NetworkACLRulePrototypeProtocolNumber223Const    = "number_223"
+	NetworkACLRulePrototypeProtocolNumber224Const    = "number_224"
+	NetworkACLRulePrototypeProtocolNumber225Const    = "number_225"
+	NetworkACLRulePrototypeProtocolNumber226Const    = "number_226"
+	NetworkACLRulePrototypeProtocolNumber227Const    = "number_227"
+	NetworkACLRulePrototypeProtocolNumber228Const    = "number_228"
+	NetworkACLRulePrototypeProtocolNumber229Const    = "number_229"
+	NetworkACLRulePrototypeProtocolNumber23Const     = "number_23"
+	NetworkACLRulePrototypeProtocolNumber230Const    = "number_230"
+	NetworkACLRulePrototypeProtocolNumber231Const    = "number_231"
+	NetworkACLRulePrototypeProtocolNumber232Const    = "number_232"
+	NetworkACLRulePrototypeProtocolNumber233Const    = "number_233"
+	NetworkACLRulePrototypeProtocolNumber234Const    = "number_234"
+	NetworkACLRulePrototypeProtocolNumber235Const    = "number_235"
+	NetworkACLRulePrototypeProtocolNumber236Const    = "number_236"
+	NetworkACLRulePrototypeProtocolNumber237Const    = "number_237"
+	NetworkACLRulePrototypeProtocolNumber238Const    = "number_238"
+	NetworkACLRulePrototypeProtocolNumber239Const    = "number_239"
+	NetworkACLRulePrototypeProtocolNumber24Const     = "number_24"
+	NetworkACLRulePrototypeProtocolNumber240Const    = "number_240"
+	NetworkACLRulePrototypeProtocolNumber241Const    = "number_241"
+	NetworkACLRulePrototypeProtocolNumber242Const    = "number_242"
+	NetworkACLRulePrototypeProtocolNumber243Const    = "number_243"
+	NetworkACLRulePrototypeProtocolNumber244Const    = "number_244"
+	NetworkACLRulePrototypeProtocolNumber245Const    = "number_245"
+	NetworkACLRulePrototypeProtocolNumber246Const    = "number_246"
+	NetworkACLRulePrototypeProtocolNumber247Const    = "number_247"
+	NetworkACLRulePrototypeProtocolNumber248Const    = "number_248"
+	NetworkACLRulePrototypeProtocolNumber249Const    = "number_249"
+	NetworkACLRulePrototypeProtocolNumber25Const     = "number_25"
+	NetworkACLRulePrototypeProtocolNumber250Const    = "number_250"
+	NetworkACLRulePrototypeProtocolNumber251Const    = "number_251"
+	NetworkACLRulePrototypeProtocolNumber252Const    = "number_252"
+	NetworkACLRulePrototypeProtocolNumber253Const    = "number_253"
+	NetworkACLRulePrototypeProtocolNumber254Const    = "number_254"
+	NetworkACLRulePrototypeProtocolNumber255Const    = "number_255"
+	NetworkACLRulePrototypeProtocolNumber26Const     = "number_26"
+	NetworkACLRulePrototypeProtocolNumber27Const     = "number_27"
+	NetworkACLRulePrototypeProtocolNumber28Const     = "number_28"
+	NetworkACLRulePrototypeProtocolNumber29Const     = "number_29"
+	NetworkACLRulePrototypeProtocolNumber3Const      = "number_3"
+	NetworkACLRulePrototypeProtocolNumber30Const     = "number_30"
+	NetworkACLRulePrototypeProtocolNumber31Const     = "number_31"
+	NetworkACLRulePrototypeProtocolNumber32Const     = "number_32"
+	NetworkACLRulePrototypeProtocolNumber33Const     = "number_33"
+	NetworkACLRulePrototypeProtocolNumber34Const     = "number_34"
+	NetworkACLRulePrototypeProtocolNumber35Const     = "number_35"
+	NetworkACLRulePrototypeProtocolNumber36Const     = "number_36"
+	NetworkACLRulePrototypeProtocolNumber37Const     = "number_37"
+	NetworkACLRulePrototypeProtocolNumber38Const     = "number_38"
+	NetworkACLRulePrototypeProtocolNumber39Const     = "number_39"
+	NetworkACLRulePrototypeProtocolNumber40Const     = "number_40"
+	NetworkACLRulePrototypeProtocolNumber41Const     = "number_41"
+	NetworkACLRulePrototypeProtocolNumber42Const     = "number_42"
+	NetworkACLRulePrototypeProtocolNumber45Const     = "number_45"
+	NetworkACLRulePrototypeProtocolNumber48Const     = "number_48"
+	NetworkACLRulePrototypeProtocolNumber49Const     = "number_49"
+	NetworkACLRulePrototypeProtocolNumber5Const      = "number_5"
+	NetworkACLRulePrototypeProtocolNumber52Const     = "number_52"
+	NetworkACLRulePrototypeProtocolNumber53Const     = "number_53"
+	NetworkACLRulePrototypeProtocolNumber54Const     = "number_54"
+	NetworkACLRulePrototypeProtocolNumber55Const     = "number_55"
+	NetworkACLRulePrototypeProtocolNumber56Const     = "number_56"
+	NetworkACLRulePrototypeProtocolNumber57Const     = "number_57"
+	NetworkACLRulePrototypeProtocolNumber61Const     = "number_61"
+	NetworkACLRulePrototypeProtocolNumber62Const     = "number_62"
+	NetworkACLRulePrototypeProtocolNumber63Const     = "number_63"
+	NetworkACLRulePrototypeProtocolNumber64Const     = "number_64"
+	NetworkACLRulePrototypeProtocolNumber65Const     = "number_65"
+	NetworkACLRulePrototypeProtocolNumber66Const     = "number_66"
+	NetworkACLRulePrototypeProtocolNumber67Const     = "number_67"
+	NetworkACLRulePrototypeProtocolNumber68Const     = "number_68"
+	NetworkACLRulePrototypeProtocolNumber69Const     = "number_69"
+	NetworkACLRulePrototypeProtocolNumber7Const      = "number_7"
+	NetworkACLRulePrototypeProtocolNumber70Const     = "number_70"
+	NetworkACLRulePrototypeProtocolNumber71Const     = "number_71"
+	NetworkACLRulePrototypeProtocolNumber72Const     = "number_72"
+	NetworkACLRulePrototypeProtocolNumber73Const     = "number_73"
+	NetworkACLRulePrototypeProtocolNumber74Const     = "number_74"
+	NetworkACLRulePrototypeProtocolNumber75Const     = "number_75"
+	NetworkACLRulePrototypeProtocolNumber76Const     = "number_76"
+	NetworkACLRulePrototypeProtocolNumber77Const     = "number_77"
+	NetworkACLRulePrototypeProtocolNumber78Const     = "number_78"
+	NetworkACLRulePrototypeProtocolNumber79Const     = "number_79"
+	NetworkACLRulePrototypeProtocolNumber8Const      = "number_8"
+	NetworkACLRulePrototypeProtocolNumber80Const     = "number_80"
+	NetworkACLRulePrototypeProtocolNumber81Const     = "number_81"
+	NetworkACLRulePrototypeProtocolNumber82Const     = "number_82"
+	NetworkACLRulePrototypeProtocolNumber83Const     = "number_83"
+	NetworkACLRulePrototypeProtocolNumber84Const     = "number_84"
+	NetworkACLRulePrototypeProtocolNumber85Const     = "number_85"
+	NetworkACLRulePrototypeProtocolNumber86Const     = "number_86"
+	NetworkACLRulePrototypeProtocolNumber87Const     = "number_87"
+	NetworkACLRulePrototypeProtocolNumber88Const     = "number_88"
+	NetworkACLRulePrototypeProtocolNumber89Const     = "number_89"
+	NetworkACLRulePrototypeProtocolNumber9Const      = "number_9"
+	NetworkACLRulePrototypeProtocolNumber90Const     = "number_90"
+	NetworkACLRulePrototypeProtocolNumber91Const     = "number_91"
+	NetworkACLRulePrototypeProtocolNumber92Const     = "number_92"
+	NetworkACLRulePrototypeProtocolNumber93Const     = "number_93"
+	NetworkACLRulePrototypeProtocolNumber94Const     = "number_94"
+	NetworkACLRulePrototypeProtocolNumber95Const     = "number_95"
+	NetworkACLRulePrototypeProtocolNumber96Const     = "number_96"
+	NetworkACLRulePrototypeProtocolNumber97Const     = "number_97"
+	NetworkACLRulePrototypeProtocolNumber98Const     = "number_98"
+	NetworkACLRulePrototypeProtocolNumber99Const     = "number_99"
+	NetworkACLRulePrototypeProtocolRsvpConst         = "rsvp"
+	NetworkACLRulePrototypeProtocolSctpConst         = "sctp"
+	NetworkACLRulePrototypeProtocolTCPConst          = "tcp"
+	NetworkACLRulePrototypeProtocolUDPConst          = "udp"
+	NetworkACLRulePrototypeProtocolVrrpConst         = "vrrp"
 )
 
 func (*NetworkACLRulePrototype) isaNetworkACLRulePrototype() bool {
@@ -94890,15 +95089,18 @@ func UnmarshalNetworkACLRulePrototype(m map[string]json.RawMessage, result inter
 // - NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAnyPrototype
 // - NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmptcpudpPrototype
 // - NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmpPrototype
+// - NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIPv6IcmpPrototype
 // - NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudpPrototype
 // - NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIndividualPrototype
+// - NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIndividualIPv6Prototype
 type NetworkACLRulePrototypeNetworkACLContext struct {
 	// The action to perform for a packet matching the rule.
 	//
 	// Must not be `deny` if `protocol` is `icmp_tcp_udp`.
 	Action *string `json:"action" validate:"required"`
 
-	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` will match all destination addresses.
+	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` (or `::/0` if `ip_version` is `ipv6`)
+	// will match all destination addresses.
 	Destination *string `json:"destination" validate:"required"`
 
 	// The direction of traffic to match.
@@ -94914,7 +95116,8 @@ type NetworkACLRulePrototypeNetworkACLContext struct {
 	// The network protocol.
 	Protocol *string `json:"protocol" validate:"required"`
 
-	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` will match all source addresses.
+	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` (or `::/0` if
+	// `ip_version` is `ipv6`) will match all source addresses.
 	Source *string `json:"source" validate:"required"`
 
 	// The ICMP traffic code to match.
@@ -94972,269 +95175,270 @@ const (
 // The IP version to match. The format of `source` and `destination` must match this property.
 const (
 	NetworkACLRulePrototypeNetworkACLContextIPVersionIpv4Const = "ipv4"
+	NetworkACLRulePrototypeNetworkACLContextIPVersionIpv6Const = "ipv6"
 )
 
 // Constants associated with the NetworkACLRulePrototypeNetworkACLContext.Protocol property.
 // The network protocol.
 const (
-	NetworkACLRulePrototypeNetworkACLContextProtocolAhConst         = "ah"
-	NetworkACLRulePrototypeNetworkACLContextProtocolAnyConst        = "any"
-	NetworkACLRulePrototypeNetworkACLContextProtocolEspConst        = "esp"
-	NetworkACLRulePrototypeNetworkACLContextProtocolGreConst        = "gre"
-	NetworkACLRulePrototypeNetworkACLContextProtocolIPInIPConst     = "ip_in_ip"
-	NetworkACLRulePrototypeNetworkACLContextProtocolIcmpConst       = "icmp"
-	NetworkACLRulePrototypeNetworkACLContextProtocolIcmpTCPUDPConst = "icmp_tcp_udp"
-	NetworkACLRulePrototypeNetworkACLContextProtocolL2tpConst       = "l2tp"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber0Const    = "number_0"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber10Const   = "number_10"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber100Const  = "number_100"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber101Const  = "number_101"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber102Const  = "number_102"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber103Const  = "number_103"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber104Const  = "number_104"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber105Const  = "number_105"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber106Const  = "number_106"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber107Const  = "number_107"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber108Const  = "number_108"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber109Const  = "number_109"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber11Const   = "number_11"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber110Const  = "number_110"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber111Const  = "number_111"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber113Const  = "number_113"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber114Const  = "number_114"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber116Const  = "number_116"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber117Const  = "number_117"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber118Const  = "number_118"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber119Const  = "number_119"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber12Const   = "number_12"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber120Const  = "number_120"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber121Const  = "number_121"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber122Const  = "number_122"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber123Const  = "number_123"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber124Const  = "number_124"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber125Const  = "number_125"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber126Const  = "number_126"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber127Const  = "number_127"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber128Const  = "number_128"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber129Const  = "number_129"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber13Const   = "number_13"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber130Const  = "number_130"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber131Const  = "number_131"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber133Const  = "number_133"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber134Const  = "number_134"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber135Const  = "number_135"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber136Const  = "number_136"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber137Const  = "number_137"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber138Const  = "number_138"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber139Const  = "number_139"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber14Const   = "number_14"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber140Const  = "number_140"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber141Const  = "number_141"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber142Const  = "number_142"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber143Const  = "number_143"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber144Const  = "number_144"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber145Const  = "number_145"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber146Const  = "number_146"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber147Const  = "number_147"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber148Const  = "number_148"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber149Const  = "number_149"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber15Const   = "number_15"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber150Const  = "number_150"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber151Const  = "number_151"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber152Const  = "number_152"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber153Const  = "number_153"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber154Const  = "number_154"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber155Const  = "number_155"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber156Const  = "number_156"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber157Const  = "number_157"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber158Const  = "number_158"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber159Const  = "number_159"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber16Const   = "number_16"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber160Const  = "number_160"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber161Const  = "number_161"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber162Const  = "number_162"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber163Const  = "number_163"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber164Const  = "number_164"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber165Const  = "number_165"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber166Const  = "number_166"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber167Const  = "number_167"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber168Const  = "number_168"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber169Const  = "number_169"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber170Const  = "number_170"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber171Const  = "number_171"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber172Const  = "number_172"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber173Const  = "number_173"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber174Const  = "number_174"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber175Const  = "number_175"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber176Const  = "number_176"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber177Const  = "number_177"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber178Const  = "number_178"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber179Const  = "number_179"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber18Const   = "number_18"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber180Const  = "number_180"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber181Const  = "number_181"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber182Const  = "number_182"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber183Const  = "number_183"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber184Const  = "number_184"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber185Const  = "number_185"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber186Const  = "number_186"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber187Const  = "number_187"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber188Const  = "number_188"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber189Const  = "number_189"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber19Const   = "number_19"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber190Const  = "number_190"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber191Const  = "number_191"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber192Const  = "number_192"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber193Const  = "number_193"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber194Const  = "number_194"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber195Const  = "number_195"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber196Const  = "number_196"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber197Const  = "number_197"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber198Const  = "number_198"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber199Const  = "number_199"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber2Const    = "number_2"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber20Const   = "number_20"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber200Const  = "number_200"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber201Const  = "number_201"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber202Const  = "number_202"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber203Const  = "number_203"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber204Const  = "number_204"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber205Const  = "number_205"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber206Const  = "number_206"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber207Const  = "number_207"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber208Const  = "number_208"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber209Const  = "number_209"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber21Const   = "number_21"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber210Const  = "number_210"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber211Const  = "number_211"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber212Const  = "number_212"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber213Const  = "number_213"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber214Const  = "number_214"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber215Const  = "number_215"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber216Const  = "number_216"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber217Const  = "number_217"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber218Const  = "number_218"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber219Const  = "number_219"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber22Const   = "number_22"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber220Const  = "number_220"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber221Const  = "number_221"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber222Const  = "number_222"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber223Const  = "number_223"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber224Const  = "number_224"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber225Const  = "number_225"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber226Const  = "number_226"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber227Const  = "number_227"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber228Const  = "number_228"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber229Const  = "number_229"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber23Const   = "number_23"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber230Const  = "number_230"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber231Const  = "number_231"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber232Const  = "number_232"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber233Const  = "number_233"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber234Const  = "number_234"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber235Const  = "number_235"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber236Const  = "number_236"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber237Const  = "number_237"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber238Const  = "number_238"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber239Const  = "number_239"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber24Const   = "number_24"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber240Const  = "number_240"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber241Const  = "number_241"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber242Const  = "number_242"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber243Const  = "number_243"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber244Const  = "number_244"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber245Const  = "number_245"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber246Const  = "number_246"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber247Const  = "number_247"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber248Const  = "number_248"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber249Const  = "number_249"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber25Const   = "number_25"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber250Const  = "number_250"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber251Const  = "number_251"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber252Const  = "number_252"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber253Const  = "number_253"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber254Const  = "number_254"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber255Const  = "number_255"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber26Const   = "number_26"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber27Const   = "number_27"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber28Const   = "number_28"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber29Const   = "number_29"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber3Const    = "number_3"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber30Const   = "number_30"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber31Const   = "number_31"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber32Const   = "number_32"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber33Const   = "number_33"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber34Const   = "number_34"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber35Const   = "number_35"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber36Const   = "number_36"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber37Const   = "number_37"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber38Const   = "number_38"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber39Const   = "number_39"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber40Const   = "number_40"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber41Const   = "number_41"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber42Const   = "number_42"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber43Const   = "number_43"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber44Const   = "number_44"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber45Const   = "number_45"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber48Const   = "number_48"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber49Const   = "number_49"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber5Const    = "number_5"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber52Const   = "number_52"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber53Const   = "number_53"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber54Const   = "number_54"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber55Const   = "number_55"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber56Const   = "number_56"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber57Const   = "number_57"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber58Const   = "number_58"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber59Const   = "number_59"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber60Const   = "number_60"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber61Const   = "number_61"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber62Const   = "number_62"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber63Const   = "number_63"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber64Const   = "number_64"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber65Const   = "number_65"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber66Const   = "number_66"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber67Const   = "number_67"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber68Const   = "number_68"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber69Const   = "number_69"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber7Const    = "number_7"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber70Const   = "number_70"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber71Const   = "number_71"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber72Const   = "number_72"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber73Const   = "number_73"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber74Const   = "number_74"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber75Const   = "number_75"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber76Const   = "number_76"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber77Const   = "number_77"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber78Const   = "number_78"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber79Const   = "number_79"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber8Const    = "number_8"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber80Const   = "number_80"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber81Const   = "number_81"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber82Const   = "number_82"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber83Const   = "number_83"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber84Const   = "number_84"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber85Const   = "number_85"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber86Const   = "number_86"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber87Const   = "number_87"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber88Const   = "number_88"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber89Const   = "number_89"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber9Const    = "number_9"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber90Const   = "number_90"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber91Const   = "number_91"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber92Const   = "number_92"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber93Const   = "number_93"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber94Const   = "number_94"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber95Const   = "number_95"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber96Const   = "number_96"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber97Const   = "number_97"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber98Const   = "number_98"
-	NetworkACLRulePrototypeNetworkACLContextProtocolNumber99Const   = "number_99"
-	NetworkACLRulePrototypeNetworkACLContextProtocolRsvpConst       = "rsvp"
-	NetworkACLRulePrototypeNetworkACLContextProtocolSctpConst       = "sctp"
-	NetworkACLRulePrototypeNetworkACLContextProtocolTCPConst        = "tcp"
-	NetworkACLRulePrototypeNetworkACLContextProtocolUDPConst        = "udp"
-	NetworkACLRulePrototypeNetworkACLContextProtocolVrrpConst       = "vrrp"
+	NetworkACLRulePrototypeNetworkACLContextProtocolAhConst           = "ah"
+	NetworkACLRulePrototypeNetworkACLContextProtocolAnyConst          = "any"
+	NetworkACLRulePrototypeNetworkACLContextProtocolEspConst          = "esp"
+	NetworkACLRulePrototypeNetworkACLContextProtocolGreConst          = "gre"
+	NetworkACLRulePrototypeNetworkACLContextProtocolIPInIPConst       = "ip_in_ip"
+	NetworkACLRulePrototypeNetworkACLContextProtocolIcmpConst         = "icmp"
+	NetworkACLRulePrototypeNetworkACLContextProtocolIcmpTCPUDPConst   = "icmp_tcp_udp"
+	NetworkACLRulePrototypeNetworkACLContextProtocolIpv6DestOptsConst = "ipv6_dest_opts"
+	NetworkACLRulePrototypeNetworkACLContextProtocolIpv6FragConst     = "ipv6_frag"
+	NetworkACLRulePrototypeNetworkACLContextProtocolIpv6HopOptConst   = "ipv6_hop_opt"
+	NetworkACLRulePrototypeNetworkACLContextProtocolIpv6IcmpConst     = "ipv6_icmp"
+	NetworkACLRulePrototypeNetworkACLContextProtocolIpv6MobilityConst = "ipv6_mobility"
+	NetworkACLRulePrototypeNetworkACLContextProtocolIpv6NoNextConst   = "ipv6_no_next"
+	NetworkACLRulePrototypeNetworkACLContextProtocolIpv6RouteConst    = "ipv6_route"
+	NetworkACLRulePrototypeNetworkACLContextProtocolL2tpConst         = "l2tp"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber10Const     = "number_10"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber100Const    = "number_100"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber101Const    = "number_101"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber102Const    = "number_102"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber103Const    = "number_103"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber104Const    = "number_104"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber105Const    = "number_105"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber106Const    = "number_106"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber107Const    = "number_107"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber108Const    = "number_108"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber109Const    = "number_109"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber11Const     = "number_11"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber110Const    = "number_110"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber111Const    = "number_111"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber113Const    = "number_113"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber114Const    = "number_114"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber116Const    = "number_116"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber117Const    = "number_117"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber118Const    = "number_118"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber119Const    = "number_119"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber12Const     = "number_12"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber120Const    = "number_120"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber121Const    = "number_121"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber122Const    = "number_122"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber123Const    = "number_123"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber124Const    = "number_124"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber125Const    = "number_125"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber126Const    = "number_126"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber127Const    = "number_127"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber128Const    = "number_128"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber129Const    = "number_129"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber13Const     = "number_13"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber130Const    = "number_130"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber131Const    = "number_131"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber133Const    = "number_133"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber134Const    = "number_134"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber136Const    = "number_136"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber137Const    = "number_137"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber138Const    = "number_138"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber139Const    = "number_139"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber14Const     = "number_14"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber140Const    = "number_140"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber141Const    = "number_141"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber142Const    = "number_142"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber143Const    = "number_143"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber144Const    = "number_144"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber145Const    = "number_145"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber146Const    = "number_146"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber147Const    = "number_147"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber148Const    = "number_148"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber149Const    = "number_149"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber15Const     = "number_15"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber150Const    = "number_150"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber151Const    = "number_151"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber152Const    = "number_152"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber153Const    = "number_153"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber154Const    = "number_154"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber155Const    = "number_155"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber156Const    = "number_156"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber157Const    = "number_157"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber158Const    = "number_158"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber159Const    = "number_159"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber16Const     = "number_16"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber160Const    = "number_160"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber161Const    = "number_161"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber162Const    = "number_162"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber163Const    = "number_163"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber164Const    = "number_164"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber165Const    = "number_165"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber166Const    = "number_166"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber167Const    = "number_167"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber168Const    = "number_168"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber169Const    = "number_169"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber170Const    = "number_170"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber171Const    = "number_171"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber172Const    = "number_172"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber173Const    = "number_173"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber174Const    = "number_174"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber175Const    = "number_175"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber176Const    = "number_176"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber177Const    = "number_177"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber178Const    = "number_178"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber179Const    = "number_179"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber18Const     = "number_18"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber180Const    = "number_180"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber181Const    = "number_181"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber182Const    = "number_182"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber183Const    = "number_183"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber184Const    = "number_184"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber185Const    = "number_185"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber186Const    = "number_186"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber187Const    = "number_187"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber188Const    = "number_188"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber189Const    = "number_189"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber19Const     = "number_19"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber190Const    = "number_190"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber191Const    = "number_191"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber192Const    = "number_192"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber193Const    = "number_193"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber194Const    = "number_194"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber195Const    = "number_195"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber196Const    = "number_196"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber197Const    = "number_197"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber198Const    = "number_198"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber199Const    = "number_199"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber2Const      = "number_2"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber20Const     = "number_20"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber200Const    = "number_200"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber201Const    = "number_201"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber202Const    = "number_202"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber203Const    = "number_203"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber204Const    = "number_204"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber205Const    = "number_205"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber206Const    = "number_206"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber207Const    = "number_207"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber208Const    = "number_208"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber209Const    = "number_209"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber21Const     = "number_21"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber210Const    = "number_210"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber211Const    = "number_211"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber212Const    = "number_212"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber213Const    = "number_213"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber214Const    = "number_214"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber215Const    = "number_215"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber216Const    = "number_216"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber217Const    = "number_217"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber218Const    = "number_218"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber219Const    = "number_219"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber22Const     = "number_22"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber220Const    = "number_220"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber221Const    = "number_221"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber222Const    = "number_222"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber223Const    = "number_223"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber224Const    = "number_224"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber225Const    = "number_225"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber226Const    = "number_226"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber227Const    = "number_227"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber228Const    = "number_228"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber229Const    = "number_229"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber23Const     = "number_23"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber230Const    = "number_230"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber231Const    = "number_231"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber232Const    = "number_232"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber233Const    = "number_233"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber234Const    = "number_234"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber235Const    = "number_235"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber236Const    = "number_236"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber237Const    = "number_237"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber238Const    = "number_238"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber239Const    = "number_239"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber24Const     = "number_24"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber240Const    = "number_240"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber241Const    = "number_241"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber242Const    = "number_242"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber243Const    = "number_243"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber244Const    = "number_244"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber245Const    = "number_245"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber246Const    = "number_246"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber247Const    = "number_247"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber248Const    = "number_248"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber249Const    = "number_249"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber25Const     = "number_25"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber250Const    = "number_250"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber251Const    = "number_251"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber252Const    = "number_252"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber253Const    = "number_253"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber254Const    = "number_254"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber255Const    = "number_255"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber26Const     = "number_26"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber27Const     = "number_27"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber28Const     = "number_28"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber29Const     = "number_29"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber3Const      = "number_3"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber30Const     = "number_30"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber31Const     = "number_31"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber32Const     = "number_32"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber33Const     = "number_33"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber34Const     = "number_34"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber35Const     = "number_35"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber36Const     = "number_36"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber37Const     = "number_37"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber38Const     = "number_38"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber39Const     = "number_39"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber40Const     = "number_40"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber41Const     = "number_41"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber42Const     = "number_42"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber45Const     = "number_45"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber48Const     = "number_48"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber49Const     = "number_49"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber5Const      = "number_5"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber52Const     = "number_52"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber53Const     = "number_53"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber54Const     = "number_54"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber55Const     = "number_55"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber56Const     = "number_56"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber57Const     = "number_57"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber61Const     = "number_61"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber62Const     = "number_62"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber63Const     = "number_63"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber64Const     = "number_64"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber65Const     = "number_65"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber66Const     = "number_66"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber67Const     = "number_67"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber68Const     = "number_68"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber69Const     = "number_69"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber7Const      = "number_7"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber70Const     = "number_70"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber71Const     = "number_71"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber72Const     = "number_72"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber73Const     = "number_73"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber74Const     = "number_74"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber75Const     = "number_75"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber76Const     = "number_76"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber77Const     = "number_77"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber78Const     = "number_78"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber79Const     = "number_79"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber8Const      = "number_8"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber80Const     = "number_80"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber81Const     = "number_81"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber82Const     = "number_82"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber83Const     = "number_83"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber84Const     = "number_84"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber85Const     = "number_85"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber86Const     = "number_86"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber87Const     = "number_87"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber88Const     = "number_88"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber89Const     = "number_89"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber9Const      = "number_9"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber90Const     = "number_90"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber91Const     = "number_91"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber92Const     = "number_92"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber93Const     = "number_93"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber94Const     = "number_94"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber95Const     = "number_95"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber96Const     = "number_96"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber97Const     = "number_97"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber98Const     = "number_98"
+	NetworkACLRulePrototypeNetworkACLContextProtocolNumber99Const     = "number_99"
+	NetworkACLRulePrototypeNetworkACLContextProtocolRsvpConst         = "rsvp"
+	NetworkACLRulePrototypeNetworkACLContextProtocolSctpConst         = "sctp"
+	NetworkACLRulePrototypeNetworkACLContextProtocolTCPConst          = "tcp"
+	NetworkACLRulePrototypeNetworkACLContextProtocolUDPConst          = "udp"
+	NetworkACLRulePrototypeNetworkACLContextProtocolVrrpConst         = "vrrp"
 )
 
 func (*NetworkACLRulePrototypeNetworkACLContext) isaNetworkACLRulePrototypeNetworkACLContext() bool {
@@ -97209,9 +97413,6 @@ type PublicAddressRange struct {
 	AuthorizedCIDR *PublicAddressRangeAuthorizedCIDRReference `json:"authorized_cidr,omitempty"`
 
 	// The public IP address block for this public address range, expressed in CIDR format.
-	//
-	// This property may [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support IPv6 address
-	// blocks in the future.
 	CIDR *string `json:"cidr" validate:"required"`
 
 	// The date and time that the public address range was created.
@@ -97264,6 +97465,7 @@ type PublicAddressRange struct {
 // The IP version for this public address range.
 const (
 	PublicAddressRangeIPVersionIpv4Const = "ipv4"
+	PublicAddressRangeIPVersionIpv6Const = "ipv6"
 )
 
 // Constants associated with the PublicAddressRange.LifecycleState property.
@@ -97381,9 +97583,6 @@ type PublicAddressRangeAuthorizedCIDR struct {
 	AvailabilityMode *string `json:"availability_mode" validate:"required"`
 
 	// The public IP address block for the public address range authorized CIDR, expressed in CIDR format.
-	//
-	// This property may [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support IPv6 address
-	// blocks in the future.
 	CIDR *string `json:"cidr" validate:"required"`
 
 	// The CRN for this public address range authorized CIDR.
@@ -97397,9 +97596,7 @@ type PublicAddressRangeAuthorizedCIDR struct {
 
 	// The IP version for this public address range authorized CIDR:
 	// - `ipv4`: An IPv4 public address range authorized CIDR.
-	//
-	// The enumerated values for this property may
-	// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.
+	// - `ipv6`: An IPv6 public address range authorized CIDR.
 	IPVersion *string `json:"ip_version" validate:"required"`
 
 	// The reasons for the current `lifecycle_state` (if any).
@@ -97443,11 +97640,10 @@ const (
 // Constants associated with the PublicAddressRangeAuthorizedCIDR.IPVersion property.
 // The IP version for this public address range authorized CIDR:
 // - `ipv4`: An IPv4 public address range authorized CIDR.
-//
-// The enumerated values for this property may
-// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.
+// - `ipv6`: An IPv6 public address range authorized CIDR.
 const (
 	PublicAddressRangeAuthorizedCIDRIPVersionIpv4Const = "ipv4"
+	PublicAddressRangeAuthorizedCIDRIPVersionIpv6Const = "ipv6"
 )
 
 // Constants associated with the PublicAddressRangeAuthorizedCIDR.LifecycleState property.
@@ -97686,9 +97882,6 @@ type PublicAddressRangeAuthorizedCIDRAllocationItem struct {
 	ResourceType *string `json:"resource_type,omitempty"`
 
 	// The public IP address block for this public address range, expressed in CIDR format.
-	//
-	// This property may [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support IPv6 address
-	// blocks in the future.
 	CIDR *string `json:"cidr,omitempty"`
 }
 
@@ -97819,6 +98012,62 @@ func (resp *PublicAddressRangeAuthorizedCIDRCollection) GetNextStart() (*string,
 	return start, nil
 }
 
+// PublicAddressRangeAuthorizedCIDRIdentity : Identifies a public address range authorized CIDR by a unique property.
+// Models which "extend" this model:
+// - PublicAddressRangeAuthorizedCIDRIdentityByID
+// - PublicAddressRangeAuthorizedCIDRIdentityByCRN
+// - PublicAddressRangeAuthorizedCIDRIdentityByHref
+// - PublicAddressRangeAuthorizedCIDRIdentityByName
+type PublicAddressRangeAuthorizedCIDRIdentity struct {
+	// The unique identifier for this public address range authorized CIDR.
+	ID *string `json:"id,omitempty"`
+
+	// The CRN for this public address range authorized CIDR.
+	CRN *string `json:"crn,omitempty"`
+
+	// The URL for this public address range authorized CIDR.
+	Href *string `json:"href,omitempty"`
+
+	// The name for this public address range authorized CIDR. The name is unique across all public address range
+	// authorized CIDRs in the region.
+	Name *string `json:"name,omitempty"`
+}
+
+func (*PublicAddressRangeAuthorizedCIDRIdentity) isaPublicAddressRangeAuthorizedCIDRIdentity() bool {
+	return true
+}
+
+type PublicAddressRangeAuthorizedCIDRIdentityIntf interface {
+	isaPublicAddressRangeAuthorizedCIDRIdentity() bool
+}
+
+// UnmarshalPublicAddressRangeAuthorizedCIDRIdentity unmarshals an instance of PublicAddressRangeAuthorizedCIDRIdentity from the specified map of raw messages.
+func UnmarshalPublicAddressRangeAuthorizedCIDRIdentity(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(PublicAddressRangeAuthorizedCIDRIdentity)
+	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "id-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "crn-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "href-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
 // PublicAddressRangeAuthorizedCIDRLifecycleReason : PublicAddressRangeAuthorizedCIDRLifecycleReason struct
 type PublicAddressRangeAuthorizedCIDRLifecycleReason struct {
 	// A reason code for this lifecycle state:
@@ -97869,12 +98118,136 @@ func UnmarshalPublicAddressRangeAuthorizedCIDRLifecycleReason(m map[string]json.
 	return
 }
 
+// PublicAddressRangeAuthorizedCIDRPatch : PublicAddressRangeAuthorizedCIDRPatch struct
+type PublicAddressRangeAuthorizedCIDRPatch struct {
+	// The name for this public address range authorized CIDR. The name must not be used by another public address range
+	// authorized CIDR in the region. Names beginning with
+	// `ibm-` are reserved for provider-managed resources, and are not allowed.
+	//
+	// If the current `name` begins with `ibm-`, then the authorized CIDR is managed by the provider and is not allowed to
+	// be updated.
+	Name *string `json:"name,omitempty"`
+}
+
+// UnmarshalPublicAddressRangeAuthorizedCIDRPatch unmarshals an instance of PublicAddressRangeAuthorizedCIDRPatch from the specified map of raw messages.
+func UnmarshalPublicAddressRangeAuthorizedCIDRPatch(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(PublicAddressRangeAuthorizedCIDRPatch)
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// AsPatch returns a generic map representation of the PublicAddressRangeAuthorizedCIDRPatch
+func (publicAddressRangeAuthorizedCIDRPatch *PublicAddressRangeAuthorizedCIDRPatch) AsPatch() (_patch map[string]interface{}, err error) {
+	_patch = map[string]interface{}{}
+	if !core.IsNil(publicAddressRangeAuthorizedCIDRPatch.Name) {
+		_patch["name"] = publicAddressRangeAuthorizedCIDRPatch.Name
+	}
+
+	return
+}
+
+// PublicAddressRangeAuthorizedCIDRPrototype : The availability mode to use for the public address range authorized CIDR.
+//   - `zonal`: Resources allocated from the authorized CIDR must reside in the authorized
+//     CIDR's `zone`.
+//
+// Models which "extend" this model:
+// - PublicAddressRangeAuthorizedCIDRPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototype
+type PublicAddressRangeAuthorizedCIDRPrototype struct {
+	// The IP version for this public address range authorized CIDR:
+	// - `ipv6`: An IPv6 public address range authorized CIDR.
+	IPVersion *string `json:"ip_version" validate:"required"`
+
+	// The name for this public address range authorized CIDR. The name must not be used by another public address range
+	// authorized CIDR in the region. Names beginning with
+	// `ibm-` are reserved for provider-managed resources, and are not allowed.
+	//
+	// If unspecified, the name will be a hyphenated list of randomly-selected words.
+	Name *string `json:"name,omitempty"`
+
+	// The resource group to use. If unspecified, the account's [default resource
+	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) will be used.
+	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
+
+	// The availability mode of the public address range authorized CIDR:
+	// - `zonal`: Resources allocated from the authorized CIDR must reside in the authorized
+	//   CIDR's `zone`.
+	AvailabilityMode *string `json:"availability_mode,omitempty"`
+
+	// The zone this public address range authorized CIDR will reside in.
+	Zone ZoneIdentityIntf `json:"zone,omitempty"`
+
+	// The network prefix length for this public address range authorized CIDR.
+	NetworkPrefixLength *int64 `json:"network_prefix_length,omitempty"`
+}
+
+// Constants associated with the PublicAddressRangeAuthorizedCIDRPrototype.IPVersion property.
+// The IP version for this public address range authorized CIDR:
+// - `ipv6`: An IPv6 public address range authorized CIDR.
+const (
+	PublicAddressRangeAuthorizedCIDRPrototypeIPVersionIpv6Const = "ipv6"
+)
+
+// Constants associated with the PublicAddressRangeAuthorizedCIDRPrototype.AvailabilityMode property.
+// The availability mode of the public address range authorized CIDR:
+//   - `zonal`: Resources allocated from the authorized CIDR must reside in the authorized
+//     CIDR's `zone`.
+const (
+	PublicAddressRangeAuthorizedCIDRPrototypeAvailabilityModeZonalConst = "zonal"
+)
+
+func (*PublicAddressRangeAuthorizedCIDRPrototype) isaPublicAddressRangeAuthorizedCIDRPrototype() bool {
+	return true
+}
+
+type PublicAddressRangeAuthorizedCIDRPrototypeIntf interface {
+	isaPublicAddressRangeAuthorizedCIDRPrototype() bool
+}
+
+// UnmarshalPublicAddressRangeAuthorizedCIDRPrototype unmarshals an instance of PublicAddressRangeAuthorizedCIDRPrototype from the specified map of raw messages.
+func UnmarshalPublicAddressRangeAuthorizedCIDRPrototype(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(PublicAddressRangeAuthorizedCIDRPrototype)
+	err = core.UnmarshalPrimitive(m, "ip_version", &obj.IPVersion)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "ip_version-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "resource_group", &obj.ResourceGroup, UnmarshalResourceGroupIdentity)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "resource_group-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "availability_mode", &obj.AvailabilityMode)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "availability_mode-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "zone", &obj.Zone, UnmarshalZoneIdentity)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "zone-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "network_prefix_length", &obj.NetworkPrefixLength)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "network_prefix_length-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
 // PublicAddressRangeAuthorizedCIDRReference : PublicAddressRangeAuthorizedCIDRReference struct
 type PublicAddressRangeAuthorizedCIDRReference struct {
 	// The public IP address block for the public address range authorized CIDR, expressed in CIDR format.
-	//
-	// This property may [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support IPv6 address
-	// blocks in the future.
 	CIDR *string `json:"cidr" validate:"required"`
 
 	// The CRN for this public address range authorized CIDR.
@@ -98076,9 +98449,6 @@ type PublicAddressRangePatch struct {
 
 	// The target to bind this public address range to.
 	//
-	// If the public address range is not currently bound to a target, both `target.vpc` and
-	// `target.zone` must be specified.
-	//
 	// Specify `null` to unbind the public address range from any existing target.
 	Target *PublicAddressRangeTargetPatch `json:"target,omitempty"`
 }
@@ -98130,9 +98500,7 @@ type PublicAddressRangeProfile struct {
 
 	// The IP version for public address ranges with this profile:
 	// - `ipv4`: An IPv4 public address range.
-	//
-	// The enumerated values for this property may
-	// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.
+	// - `ipv6`: An IPv6 public address range.
 	IPVersion *string `json:"ip_version" validate:"required"`
 
 	// The globally unique name for this public address range profile.
@@ -98140,6 +98508,8 @@ type PublicAddressRangeProfile struct {
 
 	// The resource type.
 	ResourceType *string `json:"resource_type" validate:"required"`
+
+	TargetableResourceTypes *PublicAddressRangeProfileTargetableResourceTypes `json:"targetable_resource_types" validate:"required"`
 }
 
 // Constants associated with the PublicAddressRangeProfile.Family property.
@@ -98159,11 +98529,10 @@ const (
 // Constants associated with the PublicAddressRangeProfile.IPVersion property.
 // The IP version for public address ranges with this profile:
 // - `ipv4`: An IPv4 public address range.
-//
-// The enumerated values for this property may
-// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.
+// - `ipv6`: An IPv6 public address range.
 const (
 	PublicAddressRangeProfileIPVersionIpv4Const = "ipv4"
+	PublicAddressRangeProfileIPVersionIpv6Const = "ipv6"
 )
 
 // Constants associated with the PublicAddressRangeProfile.ResourceType property.
@@ -98198,6 +98567,11 @@ func UnmarshalPublicAddressRangeProfile(m map[string]json.RawMessage, result int
 	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "resource_type-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "targetable_resource_types", &obj.TargetableResourceTypes, UnmarshalPublicAddressRangeProfileTargetableResourceTypes)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "targetable_resource_types-error", common.GetComponentInfo())
 		return
 	}
 	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
@@ -98310,10 +98684,63 @@ func UnmarshalPublicAddressRangeProfileReference(m map[string]json.RawMessage, r
 	return
 }
 
+// PublicAddressRangeProfileTargetableResourceTypes : PublicAddressRangeProfileTargetableResourceTypes struct
+type PublicAddressRangeProfileTargetableResourceTypes struct {
+	// The type for this profile field.
+	Type *string `json:"type" validate:"required"`
+
+	// The resource types that public address ranges with this profile can target.
+	//
+	// If empty, the public address range cannot target a resource. Instead, public address ranges or floating IPs can be
+	// allocated from the public address range with this profile.
+	Values []string `json:"values" validate:"required"`
+}
+
+// Constants associated with the PublicAddressRangeProfileTargetableResourceTypes.Type property.
+// The type for this profile field.
+const (
+	PublicAddressRangeProfileTargetableResourceTypesTypeEnumConst = "enum"
+)
+
+// Constants associated with the PublicAddressRangeProfileTargetableResourceTypes.Values property.
+// A resource type that can be targeted by the public address range:
+//   - `virtual_network_interface`: Incoming traffic for IP addresses in the public address
+//     range will be routed to the virtual network interface. Outgoing traffic from the virtual
+//     network interface to the public internet will be allowed (subject to security groups) if
+//     the source IP addresses are in the public address range.
+//   - `vpc`: Incoming traffic for IP addresses in the public address range will be routed to a
+//     zone in the VPC. The `zone` must be specified when specifying the `vpc`. VPC ingress
+//     routing table routes must be configured to forward packets with destination IPs in the
+//     public address range to endpoints in the zone in the VPC. Outgoing traffic from the VPC
+//     to the public internet will be allowed (subject to security groups) if the source IP
+//     addresses are in the public address range.
+const (
+	PublicAddressRangeProfileTargetableResourceTypesValuesVPCConst                     = "vpc"
+	PublicAddressRangeProfileTargetableResourceTypesValuesVirtualNetworkInterfaceConst = "virtual_network_interface"
+)
+
+// UnmarshalPublicAddressRangeProfileTargetableResourceTypes unmarshals an instance of PublicAddressRangeProfileTargetableResourceTypes from the specified map of raw messages.
+func UnmarshalPublicAddressRangeProfileTargetableResourceTypes(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(PublicAddressRangeProfileTargetableResourceTypes)
+	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "type-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "values", &obj.Values)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "values-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
 // PublicAddressRangePrototype : PublicAddressRangePrototype struct
 // Models which "extend" this model:
 // - PublicAddressRangePrototypePublicAddressRangeByCIDR
 // - PublicAddressRangePrototypePublicAddressRangeByIPv4AddressCount
+// - PublicAddressRangePrototypePublicAddressRangeByNetworkPrefixLength
 type PublicAddressRangePrototype struct {
 	// The name for this public address range. The name must not be used by another public address range in the region.
 	// Names starting with `ibm-` are reserved for provider-managed resources, and are not allowed. If unspecified, the
@@ -98326,16 +98753,23 @@ type PublicAddressRangePrototype struct {
 
 	// The target to bind this public address range to. If unspecified, the public address
 	// range will not be bound to a target at creation.
-	Target *PublicAddressRangeTargetPrototype `json:"target,omitempty"`
+	Target PublicAddressRangeTargetPrototypeIntf `json:"target,omitempty"`
 
 	// The public IP address block for this public address range, expressed in CIDR format.
-	//
-	// This property may [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support IPv6 address
-	// blocks in the future.
 	CIDR *string `json:"cidr,omitempty"`
 
 	// The total number of public IPv4 addresses required. Must be a power of 2.
 	Ipv4AddressCount *int64 `json:"ipv4_address_count,omitempty"`
+
+	// The authorized CIDR to allocate the public address range from. The authorized CIDR must
+	// have:
+	// - an `ip_version` value of `ipv6`, and
+	// - a contiguous unallocated block of at least 2 to the power of
+	//   (128-`network_prefix_length`) addresses.
+	AuthorizedCIDR PublicAddressRangeAuthorizedCIDRIdentityIntf `json:"authorized_cidr,omitempty"`
+
+	// The network prefix length for this public address range.
+	NetworkPrefixLength *int64 `json:"network_prefix_length,omitempty"`
 }
 
 func (*PublicAddressRangePrototype) isaPublicAddressRangePrototype() bool {
@@ -98374,6 +98808,16 @@ func UnmarshalPublicAddressRangePrototype(m map[string]json.RawMessage, result i
 		err = core.SDKErrorf(err, "", "ipv4_address_count-error", common.GetComponentInfo())
 		return
 	}
+	err = core.UnmarshalModel(m, "authorized_cidr", &obj.AuthorizedCIDR, UnmarshalPublicAddressRangeAuthorizedCIDRIdentity)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "authorized_cidr-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "network_prefix_length", &obj.NetworkPrefixLength)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "network_prefix_length-error", common.GetComponentInfo())
+		return
+	}
 	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
 	return
 }
@@ -98381,9 +98825,6 @@ func UnmarshalPublicAddressRangePrototype(m map[string]json.RawMessage, result i
 // PublicAddressRangeReference : PublicAddressRangeReference struct
 type PublicAddressRangeReference struct {
 	// The public IP address block for this public address range, expressed in CIDR format.
-	//
-	// This property may [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support IPv6 address
-	// blocks in the future.
 	CIDR *string `json:"cidr" validate:"required"`
 
 	// The CRN for this public address range.
@@ -98462,6 +98903,9 @@ func UnmarshalPublicAddressRangeReference(m map[string]json.RawMessage, result i
 // [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future. Future targets may omit the `vpc`
 // property.
 type PublicAddressRangeTarget struct {
+	// The virtual network interface this public address range is bound to.
+	VirtualNetworkInterface *VirtualNetworkInterfaceReference `json:"virtual_network_interface,omitempty"`
+
 	// The VPC this public address range is bound to.
 	VPC *VPCReference `json:"vpc,omitempty"`
 
@@ -98472,6 +98916,11 @@ type PublicAddressRangeTarget struct {
 // UnmarshalPublicAddressRangeTarget unmarshals an instance of PublicAddressRangeTarget from the specified map of raw messages.
 func UnmarshalPublicAddressRangeTarget(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(PublicAddressRangeTarget)
+	err = core.UnmarshalModel(m, "virtual_network_interface", &obj.VirtualNetworkInterface, UnmarshalVirtualNetworkInterfaceReference)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "virtual_network_interface-error", common.GetComponentInfo())
+		return
+	}
 	err = core.UnmarshalModel(m, "vpc", &obj.VPC, UnmarshalVPCReference)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "vpc-error", common.GetComponentInfo())
@@ -98488,24 +98937,43 @@ func UnmarshalPublicAddressRangeTarget(m map[string]json.RawMessage, result inte
 
 // PublicAddressRangeTargetPatch : The target to bind this public address range to.
 //
-// If the public address range is not currently bound to a target, both `target.vpc` and
-// `target.zone` must be specified.
-//
 // Specify `null` to unbind the public address range from any existing target.
 type PublicAddressRangeTargetPatch struct {
-	// The VPC to bind this public address range to, replacing any existing VPC.
+	// The virtual network interface to bind this public address range to. Supported by
+	// public address range profiles with `virtual_network_interface` included in
+	// `targetable_resource_types`.
+	//
+	// The virtual network interface must not be bound to a share mount target. If the public
+	// address range was allocated from an authorized CIDR with an `availability_mode` value
+	// of `zonal`, then the virtual network interface must reside in the same zone as the
+	// authorized CIDR.
+	VirtualNetworkInterface VirtualNetworkInterfaceIdentityIntf `json:"virtual_network_interface,omitempty"`
+
+	// The VPC to bind this public address range to, replacing any existing VPC. Supported by
+	// public address range profiles with `vpc` included in `targetable_resource_types`.
+	//
+	// If the public address range is not currently bound to a target, `target.zone` must
+	// also be specified.
 	VPC VPCIdentityIntf `json:"vpc,omitempty"`
 
 	// The zone this public address range will reside in, replacing any existing zone.
 	//
-	// Must have the same value as the `zone` for the public address range authorized CIDR
-	// this public address range is allocated from, if set.
+	// If the public address range is not currently bound to a target, `target.vpc` must
+	// also be specified.
+	//
+	// This property cannot be changed if the public address range was allocated from an
+	// authorized CIDR with an `availability_mode` value of `zonal`.
 	Zone ZoneIdentityIntf `json:"zone,omitempty"`
 }
 
 // UnmarshalPublicAddressRangeTargetPatch unmarshals an instance of PublicAddressRangeTargetPatch from the specified map of raw messages.
 func UnmarshalPublicAddressRangeTargetPatch(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(PublicAddressRangeTargetPatch)
+	err = core.UnmarshalModel(m, "virtual_network_interface", &obj.VirtualNetworkInterface, UnmarshalVirtualNetworkInterfaceIdentity)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "virtual_network_interface-error", common.GetComponentInfo())
+		return
+	}
 	err = core.UnmarshalModel(m, "vpc", &obj.VPC, UnmarshalVPCIdentity)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "vpc-error", common.GetComponentInfo())
@@ -98523,6 +98991,9 @@ func UnmarshalPublicAddressRangeTargetPatch(m map[string]json.RawMessage, result
 // asPatch returns a generic map representation of the PublicAddressRangeTargetPatch
 func (publicAddressRangeTargetPatch *PublicAddressRangeTargetPatch) asPatch() (_patch map[string]interface{}) {
 	_patch = map[string]interface{}{}
+	if !core.IsNil(publicAddressRangeTargetPatch.VirtualNetworkInterface) {
+		_patch["virtual_network_interface"] = publicAddressRangeTargetPatch.VirtualNetworkInterface.asPatch()
+	}
 	if !core.IsNil(publicAddressRangeTargetPatch.VPC) {
 		_patch["vpc"] = publicAddressRangeTargetPatch.VPC.asPatch()
 	}
@@ -98535,33 +99006,39 @@ func (publicAddressRangeTargetPatch *PublicAddressRangeTargetPatch) asPatch() (_
 
 // PublicAddressRangeTargetPrototype : The target to bind this public address range to. If unspecified, the public address range will not be bound to a
 // target at creation.
+// Models which "extend" this model:
+// - PublicAddressRangeTargetPrototypePublicAddressRangeTargetByVirtualNetworkInterface
+// - PublicAddressRangeTargetPrototypePublicAddressRangeTargetByVPCZone
 type PublicAddressRangeTargetPrototype struct {
+	// Identifies a virtual network interface by a unique property.
+	VirtualNetworkInterface VirtualNetworkInterfaceIdentityIntf `json:"virtual_network_interface,omitempty"`
+
 	// The VPC to bind this public address range to.
-	VPC VPCIdentityIntf `json:"vpc" validate:"required"`
+	VPC VPCIdentityIntf `json:"vpc,omitempty"`
 
 	// The zone this public address range will reside in.
 	//
 	// Must have the same value as the `zone` for the public address range authorized CIDR
 	// this public address range is allocated from, if set.
-	Zone ZoneIdentityIntf `json:"zone" validate:"required"`
+	Zone ZoneIdentityIntf `json:"zone,omitempty"`
 }
 
-// NewPublicAddressRangeTargetPrototype : Instantiate PublicAddressRangeTargetPrototype (Generic Model Constructor)
-func (*VpcV1) NewPublicAddressRangeTargetPrototype(vpc VPCIdentityIntf, zone ZoneIdentityIntf) (_model *PublicAddressRangeTargetPrototype, err error) {
-	_model = &PublicAddressRangeTargetPrototype{
-		VPC:  vpc,
-		Zone: zone,
-	}
-	err = core.ValidateStruct(_model, "required parameters")
-	if err != nil {
-		err = core.SDKErrorf(err, "", "model-missing-required", common.GetComponentInfo())
-	}
-	return
+func (*PublicAddressRangeTargetPrototype) isaPublicAddressRangeTargetPrototype() bool {
+	return true
+}
+
+type PublicAddressRangeTargetPrototypeIntf interface {
+	isaPublicAddressRangeTargetPrototype() bool
 }
 
 // UnmarshalPublicAddressRangeTargetPrototype unmarshals an instance of PublicAddressRangeTargetPrototype from the specified map of raw messages.
 func UnmarshalPublicAddressRangeTargetPrototype(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(PublicAddressRangeTargetPrototype)
+	err = core.UnmarshalModel(m, "virtual_network_interface", &obj.VirtualNetworkInterface, UnmarshalVirtualNetworkInterfaceIdentity)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "virtual_network_interface-error", common.GetComponentInfo())
+		return
+	}
 	err = core.UnmarshalModel(m, "vpc", &obj.VPC, UnmarshalVPCIdentity)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "vpc-error", common.GetComponentInfo())
@@ -103261,8 +103738,10 @@ func UnmarshalSecurityGroupReference(m map[string]json.RawMessage, result interf
 // - SecurityGroupRuleProtocolAny
 // - SecurityGroupRuleProtocolIcmptcpudp
 // - SecurityGroupRuleSecurityGroupRuleProtocolIcmp
+// - SecurityGroupRuleProtocolIPv6Icmp
 // - SecurityGroupRuleSecurityGroupRuleProtocolTcpudp
 // - SecurityGroupRuleProtocolIndividual
+// - SecurityGroupRuleProtocolIndividualIPv6
 type SecurityGroupRule struct {
 	// The direction of traffic to allow.
 	Direction *string `json:"direction" validate:"required"`
@@ -103277,14 +103756,12 @@ type SecurityGroupRule struct {
 	//
 	// If `remote` references a security group, then this rule only applies to IP addresses in that group matching this IP
 	// version.
-	//
-	// The enumerated values for this property may
-	// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support `ipv6` in the future.
 	IPVersion *string `json:"ip_version" validate:"required"`
 
 	// The local IP address or range of local IP addresses to which this rule will allow inbound
-	// traffic (or from which, for outbound traffic). A CIDR block of `0.0.0.0/0` allows traffic
-	// to all local IP addresses (or from all local IP addresses, for outbound rules).
+	// traffic (or from which, for outbound traffic). A CIDR block of `0.0.0.0/0` (or `::/0`, if
+	// `ip_version` is `ipv6`) allows traffic to all local IP addresses (or from all local IP
+	// addresses, for outbound rules).
 	Local SecurityGroupRuleLocalIntf `json:"local" validate:"required"`
 
 	// The name for this security group rule. The name is unique across all rules in the security group.
@@ -103297,8 +103774,8 @@ type SecurityGroupRule struct {
 	Protocol *string `json:"protocol" validate:"required"`
 
 	// The remote IP addresses or security groups from which this rule allows traffic (or to
-	// which, for outbound rules). A CIDR block of `0.0.0.0/0` allows traffic from any source
-	// (or to any destination, for outbound rules).
+	// which, for outbound rules). A CIDR block of `0.0.0.0/0` (or `::/0`, if `ip_version` is
+	// `ipv6`) allows traffic from any source (or to any destination, for outbound rules).
 	Remote SecurityGroupRuleRemoteIntf `json:"remote" validate:"required"`
 
 	// The resource type.
@@ -103329,11 +103806,9 @@ const (
 //
 // If `remote` references a security group, then this rule only applies to IP addresses in that group matching this IP
 // version.
-//
-// The enumerated values for this property may
-// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support `ipv6` in the future.
 const (
 	SecurityGroupRuleIPVersionIpv4Const = "ipv4"
+	SecurityGroupRuleIPVersionIpv6Const = "ipv6"
 )
 
 // Constants associated with the SecurityGroupRule.Protocol property.
@@ -103342,264 +103817,264 @@ const (
 // The enumerated values for this property may
 // [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.
 const (
-	SecurityGroupRuleProtocolAhConst         = "ah"
-	SecurityGroupRuleProtocolAnyConst        = "any"
-	SecurityGroupRuleProtocolEspConst        = "esp"
-	SecurityGroupRuleProtocolGreConst        = "gre"
-	SecurityGroupRuleProtocolIPInIPConst     = "ip_in_ip"
-	SecurityGroupRuleProtocolIcmpConst       = "icmp"
-	SecurityGroupRuleProtocolIcmpTCPUDPConst = "icmp_tcp_udp"
-	SecurityGroupRuleProtocolL2tpConst       = "l2tp"
-	SecurityGroupRuleProtocolNumber0Const    = "number_0"
-	SecurityGroupRuleProtocolNumber10Const   = "number_10"
-	SecurityGroupRuleProtocolNumber100Const  = "number_100"
-	SecurityGroupRuleProtocolNumber101Const  = "number_101"
-	SecurityGroupRuleProtocolNumber102Const  = "number_102"
-	SecurityGroupRuleProtocolNumber103Const  = "number_103"
-	SecurityGroupRuleProtocolNumber104Const  = "number_104"
-	SecurityGroupRuleProtocolNumber105Const  = "number_105"
-	SecurityGroupRuleProtocolNumber106Const  = "number_106"
-	SecurityGroupRuleProtocolNumber107Const  = "number_107"
-	SecurityGroupRuleProtocolNumber108Const  = "number_108"
-	SecurityGroupRuleProtocolNumber109Const  = "number_109"
-	SecurityGroupRuleProtocolNumber11Const   = "number_11"
-	SecurityGroupRuleProtocolNumber110Const  = "number_110"
-	SecurityGroupRuleProtocolNumber111Const  = "number_111"
-	SecurityGroupRuleProtocolNumber113Const  = "number_113"
-	SecurityGroupRuleProtocolNumber114Const  = "number_114"
-	SecurityGroupRuleProtocolNumber116Const  = "number_116"
-	SecurityGroupRuleProtocolNumber117Const  = "number_117"
-	SecurityGroupRuleProtocolNumber118Const  = "number_118"
-	SecurityGroupRuleProtocolNumber119Const  = "number_119"
-	SecurityGroupRuleProtocolNumber12Const   = "number_12"
-	SecurityGroupRuleProtocolNumber120Const  = "number_120"
-	SecurityGroupRuleProtocolNumber121Const  = "number_121"
-	SecurityGroupRuleProtocolNumber122Const  = "number_122"
-	SecurityGroupRuleProtocolNumber123Const  = "number_123"
-	SecurityGroupRuleProtocolNumber124Const  = "number_124"
-	SecurityGroupRuleProtocolNumber125Const  = "number_125"
-	SecurityGroupRuleProtocolNumber126Const  = "number_126"
-	SecurityGroupRuleProtocolNumber127Const  = "number_127"
-	SecurityGroupRuleProtocolNumber128Const  = "number_128"
-	SecurityGroupRuleProtocolNumber129Const  = "number_129"
-	SecurityGroupRuleProtocolNumber13Const   = "number_13"
-	SecurityGroupRuleProtocolNumber130Const  = "number_130"
-	SecurityGroupRuleProtocolNumber131Const  = "number_131"
-	SecurityGroupRuleProtocolNumber133Const  = "number_133"
-	SecurityGroupRuleProtocolNumber134Const  = "number_134"
-	SecurityGroupRuleProtocolNumber135Const  = "number_135"
-	SecurityGroupRuleProtocolNumber136Const  = "number_136"
-	SecurityGroupRuleProtocolNumber137Const  = "number_137"
-	SecurityGroupRuleProtocolNumber138Const  = "number_138"
-	SecurityGroupRuleProtocolNumber139Const  = "number_139"
-	SecurityGroupRuleProtocolNumber14Const   = "number_14"
-	SecurityGroupRuleProtocolNumber140Const  = "number_140"
-	SecurityGroupRuleProtocolNumber141Const  = "number_141"
-	SecurityGroupRuleProtocolNumber142Const  = "number_142"
-	SecurityGroupRuleProtocolNumber143Const  = "number_143"
-	SecurityGroupRuleProtocolNumber144Const  = "number_144"
-	SecurityGroupRuleProtocolNumber145Const  = "number_145"
-	SecurityGroupRuleProtocolNumber146Const  = "number_146"
-	SecurityGroupRuleProtocolNumber147Const  = "number_147"
-	SecurityGroupRuleProtocolNumber148Const  = "number_148"
-	SecurityGroupRuleProtocolNumber149Const  = "number_149"
-	SecurityGroupRuleProtocolNumber15Const   = "number_15"
-	SecurityGroupRuleProtocolNumber150Const  = "number_150"
-	SecurityGroupRuleProtocolNumber151Const  = "number_151"
-	SecurityGroupRuleProtocolNumber152Const  = "number_152"
-	SecurityGroupRuleProtocolNumber153Const  = "number_153"
-	SecurityGroupRuleProtocolNumber154Const  = "number_154"
-	SecurityGroupRuleProtocolNumber155Const  = "number_155"
-	SecurityGroupRuleProtocolNumber156Const  = "number_156"
-	SecurityGroupRuleProtocolNumber157Const  = "number_157"
-	SecurityGroupRuleProtocolNumber158Const  = "number_158"
-	SecurityGroupRuleProtocolNumber159Const  = "number_159"
-	SecurityGroupRuleProtocolNumber16Const   = "number_16"
-	SecurityGroupRuleProtocolNumber160Const  = "number_160"
-	SecurityGroupRuleProtocolNumber161Const  = "number_161"
-	SecurityGroupRuleProtocolNumber162Const  = "number_162"
-	SecurityGroupRuleProtocolNumber163Const  = "number_163"
-	SecurityGroupRuleProtocolNumber164Const  = "number_164"
-	SecurityGroupRuleProtocolNumber165Const  = "number_165"
-	SecurityGroupRuleProtocolNumber166Const  = "number_166"
-	SecurityGroupRuleProtocolNumber167Const  = "number_167"
-	SecurityGroupRuleProtocolNumber168Const  = "number_168"
-	SecurityGroupRuleProtocolNumber169Const  = "number_169"
-	SecurityGroupRuleProtocolNumber170Const  = "number_170"
-	SecurityGroupRuleProtocolNumber171Const  = "number_171"
-	SecurityGroupRuleProtocolNumber172Const  = "number_172"
-	SecurityGroupRuleProtocolNumber173Const  = "number_173"
-	SecurityGroupRuleProtocolNumber174Const  = "number_174"
-	SecurityGroupRuleProtocolNumber175Const  = "number_175"
-	SecurityGroupRuleProtocolNumber176Const  = "number_176"
-	SecurityGroupRuleProtocolNumber177Const  = "number_177"
-	SecurityGroupRuleProtocolNumber178Const  = "number_178"
-	SecurityGroupRuleProtocolNumber179Const  = "number_179"
-	SecurityGroupRuleProtocolNumber18Const   = "number_18"
-	SecurityGroupRuleProtocolNumber180Const  = "number_180"
-	SecurityGroupRuleProtocolNumber181Const  = "number_181"
-	SecurityGroupRuleProtocolNumber182Const  = "number_182"
-	SecurityGroupRuleProtocolNumber183Const  = "number_183"
-	SecurityGroupRuleProtocolNumber184Const  = "number_184"
-	SecurityGroupRuleProtocolNumber185Const  = "number_185"
-	SecurityGroupRuleProtocolNumber186Const  = "number_186"
-	SecurityGroupRuleProtocolNumber187Const  = "number_187"
-	SecurityGroupRuleProtocolNumber188Const  = "number_188"
-	SecurityGroupRuleProtocolNumber189Const  = "number_189"
-	SecurityGroupRuleProtocolNumber19Const   = "number_19"
-	SecurityGroupRuleProtocolNumber190Const  = "number_190"
-	SecurityGroupRuleProtocolNumber191Const  = "number_191"
-	SecurityGroupRuleProtocolNumber192Const  = "number_192"
-	SecurityGroupRuleProtocolNumber193Const  = "number_193"
-	SecurityGroupRuleProtocolNumber194Const  = "number_194"
-	SecurityGroupRuleProtocolNumber195Const  = "number_195"
-	SecurityGroupRuleProtocolNumber196Const  = "number_196"
-	SecurityGroupRuleProtocolNumber197Const  = "number_197"
-	SecurityGroupRuleProtocolNumber198Const  = "number_198"
-	SecurityGroupRuleProtocolNumber199Const  = "number_199"
-	SecurityGroupRuleProtocolNumber2Const    = "number_2"
-	SecurityGroupRuleProtocolNumber20Const   = "number_20"
-	SecurityGroupRuleProtocolNumber200Const  = "number_200"
-	SecurityGroupRuleProtocolNumber201Const  = "number_201"
-	SecurityGroupRuleProtocolNumber202Const  = "number_202"
-	SecurityGroupRuleProtocolNumber203Const  = "number_203"
-	SecurityGroupRuleProtocolNumber204Const  = "number_204"
-	SecurityGroupRuleProtocolNumber205Const  = "number_205"
-	SecurityGroupRuleProtocolNumber206Const  = "number_206"
-	SecurityGroupRuleProtocolNumber207Const  = "number_207"
-	SecurityGroupRuleProtocolNumber208Const  = "number_208"
-	SecurityGroupRuleProtocolNumber209Const  = "number_209"
-	SecurityGroupRuleProtocolNumber21Const   = "number_21"
-	SecurityGroupRuleProtocolNumber210Const  = "number_210"
-	SecurityGroupRuleProtocolNumber211Const  = "number_211"
-	SecurityGroupRuleProtocolNumber212Const  = "number_212"
-	SecurityGroupRuleProtocolNumber213Const  = "number_213"
-	SecurityGroupRuleProtocolNumber214Const  = "number_214"
-	SecurityGroupRuleProtocolNumber215Const  = "number_215"
-	SecurityGroupRuleProtocolNumber216Const  = "number_216"
-	SecurityGroupRuleProtocolNumber217Const  = "number_217"
-	SecurityGroupRuleProtocolNumber218Const  = "number_218"
-	SecurityGroupRuleProtocolNumber219Const  = "number_219"
-	SecurityGroupRuleProtocolNumber22Const   = "number_22"
-	SecurityGroupRuleProtocolNumber220Const  = "number_220"
-	SecurityGroupRuleProtocolNumber221Const  = "number_221"
-	SecurityGroupRuleProtocolNumber222Const  = "number_222"
-	SecurityGroupRuleProtocolNumber223Const  = "number_223"
-	SecurityGroupRuleProtocolNumber224Const  = "number_224"
-	SecurityGroupRuleProtocolNumber225Const  = "number_225"
-	SecurityGroupRuleProtocolNumber226Const  = "number_226"
-	SecurityGroupRuleProtocolNumber227Const  = "number_227"
-	SecurityGroupRuleProtocolNumber228Const  = "number_228"
-	SecurityGroupRuleProtocolNumber229Const  = "number_229"
-	SecurityGroupRuleProtocolNumber23Const   = "number_23"
-	SecurityGroupRuleProtocolNumber230Const  = "number_230"
-	SecurityGroupRuleProtocolNumber231Const  = "number_231"
-	SecurityGroupRuleProtocolNumber232Const  = "number_232"
-	SecurityGroupRuleProtocolNumber233Const  = "number_233"
-	SecurityGroupRuleProtocolNumber234Const  = "number_234"
-	SecurityGroupRuleProtocolNumber235Const  = "number_235"
-	SecurityGroupRuleProtocolNumber236Const  = "number_236"
-	SecurityGroupRuleProtocolNumber237Const  = "number_237"
-	SecurityGroupRuleProtocolNumber238Const  = "number_238"
-	SecurityGroupRuleProtocolNumber239Const  = "number_239"
-	SecurityGroupRuleProtocolNumber24Const   = "number_24"
-	SecurityGroupRuleProtocolNumber240Const  = "number_240"
-	SecurityGroupRuleProtocolNumber241Const  = "number_241"
-	SecurityGroupRuleProtocolNumber242Const  = "number_242"
-	SecurityGroupRuleProtocolNumber243Const  = "number_243"
-	SecurityGroupRuleProtocolNumber244Const  = "number_244"
-	SecurityGroupRuleProtocolNumber245Const  = "number_245"
-	SecurityGroupRuleProtocolNumber246Const  = "number_246"
-	SecurityGroupRuleProtocolNumber247Const  = "number_247"
-	SecurityGroupRuleProtocolNumber248Const  = "number_248"
-	SecurityGroupRuleProtocolNumber249Const  = "number_249"
-	SecurityGroupRuleProtocolNumber25Const   = "number_25"
-	SecurityGroupRuleProtocolNumber250Const  = "number_250"
-	SecurityGroupRuleProtocolNumber251Const  = "number_251"
-	SecurityGroupRuleProtocolNumber252Const  = "number_252"
-	SecurityGroupRuleProtocolNumber253Const  = "number_253"
-	SecurityGroupRuleProtocolNumber254Const  = "number_254"
-	SecurityGroupRuleProtocolNumber255Const  = "number_255"
-	SecurityGroupRuleProtocolNumber26Const   = "number_26"
-	SecurityGroupRuleProtocolNumber27Const   = "number_27"
-	SecurityGroupRuleProtocolNumber28Const   = "number_28"
-	SecurityGroupRuleProtocolNumber29Const   = "number_29"
-	SecurityGroupRuleProtocolNumber3Const    = "number_3"
-	SecurityGroupRuleProtocolNumber30Const   = "number_30"
-	SecurityGroupRuleProtocolNumber31Const   = "number_31"
-	SecurityGroupRuleProtocolNumber32Const   = "number_32"
-	SecurityGroupRuleProtocolNumber33Const   = "number_33"
-	SecurityGroupRuleProtocolNumber34Const   = "number_34"
-	SecurityGroupRuleProtocolNumber35Const   = "number_35"
-	SecurityGroupRuleProtocolNumber36Const   = "number_36"
-	SecurityGroupRuleProtocolNumber37Const   = "number_37"
-	SecurityGroupRuleProtocolNumber38Const   = "number_38"
-	SecurityGroupRuleProtocolNumber39Const   = "number_39"
-	SecurityGroupRuleProtocolNumber40Const   = "number_40"
-	SecurityGroupRuleProtocolNumber41Const   = "number_41"
-	SecurityGroupRuleProtocolNumber42Const   = "number_42"
-	SecurityGroupRuleProtocolNumber43Const   = "number_43"
-	SecurityGroupRuleProtocolNumber44Const   = "number_44"
-	SecurityGroupRuleProtocolNumber45Const   = "number_45"
-	SecurityGroupRuleProtocolNumber48Const   = "number_48"
-	SecurityGroupRuleProtocolNumber49Const   = "number_49"
-	SecurityGroupRuleProtocolNumber5Const    = "number_5"
-	SecurityGroupRuleProtocolNumber52Const   = "number_52"
-	SecurityGroupRuleProtocolNumber53Const   = "number_53"
-	SecurityGroupRuleProtocolNumber54Const   = "number_54"
-	SecurityGroupRuleProtocolNumber55Const   = "number_55"
-	SecurityGroupRuleProtocolNumber56Const   = "number_56"
-	SecurityGroupRuleProtocolNumber57Const   = "number_57"
-	SecurityGroupRuleProtocolNumber58Const   = "number_58"
-	SecurityGroupRuleProtocolNumber59Const   = "number_59"
-	SecurityGroupRuleProtocolNumber60Const   = "number_60"
-	SecurityGroupRuleProtocolNumber61Const   = "number_61"
-	SecurityGroupRuleProtocolNumber62Const   = "number_62"
-	SecurityGroupRuleProtocolNumber63Const   = "number_63"
-	SecurityGroupRuleProtocolNumber64Const   = "number_64"
-	SecurityGroupRuleProtocolNumber65Const   = "number_65"
-	SecurityGroupRuleProtocolNumber66Const   = "number_66"
-	SecurityGroupRuleProtocolNumber67Const   = "number_67"
-	SecurityGroupRuleProtocolNumber68Const   = "number_68"
-	SecurityGroupRuleProtocolNumber69Const   = "number_69"
-	SecurityGroupRuleProtocolNumber7Const    = "number_7"
-	SecurityGroupRuleProtocolNumber70Const   = "number_70"
-	SecurityGroupRuleProtocolNumber71Const   = "number_71"
-	SecurityGroupRuleProtocolNumber72Const   = "number_72"
-	SecurityGroupRuleProtocolNumber73Const   = "number_73"
-	SecurityGroupRuleProtocolNumber74Const   = "number_74"
-	SecurityGroupRuleProtocolNumber75Const   = "number_75"
-	SecurityGroupRuleProtocolNumber76Const   = "number_76"
-	SecurityGroupRuleProtocolNumber77Const   = "number_77"
-	SecurityGroupRuleProtocolNumber78Const   = "number_78"
-	SecurityGroupRuleProtocolNumber79Const   = "number_79"
-	SecurityGroupRuleProtocolNumber8Const    = "number_8"
-	SecurityGroupRuleProtocolNumber80Const   = "number_80"
-	SecurityGroupRuleProtocolNumber81Const   = "number_81"
-	SecurityGroupRuleProtocolNumber82Const   = "number_82"
-	SecurityGroupRuleProtocolNumber83Const   = "number_83"
-	SecurityGroupRuleProtocolNumber84Const   = "number_84"
-	SecurityGroupRuleProtocolNumber85Const   = "number_85"
-	SecurityGroupRuleProtocolNumber86Const   = "number_86"
-	SecurityGroupRuleProtocolNumber87Const   = "number_87"
-	SecurityGroupRuleProtocolNumber88Const   = "number_88"
-	SecurityGroupRuleProtocolNumber89Const   = "number_89"
-	SecurityGroupRuleProtocolNumber9Const    = "number_9"
-	SecurityGroupRuleProtocolNumber90Const   = "number_90"
-	SecurityGroupRuleProtocolNumber91Const   = "number_91"
-	SecurityGroupRuleProtocolNumber92Const   = "number_92"
-	SecurityGroupRuleProtocolNumber93Const   = "number_93"
-	SecurityGroupRuleProtocolNumber94Const   = "number_94"
-	SecurityGroupRuleProtocolNumber95Const   = "number_95"
-	SecurityGroupRuleProtocolNumber96Const   = "number_96"
-	SecurityGroupRuleProtocolNumber97Const   = "number_97"
-	SecurityGroupRuleProtocolNumber98Const   = "number_98"
-	SecurityGroupRuleProtocolNumber99Const   = "number_99"
-	SecurityGroupRuleProtocolRsvpConst       = "rsvp"
-	SecurityGroupRuleProtocolSctpConst       = "sctp"
-	SecurityGroupRuleProtocolTCPConst        = "tcp"
-	SecurityGroupRuleProtocolUDPConst        = "udp"
-	SecurityGroupRuleProtocolVrrpConst       = "vrrp"
+	SecurityGroupRuleProtocolAhConst           = "ah"
+	SecurityGroupRuleProtocolAnyConst          = "any"
+	SecurityGroupRuleProtocolEspConst          = "esp"
+	SecurityGroupRuleProtocolGreConst          = "gre"
+	SecurityGroupRuleProtocolIPInIPConst       = "ip_in_ip"
+	SecurityGroupRuleProtocolIcmpConst         = "icmp"
+	SecurityGroupRuleProtocolIcmpTCPUDPConst   = "icmp_tcp_udp"
+	SecurityGroupRuleProtocolIpv6DestOptsConst = "ipv6_dest_opts"
+	SecurityGroupRuleProtocolIpv6FragConst     = "ipv6_frag"
+	SecurityGroupRuleProtocolIpv6HopOptConst   = "ipv6_hop_opt"
+	SecurityGroupRuleProtocolIpv6IcmpConst     = "ipv6_icmp"
+	SecurityGroupRuleProtocolIpv6MobilityConst = "ipv6_mobility"
+	SecurityGroupRuleProtocolIpv6NoNextConst   = "ipv6_no_next"
+	SecurityGroupRuleProtocolIpv6RouteConst    = "ipv6_route"
+	SecurityGroupRuleProtocolL2tpConst         = "l2tp"
+	SecurityGroupRuleProtocolNumber10Const     = "number_10"
+	SecurityGroupRuleProtocolNumber100Const    = "number_100"
+	SecurityGroupRuleProtocolNumber101Const    = "number_101"
+	SecurityGroupRuleProtocolNumber102Const    = "number_102"
+	SecurityGroupRuleProtocolNumber103Const    = "number_103"
+	SecurityGroupRuleProtocolNumber104Const    = "number_104"
+	SecurityGroupRuleProtocolNumber105Const    = "number_105"
+	SecurityGroupRuleProtocolNumber106Const    = "number_106"
+	SecurityGroupRuleProtocolNumber107Const    = "number_107"
+	SecurityGroupRuleProtocolNumber108Const    = "number_108"
+	SecurityGroupRuleProtocolNumber109Const    = "number_109"
+	SecurityGroupRuleProtocolNumber11Const     = "number_11"
+	SecurityGroupRuleProtocolNumber110Const    = "number_110"
+	SecurityGroupRuleProtocolNumber111Const    = "number_111"
+	SecurityGroupRuleProtocolNumber113Const    = "number_113"
+	SecurityGroupRuleProtocolNumber114Const    = "number_114"
+	SecurityGroupRuleProtocolNumber116Const    = "number_116"
+	SecurityGroupRuleProtocolNumber117Const    = "number_117"
+	SecurityGroupRuleProtocolNumber118Const    = "number_118"
+	SecurityGroupRuleProtocolNumber119Const    = "number_119"
+	SecurityGroupRuleProtocolNumber12Const     = "number_12"
+	SecurityGroupRuleProtocolNumber120Const    = "number_120"
+	SecurityGroupRuleProtocolNumber121Const    = "number_121"
+	SecurityGroupRuleProtocolNumber122Const    = "number_122"
+	SecurityGroupRuleProtocolNumber123Const    = "number_123"
+	SecurityGroupRuleProtocolNumber124Const    = "number_124"
+	SecurityGroupRuleProtocolNumber125Const    = "number_125"
+	SecurityGroupRuleProtocolNumber126Const    = "number_126"
+	SecurityGroupRuleProtocolNumber127Const    = "number_127"
+	SecurityGroupRuleProtocolNumber128Const    = "number_128"
+	SecurityGroupRuleProtocolNumber129Const    = "number_129"
+	SecurityGroupRuleProtocolNumber13Const     = "number_13"
+	SecurityGroupRuleProtocolNumber130Const    = "number_130"
+	SecurityGroupRuleProtocolNumber131Const    = "number_131"
+	SecurityGroupRuleProtocolNumber133Const    = "number_133"
+	SecurityGroupRuleProtocolNumber134Const    = "number_134"
+	SecurityGroupRuleProtocolNumber136Const    = "number_136"
+	SecurityGroupRuleProtocolNumber137Const    = "number_137"
+	SecurityGroupRuleProtocolNumber138Const    = "number_138"
+	SecurityGroupRuleProtocolNumber139Const    = "number_139"
+	SecurityGroupRuleProtocolNumber14Const     = "number_14"
+	SecurityGroupRuleProtocolNumber140Const    = "number_140"
+	SecurityGroupRuleProtocolNumber141Const    = "number_141"
+	SecurityGroupRuleProtocolNumber142Const    = "number_142"
+	SecurityGroupRuleProtocolNumber143Const    = "number_143"
+	SecurityGroupRuleProtocolNumber144Const    = "number_144"
+	SecurityGroupRuleProtocolNumber145Const    = "number_145"
+	SecurityGroupRuleProtocolNumber146Const    = "number_146"
+	SecurityGroupRuleProtocolNumber147Const    = "number_147"
+	SecurityGroupRuleProtocolNumber148Const    = "number_148"
+	SecurityGroupRuleProtocolNumber149Const    = "number_149"
+	SecurityGroupRuleProtocolNumber15Const     = "number_15"
+	SecurityGroupRuleProtocolNumber150Const    = "number_150"
+	SecurityGroupRuleProtocolNumber151Const    = "number_151"
+	SecurityGroupRuleProtocolNumber152Const    = "number_152"
+	SecurityGroupRuleProtocolNumber153Const    = "number_153"
+	SecurityGroupRuleProtocolNumber154Const    = "number_154"
+	SecurityGroupRuleProtocolNumber155Const    = "number_155"
+	SecurityGroupRuleProtocolNumber156Const    = "number_156"
+	SecurityGroupRuleProtocolNumber157Const    = "number_157"
+	SecurityGroupRuleProtocolNumber158Const    = "number_158"
+	SecurityGroupRuleProtocolNumber159Const    = "number_159"
+	SecurityGroupRuleProtocolNumber16Const     = "number_16"
+	SecurityGroupRuleProtocolNumber160Const    = "number_160"
+	SecurityGroupRuleProtocolNumber161Const    = "number_161"
+	SecurityGroupRuleProtocolNumber162Const    = "number_162"
+	SecurityGroupRuleProtocolNumber163Const    = "number_163"
+	SecurityGroupRuleProtocolNumber164Const    = "number_164"
+	SecurityGroupRuleProtocolNumber165Const    = "number_165"
+	SecurityGroupRuleProtocolNumber166Const    = "number_166"
+	SecurityGroupRuleProtocolNumber167Const    = "number_167"
+	SecurityGroupRuleProtocolNumber168Const    = "number_168"
+	SecurityGroupRuleProtocolNumber169Const    = "number_169"
+	SecurityGroupRuleProtocolNumber170Const    = "number_170"
+	SecurityGroupRuleProtocolNumber171Const    = "number_171"
+	SecurityGroupRuleProtocolNumber172Const    = "number_172"
+	SecurityGroupRuleProtocolNumber173Const    = "number_173"
+	SecurityGroupRuleProtocolNumber174Const    = "number_174"
+	SecurityGroupRuleProtocolNumber175Const    = "number_175"
+	SecurityGroupRuleProtocolNumber176Const    = "number_176"
+	SecurityGroupRuleProtocolNumber177Const    = "number_177"
+	SecurityGroupRuleProtocolNumber178Const    = "number_178"
+	SecurityGroupRuleProtocolNumber179Const    = "number_179"
+	SecurityGroupRuleProtocolNumber18Const     = "number_18"
+	SecurityGroupRuleProtocolNumber180Const    = "number_180"
+	SecurityGroupRuleProtocolNumber181Const    = "number_181"
+	SecurityGroupRuleProtocolNumber182Const    = "number_182"
+	SecurityGroupRuleProtocolNumber183Const    = "number_183"
+	SecurityGroupRuleProtocolNumber184Const    = "number_184"
+	SecurityGroupRuleProtocolNumber185Const    = "number_185"
+	SecurityGroupRuleProtocolNumber186Const    = "number_186"
+	SecurityGroupRuleProtocolNumber187Const    = "number_187"
+	SecurityGroupRuleProtocolNumber188Const    = "number_188"
+	SecurityGroupRuleProtocolNumber189Const    = "number_189"
+	SecurityGroupRuleProtocolNumber19Const     = "number_19"
+	SecurityGroupRuleProtocolNumber190Const    = "number_190"
+	SecurityGroupRuleProtocolNumber191Const    = "number_191"
+	SecurityGroupRuleProtocolNumber192Const    = "number_192"
+	SecurityGroupRuleProtocolNumber193Const    = "number_193"
+	SecurityGroupRuleProtocolNumber194Const    = "number_194"
+	SecurityGroupRuleProtocolNumber195Const    = "number_195"
+	SecurityGroupRuleProtocolNumber196Const    = "number_196"
+	SecurityGroupRuleProtocolNumber197Const    = "number_197"
+	SecurityGroupRuleProtocolNumber198Const    = "number_198"
+	SecurityGroupRuleProtocolNumber199Const    = "number_199"
+	SecurityGroupRuleProtocolNumber2Const      = "number_2"
+	SecurityGroupRuleProtocolNumber20Const     = "number_20"
+	SecurityGroupRuleProtocolNumber200Const    = "number_200"
+	SecurityGroupRuleProtocolNumber201Const    = "number_201"
+	SecurityGroupRuleProtocolNumber202Const    = "number_202"
+	SecurityGroupRuleProtocolNumber203Const    = "number_203"
+	SecurityGroupRuleProtocolNumber204Const    = "number_204"
+	SecurityGroupRuleProtocolNumber205Const    = "number_205"
+	SecurityGroupRuleProtocolNumber206Const    = "number_206"
+	SecurityGroupRuleProtocolNumber207Const    = "number_207"
+	SecurityGroupRuleProtocolNumber208Const    = "number_208"
+	SecurityGroupRuleProtocolNumber209Const    = "number_209"
+	SecurityGroupRuleProtocolNumber21Const     = "number_21"
+	SecurityGroupRuleProtocolNumber210Const    = "number_210"
+	SecurityGroupRuleProtocolNumber211Const    = "number_211"
+	SecurityGroupRuleProtocolNumber212Const    = "number_212"
+	SecurityGroupRuleProtocolNumber213Const    = "number_213"
+	SecurityGroupRuleProtocolNumber214Const    = "number_214"
+	SecurityGroupRuleProtocolNumber215Const    = "number_215"
+	SecurityGroupRuleProtocolNumber216Const    = "number_216"
+	SecurityGroupRuleProtocolNumber217Const    = "number_217"
+	SecurityGroupRuleProtocolNumber218Const    = "number_218"
+	SecurityGroupRuleProtocolNumber219Const    = "number_219"
+	SecurityGroupRuleProtocolNumber22Const     = "number_22"
+	SecurityGroupRuleProtocolNumber220Const    = "number_220"
+	SecurityGroupRuleProtocolNumber221Const    = "number_221"
+	SecurityGroupRuleProtocolNumber222Const    = "number_222"
+	SecurityGroupRuleProtocolNumber223Const    = "number_223"
+	SecurityGroupRuleProtocolNumber224Const    = "number_224"
+	SecurityGroupRuleProtocolNumber225Const    = "number_225"
+	SecurityGroupRuleProtocolNumber226Const    = "number_226"
+	SecurityGroupRuleProtocolNumber227Const    = "number_227"
+	SecurityGroupRuleProtocolNumber228Const    = "number_228"
+	SecurityGroupRuleProtocolNumber229Const    = "number_229"
+	SecurityGroupRuleProtocolNumber23Const     = "number_23"
+	SecurityGroupRuleProtocolNumber230Const    = "number_230"
+	SecurityGroupRuleProtocolNumber231Const    = "number_231"
+	SecurityGroupRuleProtocolNumber232Const    = "number_232"
+	SecurityGroupRuleProtocolNumber233Const    = "number_233"
+	SecurityGroupRuleProtocolNumber234Const    = "number_234"
+	SecurityGroupRuleProtocolNumber235Const    = "number_235"
+	SecurityGroupRuleProtocolNumber236Const    = "number_236"
+	SecurityGroupRuleProtocolNumber237Const    = "number_237"
+	SecurityGroupRuleProtocolNumber238Const    = "number_238"
+	SecurityGroupRuleProtocolNumber239Const    = "number_239"
+	SecurityGroupRuleProtocolNumber24Const     = "number_24"
+	SecurityGroupRuleProtocolNumber240Const    = "number_240"
+	SecurityGroupRuleProtocolNumber241Const    = "number_241"
+	SecurityGroupRuleProtocolNumber242Const    = "number_242"
+	SecurityGroupRuleProtocolNumber243Const    = "number_243"
+	SecurityGroupRuleProtocolNumber244Const    = "number_244"
+	SecurityGroupRuleProtocolNumber245Const    = "number_245"
+	SecurityGroupRuleProtocolNumber246Const    = "number_246"
+	SecurityGroupRuleProtocolNumber247Const    = "number_247"
+	SecurityGroupRuleProtocolNumber248Const    = "number_248"
+	SecurityGroupRuleProtocolNumber249Const    = "number_249"
+	SecurityGroupRuleProtocolNumber25Const     = "number_25"
+	SecurityGroupRuleProtocolNumber250Const    = "number_250"
+	SecurityGroupRuleProtocolNumber251Const    = "number_251"
+	SecurityGroupRuleProtocolNumber252Const    = "number_252"
+	SecurityGroupRuleProtocolNumber253Const    = "number_253"
+	SecurityGroupRuleProtocolNumber254Const    = "number_254"
+	SecurityGroupRuleProtocolNumber255Const    = "number_255"
+	SecurityGroupRuleProtocolNumber26Const     = "number_26"
+	SecurityGroupRuleProtocolNumber27Const     = "number_27"
+	SecurityGroupRuleProtocolNumber28Const     = "number_28"
+	SecurityGroupRuleProtocolNumber29Const     = "number_29"
+	SecurityGroupRuleProtocolNumber3Const      = "number_3"
+	SecurityGroupRuleProtocolNumber30Const     = "number_30"
+	SecurityGroupRuleProtocolNumber31Const     = "number_31"
+	SecurityGroupRuleProtocolNumber32Const     = "number_32"
+	SecurityGroupRuleProtocolNumber33Const     = "number_33"
+	SecurityGroupRuleProtocolNumber34Const     = "number_34"
+	SecurityGroupRuleProtocolNumber35Const     = "number_35"
+	SecurityGroupRuleProtocolNumber36Const     = "number_36"
+	SecurityGroupRuleProtocolNumber37Const     = "number_37"
+	SecurityGroupRuleProtocolNumber38Const     = "number_38"
+	SecurityGroupRuleProtocolNumber39Const     = "number_39"
+	SecurityGroupRuleProtocolNumber40Const     = "number_40"
+	SecurityGroupRuleProtocolNumber41Const     = "number_41"
+	SecurityGroupRuleProtocolNumber42Const     = "number_42"
+	SecurityGroupRuleProtocolNumber45Const     = "number_45"
+	SecurityGroupRuleProtocolNumber48Const     = "number_48"
+	SecurityGroupRuleProtocolNumber49Const     = "number_49"
+	SecurityGroupRuleProtocolNumber5Const      = "number_5"
+	SecurityGroupRuleProtocolNumber52Const     = "number_52"
+	SecurityGroupRuleProtocolNumber53Const     = "number_53"
+	SecurityGroupRuleProtocolNumber54Const     = "number_54"
+	SecurityGroupRuleProtocolNumber55Const     = "number_55"
+	SecurityGroupRuleProtocolNumber56Const     = "number_56"
+	SecurityGroupRuleProtocolNumber57Const     = "number_57"
+	SecurityGroupRuleProtocolNumber61Const     = "number_61"
+	SecurityGroupRuleProtocolNumber62Const     = "number_62"
+	SecurityGroupRuleProtocolNumber63Const     = "number_63"
+	SecurityGroupRuleProtocolNumber64Const     = "number_64"
+	SecurityGroupRuleProtocolNumber65Const     = "number_65"
+	SecurityGroupRuleProtocolNumber66Const     = "number_66"
+	SecurityGroupRuleProtocolNumber67Const     = "number_67"
+	SecurityGroupRuleProtocolNumber68Const     = "number_68"
+	SecurityGroupRuleProtocolNumber69Const     = "number_69"
+	SecurityGroupRuleProtocolNumber7Const      = "number_7"
+	SecurityGroupRuleProtocolNumber70Const     = "number_70"
+	SecurityGroupRuleProtocolNumber71Const     = "number_71"
+	SecurityGroupRuleProtocolNumber72Const     = "number_72"
+	SecurityGroupRuleProtocolNumber73Const     = "number_73"
+	SecurityGroupRuleProtocolNumber74Const     = "number_74"
+	SecurityGroupRuleProtocolNumber75Const     = "number_75"
+	SecurityGroupRuleProtocolNumber76Const     = "number_76"
+	SecurityGroupRuleProtocolNumber77Const     = "number_77"
+	SecurityGroupRuleProtocolNumber78Const     = "number_78"
+	SecurityGroupRuleProtocolNumber79Const     = "number_79"
+	SecurityGroupRuleProtocolNumber8Const      = "number_8"
+	SecurityGroupRuleProtocolNumber80Const     = "number_80"
+	SecurityGroupRuleProtocolNumber81Const     = "number_81"
+	SecurityGroupRuleProtocolNumber82Const     = "number_82"
+	SecurityGroupRuleProtocolNumber83Const     = "number_83"
+	SecurityGroupRuleProtocolNumber84Const     = "number_84"
+	SecurityGroupRuleProtocolNumber85Const     = "number_85"
+	SecurityGroupRuleProtocolNumber86Const     = "number_86"
+	SecurityGroupRuleProtocolNumber87Const     = "number_87"
+	SecurityGroupRuleProtocolNumber88Const     = "number_88"
+	SecurityGroupRuleProtocolNumber89Const     = "number_89"
+	SecurityGroupRuleProtocolNumber9Const      = "number_9"
+	SecurityGroupRuleProtocolNumber90Const     = "number_90"
+	SecurityGroupRuleProtocolNumber91Const     = "number_91"
+	SecurityGroupRuleProtocolNumber92Const     = "number_92"
+	SecurityGroupRuleProtocolNumber93Const     = "number_93"
+	SecurityGroupRuleProtocolNumber94Const     = "number_94"
+	SecurityGroupRuleProtocolNumber95Const     = "number_95"
+	SecurityGroupRuleProtocolNumber96Const     = "number_96"
+	SecurityGroupRuleProtocolNumber97Const     = "number_97"
+	SecurityGroupRuleProtocolNumber98Const     = "number_98"
+	SecurityGroupRuleProtocolNumber99Const     = "number_99"
+	SecurityGroupRuleProtocolRsvpConst         = "rsvp"
+	SecurityGroupRuleProtocolSctpConst         = "sctp"
+	SecurityGroupRuleProtocolTCPConst          = "tcp"
+	SecurityGroupRuleProtocolUDPConst          = "udp"
+	SecurityGroupRuleProtocolVrrpConst         = "vrrp"
 )
 
 // Constants associated with the SecurityGroupRule.ResourceType property.
@@ -103665,12 +104140,42 @@ func UnmarshalSecurityGroupRule(m map[string]json.RawMessage, result interface{}
 		if err != nil {
 			err = core.SDKErrorf(err, "", "unmarshal-SecurityGroupRuleProtocolIndividual-error", common.GetComponentInfo())
 		}
-	} else if discValue == "l2tp" {
-		err = core.UnmarshalModel(m, "", result, UnmarshalSecurityGroupRuleProtocolIndividual)
+	} else if discValue == "ipv6_dest_opts" {
+		err = core.UnmarshalModel(m, "", result, UnmarshalSecurityGroupRuleProtocolIndividualIPv6)
 		if err != nil {
-			err = core.SDKErrorf(err, "", "unmarshal-SecurityGroupRuleProtocolIndividual-error", common.GetComponentInfo())
+			err = core.SDKErrorf(err, "", "unmarshal-SecurityGroupRuleProtocolIndividualIPv6-error", common.GetComponentInfo())
 		}
-	} else if discValue == "number_0" {
+	} else if discValue == "ipv6_frag" {
+		err = core.UnmarshalModel(m, "", result, UnmarshalSecurityGroupRuleProtocolIndividualIPv6)
+		if err != nil {
+			err = core.SDKErrorf(err, "", "unmarshal-SecurityGroupRuleProtocolIndividualIPv6-error", common.GetComponentInfo())
+		}
+	} else if discValue == "ipv6_hop_opt" {
+		err = core.UnmarshalModel(m, "", result, UnmarshalSecurityGroupRuleProtocolIndividualIPv6)
+		if err != nil {
+			err = core.SDKErrorf(err, "", "unmarshal-SecurityGroupRuleProtocolIndividualIPv6-error", common.GetComponentInfo())
+		}
+	} else if discValue == "ipv6_icmp" {
+		err = core.UnmarshalModel(m, "", result, UnmarshalSecurityGroupRuleProtocolIPv6Icmp)
+		if err != nil {
+			err = core.SDKErrorf(err, "", "unmarshal-SecurityGroupRuleProtocolIPv6Icmp-error", common.GetComponentInfo())
+		}
+	} else if discValue == "ipv6_mobility" {
+		err = core.UnmarshalModel(m, "", result, UnmarshalSecurityGroupRuleProtocolIndividualIPv6)
+		if err != nil {
+			err = core.SDKErrorf(err, "", "unmarshal-SecurityGroupRuleProtocolIndividualIPv6-error", common.GetComponentInfo())
+		}
+	} else if discValue == "ipv6_no_next" {
+		err = core.UnmarshalModel(m, "", result, UnmarshalSecurityGroupRuleProtocolIndividualIPv6)
+		if err != nil {
+			err = core.SDKErrorf(err, "", "unmarshal-SecurityGroupRuleProtocolIndividualIPv6-error", common.GetComponentInfo())
+		}
+	} else if discValue == "ipv6_route" {
+		err = core.UnmarshalModel(m, "", result, UnmarshalSecurityGroupRuleProtocolIndividualIPv6)
+		if err != nil {
+			err = core.SDKErrorf(err, "", "unmarshal-SecurityGroupRuleProtocolIndividualIPv6-error", common.GetComponentInfo())
+		}
+	} else if discValue == "l2tp" {
 		err = core.UnmarshalModel(m, "", result, UnmarshalSecurityGroupRuleProtocolIndividual)
 		if err != nil {
 			err = core.SDKErrorf(err, "", "unmarshal-SecurityGroupRuleProtocolIndividual-error", common.GetComponentInfo())
@@ -103851,11 +104356,6 @@ func UnmarshalSecurityGroupRule(m map[string]json.RawMessage, result interface{}
 			err = core.SDKErrorf(err, "", "unmarshal-SecurityGroupRuleProtocolIndividual-error", common.GetComponentInfo())
 		}
 	} else if discValue == "number_134" {
-		err = core.UnmarshalModel(m, "", result, UnmarshalSecurityGroupRuleProtocolIndividual)
-		if err != nil {
-			err = core.SDKErrorf(err, "", "unmarshal-SecurityGroupRuleProtocolIndividual-error", common.GetComponentInfo())
-		}
-	} else if discValue == "number_135" {
 		err = core.UnmarshalModel(m, "", result, UnmarshalSecurityGroupRuleProtocolIndividual)
 		if err != nil {
 			err = core.SDKErrorf(err, "", "unmarshal-SecurityGroupRuleProtocolIndividual-error", common.GetComponentInfo())
@@ -104610,16 +105110,6 @@ func UnmarshalSecurityGroupRule(m map[string]json.RawMessage, result interface{}
 		if err != nil {
 			err = core.SDKErrorf(err, "", "unmarshal-SecurityGroupRuleProtocolIndividual-error", common.GetComponentInfo())
 		}
-	} else if discValue == "number_43" {
-		err = core.UnmarshalModel(m, "", result, UnmarshalSecurityGroupRuleProtocolIndividual)
-		if err != nil {
-			err = core.SDKErrorf(err, "", "unmarshal-SecurityGroupRuleProtocolIndividual-error", common.GetComponentInfo())
-		}
-	} else if discValue == "number_44" {
-		err = core.UnmarshalModel(m, "", result, UnmarshalSecurityGroupRuleProtocolIndividual)
-		if err != nil {
-			err = core.SDKErrorf(err, "", "unmarshal-SecurityGroupRuleProtocolIndividual-error", common.GetComponentInfo())
-		}
 	} else if discValue == "number_45" {
 		err = core.UnmarshalModel(m, "", result, UnmarshalSecurityGroupRuleProtocolIndividual)
 		if err != nil {
@@ -104666,21 +105156,6 @@ func UnmarshalSecurityGroupRule(m map[string]json.RawMessage, result interface{}
 			err = core.SDKErrorf(err, "", "unmarshal-SecurityGroupRuleProtocolIndividual-error", common.GetComponentInfo())
 		}
 	} else if discValue == "number_57" {
-		err = core.UnmarshalModel(m, "", result, UnmarshalSecurityGroupRuleProtocolIndividual)
-		if err != nil {
-			err = core.SDKErrorf(err, "", "unmarshal-SecurityGroupRuleProtocolIndividual-error", common.GetComponentInfo())
-		}
-	} else if discValue == "number_58" {
-		err = core.UnmarshalModel(m, "", result, UnmarshalSecurityGroupRuleProtocolIndividual)
-		if err != nil {
-			err = core.SDKErrorf(err, "", "unmarshal-SecurityGroupRuleProtocolIndividual-error", common.GetComponentInfo())
-		}
-	} else if discValue == "number_59" {
-		err = core.UnmarshalModel(m, "", result, UnmarshalSecurityGroupRuleProtocolIndividual)
-		if err != nil {
-			err = core.SDKErrorf(err, "", "unmarshal-SecurityGroupRuleProtocolIndividual-error", common.GetComponentInfo())
-		}
-	} else if discValue == "number_60" {
 		err = core.UnmarshalModel(m, "", result, UnmarshalSecurityGroupRuleProtocolIndividual)
 		if err != nil {
 			err = core.SDKErrorf(err, "", "unmarshal-SecurityGroupRuleProtocolIndividual-error", common.GetComponentInfo())
@@ -104946,22 +105421,17 @@ func UnmarshalSecurityGroupRuleCollection(m map[string]json.RawMessage, result i
 }
 
 // SecurityGroupRuleLocal : The local IP address or range of local IP addresses to which this rule will allow inbound traffic (or from which, for
-// outbound traffic). A CIDR block of `0.0.0.0/0` allows traffic to all local IP addresses (or from all local IP
-// addresses, for outbound rules).
+// outbound traffic). A CIDR block of `0.0.0.0/0` (or `::/0`, if
+// `ip_version` is `ipv6`) allows traffic to all local IP addresses (or from all local IP addresses, for outbound
+// rules).
 // Models which "extend" this model:
 // - SecurityGroupRuleLocalSecurityGroupRuleIP
 // - SecurityGroupRuleLocalSecurityGroupRuleCIDR
 type SecurityGroupRuleLocal struct {
 	// The IP address.
-	//
-	// This property may [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support IPv6 addresses in
-	// the future.
 	Address *string `json:"address,omitempty"`
 
 	// The CIDR block.
-	//
-	// This property may [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support IPv6 CIDR blocks
-	// in the future.
 	CIDRBlock *string `json:"cidr_block,omitempty"`
 }
 
@@ -104993,8 +105463,8 @@ func UnmarshalSecurityGroupRuleLocal(m map[string]json.RawMessage, result interf
 // SecurityGroupRuleLocalPatch : The local IP address or range of local IP addresses to which this rule will allow inbound traffic (or from which, for
 // outbound traffic). Can be specified as an IP address or a CIDR block.
 //
-// Specify a CIDR block of `0.0.0.0/0` to allow traffic to all local IP addresses (or from all local IP addresses, for
-// outbound rules).
+// Specify a CIDR block of `0.0.0.0/0` (or `::/0`, if `ip_version` is `ipv6`) to allow traffic to all local IP addresses
+// (or from all local IP addresses, for outbound rules).
 // Models which "extend" this model:
 // - SecurityGroupRuleLocalPatchSecurityGroupRuleIPPrototype
 // - SecurityGroupRuleLocalPatchSecurityGroupRuleCIDRPrototype
@@ -105048,8 +105518,8 @@ func (securityGroupRuleLocalPatch *SecurityGroupRuleLocalPatch) asPatch() (_patc
 // SecurityGroupRuleLocalPrototype : The local IP address or range of local IP addresses to which this rule will allow inbound traffic (or from which, for
 // outbound traffic).
 //
-// If unspecified, a CIDR block of `0.0.0.0/0` will be used to allow traffic to all local IP addresses (or from all
-// local IP addresses, for outbound rules).
+// If unspecified, a CIDR block of `0.0.0.0/0` (or `::/0`, if `ip_version` is `ipv6`) will be used to allow traffic to
+// all local IP addresses (or from all local IP addresses, for outbound rules).
 // Models which "extend" this model:
 // - SecurityGroupRuleLocalPrototypeSecurityGroupRuleIPPrototype
 // - SecurityGroupRuleLocalPrototypeSecurityGroupRuleCIDRPrototype
@@ -105107,8 +105577,8 @@ type SecurityGroupRulePatch struct {
 	// traffic (or from which, for outbound traffic). Can be specified as an IP address or a CIDR
 	// block.
 	//
-	// Specify a CIDR block of `0.0.0.0/0` to allow traffic to all local IP addresses (or from all
-	// local IP addresses, for outbound rules).
+	// Specify a CIDR block of `0.0.0.0/0` (or `::/0`, if `ip_version` is `ipv6`) to allow
+	// traffic to all local IP addresses (or from all local IP addresses, for outbound rules).
 	Local SecurityGroupRuleLocalPatchIntf `json:"local,omitempty"`
 
 	// The name for this security group rule. The name must not be used by another rule in the security group.
@@ -105130,8 +105600,8 @@ type SecurityGroupRulePatch struct {
 	// which, for outbound rules). Can be specified as an IP address, a CIDR block, or a
 	// security group.
 	//
-	// Specify a CIDR block of `0.0.0.0/0` to allow traffic from any source (or to any
-	// destination, for outbound rules).
+	// Specify a CIDR block of `0.0.0.0/0` (or `::/0`, if `ip_version` is `ipv6`) to allow
+	// traffic from any source (or to any destination, for outbound rules).
 	Remote SecurityGroupRuleRemotePatchIntf `json:"remote,omitempty"`
 
 	// The ICMP traffic type to allow.
@@ -105155,6 +105625,7 @@ const (
 // IP version.
 const (
 	SecurityGroupRulePatchIPVersionIpv4Const = "ipv4"
+	SecurityGroupRulePatchIPVersionIpv6Const = "ipv6"
 )
 
 // UnmarshalSecurityGroupRulePatch unmarshals an instance of SecurityGroupRulePatch from the specified map of raw messages.
@@ -105248,8 +105719,10 @@ func (securityGroupRulePatch *SecurityGroupRulePatch) AsPatch() (_patch map[stri
 // - SecurityGroupRulePrototypeSecurityGroupRuleProtocolAnyPrototype
 // - SecurityGroupRulePrototypeSecurityGroupRuleProtocolIcmptcpudpPrototype
 // - SecurityGroupRulePrototypeSecurityGroupRuleProtocolIcmp
+// - SecurityGroupRulePrototypeSecurityGroupRuleProtocolIPv6IcmpPrototype
 // - SecurityGroupRulePrototypeSecurityGroupRuleProtocolTcpudp
 // - SecurityGroupRulePrototypeSecurityGroupRuleProtocolIndividualPrototype
+// - SecurityGroupRulePrototypeSecurityGroupRuleProtocolIndividualIPv6Prototype
 type SecurityGroupRulePrototype struct {
 	// The direction of traffic to allow.
 	Direction *string `json:"direction" validate:"required"`
@@ -105264,8 +105737,9 @@ type SecurityGroupRulePrototype struct {
 	// The local IP address or range of local IP addresses to which this rule will allow inbound
 	// traffic (or from which, for outbound traffic).
 	//
-	// If unspecified, a CIDR block of `0.0.0.0/0` will be used to allow traffic to all local IP
-	// addresses (or from all local IP addresses, for outbound rules).
+	// If unspecified, a CIDR block of `0.0.0.0/0` (or `::/0`, if `ip_version` is `ipv6`) will be
+	// used to allow traffic to all local IP addresses (or from all local IP addresses, for
+	// outbound rules).
 	Local SecurityGroupRuleLocalPrototypeIntf `json:"local,omitempty"`
 
 	// The name for this security group rule. The name must not be used by another rule in the security group. If
@@ -105279,8 +105753,8 @@ type SecurityGroupRulePrototype struct {
 	// which, for outbound rules). Can be specified as an IP address, a CIDR block, or a
 	// security group within the VPC.
 	//
-	// If unspecified, a CIDR block of `0.0.0.0/0` will be used to allow traffic from any source
-	// (or to any destination, for outbound rules).
+	// If unspecified, a CIDR block of `0.0.0.0/0` (or `::/0`, if `ip_version` is `ipv6`) will
+	// be used to allow traffic from any source (or to any destination, for outbound rules).
 	Remote SecurityGroupRuleRemotePrototypeIntf `json:"remote,omitempty"`
 
 	// The ICMP traffic code to allow.
@@ -105321,269 +105795,270 @@ const (
 // IP version.
 const (
 	SecurityGroupRulePrototypeIPVersionIpv4Const = "ipv4"
+	SecurityGroupRulePrototypeIPVersionIpv6Const = "ipv6"
 )
 
 // Constants associated with the SecurityGroupRulePrototype.Protocol property.
 // The network protocol.
 const (
-	SecurityGroupRulePrototypeProtocolAhConst         = "ah"
-	SecurityGroupRulePrototypeProtocolAnyConst        = "any"
-	SecurityGroupRulePrototypeProtocolEspConst        = "esp"
-	SecurityGroupRulePrototypeProtocolGreConst        = "gre"
-	SecurityGroupRulePrototypeProtocolIPInIPConst     = "ip_in_ip"
-	SecurityGroupRulePrototypeProtocolIcmpConst       = "icmp"
-	SecurityGroupRulePrototypeProtocolIcmpTCPUDPConst = "icmp_tcp_udp"
-	SecurityGroupRulePrototypeProtocolL2tpConst       = "l2tp"
-	SecurityGroupRulePrototypeProtocolNumber0Const    = "number_0"
-	SecurityGroupRulePrototypeProtocolNumber10Const   = "number_10"
-	SecurityGroupRulePrototypeProtocolNumber100Const  = "number_100"
-	SecurityGroupRulePrototypeProtocolNumber101Const  = "number_101"
-	SecurityGroupRulePrototypeProtocolNumber102Const  = "number_102"
-	SecurityGroupRulePrototypeProtocolNumber103Const  = "number_103"
-	SecurityGroupRulePrototypeProtocolNumber104Const  = "number_104"
-	SecurityGroupRulePrototypeProtocolNumber105Const  = "number_105"
-	SecurityGroupRulePrototypeProtocolNumber106Const  = "number_106"
-	SecurityGroupRulePrototypeProtocolNumber107Const  = "number_107"
-	SecurityGroupRulePrototypeProtocolNumber108Const  = "number_108"
-	SecurityGroupRulePrototypeProtocolNumber109Const  = "number_109"
-	SecurityGroupRulePrototypeProtocolNumber11Const   = "number_11"
-	SecurityGroupRulePrototypeProtocolNumber110Const  = "number_110"
-	SecurityGroupRulePrototypeProtocolNumber111Const  = "number_111"
-	SecurityGroupRulePrototypeProtocolNumber113Const  = "number_113"
-	SecurityGroupRulePrototypeProtocolNumber114Const  = "number_114"
-	SecurityGroupRulePrototypeProtocolNumber116Const  = "number_116"
-	SecurityGroupRulePrototypeProtocolNumber117Const  = "number_117"
-	SecurityGroupRulePrototypeProtocolNumber118Const  = "number_118"
-	SecurityGroupRulePrototypeProtocolNumber119Const  = "number_119"
-	SecurityGroupRulePrototypeProtocolNumber12Const   = "number_12"
-	SecurityGroupRulePrototypeProtocolNumber120Const  = "number_120"
-	SecurityGroupRulePrototypeProtocolNumber121Const  = "number_121"
-	SecurityGroupRulePrototypeProtocolNumber122Const  = "number_122"
-	SecurityGroupRulePrototypeProtocolNumber123Const  = "number_123"
-	SecurityGroupRulePrototypeProtocolNumber124Const  = "number_124"
-	SecurityGroupRulePrototypeProtocolNumber125Const  = "number_125"
-	SecurityGroupRulePrototypeProtocolNumber126Const  = "number_126"
-	SecurityGroupRulePrototypeProtocolNumber127Const  = "number_127"
-	SecurityGroupRulePrototypeProtocolNumber128Const  = "number_128"
-	SecurityGroupRulePrototypeProtocolNumber129Const  = "number_129"
-	SecurityGroupRulePrototypeProtocolNumber13Const   = "number_13"
-	SecurityGroupRulePrototypeProtocolNumber130Const  = "number_130"
-	SecurityGroupRulePrototypeProtocolNumber131Const  = "number_131"
-	SecurityGroupRulePrototypeProtocolNumber133Const  = "number_133"
-	SecurityGroupRulePrototypeProtocolNumber134Const  = "number_134"
-	SecurityGroupRulePrototypeProtocolNumber135Const  = "number_135"
-	SecurityGroupRulePrototypeProtocolNumber136Const  = "number_136"
-	SecurityGroupRulePrototypeProtocolNumber137Const  = "number_137"
-	SecurityGroupRulePrototypeProtocolNumber138Const  = "number_138"
-	SecurityGroupRulePrototypeProtocolNumber139Const  = "number_139"
-	SecurityGroupRulePrototypeProtocolNumber14Const   = "number_14"
-	SecurityGroupRulePrototypeProtocolNumber140Const  = "number_140"
-	SecurityGroupRulePrototypeProtocolNumber141Const  = "number_141"
-	SecurityGroupRulePrototypeProtocolNumber142Const  = "number_142"
-	SecurityGroupRulePrototypeProtocolNumber143Const  = "number_143"
-	SecurityGroupRulePrototypeProtocolNumber144Const  = "number_144"
-	SecurityGroupRulePrototypeProtocolNumber145Const  = "number_145"
-	SecurityGroupRulePrototypeProtocolNumber146Const  = "number_146"
-	SecurityGroupRulePrototypeProtocolNumber147Const  = "number_147"
-	SecurityGroupRulePrototypeProtocolNumber148Const  = "number_148"
-	SecurityGroupRulePrototypeProtocolNumber149Const  = "number_149"
-	SecurityGroupRulePrototypeProtocolNumber15Const   = "number_15"
-	SecurityGroupRulePrototypeProtocolNumber150Const  = "number_150"
-	SecurityGroupRulePrototypeProtocolNumber151Const  = "number_151"
-	SecurityGroupRulePrototypeProtocolNumber152Const  = "number_152"
-	SecurityGroupRulePrototypeProtocolNumber153Const  = "number_153"
-	SecurityGroupRulePrototypeProtocolNumber154Const  = "number_154"
-	SecurityGroupRulePrototypeProtocolNumber155Const  = "number_155"
-	SecurityGroupRulePrototypeProtocolNumber156Const  = "number_156"
-	SecurityGroupRulePrototypeProtocolNumber157Const  = "number_157"
-	SecurityGroupRulePrototypeProtocolNumber158Const  = "number_158"
-	SecurityGroupRulePrototypeProtocolNumber159Const  = "number_159"
-	SecurityGroupRulePrototypeProtocolNumber16Const   = "number_16"
-	SecurityGroupRulePrototypeProtocolNumber160Const  = "number_160"
-	SecurityGroupRulePrototypeProtocolNumber161Const  = "number_161"
-	SecurityGroupRulePrototypeProtocolNumber162Const  = "number_162"
-	SecurityGroupRulePrototypeProtocolNumber163Const  = "number_163"
-	SecurityGroupRulePrototypeProtocolNumber164Const  = "number_164"
-	SecurityGroupRulePrototypeProtocolNumber165Const  = "number_165"
-	SecurityGroupRulePrototypeProtocolNumber166Const  = "number_166"
-	SecurityGroupRulePrototypeProtocolNumber167Const  = "number_167"
-	SecurityGroupRulePrototypeProtocolNumber168Const  = "number_168"
-	SecurityGroupRulePrototypeProtocolNumber169Const  = "number_169"
-	SecurityGroupRulePrototypeProtocolNumber170Const  = "number_170"
-	SecurityGroupRulePrototypeProtocolNumber171Const  = "number_171"
-	SecurityGroupRulePrototypeProtocolNumber172Const  = "number_172"
-	SecurityGroupRulePrototypeProtocolNumber173Const  = "number_173"
-	SecurityGroupRulePrototypeProtocolNumber174Const  = "number_174"
-	SecurityGroupRulePrototypeProtocolNumber175Const  = "number_175"
-	SecurityGroupRulePrototypeProtocolNumber176Const  = "number_176"
-	SecurityGroupRulePrototypeProtocolNumber177Const  = "number_177"
-	SecurityGroupRulePrototypeProtocolNumber178Const  = "number_178"
-	SecurityGroupRulePrototypeProtocolNumber179Const  = "number_179"
-	SecurityGroupRulePrototypeProtocolNumber18Const   = "number_18"
-	SecurityGroupRulePrototypeProtocolNumber180Const  = "number_180"
-	SecurityGroupRulePrototypeProtocolNumber181Const  = "number_181"
-	SecurityGroupRulePrototypeProtocolNumber182Const  = "number_182"
-	SecurityGroupRulePrototypeProtocolNumber183Const  = "number_183"
-	SecurityGroupRulePrototypeProtocolNumber184Const  = "number_184"
-	SecurityGroupRulePrototypeProtocolNumber185Const  = "number_185"
-	SecurityGroupRulePrototypeProtocolNumber186Const  = "number_186"
-	SecurityGroupRulePrototypeProtocolNumber187Const  = "number_187"
-	SecurityGroupRulePrototypeProtocolNumber188Const  = "number_188"
-	SecurityGroupRulePrototypeProtocolNumber189Const  = "number_189"
-	SecurityGroupRulePrototypeProtocolNumber19Const   = "number_19"
-	SecurityGroupRulePrototypeProtocolNumber190Const  = "number_190"
-	SecurityGroupRulePrototypeProtocolNumber191Const  = "number_191"
-	SecurityGroupRulePrototypeProtocolNumber192Const  = "number_192"
-	SecurityGroupRulePrototypeProtocolNumber193Const  = "number_193"
-	SecurityGroupRulePrototypeProtocolNumber194Const  = "number_194"
-	SecurityGroupRulePrototypeProtocolNumber195Const  = "number_195"
-	SecurityGroupRulePrototypeProtocolNumber196Const  = "number_196"
-	SecurityGroupRulePrototypeProtocolNumber197Const  = "number_197"
-	SecurityGroupRulePrototypeProtocolNumber198Const  = "number_198"
-	SecurityGroupRulePrototypeProtocolNumber199Const  = "number_199"
-	SecurityGroupRulePrototypeProtocolNumber2Const    = "number_2"
-	SecurityGroupRulePrototypeProtocolNumber20Const   = "number_20"
-	SecurityGroupRulePrototypeProtocolNumber200Const  = "number_200"
-	SecurityGroupRulePrototypeProtocolNumber201Const  = "number_201"
-	SecurityGroupRulePrototypeProtocolNumber202Const  = "number_202"
-	SecurityGroupRulePrototypeProtocolNumber203Const  = "number_203"
-	SecurityGroupRulePrototypeProtocolNumber204Const  = "number_204"
-	SecurityGroupRulePrototypeProtocolNumber205Const  = "number_205"
-	SecurityGroupRulePrototypeProtocolNumber206Const  = "number_206"
-	SecurityGroupRulePrototypeProtocolNumber207Const  = "number_207"
-	SecurityGroupRulePrototypeProtocolNumber208Const  = "number_208"
-	SecurityGroupRulePrototypeProtocolNumber209Const  = "number_209"
-	SecurityGroupRulePrototypeProtocolNumber21Const   = "number_21"
-	SecurityGroupRulePrototypeProtocolNumber210Const  = "number_210"
-	SecurityGroupRulePrototypeProtocolNumber211Const  = "number_211"
-	SecurityGroupRulePrototypeProtocolNumber212Const  = "number_212"
-	SecurityGroupRulePrototypeProtocolNumber213Const  = "number_213"
-	SecurityGroupRulePrototypeProtocolNumber214Const  = "number_214"
-	SecurityGroupRulePrototypeProtocolNumber215Const  = "number_215"
-	SecurityGroupRulePrototypeProtocolNumber216Const  = "number_216"
-	SecurityGroupRulePrototypeProtocolNumber217Const  = "number_217"
-	SecurityGroupRulePrototypeProtocolNumber218Const  = "number_218"
-	SecurityGroupRulePrototypeProtocolNumber219Const  = "number_219"
-	SecurityGroupRulePrototypeProtocolNumber22Const   = "number_22"
-	SecurityGroupRulePrototypeProtocolNumber220Const  = "number_220"
-	SecurityGroupRulePrototypeProtocolNumber221Const  = "number_221"
-	SecurityGroupRulePrototypeProtocolNumber222Const  = "number_222"
-	SecurityGroupRulePrototypeProtocolNumber223Const  = "number_223"
-	SecurityGroupRulePrototypeProtocolNumber224Const  = "number_224"
-	SecurityGroupRulePrototypeProtocolNumber225Const  = "number_225"
-	SecurityGroupRulePrototypeProtocolNumber226Const  = "number_226"
-	SecurityGroupRulePrototypeProtocolNumber227Const  = "number_227"
-	SecurityGroupRulePrototypeProtocolNumber228Const  = "number_228"
-	SecurityGroupRulePrototypeProtocolNumber229Const  = "number_229"
-	SecurityGroupRulePrototypeProtocolNumber23Const   = "number_23"
-	SecurityGroupRulePrototypeProtocolNumber230Const  = "number_230"
-	SecurityGroupRulePrototypeProtocolNumber231Const  = "number_231"
-	SecurityGroupRulePrototypeProtocolNumber232Const  = "number_232"
-	SecurityGroupRulePrototypeProtocolNumber233Const  = "number_233"
-	SecurityGroupRulePrototypeProtocolNumber234Const  = "number_234"
-	SecurityGroupRulePrototypeProtocolNumber235Const  = "number_235"
-	SecurityGroupRulePrototypeProtocolNumber236Const  = "number_236"
-	SecurityGroupRulePrototypeProtocolNumber237Const  = "number_237"
-	SecurityGroupRulePrototypeProtocolNumber238Const  = "number_238"
-	SecurityGroupRulePrototypeProtocolNumber239Const  = "number_239"
-	SecurityGroupRulePrototypeProtocolNumber24Const   = "number_24"
-	SecurityGroupRulePrototypeProtocolNumber240Const  = "number_240"
-	SecurityGroupRulePrototypeProtocolNumber241Const  = "number_241"
-	SecurityGroupRulePrototypeProtocolNumber242Const  = "number_242"
-	SecurityGroupRulePrototypeProtocolNumber243Const  = "number_243"
-	SecurityGroupRulePrototypeProtocolNumber244Const  = "number_244"
-	SecurityGroupRulePrototypeProtocolNumber245Const  = "number_245"
-	SecurityGroupRulePrototypeProtocolNumber246Const  = "number_246"
-	SecurityGroupRulePrototypeProtocolNumber247Const  = "number_247"
-	SecurityGroupRulePrototypeProtocolNumber248Const  = "number_248"
-	SecurityGroupRulePrototypeProtocolNumber249Const  = "number_249"
-	SecurityGroupRulePrototypeProtocolNumber25Const   = "number_25"
-	SecurityGroupRulePrototypeProtocolNumber250Const  = "number_250"
-	SecurityGroupRulePrototypeProtocolNumber251Const  = "number_251"
-	SecurityGroupRulePrototypeProtocolNumber252Const  = "number_252"
-	SecurityGroupRulePrototypeProtocolNumber253Const  = "number_253"
-	SecurityGroupRulePrototypeProtocolNumber254Const  = "number_254"
-	SecurityGroupRulePrototypeProtocolNumber255Const  = "number_255"
-	SecurityGroupRulePrototypeProtocolNumber26Const   = "number_26"
-	SecurityGroupRulePrototypeProtocolNumber27Const   = "number_27"
-	SecurityGroupRulePrototypeProtocolNumber28Const   = "number_28"
-	SecurityGroupRulePrototypeProtocolNumber29Const   = "number_29"
-	SecurityGroupRulePrototypeProtocolNumber3Const    = "number_3"
-	SecurityGroupRulePrototypeProtocolNumber30Const   = "number_30"
-	SecurityGroupRulePrototypeProtocolNumber31Const   = "number_31"
-	SecurityGroupRulePrototypeProtocolNumber32Const   = "number_32"
-	SecurityGroupRulePrototypeProtocolNumber33Const   = "number_33"
-	SecurityGroupRulePrototypeProtocolNumber34Const   = "number_34"
-	SecurityGroupRulePrototypeProtocolNumber35Const   = "number_35"
-	SecurityGroupRulePrototypeProtocolNumber36Const   = "number_36"
-	SecurityGroupRulePrototypeProtocolNumber37Const   = "number_37"
-	SecurityGroupRulePrototypeProtocolNumber38Const   = "number_38"
-	SecurityGroupRulePrototypeProtocolNumber39Const   = "number_39"
-	SecurityGroupRulePrototypeProtocolNumber40Const   = "number_40"
-	SecurityGroupRulePrototypeProtocolNumber41Const   = "number_41"
-	SecurityGroupRulePrototypeProtocolNumber42Const   = "number_42"
-	SecurityGroupRulePrototypeProtocolNumber43Const   = "number_43"
-	SecurityGroupRulePrototypeProtocolNumber44Const   = "number_44"
-	SecurityGroupRulePrototypeProtocolNumber45Const   = "number_45"
-	SecurityGroupRulePrototypeProtocolNumber48Const   = "number_48"
-	SecurityGroupRulePrototypeProtocolNumber49Const   = "number_49"
-	SecurityGroupRulePrototypeProtocolNumber5Const    = "number_5"
-	SecurityGroupRulePrototypeProtocolNumber52Const   = "number_52"
-	SecurityGroupRulePrototypeProtocolNumber53Const   = "number_53"
-	SecurityGroupRulePrototypeProtocolNumber54Const   = "number_54"
-	SecurityGroupRulePrototypeProtocolNumber55Const   = "number_55"
-	SecurityGroupRulePrototypeProtocolNumber56Const   = "number_56"
-	SecurityGroupRulePrototypeProtocolNumber57Const   = "number_57"
-	SecurityGroupRulePrototypeProtocolNumber58Const   = "number_58"
-	SecurityGroupRulePrototypeProtocolNumber59Const   = "number_59"
-	SecurityGroupRulePrototypeProtocolNumber60Const   = "number_60"
-	SecurityGroupRulePrototypeProtocolNumber61Const   = "number_61"
-	SecurityGroupRulePrototypeProtocolNumber62Const   = "number_62"
-	SecurityGroupRulePrototypeProtocolNumber63Const   = "number_63"
-	SecurityGroupRulePrototypeProtocolNumber64Const   = "number_64"
-	SecurityGroupRulePrototypeProtocolNumber65Const   = "number_65"
-	SecurityGroupRulePrototypeProtocolNumber66Const   = "number_66"
-	SecurityGroupRulePrototypeProtocolNumber67Const   = "number_67"
-	SecurityGroupRulePrototypeProtocolNumber68Const   = "number_68"
-	SecurityGroupRulePrototypeProtocolNumber69Const   = "number_69"
-	SecurityGroupRulePrototypeProtocolNumber7Const    = "number_7"
-	SecurityGroupRulePrototypeProtocolNumber70Const   = "number_70"
-	SecurityGroupRulePrototypeProtocolNumber71Const   = "number_71"
-	SecurityGroupRulePrototypeProtocolNumber72Const   = "number_72"
-	SecurityGroupRulePrototypeProtocolNumber73Const   = "number_73"
-	SecurityGroupRulePrototypeProtocolNumber74Const   = "number_74"
-	SecurityGroupRulePrototypeProtocolNumber75Const   = "number_75"
-	SecurityGroupRulePrototypeProtocolNumber76Const   = "number_76"
-	SecurityGroupRulePrototypeProtocolNumber77Const   = "number_77"
-	SecurityGroupRulePrototypeProtocolNumber78Const   = "number_78"
-	SecurityGroupRulePrototypeProtocolNumber79Const   = "number_79"
-	SecurityGroupRulePrototypeProtocolNumber8Const    = "number_8"
-	SecurityGroupRulePrototypeProtocolNumber80Const   = "number_80"
-	SecurityGroupRulePrototypeProtocolNumber81Const   = "number_81"
-	SecurityGroupRulePrototypeProtocolNumber82Const   = "number_82"
-	SecurityGroupRulePrototypeProtocolNumber83Const   = "number_83"
-	SecurityGroupRulePrototypeProtocolNumber84Const   = "number_84"
-	SecurityGroupRulePrototypeProtocolNumber85Const   = "number_85"
-	SecurityGroupRulePrototypeProtocolNumber86Const   = "number_86"
-	SecurityGroupRulePrototypeProtocolNumber87Const   = "number_87"
-	SecurityGroupRulePrototypeProtocolNumber88Const   = "number_88"
-	SecurityGroupRulePrototypeProtocolNumber89Const   = "number_89"
-	SecurityGroupRulePrototypeProtocolNumber9Const    = "number_9"
-	SecurityGroupRulePrototypeProtocolNumber90Const   = "number_90"
-	SecurityGroupRulePrototypeProtocolNumber91Const   = "number_91"
-	SecurityGroupRulePrototypeProtocolNumber92Const   = "number_92"
-	SecurityGroupRulePrototypeProtocolNumber93Const   = "number_93"
-	SecurityGroupRulePrototypeProtocolNumber94Const   = "number_94"
-	SecurityGroupRulePrototypeProtocolNumber95Const   = "number_95"
-	SecurityGroupRulePrototypeProtocolNumber96Const   = "number_96"
-	SecurityGroupRulePrototypeProtocolNumber97Const   = "number_97"
-	SecurityGroupRulePrototypeProtocolNumber98Const   = "number_98"
-	SecurityGroupRulePrototypeProtocolNumber99Const   = "number_99"
-	SecurityGroupRulePrototypeProtocolRsvpConst       = "rsvp"
-	SecurityGroupRulePrototypeProtocolSctpConst       = "sctp"
-	SecurityGroupRulePrototypeProtocolTCPConst        = "tcp"
-	SecurityGroupRulePrototypeProtocolUDPConst        = "udp"
-	SecurityGroupRulePrototypeProtocolVrrpConst       = "vrrp"
+	SecurityGroupRulePrototypeProtocolAhConst           = "ah"
+	SecurityGroupRulePrototypeProtocolAnyConst          = "any"
+	SecurityGroupRulePrototypeProtocolEspConst          = "esp"
+	SecurityGroupRulePrototypeProtocolGreConst          = "gre"
+	SecurityGroupRulePrototypeProtocolIPInIPConst       = "ip_in_ip"
+	SecurityGroupRulePrototypeProtocolIcmpConst         = "icmp"
+	SecurityGroupRulePrototypeProtocolIcmpTCPUDPConst   = "icmp_tcp_udp"
+	SecurityGroupRulePrototypeProtocolIpv6DestOptsConst = "ipv6_dest_opts"
+	SecurityGroupRulePrototypeProtocolIpv6FragConst     = "ipv6_frag"
+	SecurityGroupRulePrototypeProtocolIpv6HopOptConst   = "ipv6_hop_opt"
+	SecurityGroupRulePrototypeProtocolIpv6IcmpConst     = "ipv6_icmp"
+	SecurityGroupRulePrototypeProtocolIpv6MobilityConst = "ipv6_mobility"
+	SecurityGroupRulePrototypeProtocolIpv6NoNextConst   = "ipv6_no_next"
+	SecurityGroupRulePrototypeProtocolIpv6RouteConst    = "ipv6_route"
+	SecurityGroupRulePrototypeProtocolL2tpConst         = "l2tp"
+	SecurityGroupRulePrototypeProtocolNumber10Const     = "number_10"
+	SecurityGroupRulePrototypeProtocolNumber100Const    = "number_100"
+	SecurityGroupRulePrototypeProtocolNumber101Const    = "number_101"
+	SecurityGroupRulePrototypeProtocolNumber102Const    = "number_102"
+	SecurityGroupRulePrototypeProtocolNumber103Const    = "number_103"
+	SecurityGroupRulePrototypeProtocolNumber104Const    = "number_104"
+	SecurityGroupRulePrototypeProtocolNumber105Const    = "number_105"
+	SecurityGroupRulePrototypeProtocolNumber106Const    = "number_106"
+	SecurityGroupRulePrototypeProtocolNumber107Const    = "number_107"
+	SecurityGroupRulePrototypeProtocolNumber108Const    = "number_108"
+	SecurityGroupRulePrototypeProtocolNumber109Const    = "number_109"
+	SecurityGroupRulePrototypeProtocolNumber11Const     = "number_11"
+	SecurityGroupRulePrototypeProtocolNumber110Const    = "number_110"
+	SecurityGroupRulePrototypeProtocolNumber111Const    = "number_111"
+	SecurityGroupRulePrototypeProtocolNumber113Const    = "number_113"
+	SecurityGroupRulePrototypeProtocolNumber114Const    = "number_114"
+	SecurityGroupRulePrototypeProtocolNumber116Const    = "number_116"
+	SecurityGroupRulePrototypeProtocolNumber117Const    = "number_117"
+	SecurityGroupRulePrototypeProtocolNumber118Const    = "number_118"
+	SecurityGroupRulePrototypeProtocolNumber119Const    = "number_119"
+	SecurityGroupRulePrototypeProtocolNumber12Const     = "number_12"
+	SecurityGroupRulePrototypeProtocolNumber120Const    = "number_120"
+	SecurityGroupRulePrototypeProtocolNumber121Const    = "number_121"
+	SecurityGroupRulePrototypeProtocolNumber122Const    = "number_122"
+	SecurityGroupRulePrototypeProtocolNumber123Const    = "number_123"
+	SecurityGroupRulePrototypeProtocolNumber124Const    = "number_124"
+	SecurityGroupRulePrototypeProtocolNumber125Const    = "number_125"
+	SecurityGroupRulePrototypeProtocolNumber126Const    = "number_126"
+	SecurityGroupRulePrototypeProtocolNumber127Const    = "number_127"
+	SecurityGroupRulePrototypeProtocolNumber128Const    = "number_128"
+	SecurityGroupRulePrototypeProtocolNumber129Const    = "number_129"
+	SecurityGroupRulePrototypeProtocolNumber13Const     = "number_13"
+	SecurityGroupRulePrototypeProtocolNumber130Const    = "number_130"
+	SecurityGroupRulePrototypeProtocolNumber131Const    = "number_131"
+	SecurityGroupRulePrototypeProtocolNumber133Const    = "number_133"
+	SecurityGroupRulePrototypeProtocolNumber134Const    = "number_134"
+	SecurityGroupRulePrototypeProtocolNumber136Const    = "number_136"
+	SecurityGroupRulePrototypeProtocolNumber137Const    = "number_137"
+	SecurityGroupRulePrototypeProtocolNumber138Const    = "number_138"
+	SecurityGroupRulePrototypeProtocolNumber139Const    = "number_139"
+	SecurityGroupRulePrototypeProtocolNumber14Const     = "number_14"
+	SecurityGroupRulePrototypeProtocolNumber140Const    = "number_140"
+	SecurityGroupRulePrototypeProtocolNumber141Const    = "number_141"
+	SecurityGroupRulePrototypeProtocolNumber142Const    = "number_142"
+	SecurityGroupRulePrototypeProtocolNumber143Const    = "number_143"
+	SecurityGroupRulePrototypeProtocolNumber144Const    = "number_144"
+	SecurityGroupRulePrototypeProtocolNumber145Const    = "number_145"
+	SecurityGroupRulePrototypeProtocolNumber146Const    = "number_146"
+	SecurityGroupRulePrototypeProtocolNumber147Const    = "number_147"
+	SecurityGroupRulePrototypeProtocolNumber148Const    = "number_148"
+	SecurityGroupRulePrototypeProtocolNumber149Const    = "number_149"
+	SecurityGroupRulePrototypeProtocolNumber15Const     = "number_15"
+	SecurityGroupRulePrototypeProtocolNumber150Const    = "number_150"
+	SecurityGroupRulePrototypeProtocolNumber151Const    = "number_151"
+	SecurityGroupRulePrototypeProtocolNumber152Const    = "number_152"
+	SecurityGroupRulePrototypeProtocolNumber153Const    = "number_153"
+	SecurityGroupRulePrototypeProtocolNumber154Const    = "number_154"
+	SecurityGroupRulePrototypeProtocolNumber155Const    = "number_155"
+	SecurityGroupRulePrototypeProtocolNumber156Const    = "number_156"
+	SecurityGroupRulePrototypeProtocolNumber157Const    = "number_157"
+	SecurityGroupRulePrototypeProtocolNumber158Const    = "number_158"
+	SecurityGroupRulePrototypeProtocolNumber159Const    = "number_159"
+	SecurityGroupRulePrototypeProtocolNumber16Const     = "number_16"
+	SecurityGroupRulePrototypeProtocolNumber160Const    = "number_160"
+	SecurityGroupRulePrototypeProtocolNumber161Const    = "number_161"
+	SecurityGroupRulePrototypeProtocolNumber162Const    = "number_162"
+	SecurityGroupRulePrototypeProtocolNumber163Const    = "number_163"
+	SecurityGroupRulePrototypeProtocolNumber164Const    = "number_164"
+	SecurityGroupRulePrototypeProtocolNumber165Const    = "number_165"
+	SecurityGroupRulePrototypeProtocolNumber166Const    = "number_166"
+	SecurityGroupRulePrototypeProtocolNumber167Const    = "number_167"
+	SecurityGroupRulePrototypeProtocolNumber168Const    = "number_168"
+	SecurityGroupRulePrototypeProtocolNumber169Const    = "number_169"
+	SecurityGroupRulePrototypeProtocolNumber170Const    = "number_170"
+	SecurityGroupRulePrototypeProtocolNumber171Const    = "number_171"
+	SecurityGroupRulePrototypeProtocolNumber172Const    = "number_172"
+	SecurityGroupRulePrototypeProtocolNumber173Const    = "number_173"
+	SecurityGroupRulePrototypeProtocolNumber174Const    = "number_174"
+	SecurityGroupRulePrototypeProtocolNumber175Const    = "number_175"
+	SecurityGroupRulePrototypeProtocolNumber176Const    = "number_176"
+	SecurityGroupRulePrototypeProtocolNumber177Const    = "number_177"
+	SecurityGroupRulePrototypeProtocolNumber178Const    = "number_178"
+	SecurityGroupRulePrototypeProtocolNumber179Const    = "number_179"
+	SecurityGroupRulePrototypeProtocolNumber18Const     = "number_18"
+	SecurityGroupRulePrototypeProtocolNumber180Const    = "number_180"
+	SecurityGroupRulePrototypeProtocolNumber181Const    = "number_181"
+	SecurityGroupRulePrototypeProtocolNumber182Const    = "number_182"
+	SecurityGroupRulePrototypeProtocolNumber183Const    = "number_183"
+	SecurityGroupRulePrototypeProtocolNumber184Const    = "number_184"
+	SecurityGroupRulePrototypeProtocolNumber185Const    = "number_185"
+	SecurityGroupRulePrototypeProtocolNumber186Const    = "number_186"
+	SecurityGroupRulePrototypeProtocolNumber187Const    = "number_187"
+	SecurityGroupRulePrototypeProtocolNumber188Const    = "number_188"
+	SecurityGroupRulePrototypeProtocolNumber189Const    = "number_189"
+	SecurityGroupRulePrototypeProtocolNumber19Const     = "number_19"
+	SecurityGroupRulePrototypeProtocolNumber190Const    = "number_190"
+	SecurityGroupRulePrototypeProtocolNumber191Const    = "number_191"
+	SecurityGroupRulePrototypeProtocolNumber192Const    = "number_192"
+	SecurityGroupRulePrototypeProtocolNumber193Const    = "number_193"
+	SecurityGroupRulePrototypeProtocolNumber194Const    = "number_194"
+	SecurityGroupRulePrototypeProtocolNumber195Const    = "number_195"
+	SecurityGroupRulePrototypeProtocolNumber196Const    = "number_196"
+	SecurityGroupRulePrototypeProtocolNumber197Const    = "number_197"
+	SecurityGroupRulePrototypeProtocolNumber198Const    = "number_198"
+	SecurityGroupRulePrototypeProtocolNumber199Const    = "number_199"
+	SecurityGroupRulePrototypeProtocolNumber2Const      = "number_2"
+	SecurityGroupRulePrototypeProtocolNumber20Const     = "number_20"
+	SecurityGroupRulePrototypeProtocolNumber200Const    = "number_200"
+	SecurityGroupRulePrototypeProtocolNumber201Const    = "number_201"
+	SecurityGroupRulePrototypeProtocolNumber202Const    = "number_202"
+	SecurityGroupRulePrototypeProtocolNumber203Const    = "number_203"
+	SecurityGroupRulePrototypeProtocolNumber204Const    = "number_204"
+	SecurityGroupRulePrototypeProtocolNumber205Const    = "number_205"
+	SecurityGroupRulePrototypeProtocolNumber206Const    = "number_206"
+	SecurityGroupRulePrototypeProtocolNumber207Const    = "number_207"
+	SecurityGroupRulePrototypeProtocolNumber208Const    = "number_208"
+	SecurityGroupRulePrototypeProtocolNumber209Const    = "number_209"
+	SecurityGroupRulePrototypeProtocolNumber21Const     = "number_21"
+	SecurityGroupRulePrototypeProtocolNumber210Const    = "number_210"
+	SecurityGroupRulePrototypeProtocolNumber211Const    = "number_211"
+	SecurityGroupRulePrototypeProtocolNumber212Const    = "number_212"
+	SecurityGroupRulePrototypeProtocolNumber213Const    = "number_213"
+	SecurityGroupRulePrototypeProtocolNumber214Const    = "number_214"
+	SecurityGroupRulePrototypeProtocolNumber215Const    = "number_215"
+	SecurityGroupRulePrototypeProtocolNumber216Const    = "number_216"
+	SecurityGroupRulePrototypeProtocolNumber217Const    = "number_217"
+	SecurityGroupRulePrototypeProtocolNumber218Const    = "number_218"
+	SecurityGroupRulePrototypeProtocolNumber219Const    = "number_219"
+	SecurityGroupRulePrototypeProtocolNumber22Const     = "number_22"
+	SecurityGroupRulePrototypeProtocolNumber220Const    = "number_220"
+	SecurityGroupRulePrototypeProtocolNumber221Const    = "number_221"
+	SecurityGroupRulePrototypeProtocolNumber222Const    = "number_222"
+	SecurityGroupRulePrototypeProtocolNumber223Const    = "number_223"
+	SecurityGroupRulePrototypeProtocolNumber224Const    = "number_224"
+	SecurityGroupRulePrototypeProtocolNumber225Const    = "number_225"
+	SecurityGroupRulePrototypeProtocolNumber226Const    = "number_226"
+	SecurityGroupRulePrototypeProtocolNumber227Const    = "number_227"
+	SecurityGroupRulePrototypeProtocolNumber228Const    = "number_228"
+	SecurityGroupRulePrototypeProtocolNumber229Const    = "number_229"
+	SecurityGroupRulePrototypeProtocolNumber23Const     = "number_23"
+	SecurityGroupRulePrototypeProtocolNumber230Const    = "number_230"
+	SecurityGroupRulePrototypeProtocolNumber231Const    = "number_231"
+	SecurityGroupRulePrototypeProtocolNumber232Const    = "number_232"
+	SecurityGroupRulePrototypeProtocolNumber233Const    = "number_233"
+	SecurityGroupRulePrototypeProtocolNumber234Const    = "number_234"
+	SecurityGroupRulePrototypeProtocolNumber235Const    = "number_235"
+	SecurityGroupRulePrototypeProtocolNumber236Const    = "number_236"
+	SecurityGroupRulePrototypeProtocolNumber237Const    = "number_237"
+	SecurityGroupRulePrototypeProtocolNumber238Const    = "number_238"
+	SecurityGroupRulePrototypeProtocolNumber239Const    = "number_239"
+	SecurityGroupRulePrototypeProtocolNumber24Const     = "number_24"
+	SecurityGroupRulePrototypeProtocolNumber240Const    = "number_240"
+	SecurityGroupRulePrototypeProtocolNumber241Const    = "number_241"
+	SecurityGroupRulePrototypeProtocolNumber242Const    = "number_242"
+	SecurityGroupRulePrototypeProtocolNumber243Const    = "number_243"
+	SecurityGroupRulePrototypeProtocolNumber244Const    = "number_244"
+	SecurityGroupRulePrototypeProtocolNumber245Const    = "number_245"
+	SecurityGroupRulePrototypeProtocolNumber246Const    = "number_246"
+	SecurityGroupRulePrototypeProtocolNumber247Const    = "number_247"
+	SecurityGroupRulePrototypeProtocolNumber248Const    = "number_248"
+	SecurityGroupRulePrototypeProtocolNumber249Const    = "number_249"
+	SecurityGroupRulePrototypeProtocolNumber25Const     = "number_25"
+	SecurityGroupRulePrototypeProtocolNumber250Const    = "number_250"
+	SecurityGroupRulePrototypeProtocolNumber251Const    = "number_251"
+	SecurityGroupRulePrototypeProtocolNumber252Const    = "number_252"
+	SecurityGroupRulePrototypeProtocolNumber253Const    = "number_253"
+	SecurityGroupRulePrototypeProtocolNumber254Const    = "number_254"
+	SecurityGroupRulePrototypeProtocolNumber255Const    = "number_255"
+	SecurityGroupRulePrototypeProtocolNumber26Const     = "number_26"
+	SecurityGroupRulePrototypeProtocolNumber27Const     = "number_27"
+	SecurityGroupRulePrototypeProtocolNumber28Const     = "number_28"
+	SecurityGroupRulePrototypeProtocolNumber29Const     = "number_29"
+	SecurityGroupRulePrototypeProtocolNumber3Const      = "number_3"
+	SecurityGroupRulePrototypeProtocolNumber30Const     = "number_30"
+	SecurityGroupRulePrototypeProtocolNumber31Const     = "number_31"
+	SecurityGroupRulePrototypeProtocolNumber32Const     = "number_32"
+	SecurityGroupRulePrototypeProtocolNumber33Const     = "number_33"
+	SecurityGroupRulePrototypeProtocolNumber34Const     = "number_34"
+	SecurityGroupRulePrototypeProtocolNumber35Const     = "number_35"
+	SecurityGroupRulePrototypeProtocolNumber36Const     = "number_36"
+	SecurityGroupRulePrototypeProtocolNumber37Const     = "number_37"
+	SecurityGroupRulePrototypeProtocolNumber38Const     = "number_38"
+	SecurityGroupRulePrototypeProtocolNumber39Const     = "number_39"
+	SecurityGroupRulePrototypeProtocolNumber40Const     = "number_40"
+	SecurityGroupRulePrototypeProtocolNumber41Const     = "number_41"
+	SecurityGroupRulePrototypeProtocolNumber42Const     = "number_42"
+	SecurityGroupRulePrototypeProtocolNumber45Const     = "number_45"
+	SecurityGroupRulePrototypeProtocolNumber48Const     = "number_48"
+	SecurityGroupRulePrototypeProtocolNumber49Const     = "number_49"
+	SecurityGroupRulePrototypeProtocolNumber5Const      = "number_5"
+	SecurityGroupRulePrototypeProtocolNumber52Const     = "number_52"
+	SecurityGroupRulePrototypeProtocolNumber53Const     = "number_53"
+	SecurityGroupRulePrototypeProtocolNumber54Const     = "number_54"
+	SecurityGroupRulePrototypeProtocolNumber55Const     = "number_55"
+	SecurityGroupRulePrototypeProtocolNumber56Const     = "number_56"
+	SecurityGroupRulePrototypeProtocolNumber57Const     = "number_57"
+	SecurityGroupRulePrototypeProtocolNumber61Const     = "number_61"
+	SecurityGroupRulePrototypeProtocolNumber62Const     = "number_62"
+	SecurityGroupRulePrototypeProtocolNumber63Const     = "number_63"
+	SecurityGroupRulePrototypeProtocolNumber64Const     = "number_64"
+	SecurityGroupRulePrototypeProtocolNumber65Const     = "number_65"
+	SecurityGroupRulePrototypeProtocolNumber66Const     = "number_66"
+	SecurityGroupRulePrototypeProtocolNumber67Const     = "number_67"
+	SecurityGroupRulePrototypeProtocolNumber68Const     = "number_68"
+	SecurityGroupRulePrototypeProtocolNumber69Const     = "number_69"
+	SecurityGroupRulePrototypeProtocolNumber7Const      = "number_7"
+	SecurityGroupRulePrototypeProtocolNumber70Const     = "number_70"
+	SecurityGroupRulePrototypeProtocolNumber71Const     = "number_71"
+	SecurityGroupRulePrototypeProtocolNumber72Const     = "number_72"
+	SecurityGroupRulePrototypeProtocolNumber73Const     = "number_73"
+	SecurityGroupRulePrototypeProtocolNumber74Const     = "number_74"
+	SecurityGroupRulePrototypeProtocolNumber75Const     = "number_75"
+	SecurityGroupRulePrototypeProtocolNumber76Const     = "number_76"
+	SecurityGroupRulePrototypeProtocolNumber77Const     = "number_77"
+	SecurityGroupRulePrototypeProtocolNumber78Const     = "number_78"
+	SecurityGroupRulePrototypeProtocolNumber79Const     = "number_79"
+	SecurityGroupRulePrototypeProtocolNumber8Const      = "number_8"
+	SecurityGroupRulePrototypeProtocolNumber80Const     = "number_80"
+	SecurityGroupRulePrototypeProtocolNumber81Const     = "number_81"
+	SecurityGroupRulePrototypeProtocolNumber82Const     = "number_82"
+	SecurityGroupRulePrototypeProtocolNumber83Const     = "number_83"
+	SecurityGroupRulePrototypeProtocolNumber84Const     = "number_84"
+	SecurityGroupRulePrototypeProtocolNumber85Const     = "number_85"
+	SecurityGroupRulePrototypeProtocolNumber86Const     = "number_86"
+	SecurityGroupRulePrototypeProtocolNumber87Const     = "number_87"
+	SecurityGroupRulePrototypeProtocolNumber88Const     = "number_88"
+	SecurityGroupRulePrototypeProtocolNumber89Const     = "number_89"
+	SecurityGroupRulePrototypeProtocolNumber9Const      = "number_9"
+	SecurityGroupRulePrototypeProtocolNumber90Const     = "number_90"
+	SecurityGroupRulePrototypeProtocolNumber91Const     = "number_91"
+	SecurityGroupRulePrototypeProtocolNumber92Const     = "number_92"
+	SecurityGroupRulePrototypeProtocolNumber93Const     = "number_93"
+	SecurityGroupRulePrototypeProtocolNumber94Const     = "number_94"
+	SecurityGroupRulePrototypeProtocolNumber95Const     = "number_95"
+	SecurityGroupRulePrototypeProtocolNumber96Const     = "number_96"
+	SecurityGroupRulePrototypeProtocolNumber97Const     = "number_97"
+	SecurityGroupRulePrototypeProtocolNumber98Const     = "number_98"
+	SecurityGroupRulePrototypeProtocolNumber99Const     = "number_99"
+	SecurityGroupRulePrototypeProtocolRsvpConst         = "rsvp"
+	SecurityGroupRulePrototypeProtocolSctpConst         = "sctp"
+	SecurityGroupRulePrototypeProtocolTCPConst          = "tcp"
+	SecurityGroupRulePrototypeProtocolUDPConst          = "udp"
+	SecurityGroupRulePrototypeProtocolVrrpConst         = "vrrp"
 )
 
 func (*SecurityGroupRulePrototype) isaSecurityGroupRulePrototype() bool {
@@ -105652,23 +106127,17 @@ func UnmarshalSecurityGroupRulePrototype(m map[string]json.RawMessage, result in
 }
 
 // SecurityGroupRuleRemote : The remote IP addresses or security groups from which this rule allows traffic (or to which, for outbound rules). A
-// CIDR block of `0.0.0.0/0` allows traffic from any source
-// (or to any destination, for outbound rules).
+// CIDR block of `0.0.0.0/0` (or `::/0`, if `ip_version` is
+// `ipv6`) allows traffic from any source (or to any destination, for outbound rules).
 // Models which "extend" this model:
 // - SecurityGroupRuleRemoteSecurityGroupRuleIP
 // - SecurityGroupRuleRemoteSecurityGroupRuleCIDR
 // - SecurityGroupRuleRemoteSecurityGroupReference
 type SecurityGroupRuleRemote struct {
 	// The IP address.
-	//
-	// This property may [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support IPv6 addresses in
-	// the future.
 	Address *string `json:"address,omitempty"`
 
 	// The CIDR block.
-	//
-	// This property may [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support IPv6 CIDR blocks
-	// in the future.
 	CIDRBlock *string `json:"cidr_block,omitempty"`
 
 	// The CRN for this security group.
@@ -105741,7 +106210,8 @@ func UnmarshalSecurityGroupRuleRemote(m map[string]json.RawMessage, result inter
 // SecurityGroupRuleRemotePatch : The remote IP addresses or security groups from which this rule will allow traffic (or to which, for outbound rules).
 // Can be specified as an IP address, a CIDR block, or a security group.
 //
-// Specify a CIDR block of `0.0.0.0/0` to allow traffic from any source (or to any destination, for outbound rules).
+// Specify a CIDR block of `0.0.0.0/0` (or `::/0`, if `ip_version` is `ipv6`) to allow traffic from any source (or to
+// any destination, for outbound rules).
 // Models which "extend" this model:
 // - SecurityGroupRuleRemotePatchSecurityGroupRuleIPPrototype
 // - SecurityGroupRuleRemotePatchSecurityGroupRuleCIDRPrototype
@@ -105829,8 +106299,8 @@ func (securityGroupRuleRemotePatch *SecurityGroupRuleRemotePatch) asPatch() (_pa
 // SecurityGroupRuleRemotePrototype : The remote IP addresses or security groups from which this rule will allow traffic (or to which, for outbound rules).
 // Can be specified as an IP address, a CIDR block, or a security group within the VPC.
 //
-// If unspecified, a CIDR block of `0.0.0.0/0` will be used to allow traffic from any source
-// (or to any destination, for outbound rules).
+// If unspecified, a CIDR block of `0.0.0.0/0` (or `::/0`, if `ip_version` is `ipv6`) will be used to allow traffic from
+// any source (or to any destination, for outbound rules).
 // Models which "extend" this model:
 // - SecurityGroupRuleRemotePrototypeSecurityGroupRuleIPPrototype
 // - SecurityGroupRuleRemotePrototypeSecurityGroupRuleCIDRPrototype
@@ -114606,6 +115076,44 @@ func (options *UpdatePrivatePathServiceGatewayOptions) SetHeaders(param map[stri
 	return options
 }
 
+// UpdatePublicAddressRangeAuthorizedCIDROptions : The UpdatePublicAddressRangeAuthorizedCIDR options.
+type UpdatePublicAddressRangeAuthorizedCIDROptions struct {
+	// The public address range authorized CIDR identifier.
+	ID *string `json:"id" validate:"required,ne="`
+
+	// The public address range authorized CIDR patch.
+	PublicAddressRangeAuthorizedCIDRPatch map[string]interface{} `json:"PublicAddressRangeAuthorizedCIDR_patch" validate:"required"`
+
+	// Allows users to set headers on API requests.
+	Headers map[string]string
+}
+
+// NewUpdatePublicAddressRangeAuthorizedCIDROptions : Instantiate UpdatePublicAddressRangeAuthorizedCIDROptions
+func (*VpcV1) NewUpdatePublicAddressRangeAuthorizedCIDROptions(id string, publicAddressRangeAuthorizedCIDRPatch map[string]interface{}) *UpdatePublicAddressRangeAuthorizedCIDROptions {
+	return &UpdatePublicAddressRangeAuthorizedCIDROptions{
+		ID:                                    core.StringPtr(id),
+		PublicAddressRangeAuthorizedCIDRPatch: publicAddressRangeAuthorizedCIDRPatch,
+	}
+}
+
+// SetID : Allow user to set ID
+func (_options *UpdatePublicAddressRangeAuthorizedCIDROptions) SetID(id string) *UpdatePublicAddressRangeAuthorizedCIDROptions {
+	_options.ID = core.StringPtr(id)
+	return _options
+}
+
+// SetPublicAddressRangeAuthorizedCIDRPatch : Allow user to set PublicAddressRangeAuthorizedCIDRPatch
+func (_options *UpdatePublicAddressRangeAuthorizedCIDROptions) SetPublicAddressRangeAuthorizedCIDRPatch(publicAddressRangeAuthorizedCIDRPatch map[string]interface{}) *UpdatePublicAddressRangeAuthorizedCIDROptions {
+	_options.PublicAddressRangeAuthorizedCIDRPatch = publicAddressRangeAuthorizedCIDRPatch
+	return _options
+}
+
+// SetHeaders : Allow user to set Headers
+func (options *UpdatePublicAddressRangeAuthorizedCIDROptions) SetHeaders(param map[string]string) *UpdatePublicAddressRangeAuthorizedCIDROptions {
+	options.Headers = param
+	return options
+}
+
 // UpdatePublicAddressRangeOptions : The UpdatePublicAddressRange options.
 type UpdatePublicAddressRangeOptions struct {
 	// The public address range identifier.
@@ -121961,6 +122469,9 @@ type VirtualNetworkInterface struct {
 	// mode](https://cloud.ibm.com/docs/vpc?topic=vpc-vni-about#protocol-state-filtering)) for more information.
 	ProtocolStateFilteringMode *string `json:"protocol_state_filtering_mode" validate:"required"`
 
+	// The public address ranges attached to this virtual network interface.
+	PublicAddressRanges []PublicAddressRangeReference `json:"public_address_ranges" validate:"required"`
+
 	// The resource group for this virtual network interface.
 	ResourceGroup *ResourceGroupReference `json:"resource_group" validate:"required"`
 
@@ -122086,6 +122597,11 @@ func UnmarshalVirtualNetworkInterface(m map[string]json.RawMessage, result inter
 	err = core.UnmarshalPrimitive(m, "protocol_state_filtering_mode", &obj.ProtocolStateFilteringMode)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "protocol_state_filtering_mode-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "public_address_ranges", &obj.PublicAddressRanges, UnmarshalPublicAddressRangeReference)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "public_address_ranges-error", common.GetComponentInfo())
 		return
 	}
 	err = core.UnmarshalModel(m, "resource_group", &obj.ResourceGroup, UnmarshalResourceGroupReference)
@@ -122256,6 +122772,69 @@ func UnmarshalVirtualNetworkInterfaceIPPrototype(m map[string]json.RawMessage, r
 		return
 	}
 	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// VirtualNetworkInterfaceIdentity : Identifies a virtual network interface by a unique property.
+// Models which "extend" this model:
+// - VirtualNetworkInterfaceIdentityByID
+// - VirtualNetworkInterfaceIdentityByHref
+// - VirtualNetworkInterfaceIdentityByCRN
+type VirtualNetworkInterfaceIdentity struct {
+	// The unique identifier for this virtual network interface.
+	ID *string `json:"id,omitempty"`
+
+	// The URL for this virtual network interface.
+	Href *string `json:"href,omitempty"`
+
+	// The CRN for this virtual network interface.
+	CRN *string `json:"crn,omitempty"`
+}
+
+func (*VirtualNetworkInterfaceIdentity) isaVirtualNetworkInterfaceIdentity() bool {
+	return true
+}
+
+type VirtualNetworkInterfaceIdentityIntf interface {
+	isaVirtualNetworkInterfaceIdentity() bool
+	asPatch() map[string]interface{}
+}
+
+// UnmarshalVirtualNetworkInterfaceIdentity unmarshals an instance of VirtualNetworkInterfaceIdentity from the specified map of raw messages.
+func UnmarshalVirtualNetworkInterfaceIdentity(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VirtualNetworkInterfaceIdentity)
+	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "id-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "href-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "crn-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// asPatch returns a generic map representation of the VirtualNetworkInterfaceIdentity
+func (virtualNetworkInterfaceIdentity *VirtualNetworkInterfaceIdentity) asPatch() (_patch map[string]interface{}) {
+	_patch = map[string]interface{}{}
+	if !core.IsNil(virtualNetworkInterfaceIdentity.ID) {
+		_patch["id"] = virtualNetworkInterfaceIdentity.ID
+	}
+	if !core.IsNil(virtualNetworkInterfaceIdentity.Href) {
+		_patch["href"] = virtualNetworkInterfaceIdentity.Href
+	}
+	if !core.IsNil(virtualNetworkInterfaceIdentity.CRN) {
+		_patch["crn"] = virtualNetworkInterfaceIdentity.CRN
+	}
+
 	return
 }
 
@@ -122438,6 +123017,87 @@ func UnmarshalVirtualNetworkInterfacePrimaryIPPrototype(m map[string]json.RawMes
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// VirtualNetworkInterfaceReference : VirtualNetworkInterfaceReference struct
+type VirtualNetworkInterfaceReference struct {
+	// The CRN for this virtual network interface.
+	CRN *string `json:"crn" validate:"required"`
+
+	// If present, this property indicates the referenced resource has been deleted, and provides
+	// some supplementary information.
+	Deleted *Deleted `json:"deleted,omitempty"`
+
+	// The URL for this virtual network interface.
+	Href *string `json:"href" validate:"required"`
+
+	// The unique identifier for this virtual network interface.
+	ID *string `json:"id" validate:"required"`
+
+	// The name for this virtual network interface. The name is unique across all virtual network interfaces in the VPC.
+	Name *string `json:"name" validate:"required"`
+
+	// The primary IP for this virtual network interface.
+	PrimaryIP *ReservedIPReference `json:"primary_ip" validate:"required"`
+
+	// The resource type.
+	ResourceType *string `json:"resource_type" validate:"required"`
+
+	// The associated subnet.
+	Subnet *SubnetReference `json:"subnet" validate:"required"`
+}
+
+// Constants associated with the VirtualNetworkInterfaceReference.ResourceType property.
+// The resource type.
+const (
+	VirtualNetworkInterfaceReferenceResourceTypeVirtualNetworkInterfaceConst = "virtual_network_interface"
+)
+
+// UnmarshalVirtualNetworkInterfaceReference unmarshals an instance of VirtualNetworkInterfaceReference from the specified map of raw messages.
+func UnmarshalVirtualNetworkInterfaceReference(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VirtualNetworkInterfaceReference)
+	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "crn-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "deleted", &obj.Deleted, UnmarshalDeleted)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "deleted-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "href-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "id-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "primary_ip", &obj.PrimaryIP, UnmarshalReservedIPReference)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "primary_ip-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "resource_type-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "subnet", &obj.Subnet, UnmarshalSubnetReference)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "subnet-error", common.GetComponentInfo())
 		return
 	}
 	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
@@ -146749,10 +147409,8 @@ type NetworkACLRuleItemNetworkACLRuleProtocolAny struct {
 	// The date and time that the rule was created.
 	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
 
-	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all destination addresses.
-	//
-	// This property may [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support IPv6 addresses or
-	// CIDR blocks in the future.
+	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` (or `::/0` if `ip_version` is `ipv6`)
+	// matches all destination addresses.
 	Destination *string `json:"destination" validate:"required"`
 
 	// The direction of traffic to match.
@@ -146764,20 +147422,14 @@ type NetworkACLRuleItemNetworkACLRuleProtocolAny struct {
 	// The unique identifier for this network ACL rule.
 	ID *string `json:"id" validate:"required"`
 
-	// The IP version for this rule.
-	//
-	// The enumerated values for this property may
-	// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support `ipv6` in the future.
-	IPVersion *string `json:"ip_version" validate:"required"`
-
 	// The name for this network ACL rule. The name is unique across all rules for the network ACL.
 	Name *string `json:"name" validate:"required"`
 
-	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all source addresses.
-	//
-	// This property may [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support IPv6 CIDR blocks
-	// in the future.
+	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` (or `::/0` if
+	// `ip_version` is `ipv6`) matches all source addresses.
 	Source *string `json:"source" validate:"required"`
+
+	IPVersion *string `json:"ip_version" validate:"required"`
 
 	// The network protocol.
 	Protocol *string `json:"protocol" validate:"required"`
@@ -146798,12 +147450,9 @@ const (
 )
 
 // Constants associated with the NetworkACLRuleItemNetworkACLRuleProtocolAny.IPVersion property.
-// The IP version for this rule.
-//
-// The enumerated values for this property may
-// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support `ipv6` in the future.
 const (
 	NetworkACLRuleItemNetworkACLRuleProtocolAnyIPVersionIpv4Const = "ipv4"
+	NetworkACLRuleItemNetworkACLRuleProtocolAnyIPVersionIpv6Const = "ipv6"
 )
 
 // Constants associated with the NetworkACLRuleItemNetworkACLRuleProtocolAny.Protocol property.
@@ -146854,11 +147503,6 @@ func UnmarshalNetworkACLRuleItemNetworkACLRuleProtocolAny(m map[string]json.RawM
 		err = core.SDKErrorf(err, "", "id-error", common.GetComponentInfo())
 		return
 	}
-	err = core.UnmarshalPrimitive(m, "ip_version", &obj.IPVersion)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "ip_version-error", common.GetComponentInfo())
-		return
-	}
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
@@ -146867,6 +147511,11 @@ func UnmarshalNetworkACLRuleItemNetworkACLRuleProtocolAny(m map[string]json.RawM
 	err = core.UnmarshalPrimitive(m, "source", &obj.Source)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "source-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "ip_version", &obj.IPVersion)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "ip_version-error", common.GetComponentInfo())
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "protocol", &obj.Protocol)
@@ -146878,7 +147527,7 @@ func UnmarshalNetworkACLRuleItemNetworkACLRuleProtocolAny(m map[string]json.RawM
 	return
 }
 
-// NetworkACLRuleItemNetworkACLRuleProtocolIcmp : A rule for ICMP traffic.
+// NetworkACLRuleItemNetworkACLRuleProtocolIcmp : A rule for IPv4 ICMP traffic.
 // This model "extends" NetworkACLRuleItem
 type NetworkACLRuleItemNetworkACLRuleProtocolIcmp struct {
 	// The action to perform for a packet matching the rule.
@@ -146891,10 +147540,8 @@ type NetworkACLRuleItemNetworkACLRuleProtocolIcmp struct {
 	// The date and time that the rule was created.
 	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
 
-	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all destination addresses.
-	//
-	// This property may [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support IPv6 addresses or
-	// CIDR blocks in the future.
+	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` (or `::/0` if `ip_version` is `ipv6`)
+	// matches all destination addresses.
 	Destination *string `json:"destination" validate:"required"`
 
 	// The direction of traffic to match.
@@ -146906,25 +147553,19 @@ type NetworkACLRuleItemNetworkACLRuleProtocolIcmp struct {
 	// The unique identifier for this network ACL rule.
 	ID *string `json:"id" validate:"required"`
 
-	// The IP version for this rule.
-	//
-	// The enumerated values for this property may
-	// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support `ipv6` in the future.
-	IPVersion *string `json:"ip_version" validate:"required"`
-
 	// The name for this network ACL rule. The name is unique across all rules for the network ACL.
 	Name *string `json:"name" validate:"required"`
 
-	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all source addresses.
-	//
-	// This property may [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support IPv6 CIDR blocks
-	// in the future.
+	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` (or `::/0` if
+	// `ip_version` is `ipv6`) matches all source addresses.
 	Source *string `json:"source" validate:"required"`
 
 	// The ICMP traffic code to match.
 	//
 	// If absent, all codes are matched.
 	Code *int64 `json:"code,omitempty"`
+
+	IPVersion *string `json:"ip_version" validate:"required"`
 
 	// The network protocol.
 	Protocol *string `json:"protocol" validate:"required"`
@@ -146950,10 +147591,6 @@ const (
 )
 
 // Constants associated with the NetworkACLRuleItemNetworkACLRuleProtocolIcmp.IPVersion property.
-// The IP version for this rule.
-//
-// The enumerated values for this property may
-// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support `ipv6` in the future.
 const (
 	NetworkACLRuleItemNetworkACLRuleProtocolIcmpIPVersionIpv4Const = "ipv4"
 )
@@ -147006,11 +147643,6 @@ func UnmarshalNetworkACLRuleItemNetworkACLRuleProtocolIcmp(m map[string]json.Raw
 		err = core.SDKErrorf(err, "", "id-error", common.GetComponentInfo())
 		return
 	}
-	err = core.UnmarshalPrimitive(m, "ip_version", &obj.IPVersion)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "ip_version-error", common.GetComponentInfo())
-		return
-	}
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
@@ -147024,6 +147656,11 @@ func UnmarshalNetworkACLRuleItemNetworkACLRuleProtocolIcmp(m map[string]json.Raw
 	err = core.UnmarshalPrimitive(m, "code", &obj.Code)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "code-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "ip_version", &obj.IPVersion)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "ip_version-error", common.GetComponentInfo())
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "protocol", &obj.Protocol)
@@ -147040,7 +147677,7 @@ func UnmarshalNetworkACLRuleItemNetworkACLRuleProtocolIcmp(m map[string]json.Raw
 	return
 }
 
-// NetworkACLRuleItemNetworkACLRuleProtocolIcmptcpudp : NetworkACLRuleItemNetworkACLRuleProtocolIcmptcpudp struct
+// NetworkACLRuleItemNetworkACLRuleProtocolIcmptcpudp : A rule for ICMP, TCP and UDP traffic.
 // This model "extends" NetworkACLRuleItem
 type NetworkACLRuleItemNetworkACLRuleProtocolIcmptcpudp struct {
 	// The action to perform for a packet matching the rule.
@@ -147053,10 +147690,8 @@ type NetworkACLRuleItemNetworkACLRuleProtocolIcmptcpudp struct {
 	// The date and time that the rule was created.
 	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
 
-	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all destination addresses.
-	//
-	// This property may [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support IPv6 addresses or
-	// CIDR blocks in the future.
+	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` (or `::/0` if `ip_version` is `ipv6`)
+	// matches all destination addresses.
 	Destination *string `json:"destination" validate:"required"`
 
 	// The direction of traffic to match.
@@ -147068,20 +147703,14 @@ type NetworkACLRuleItemNetworkACLRuleProtocolIcmptcpudp struct {
 	// The unique identifier for this network ACL rule.
 	ID *string `json:"id" validate:"required"`
 
-	// The IP version for this rule.
-	//
-	// The enumerated values for this property may
-	// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support `ipv6` in the future.
-	IPVersion *string `json:"ip_version" validate:"required"`
-
 	// The name for this network ACL rule. The name is unique across all rules for the network ACL.
 	Name *string `json:"name" validate:"required"`
 
-	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all source addresses.
-	//
-	// This property may [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support IPv6 CIDR blocks
-	// in the future.
+	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` (or `::/0` if
+	// `ip_version` is `ipv6`) matches all source addresses.
 	Source *string `json:"source" validate:"required"`
+
+	IPVersion *string `json:"ip_version" validate:"required"`
 
 	// The network protocol.
 	Protocol *string `json:"protocol" validate:"required"`
@@ -147102,10 +147731,6 @@ const (
 )
 
 // Constants associated with the NetworkACLRuleItemNetworkACLRuleProtocolIcmptcpudp.IPVersion property.
-// The IP version for this rule.
-//
-// The enumerated values for this property may
-// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support `ipv6` in the future.
 const (
 	NetworkACLRuleItemNetworkACLRuleProtocolIcmptcpudpIPVersionIpv4Const = "ipv4"
 )
@@ -147158,9 +147783,144 @@ func UnmarshalNetworkACLRuleItemNetworkACLRuleProtocolIcmptcpudp(m map[string]js
 		err = core.SDKErrorf(err, "", "id-error", common.GetComponentInfo())
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "source", &obj.Source)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "source-error", common.GetComponentInfo())
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "ip_version", &obj.IPVersion)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "ip_version-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "protocol", &obj.Protocol)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "protocol-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// NetworkACLRuleItemNetworkACLRuleProtocolIPv6Icmp : A rule for IPv6 ICMP traffic.
+// This model "extends" NetworkACLRuleItem
+type NetworkACLRuleItemNetworkACLRuleProtocolIPv6Icmp struct {
+	// The action to perform for a packet matching the rule.
+	Action *string `json:"action" validate:"required"`
+
+	// The rule that this rule is immediately before. In a rule collection, this always refers to the next item in the
+	// collection. If absent, this is the last rule.
+	Before *NetworkACLRuleReference `json:"before,omitempty"`
+
+	// The date and time that the rule was created.
+	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
+
+	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` (or `::/0` if `ip_version` is `ipv6`)
+	// matches all destination addresses.
+	Destination *string `json:"destination" validate:"required"`
+
+	// The direction of traffic to match.
+	Direction *string `json:"direction" validate:"required"`
+
+	// The URL for this network ACL rule.
+	Href *string `json:"href" validate:"required"`
+
+	// The unique identifier for this network ACL rule.
+	ID *string `json:"id" validate:"required"`
+
+	// The name for this network ACL rule. The name is unique across all rules for the network ACL.
+	Name *string `json:"name" validate:"required"`
+
+	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` (or `::/0` if
+	// `ip_version` is `ipv6`) matches all source addresses.
+	Source *string `json:"source" validate:"required"`
+
+	// The IPv6 ICMP traffic code to match.
+	//
+	// If absent, all codes are matched.
+	Code *int64 `json:"code,omitempty"`
+
+	IPVersion *string `json:"ip_version" validate:"required"`
+
+	// The network protocol.
+	Protocol *string `json:"protocol" validate:"required"`
+
+	// The IPv6 ICMP traffic type to match.
+	//
+	// If absent, all types are matched.
+	Type *int64 `json:"type,omitempty"`
+}
+
+// Constants associated with the NetworkACLRuleItemNetworkACLRuleProtocolIPv6Icmp.Action property.
+// The action to perform for a packet matching the rule.
+const (
+	NetworkACLRuleItemNetworkACLRuleProtocolIPv6IcmpActionAllowConst = "allow"
+	NetworkACLRuleItemNetworkACLRuleProtocolIPv6IcmpActionDenyConst  = "deny"
+)
+
+// Constants associated with the NetworkACLRuleItemNetworkACLRuleProtocolIPv6Icmp.Direction property.
+// The direction of traffic to match.
+const (
+	NetworkACLRuleItemNetworkACLRuleProtocolIPv6IcmpDirectionInboundConst  = "inbound"
+	NetworkACLRuleItemNetworkACLRuleProtocolIPv6IcmpDirectionOutboundConst = "outbound"
+)
+
+// Constants associated with the NetworkACLRuleItemNetworkACLRuleProtocolIPv6Icmp.IPVersion property.
+const (
+	NetworkACLRuleItemNetworkACLRuleProtocolIPv6IcmpIPVersionIpv6Const = "ipv6"
+)
+
+// Constants associated with the NetworkACLRuleItemNetworkACLRuleProtocolIPv6Icmp.Protocol property.
+// The network protocol.
+const (
+	NetworkACLRuleItemNetworkACLRuleProtocolIPv6IcmpProtocolIpv6IcmpConst = "ipv6_icmp"
+)
+
+func (*NetworkACLRuleItemNetworkACLRuleProtocolIPv6Icmp) isaNetworkACLRuleItem() bool {
+	return true
+}
+
+// UnmarshalNetworkACLRuleItemNetworkACLRuleProtocolIPv6Icmp unmarshals an instance of NetworkACLRuleItemNetworkACLRuleProtocolIPv6Icmp from the specified map of raw messages.
+func UnmarshalNetworkACLRuleItemNetworkACLRuleProtocolIPv6Icmp(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(NetworkACLRuleItemNetworkACLRuleProtocolIPv6Icmp)
+	err = core.UnmarshalPrimitive(m, "action", &obj.Action)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "action-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "before", &obj.Before, UnmarshalNetworkACLRuleReference)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "before-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "created_at", &obj.CreatedAt)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "created_at-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "destination", &obj.Destination)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "destination-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "direction", &obj.Direction)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "direction-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "href-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "id-error", common.GetComponentInfo())
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
@@ -147173,9 +147933,24 @@ func UnmarshalNetworkACLRuleItemNetworkACLRuleProtocolIcmptcpudp(m map[string]js
 		err = core.SDKErrorf(err, "", "source-error", common.GetComponentInfo())
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "code", &obj.Code)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "code-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "ip_version", &obj.IPVersion)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "ip_version-error", common.GetComponentInfo())
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "protocol", &obj.Protocol)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "protocol-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "type-error", common.GetComponentInfo())
 		return
 	}
 	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
@@ -147195,10 +147970,8 @@ type NetworkACLRuleItemNetworkACLRuleProtocolIndividual struct {
 	// The date and time that the rule was created.
 	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
 
-	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all destination addresses.
-	//
-	// This property may [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support IPv6 addresses or
-	// CIDR blocks in the future.
+	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` (or `::/0` if `ip_version` is `ipv6`)
+	// matches all destination addresses.
 	Destination *string `json:"destination" validate:"required"`
 
 	// The direction of traffic to match.
@@ -147210,20 +147983,14 @@ type NetworkACLRuleItemNetworkACLRuleProtocolIndividual struct {
 	// The unique identifier for this network ACL rule.
 	ID *string `json:"id" validate:"required"`
 
-	// The IP version for this rule.
-	//
-	// The enumerated values for this property may
-	// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support `ipv6` in the future.
-	IPVersion *string `json:"ip_version" validate:"required"`
-
 	// The name for this network ACL rule. The name is unique across all rules for the network ACL.
 	Name *string `json:"name" validate:"required"`
 
-	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all source addresses.
-	//
-	// This property may [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support IPv6 CIDR blocks
-	// in the future.
+	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` (or `::/0` if
+	// `ip_version` is `ipv6`) matches all source addresses.
 	Source *string `json:"source" validate:"required"`
+
+	IPVersion *string `json:"ip_version" validate:"required"`
 
 	// The network protocol.
 	Protocol *string `json:"protocol" validate:"required"`
@@ -147244,12 +148011,9 @@ const (
 )
 
 // Constants associated with the NetworkACLRuleItemNetworkACLRuleProtocolIndividual.IPVersion property.
-// The IP version for this rule.
-//
-// The enumerated values for this property may
-// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support `ipv6` in the future.
 const (
 	NetworkACLRuleItemNetworkACLRuleProtocolIndividualIPVersionIpv4Const = "ipv4"
+	NetworkACLRuleItemNetworkACLRuleProtocolIndividualIPVersionIpv6Const = "ipv6"
 )
 
 // Constants associated with the NetworkACLRuleItemNetworkACLRuleProtocolIndividual.Protocol property.
@@ -147260,7 +148024,6 @@ const (
 	NetworkACLRuleItemNetworkACLRuleProtocolIndividualProtocolGreConst       = "gre"
 	NetworkACLRuleItemNetworkACLRuleProtocolIndividualProtocolIPInIPConst    = "ip_in_ip"
 	NetworkACLRuleItemNetworkACLRuleProtocolIndividualProtocolL2tpConst      = "l2tp"
-	NetworkACLRuleItemNetworkACLRuleProtocolIndividualProtocolNumber0Const   = "number_0"
 	NetworkACLRuleItemNetworkACLRuleProtocolIndividualProtocolNumber10Const  = "number_10"
 	NetworkACLRuleItemNetworkACLRuleProtocolIndividualProtocolNumber100Const = "number_100"
 	NetworkACLRuleItemNetworkACLRuleProtocolIndividualProtocolNumber101Const = "number_101"
@@ -147297,7 +148060,6 @@ const (
 	NetworkACLRuleItemNetworkACLRuleProtocolIndividualProtocolNumber131Const = "number_131"
 	NetworkACLRuleItemNetworkACLRuleProtocolIndividualProtocolNumber133Const = "number_133"
 	NetworkACLRuleItemNetworkACLRuleProtocolIndividualProtocolNumber134Const = "number_134"
-	NetworkACLRuleItemNetworkACLRuleProtocolIndividualProtocolNumber135Const = "number_135"
 	NetworkACLRuleItemNetworkACLRuleProtocolIndividualProtocolNumber136Const = "number_136"
 	NetworkACLRuleItemNetworkACLRuleProtocolIndividualProtocolNumber137Const = "number_137"
 	NetworkACLRuleItemNetworkACLRuleProtocolIndividualProtocolNumber138Const = "number_138"
@@ -147448,8 +148210,6 @@ const (
 	NetworkACLRuleItemNetworkACLRuleProtocolIndividualProtocolNumber40Const  = "number_40"
 	NetworkACLRuleItemNetworkACLRuleProtocolIndividualProtocolNumber41Const  = "number_41"
 	NetworkACLRuleItemNetworkACLRuleProtocolIndividualProtocolNumber42Const  = "number_42"
-	NetworkACLRuleItemNetworkACLRuleProtocolIndividualProtocolNumber43Const  = "number_43"
-	NetworkACLRuleItemNetworkACLRuleProtocolIndividualProtocolNumber44Const  = "number_44"
 	NetworkACLRuleItemNetworkACLRuleProtocolIndividualProtocolNumber45Const  = "number_45"
 	NetworkACLRuleItemNetworkACLRuleProtocolIndividualProtocolNumber48Const  = "number_48"
 	NetworkACLRuleItemNetworkACLRuleProtocolIndividualProtocolNumber49Const  = "number_49"
@@ -147460,9 +148220,6 @@ const (
 	NetworkACLRuleItemNetworkACLRuleProtocolIndividualProtocolNumber55Const  = "number_55"
 	NetworkACLRuleItemNetworkACLRuleProtocolIndividualProtocolNumber56Const  = "number_56"
 	NetworkACLRuleItemNetworkACLRuleProtocolIndividualProtocolNumber57Const  = "number_57"
-	NetworkACLRuleItemNetworkACLRuleProtocolIndividualProtocolNumber58Const  = "number_58"
-	NetworkACLRuleItemNetworkACLRuleProtocolIndividualProtocolNumber59Const  = "number_59"
-	NetworkACLRuleItemNetworkACLRuleProtocolIndividualProtocolNumber60Const  = "number_60"
 	NetworkACLRuleItemNetworkACLRuleProtocolIndividualProtocolNumber61Const  = "number_61"
 	NetworkACLRuleItemNetworkACLRuleProtocolIndividualProtocolNumber62Const  = "number_62"
 	NetworkACLRuleItemNetworkACLRuleProtocolIndividualProtocolNumber63Const  = "number_63"
@@ -147552,9 +148309,151 @@ func UnmarshalNetworkACLRuleItemNetworkACLRuleProtocolIndividual(m map[string]js
 		err = core.SDKErrorf(err, "", "id-error", common.GetComponentInfo())
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "source", &obj.Source)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "source-error", common.GetComponentInfo())
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "ip_version", &obj.IPVersion)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "ip_version-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "protocol", &obj.Protocol)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "protocol-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// NetworkACLRuleItemNetworkACLRuleProtocolIndividualIPv6 : NetworkACLRuleItemNetworkACLRuleProtocolIndividualIPv6 struct
+// This model "extends" NetworkACLRuleItem
+type NetworkACLRuleItemNetworkACLRuleProtocolIndividualIPv6 struct {
+	// The action to perform for a packet matching the rule.
+	Action *string `json:"action" validate:"required"`
+
+	// The rule that this rule is immediately before. In a rule collection, this always refers to the next item in the
+	// collection. If absent, this is the last rule.
+	Before *NetworkACLRuleReference `json:"before,omitempty"`
+
+	// The date and time that the rule was created.
+	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
+
+	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` (or `::/0` if `ip_version` is `ipv6`)
+	// matches all destination addresses.
+	Destination *string `json:"destination" validate:"required"`
+
+	// The direction of traffic to match.
+	Direction *string `json:"direction" validate:"required"`
+
+	// The URL for this network ACL rule.
+	Href *string `json:"href" validate:"required"`
+
+	// The unique identifier for this network ACL rule.
+	ID *string `json:"id" validate:"required"`
+
+	// The name for this network ACL rule. The name is unique across all rules for the network ACL.
+	Name *string `json:"name" validate:"required"`
+
+	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` (or `::/0` if
+	// `ip_version` is `ipv6`) matches all source addresses.
+	Source *string `json:"source" validate:"required"`
+
+	IPVersion *string `json:"ip_version" validate:"required"`
+
+	// A network protocol that requires `ip_version` to be `ipv6`:
+	// - `ipv6_hop_opt`: IPv6 Hop-by-Hop Option (protocol number `0`)
+	// - `ipv6_route`: Routing Header for IPv6 (protocol number `43`)
+	// - `ipv6_frag`: Fragment Header for IPv6 (protocol number `44`)
+	// - `ipv6_no_next`: No Next Header for IPv6 (protocol number `59`)
+	// - `ipv6_dest_opts`: Destination Options for IPv6 (protocol number `60`)
+	// - `ipv6_mobility`: Mobility Header for IPv6 (protocol number `135`).
+	Protocol *string `json:"protocol" validate:"required"`
+}
+
+// Constants associated with the NetworkACLRuleItemNetworkACLRuleProtocolIndividualIPv6.Action property.
+// The action to perform for a packet matching the rule.
+const (
+	NetworkACLRuleItemNetworkACLRuleProtocolIndividualIPv6ActionAllowConst = "allow"
+	NetworkACLRuleItemNetworkACLRuleProtocolIndividualIPv6ActionDenyConst  = "deny"
+)
+
+// Constants associated with the NetworkACLRuleItemNetworkACLRuleProtocolIndividualIPv6.Direction property.
+// The direction of traffic to match.
+const (
+	NetworkACLRuleItemNetworkACLRuleProtocolIndividualIPv6DirectionInboundConst  = "inbound"
+	NetworkACLRuleItemNetworkACLRuleProtocolIndividualIPv6DirectionOutboundConst = "outbound"
+)
+
+// Constants associated with the NetworkACLRuleItemNetworkACLRuleProtocolIndividualIPv6.IPVersion property.
+const (
+	NetworkACLRuleItemNetworkACLRuleProtocolIndividualIPv6IPVersionIpv6Const = "ipv6"
+)
+
+// Constants associated with the NetworkACLRuleItemNetworkACLRuleProtocolIndividualIPv6.Protocol property.
+// A network protocol that requires `ip_version` to be `ipv6`:
+// - `ipv6_hop_opt`: IPv6 Hop-by-Hop Option (protocol number `0`)
+// - `ipv6_route`: Routing Header for IPv6 (protocol number `43`)
+// - `ipv6_frag`: Fragment Header for IPv6 (protocol number `44`)
+// - `ipv6_no_next`: No Next Header for IPv6 (protocol number `59`)
+// - `ipv6_dest_opts`: Destination Options for IPv6 (protocol number `60`)
+// - `ipv6_mobility`: Mobility Header for IPv6 (protocol number `135`).
+const (
+	NetworkACLRuleItemNetworkACLRuleProtocolIndividualIPv6ProtocolIpv6DestOptsConst = "ipv6_dest_opts"
+	NetworkACLRuleItemNetworkACLRuleProtocolIndividualIPv6ProtocolIpv6FragConst     = "ipv6_frag"
+	NetworkACLRuleItemNetworkACLRuleProtocolIndividualIPv6ProtocolIpv6HopOptConst   = "ipv6_hop_opt"
+	NetworkACLRuleItemNetworkACLRuleProtocolIndividualIPv6ProtocolIpv6MobilityConst = "ipv6_mobility"
+	NetworkACLRuleItemNetworkACLRuleProtocolIndividualIPv6ProtocolIpv6NoNextConst   = "ipv6_no_next"
+	NetworkACLRuleItemNetworkACLRuleProtocolIndividualIPv6ProtocolIpv6RouteConst    = "ipv6_route"
+)
+
+func (*NetworkACLRuleItemNetworkACLRuleProtocolIndividualIPv6) isaNetworkACLRuleItem() bool {
+	return true
+}
+
+// UnmarshalNetworkACLRuleItemNetworkACLRuleProtocolIndividualIPv6 unmarshals an instance of NetworkACLRuleItemNetworkACLRuleProtocolIndividualIPv6 from the specified map of raw messages.
+func UnmarshalNetworkACLRuleItemNetworkACLRuleProtocolIndividualIPv6(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(NetworkACLRuleItemNetworkACLRuleProtocolIndividualIPv6)
+	err = core.UnmarshalPrimitive(m, "action", &obj.Action)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "action-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "before", &obj.Before, UnmarshalNetworkACLRuleReference)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "before-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "created_at", &obj.CreatedAt)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "created_at-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "destination", &obj.Destination)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "destination-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "direction", &obj.Direction)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "direction-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "href-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "id-error", common.GetComponentInfo())
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
@@ -147565,6 +148464,11 @@ func UnmarshalNetworkACLRuleItemNetworkACLRuleProtocolIndividual(m map[string]js
 	err = core.UnmarshalPrimitive(m, "source", &obj.Source)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "source-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "ip_version", &obj.IPVersion)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "ip_version-error", common.GetComponentInfo())
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "protocol", &obj.Protocol)
@@ -147589,10 +148493,8 @@ type NetworkACLRuleItemNetworkACLRuleProtocolTcpudp struct {
 	// The date and time that the rule was created.
 	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
 
-	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all destination addresses.
-	//
-	// This property may [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support IPv6 addresses or
-	// CIDR blocks in the future.
+	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` (or `::/0` if `ip_version` is `ipv6`)
+	// matches all destination addresses.
 	Destination *string `json:"destination" validate:"required"`
 
 	// The direction of traffic to match.
@@ -147604,19 +148506,11 @@ type NetworkACLRuleItemNetworkACLRuleProtocolTcpudp struct {
 	// The unique identifier for this network ACL rule.
 	ID *string `json:"id" validate:"required"`
 
-	// The IP version for this rule.
-	//
-	// The enumerated values for this property may
-	// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support `ipv6` in the future.
-	IPVersion *string `json:"ip_version" validate:"required"`
-
 	// The name for this network ACL rule. The name is unique across all rules for the network ACL.
 	Name *string `json:"name" validate:"required"`
 
-	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all source addresses.
-	//
-	// This property may [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support IPv6 CIDR blocks
-	// in the future.
+	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` (or `::/0` if
+	// `ip_version` is `ipv6`) matches all source addresses.
 	Source *string `json:"source" validate:"required"`
 
 	// The inclusive upper bound of the TCP or UDP destination port range.
@@ -147624,6 +148518,8 @@ type NetworkACLRuleItemNetworkACLRuleProtocolTcpudp struct {
 
 	// The inclusive lower bound of the TCP or UDP destination port range.
 	DestinationPortMin *int64 `json:"destination_port_min" validate:"required"`
+
+	IPVersion *string `json:"ip_version" validate:"required"`
 
 	// The network protocol.
 	Protocol *string `json:"protocol" validate:"required"`
@@ -147650,12 +148546,9 @@ const (
 )
 
 // Constants associated with the NetworkACLRuleItemNetworkACLRuleProtocolTcpudp.IPVersion property.
-// The IP version for this rule.
-//
-// The enumerated values for this property may
-// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support `ipv6` in the future.
 const (
 	NetworkACLRuleItemNetworkACLRuleProtocolTcpudpIPVersionIpv4Const = "ipv4"
+	NetworkACLRuleItemNetworkACLRuleProtocolTcpudpIPVersionIpv6Const = "ipv6"
 )
 
 // Constants associated with the NetworkACLRuleItemNetworkACLRuleProtocolTcpudp.Protocol property.
@@ -147707,11 +148600,6 @@ func UnmarshalNetworkACLRuleItemNetworkACLRuleProtocolTcpudp(m map[string]json.R
 		err = core.SDKErrorf(err, "", "id-error", common.GetComponentInfo())
 		return
 	}
-	err = core.UnmarshalPrimitive(m, "ip_version", &obj.IPVersion)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "ip_version-error", common.GetComponentInfo())
-		return
-	}
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
@@ -147730,6 +148618,11 @@ func UnmarshalNetworkACLRuleItemNetworkACLRuleProtocolTcpudp(m map[string]json.R
 	err = core.UnmarshalPrimitive(m, "destination_port_min", &obj.DestinationPortMin)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "destination_port_min-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "ip_version", &obj.IPVersion)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "ip_version-error", common.GetComponentInfo())
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "protocol", &obj.Protocol)
@@ -147759,21 +148652,22 @@ type NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAnyPrototype 
 	// Must not be `deny` if `protocol` is `icmp_tcp_udp`.
 	Action *string `json:"action" validate:"required"`
 
-	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` will match all destination addresses.
+	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` (or `::/0` if `ip_version` is `ipv6`)
+	// will match all destination addresses.
 	Destination *string `json:"destination" validate:"required"`
 
 	// The direction of traffic to match.
 	Direction *string `json:"direction" validate:"required"`
 
-	// The IP version to match. The format of `source` and `destination` must match this property.
-	IPVersion *string `json:"ip_version,omitempty"`
-
 	// The name for this network ACL rule. The name must not be used by another rule for the network ACL. If unspecified,
 	// the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
-	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` will match all source addresses.
+	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` (or `::/0` if
+	// `ip_version` is `ipv6`) will match all source addresses.
 	Source *string `json:"source" validate:"required"`
+
+	IPVersion *string `json:"ip_version,omitempty"`
 
 	// The network protocol.
 	Protocol *string `json:"protocol" validate:"required"`
@@ -147796,9 +148690,9 @@ const (
 )
 
 // Constants associated with the NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAnyPrototype.IPVersion property.
-// The IP version to match. The format of `source` and `destination` must match this property.
 const (
 	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAnyPrototypeIPVersionIpv4Const = "ipv4"
+	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAnyPrototypeIPVersionIpv6Const = "ipv6"
 )
 
 // Constants associated with the NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAnyPrototype.Protocol property.
@@ -147845,11 +148739,6 @@ func UnmarshalNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAnyP
 		err = core.SDKErrorf(err, "", "direction-error", common.GetComponentInfo())
 		return
 	}
-	err = core.UnmarshalPrimitive(m, "ip_version", &obj.IPVersion)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "ip_version-error", common.GetComponentInfo())
-		return
-	}
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
@@ -147858,6 +148747,11 @@ func UnmarshalNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAnyP
 	err = core.UnmarshalPrimitive(m, "source", &obj.Source)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "source-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "ip_version", &obj.IPVersion)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "ip_version-error", common.GetComponentInfo())
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "protocol", &obj.Protocol)
@@ -147870,6 +148764,8 @@ func UnmarshalNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolAnyP
 }
 
 // NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmpPrototype : A rule for ICMP traffic.
+//
+// Requires `ip_version` to be `ipv4`.
 // This model "extends" NetworkACLRulePrototypeNetworkACLContext
 type NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmpPrototype struct {
 	// The action to perform for a packet matching the rule.
@@ -147877,26 +148773,27 @@ type NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmpPrototype
 	// Must not be `deny` if `protocol` is `icmp_tcp_udp`.
 	Action *string `json:"action" validate:"required"`
 
-	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` will match all destination addresses.
+	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` (or `::/0` if `ip_version` is `ipv6`)
+	// will match all destination addresses.
 	Destination *string `json:"destination" validate:"required"`
 
 	// The direction of traffic to match.
 	Direction *string `json:"direction" validate:"required"`
 
-	// The IP version to match. The format of `source` and `destination` must match this property.
-	IPVersion *string `json:"ip_version,omitempty"`
-
 	// The name for this network ACL rule. The name must not be used by another rule for the network ACL. If unspecified,
 	// the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
-	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` will match all source addresses.
+	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` (or `::/0` if
+	// `ip_version` is `ipv6`) will match all source addresses.
 	Source *string `json:"source" validate:"required"`
 
 	// The ICMP traffic code to match.
 	//
 	// If specified, `type` must also be specified.  If unspecified, all codes are matched.
 	Code *int64 `json:"code,omitempty"`
+
+	IPVersion *string `json:"ip_version,omitempty"`
 
 	// The network protocol.
 	Protocol *string `json:"protocol" validate:"required"`
@@ -147924,7 +148821,6 @@ const (
 )
 
 // Constants associated with the NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmpPrototype.IPVersion property.
-// The IP version to match. The format of `source` and `destination` must match this property.
 const (
 	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmpPrototypeIPVersionIpv4Const = "ipv4"
 )
@@ -147973,11 +148869,6 @@ func UnmarshalNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmp
 		err = core.SDKErrorf(err, "", "direction-error", common.GetComponentInfo())
 		return
 	}
-	err = core.UnmarshalPrimitive(m, "ip_version", &obj.IPVersion)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "ip_version-error", common.GetComponentInfo())
-		return
-	}
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
@@ -147991,6 +148882,11 @@ func UnmarshalNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmp
 	err = core.UnmarshalPrimitive(m, "code", &obj.Code)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "code-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "ip_version", &obj.IPVersion)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "ip_version-error", common.GetComponentInfo())
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "protocol", &obj.Protocol)
@@ -148007,7 +148903,9 @@ func UnmarshalNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmp
 	return
 }
 
-// NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmptcpudpPrototype : NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmptcpudpPrototype struct
+// NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmptcpudpPrototype : A rule for ICMP, TCP and UDP traffic.
+//
+// Requires `ip_version` to be `ipv4`.
 // This model "extends" NetworkACLRulePrototypeNetworkACLContext
 type NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmptcpudpPrototype struct {
 	// The action to perform for a packet matching the rule.
@@ -148015,21 +148913,22 @@ type NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmptcpudpPro
 	// Must not be `deny` if `protocol` is `icmp_tcp_udp`.
 	Action *string `json:"action" validate:"required"`
 
-	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` will match all destination addresses.
+	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` (or `::/0` if `ip_version` is `ipv6`)
+	// will match all destination addresses.
 	Destination *string `json:"destination" validate:"required"`
 
 	// The direction of traffic to match.
 	Direction *string `json:"direction" validate:"required"`
 
-	// The IP version to match. The format of `source` and `destination` must match this property.
-	IPVersion *string `json:"ip_version,omitempty"`
-
 	// The name for this network ACL rule. The name must not be used by another rule for the network ACL. If unspecified,
 	// the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
-	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` will match all source addresses.
+	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` (or `::/0` if
+	// `ip_version` is `ipv6`) will match all source addresses.
 	Source *string `json:"source" validate:"required"`
+
+	IPVersion *string `json:"ip_version,omitempty"`
 
 	// The network protocol.
 	Protocol *string `json:"protocol" validate:"required"`
@@ -148052,7 +148951,6 @@ const (
 )
 
 // Constants associated with the NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmptcpudpPrototype.IPVersion property.
-// The IP version to match. The format of `source` and `destination` must match this property.
 const (
 	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmptcpudpPrototypeIPVersionIpv4Const = "ipv4"
 )
@@ -148101,9 +148999,135 @@ func UnmarshalNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmp
 		err = core.SDKErrorf(err, "", "direction-error", common.GetComponentInfo())
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "source", &obj.Source)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "source-error", common.GetComponentInfo())
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "ip_version", &obj.IPVersion)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "ip_version-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "protocol", &obj.Protocol)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "protocol-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIPv6IcmpPrototype : A rule for IPv6 ICMP traffic.
+//
+// Requires `ip_version` to be `ipv6`.
+// This model "extends" NetworkACLRulePrototypeNetworkACLContext
+type NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIPv6IcmpPrototype struct {
+	// The action to perform for a packet matching the rule.
+	//
+	// Must not be `deny` if `protocol` is `icmp_tcp_udp`.
+	Action *string `json:"action" validate:"required"`
+
+	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` (or `::/0` if `ip_version` is `ipv6`)
+	// will match all destination addresses.
+	Destination *string `json:"destination" validate:"required"`
+
+	// The direction of traffic to match.
+	Direction *string `json:"direction" validate:"required"`
+
+	// The name for this network ACL rule. The name must not be used by another rule for the network ACL. If unspecified,
+	// the name will be a hyphenated list of randomly-selected words.
+	Name *string `json:"name,omitempty"`
+
+	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` (or `::/0` if
+	// `ip_version` is `ipv6`) will match all source addresses.
+	Source *string `json:"source" validate:"required"`
+
+	// The IPv6 ICMP traffic code to match.
+	//
+	// If specified, `type` must also be specified.  If unspecified, all codes are matched.
+	Code *int64 `json:"code,omitempty"`
+
+	IPVersion *string `json:"ip_version" validate:"required"`
+
+	// The network protocol.
+	Protocol *string `json:"protocol" validate:"required"`
+
+	// The IPv6 ICMP traffic type to allow.
+	//
+	// If unspecified, all types are matched.
+	Type *int64 `json:"type,omitempty"`
+}
+
+// Constants associated with the NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIPv6IcmpPrototype.Action property.
+// The action to perform for a packet matching the rule.
+//
+// Must not be `deny` if `protocol` is `icmp_tcp_udp`.
+const (
+	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIPv6IcmpPrototypeActionAllowConst = "allow"
+	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIPv6IcmpPrototypeActionDenyConst  = "deny"
+)
+
+// Constants associated with the NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIPv6IcmpPrototype.Direction property.
+// The direction of traffic to match.
+const (
+	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIPv6IcmpPrototypeDirectionInboundConst  = "inbound"
+	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIPv6IcmpPrototypeDirectionOutboundConst = "outbound"
+)
+
+// Constants associated with the NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIPv6IcmpPrototype.IPVersion property.
+const (
+	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIPv6IcmpPrototypeIPVersionIpv6Const = "ipv6"
+)
+
+// Constants associated with the NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIPv6IcmpPrototype.Protocol property.
+// The network protocol.
+const (
+	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIPv6IcmpPrototypeProtocolIpv6IcmpConst = "ipv6_icmp"
+)
+
+// NewNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIPv6IcmpPrototype : Instantiate NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIPv6IcmpPrototype (Generic Model Constructor)
+func (*VpcV1) NewNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIPv6IcmpPrototype(action string, destination string, direction string, source string, ipVersion string, protocol string) (_model *NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIPv6IcmpPrototype, err error) {
+	_model = &NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIPv6IcmpPrototype{
+		Action:      core.StringPtr(action),
+		Destination: core.StringPtr(destination),
+		Direction:   core.StringPtr(direction),
+		Source:      core.StringPtr(source),
+		IPVersion:   core.StringPtr(ipVersion),
+		Protocol:    core.StringPtr(protocol),
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "model-missing-required", common.GetComponentInfo())
+	}
+	return
+}
+
+func (*NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIPv6IcmpPrototype) isaNetworkACLRulePrototypeNetworkACLContext() bool {
+	return true
+}
+
+// UnmarshalNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIPv6IcmpPrototype unmarshals an instance of NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIPv6IcmpPrototype from the specified map of raw messages.
+func UnmarshalNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIPv6IcmpPrototype(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIPv6IcmpPrototype)
+	err = core.UnmarshalPrimitive(m, "action", &obj.Action)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "action-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "destination", &obj.Destination)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "destination-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "direction", &obj.Direction)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "direction-error", common.GetComponentInfo())
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
@@ -148114,6 +149138,157 @@ func UnmarshalNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIcmp
 	err = core.UnmarshalPrimitive(m, "source", &obj.Source)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "source-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "code", &obj.Code)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "code-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "ip_version", &obj.IPVersion)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "ip_version-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "protocol", &obj.Protocol)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "protocol-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "type-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIndividualIPv6Prototype : NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIndividualIPv6Prototype struct
+// This model "extends" NetworkACLRulePrototypeNetworkACLContext
+type NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIndividualIPv6Prototype struct {
+	// The action to perform for a packet matching the rule.
+	//
+	// Must not be `deny` if `protocol` is `icmp_tcp_udp`.
+	Action *string `json:"action" validate:"required"`
+
+	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` (or `::/0` if `ip_version` is `ipv6`)
+	// will match all destination addresses.
+	Destination *string `json:"destination" validate:"required"`
+
+	// The direction of traffic to match.
+	Direction *string `json:"direction" validate:"required"`
+
+	// The name for this network ACL rule. The name must not be used by another rule for the network ACL. If unspecified,
+	// the name will be a hyphenated list of randomly-selected words.
+	Name *string `json:"name,omitempty"`
+
+	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` (or `::/0` if
+	// `ip_version` is `ipv6`) will match all source addresses.
+	Source *string `json:"source" validate:"required"`
+
+	IPVersion *string `json:"ip_version" validate:"required"`
+
+	// A network protocol that requires `ip_version` to be `ipv6`:
+	// - `ipv6_hop_opt`: IPv6 Hop-by-Hop Option (protocol number `0`)
+	// - `ipv6_route`: Routing Header for IPv6 (protocol number `43`)
+	// - `ipv6_frag`: Fragment Header for IPv6 (protocol number `44`)
+	// - `ipv6_no_next`: No Next Header for IPv6 (protocol number `59`)
+	// - `ipv6_dest_opts`: Destination Options for IPv6 (protocol number `60`)
+	// - `ipv6_mobility`: Mobility Header for IPv6 (protocol number `135`).
+	Protocol *string `json:"protocol" validate:"required"`
+}
+
+// Constants associated with the NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIndividualIPv6Prototype.Action property.
+// The action to perform for a packet matching the rule.
+//
+// Must not be `deny` if `protocol` is `icmp_tcp_udp`.
+const (
+	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIndividualIPv6PrototypeActionAllowConst = "allow"
+	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIndividualIPv6PrototypeActionDenyConst  = "deny"
+)
+
+// Constants associated with the NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIndividualIPv6Prototype.Direction property.
+// The direction of traffic to match.
+const (
+	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIndividualIPv6PrototypeDirectionInboundConst  = "inbound"
+	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIndividualIPv6PrototypeDirectionOutboundConst = "outbound"
+)
+
+// Constants associated with the NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIndividualIPv6Prototype.IPVersion property.
+const (
+	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIndividualIPv6PrototypeIPVersionIpv6Const = "ipv6"
+)
+
+// Constants associated with the NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIndividualIPv6Prototype.Protocol property.
+// A network protocol that requires `ip_version` to be `ipv6`:
+// - `ipv6_hop_opt`: IPv6 Hop-by-Hop Option (protocol number `0`)
+// - `ipv6_route`: Routing Header for IPv6 (protocol number `43`)
+// - `ipv6_frag`: Fragment Header for IPv6 (protocol number `44`)
+// - `ipv6_no_next`: No Next Header for IPv6 (protocol number `59`)
+// - `ipv6_dest_opts`: Destination Options for IPv6 (protocol number `60`)
+// - `ipv6_mobility`: Mobility Header for IPv6 (protocol number `135`).
+const (
+	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIndividualIPv6PrototypeProtocolIpv6DestOptsConst = "ipv6_dest_opts"
+	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIndividualIPv6PrototypeProtocolIpv6FragConst     = "ipv6_frag"
+	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIndividualIPv6PrototypeProtocolIpv6HopOptConst   = "ipv6_hop_opt"
+	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIndividualIPv6PrototypeProtocolIpv6MobilityConst = "ipv6_mobility"
+	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIndividualIPv6PrototypeProtocolIpv6NoNextConst   = "ipv6_no_next"
+	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIndividualIPv6PrototypeProtocolIpv6RouteConst    = "ipv6_route"
+)
+
+// NewNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIndividualIPv6Prototype : Instantiate NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIndividualIPv6Prototype (Generic Model Constructor)
+func (*VpcV1) NewNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIndividualIPv6Prototype(action string, destination string, direction string, source string, ipVersion string, protocol string) (_model *NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIndividualIPv6Prototype, err error) {
+	_model = &NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIndividualIPv6Prototype{
+		Action:      core.StringPtr(action),
+		Destination: core.StringPtr(destination),
+		Direction:   core.StringPtr(direction),
+		Source:      core.StringPtr(source),
+		IPVersion:   core.StringPtr(ipVersion),
+		Protocol:    core.StringPtr(protocol),
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "model-missing-required", common.GetComponentInfo())
+	}
+	return
+}
+
+func (*NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIndividualIPv6Prototype) isaNetworkACLRulePrototypeNetworkACLContext() bool {
+	return true
+}
+
+// UnmarshalNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIndividualIPv6Prototype unmarshals an instance of NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIndividualIPv6Prototype from the specified map of raw messages.
+func UnmarshalNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIndividualIPv6Prototype(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIndividualIPv6Prototype)
+	err = core.UnmarshalPrimitive(m, "action", &obj.Action)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "action-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "destination", &obj.Destination)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "destination-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "direction", &obj.Direction)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "direction-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "source", &obj.Source)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "source-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "ip_version", &obj.IPVersion)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "ip_version-error", common.GetComponentInfo())
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "protocol", &obj.Protocol)
@@ -148133,21 +149308,22 @@ type NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIndividualPro
 	// Must not be `deny` if `protocol` is `icmp_tcp_udp`.
 	Action *string `json:"action" validate:"required"`
 
-	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` will match all destination addresses.
+	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` (or `::/0` if `ip_version` is `ipv6`)
+	// will match all destination addresses.
 	Destination *string `json:"destination" validate:"required"`
 
 	// The direction of traffic to match.
 	Direction *string `json:"direction" validate:"required"`
 
-	// The IP version to match. The format of `source` and `destination` must match this property.
-	IPVersion *string `json:"ip_version,omitempty"`
-
 	// The name for this network ACL rule. The name must not be used by another rule for the network ACL. If unspecified,
 	// the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
-	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` will match all source addresses.
+	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` (or `::/0` if
+	// `ip_version` is `ipv6`) will match all source addresses.
 	Source *string `json:"source" validate:"required"`
+
+	IPVersion *string `json:"ip_version,omitempty"`
 
 	// The network protocol.
 	//
@@ -148183,9 +149359,9 @@ const (
 )
 
 // Constants associated with the NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIndividualPrototype.IPVersion property.
-// The IP version to match. The format of `source` and `destination` must match this property.
 const (
 	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIndividualPrototypeIPVersionIpv4Const = "ipv4"
+	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIndividualPrototypeIPVersionIpv6Const = "ipv6"
 )
 
 // Constants associated with the NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIndividualPrototype.Protocol property.
@@ -148209,7 +149385,6 @@ const (
 	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIndividualPrototypeProtocolGreConst       = "gre"
 	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIndividualPrototypeProtocolIPInIPConst    = "ip_in_ip"
 	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIndividualPrototypeProtocolL2tpConst      = "l2tp"
-	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIndividualPrototypeProtocolNumber0Const   = "number_0"
 	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIndividualPrototypeProtocolNumber10Const  = "number_10"
 	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIndividualPrototypeProtocolNumber100Const = "number_100"
 	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIndividualPrototypeProtocolNumber101Const = "number_101"
@@ -148246,7 +149421,6 @@ const (
 	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIndividualPrototypeProtocolNumber131Const = "number_131"
 	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIndividualPrototypeProtocolNumber133Const = "number_133"
 	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIndividualPrototypeProtocolNumber134Const = "number_134"
-	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIndividualPrototypeProtocolNumber135Const = "number_135"
 	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIndividualPrototypeProtocolNumber136Const = "number_136"
 	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIndividualPrototypeProtocolNumber137Const = "number_137"
 	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIndividualPrototypeProtocolNumber138Const = "number_138"
@@ -148397,8 +149571,6 @@ const (
 	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIndividualPrototypeProtocolNumber40Const  = "number_40"
 	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIndividualPrototypeProtocolNumber41Const  = "number_41"
 	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIndividualPrototypeProtocolNumber42Const  = "number_42"
-	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIndividualPrototypeProtocolNumber43Const  = "number_43"
-	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIndividualPrototypeProtocolNumber44Const  = "number_44"
 	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIndividualPrototypeProtocolNumber45Const  = "number_45"
 	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIndividualPrototypeProtocolNumber48Const  = "number_48"
 	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIndividualPrototypeProtocolNumber49Const  = "number_49"
@@ -148409,9 +149581,6 @@ const (
 	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIndividualPrototypeProtocolNumber55Const  = "number_55"
 	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIndividualPrototypeProtocolNumber56Const  = "number_56"
 	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIndividualPrototypeProtocolNumber57Const  = "number_57"
-	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIndividualPrototypeProtocolNumber58Const  = "number_58"
-	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIndividualPrototypeProtocolNumber59Const  = "number_59"
-	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIndividualPrototypeProtocolNumber60Const  = "number_60"
 	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIndividualPrototypeProtocolNumber61Const  = "number_61"
 	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIndividualPrototypeProtocolNumber62Const  = "number_62"
 	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIndividualPrototypeProtocolNumber63Const  = "number_63"
@@ -148497,11 +149666,6 @@ func UnmarshalNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIndi
 		err = core.SDKErrorf(err, "", "direction-error", common.GetComponentInfo())
 		return
 	}
-	err = core.UnmarshalPrimitive(m, "ip_version", &obj.IPVersion)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "ip_version-error", common.GetComponentInfo())
-		return
-	}
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
@@ -148510,6 +149674,11 @@ func UnmarshalNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolIndi
 	err = core.UnmarshalPrimitive(m, "source", &obj.Source)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "source-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "ip_version", &obj.IPVersion)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "ip_version-error", common.GetComponentInfo())
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "protocol", &obj.Protocol)
@@ -148529,20 +149698,19 @@ type NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudpPrototy
 	// Must not be `deny` if `protocol` is `icmp_tcp_udp`.
 	Action *string `json:"action" validate:"required"`
 
-	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` will match all destination addresses.
+	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` (or `::/0` if `ip_version` is `ipv6`)
+	// will match all destination addresses.
 	Destination *string `json:"destination" validate:"required"`
 
 	// The direction of traffic to match.
 	Direction *string `json:"direction" validate:"required"`
 
-	// The IP version to match. The format of `source` and `destination` must match this property.
-	IPVersion *string `json:"ip_version,omitempty"`
-
 	// The name for this network ACL rule. The name must not be used by another rule for the network ACL. If unspecified,
 	// the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
-	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` will match all source addresses.
+	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` (or `::/0` if
+	// `ip_version` is `ipv6`) will match all source addresses.
 	Source *string `json:"source" validate:"required"`
 
 	// The inclusive upper bound of the TCP or UDP destination port range.
@@ -148556,6 +149724,8 @@ type NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudpPrototy
 	// If specified, `destination_port_max` must also be specified, and must not be smaller. If unspecified,
 	// `destination_port_max` must also be unspecified, allowing traffic for all destination ports.
 	DestinationPortMin *int64 `json:"destination_port_min,omitempty"`
+
+	IPVersion *string `json:"ip_version,omitempty"`
 
 	// The network protocol.
 	Protocol *string `json:"protocol" validate:"required"`
@@ -148590,9 +149760,9 @@ const (
 )
 
 // Constants associated with the NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudpPrototype.IPVersion property.
-// The IP version to match. The format of `source` and `destination` must match this property.
 const (
 	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudpPrototypeIPVersionIpv4Const = "ipv4"
+	NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudpPrototypeIPVersionIpv6Const = "ipv6"
 )
 
 // Constants associated with the NetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpudpPrototype.Protocol property.
@@ -148640,11 +149810,6 @@ func UnmarshalNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpu
 		err = core.SDKErrorf(err, "", "direction-error", common.GetComponentInfo())
 		return
 	}
-	err = core.UnmarshalPrimitive(m, "ip_version", &obj.IPVersion)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "ip_version-error", common.GetComponentInfo())
-		return
-	}
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
@@ -148663,6 +149828,11 @@ func UnmarshalNetworkACLRulePrototypeNetworkACLContextNetworkACLRuleProtocolTcpu
 	err = core.UnmarshalPrimitive(m, "destination_port_min", &obj.DestinationPortMin)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "destination_port_min-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "ip_version", &obj.IPVersion)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "ip_version-error", common.GetComponentInfo())
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "protocol", &obj.Protocol)
@@ -148694,21 +149864,22 @@ type NetworkACLRulePrototypeNetworkACLRuleProtocolAnyPrototype struct {
 
 	Before NetworkACLRuleBeforePrototypeIntf `json:"before,omitempty"`
 
-	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` will match all destination addresses.
+	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` (or `::/0` if `ip_version` is `ipv6`)
+	// will match all destination addresses.
 	Destination *string `json:"destination" validate:"required"`
 
 	// The direction of traffic to match.
 	Direction *string `json:"direction" validate:"required"`
 
-	// The IP version to match. The format of `source` and `destination` must match this property.
-	IPVersion *string `json:"ip_version,omitempty"`
-
 	// The name for this network ACL rule. The name must not be used by another rule for the network ACL. If unspecified,
 	// the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
-	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` will match all source addresses.
+	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` (or `::/0` if
+	// `ip_version` is `ipv6`) will match all source addresses.
 	Source *string `json:"source" validate:"required"`
+
+	IPVersion *string `json:"ip_version,omitempty"`
 
 	// The network protocol.
 	Protocol *string `json:"protocol" validate:"required"`
@@ -148731,9 +149902,9 @@ const (
 )
 
 // Constants associated with the NetworkACLRulePrototypeNetworkACLRuleProtocolAnyPrototype.IPVersion property.
-// The IP version to match. The format of `source` and `destination` must match this property.
 const (
 	NetworkACLRulePrototypeNetworkACLRuleProtocolAnyPrototypeIPVersionIpv4Const = "ipv4"
+	NetworkACLRulePrototypeNetworkACLRuleProtocolAnyPrototypeIPVersionIpv6Const = "ipv6"
 )
 
 // Constants associated with the NetworkACLRulePrototypeNetworkACLRuleProtocolAnyPrototype.Protocol property.
@@ -148785,11 +149956,6 @@ func UnmarshalNetworkACLRulePrototypeNetworkACLRuleProtocolAnyPrototype(m map[st
 		err = core.SDKErrorf(err, "", "direction-error", common.GetComponentInfo())
 		return
 	}
-	err = core.UnmarshalPrimitive(m, "ip_version", &obj.IPVersion)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "ip_version-error", common.GetComponentInfo())
-		return
-	}
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
@@ -148798,6 +149964,11 @@ func UnmarshalNetworkACLRulePrototypeNetworkACLRuleProtocolAnyPrototype(m map[st
 	err = core.UnmarshalPrimitive(m, "source", &obj.Source)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "source-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "ip_version", &obj.IPVersion)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "ip_version-error", common.GetComponentInfo())
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "protocol", &obj.Protocol)
@@ -148810,6 +149981,8 @@ func UnmarshalNetworkACLRulePrototypeNetworkACLRuleProtocolAnyPrototype(m map[st
 }
 
 // NetworkACLRulePrototypeNetworkACLRuleProtocolIcmpPrototype : A rule for ICMP traffic.
+//
+// Requires `ip_version` to be `ipv4`.
 // This model "extends" NetworkACLRulePrototype
 type NetworkACLRulePrototypeNetworkACLRuleProtocolIcmpPrototype struct {
 	// The action to perform for a packet matching the rule.
@@ -148819,26 +149992,27 @@ type NetworkACLRulePrototypeNetworkACLRuleProtocolIcmpPrototype struct {
 
 	Before NetworkACLRuleBeforePrototypeIntf `json:"before,omitempty"`
 
-	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` will match all destination addresses.
+	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` (or `::/0` if `ip_version` is `ipv6`)
+	// will match all destination addresses.
 	Destination *string `json:"destination" validate:"required"`
 
 	// The direction of traffic to match.
 	Direction *string `json:"direction" validate:"required"`
 
-	// The IP version to match. The format of `source` and `destination` must match this property.
-	IPVersion *string `json:"ip_version,omitempty"`
-
 	// The name for this network ACL rule. The name must not be used by another rule for the network ACL. If unspecified,
 	// the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
-	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` will match all source addresses.
+	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` (or `::/0` if
+	// `ip_version` is `ipv6`) will match all source addresses.
 	Source *string `json:"source" validate:"required"`
 
 	// The ICMP traffic code to match.
 	//
 	// If specified, `type` must also be specified.  If unspecified, all codes are matched.
 	Code *int64 `json:"code,omitempty"`
+
+	IPVersion *string `json:"ip_version,omitempty"`
 
 	// The network protocol.
 	Protocol *string `json:"protocol" validate:"required"`
@@ -148866,7 +150040,6 @@ const (
 )
 
 // Constants associated with the NetworkACLRulePrototypeNetworkACLRuleProtocolIcmpPrototype.IPVersion property.
-// The IP version to match. The format of `source` and `destination` must match this property.
 const (
 	NetworkACLRulePrototypeNetworkACLRuleProtocolIcmpPrototypeIPVersionIpv4Const = "ipv4"
 )
@@ -148920,11 +150093,6 @@ func UnmarshalNetworkACLRulePrototypeNetworkACLRuleProtocolIcmpPrototype(m map[s
 		err = core.SDKErrorf(err, "", "direction-error", common.GetComponentInfo())
 		return
 	}
-	err = core.UnmarshalPrimitive(m, "ip_version", &obj.IPVersion)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "ip_version-error", common.GetComponentInfo())
-		return
-	}
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
@@ -148938,6 +150106,11 @@ func UnmarshalNetworkACLRulePrototypeNetworkACLRuleProtocolIcmpPrototype(m map[s
 	err = core.UnmarshalPrimitive(m, "code", &obj.Code)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "code-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "ip_version", &obj.IPVersion)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "ip_version-error", common.GetComponentInfo())
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "protocol", &obj.Protocol)
@@ -148954,7 +150127,9 @@ func UnmarshalNetworkACLRulePrototypeNetworkACLRuleProtocolIcmpPrototype(m map[s
 	return
 }
 
-// NetworkACLRulePrototypeNetworkACLRuleProtocolIcmptcpudpPrototype : NetworkACLRulePrototypeNetworkACLRuleProtocolIcmptcpudpPrototype struct
+// NetworkACLRulePrototypeNetworkACLRuleProtocolIcmptcpudpPrototype : A rule for ICMP, TCP and UDP traffic.
+//
+// Requires `ip_version` to be `ipv4`.
 // This model "extends" NetworkACLRulePrototype
 type NetworkACLRulePrototypeNetworkACLRuleProtocolIcmptcpudpPrototype struct {
 	// The action to perform for a packet matching the rule.
@@ -148964,21 +150139,22 @@ type NetworkACLRulePrototypeNetworkACLRuleProtocolIcmptcpudpPrototype struct {
 
 	Before NetworkACLRuleBeforePrototypeIntf `json:"before,omitempty"`
 
-	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` will match all destination addresses.
+	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` (or `::/0` if `ip_version` is `ipv6`)
+	// will match all destination addresses.
 	Destination *string `json:"destination" validate:"required"`
 
 	// The direction of traffic to match.
 	Direction *string `json:"direction" validate:"required"`
 
-	// The IP version to match. The format of `source` and `destination` must match this property.
-	IPVersion *string `json:"ip_version,omitempty"`
-
 	// The name for this network ACL rule. The name must not be used by another rule for the network ACL. If unspecified,
 	// the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
-	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` will match all source addresses.
+	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` (or `::/0` if
+	// `ip_version` is `ipv6`) will match all source addresses.
 	Source *string `json:"source" validate:"required"`
+
+	IPVersion *string `json:"ip_version,omitempty"`
 
 	// The network protocol.
 	Protocol *string `json:"protocol" validate:"required"`
@@ -149001,7 +150177,6 @@ const (
 )
 
 // Constants associated with the NetworkACLRulePrototypeNetworkACLRuleProtocolIcmptcpudpPrototype.IPVersion property.
-// The IP version to match. The format of `source` and `destination` must match this property.
 const (
 	NetworkACLRulePrototypeNetworkACLRuleProtocolIcmptcpudpPrototypeIPVersionIpv4Const = "ipv4"
 )
@@ -149055,9 +150230,142 @@ func UnmarshalNetworkACLRulePrototypeNetworkACLRuleProtocolIcmptcpudpPrototype(m
 		err = core.SDKErrorf(err, "", "direction-error", common.GetComponentInfo())
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "source", &obj.Source)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "source-error", common.GetComponentInfo())
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "ip_version", &obj.IPVersion)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "ip_version-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "protocol", &obj.Protocol)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "protocol-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// NetworkACLRulePrototypeNetworkACLRuleProtocolIPv6IcmpPrototype : A rule for IPv6 ICMP traffic.
+//
+// Requires `ip_version` to be `ipv6`.
+// This model "extends" NetworkACLRulePrototype
+type NetworkACLRulePrototypeNetworkACLRuleProtocolIPv6IcmpPrototype struct {
+	// The action to perform for a packet matching the rule.
+	//
+	// Must not be `deny` if `protocol` is `icmp_tcp_udp`.
+	Action *string `json:"action" validate:"required"`
+
+	Before NetworkACLRuleBeforePrototypeIntf `json:"before,omitempty"`
+
+	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` (or `::/0` if `ip_version` is `ipv6`)
+	// will match all destination addresses.
+	Destination *string `json:"destination" validate:"required"`
+
+	// The direction of traffic to match.
+	Direction *string `json:"direction" validate:"required"`
+
+	// The name for this network ACL rule. The name must not be used by another rule for the network ACL. If unspecified,
+	// the name will be a hyphenated list of randomly-selected words.
+	Name *string `json:"name,omitempty"`
+
+	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` (or `::/0` if
+	// `ip_version` is `ipv6`) will match all source addresses.
+	Source *string `json:"source" validate:"required"`
+
+	// The IPv6 ICMP traffic code to match.
+	//
+	// If specified, `type` must also be specified.  If unspecified, all codes are matched.
+	Code *int64 `json:"code,omitempty"`
+
+	IPVersion *string `json:"ip_version" validate:"required"`
+
+	// The network protocol.
+	Protocol *string `json:"protocol" validate:"required"`
+
+	// The IPv6 ICMP traffic type to allow.
+	//
+	// If unspecified, all types are matched.
+	Type *int64 `json:"type,omitempty"`
+}
+
+// Constants associated with the NetworkACLRulePrototypeNetworkACLRuleProtocolIPv6IcmpPrototype.Action property.
+// The action to perform for a packet matching the rule.
+//
+// Must not be `deny` if `protocol` is `icmp_tcp_udp`.
+const (
+	NetworkACLRulePrototypeNetworkACLRuleProtocolIPv6IcmpPrototypeActionAllowConst = "allow"
+	NetworkACLRulePrototypeNetworkACLRuleProtocolIPv6IcmpPrototypeActionDenyConst  = "deny"
+)
+
+// Constants associated with the NetworkACLRulePrototypeNetworkACLRuleProtocolIPv6IcmpPrototype.Direction property.
+// The direction of traffic to match.
+const (
+	NetworkACLRulePrototypeNetworkACLRuleProtocolIPv6IcmpPrototypeDirectionInboundConst  = "inbound"
+	NetworkACLRulePrototypeNetworkACLRuleProtocolIPv6IcmpPrototypeDirectionOutboundConst = "outbound"
+)
+
+// Constants associated with the NetworkACLRulePrototypeNetworkACLRuleProtocolIPv6IcmpPrototype.IPVersion property.
+const (
+	NetworkACLRulePrototypeNetworkACLRuleProtocolIPv6IcmpPrototypeIPVersionIpv6Const = "ipv6"
+)
+
+// Constants associated with the NetworkACLRulePrototypeNetworkACLRuleProtocolIPv6IcmpPrototype.Protocol property.
+// The network protocol.
+const (
+	NetworkACLRulePrototypeNetworkACLRuleProtocolIPv6IcmpPrototypeProtocolIpv6IcmpConst = "ipv6_icmp"
+)
+
+// NewNetworkACLRulePrototypeNetworkACLRuleProtocolIPv6IcmpPrototype : Instantiate NetworkACLRulePrototypeNetworkACLRuleProtocolIPv6IcmpPrototype (Generic Model Constructor)
+func (*VpcV1) NewNetworkACLRulePrototypeNetworkACLRuleProtocolIPv6IcmpPrototype(action string, destination string, direction string, source string, ipVersion string, protocol string) (_model *NetworkACLRulePrototypeNetworkACLRuleProtocolIPv6IcmpPrototype, err error) {
+	_model = &NetworkACLRulePrototypeNetworkACLRuleProtocolIPv6IcmpPrototype{
+		Action:      core.StringPtr(action),
+		Destination: core.StringPtr(destination),
+		Direction:   core.StringPtr(direction),
+		Source:      core.StringPtr(source),
+		IPVersion:   core.StringPtr(ipVersion),
+		Protocol:    core.StringPtr(protocol),
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "model-missing-required", common.GetComponentInfo())
+	}
+	return
+}
+
+func (*NetworkACLRulePrototypeNetworkACLRuleProtocolIPv6IcmpPrototype) isaNetworkACLRulePrototype() bool {
+	return true
+}
+
+// UnmarshalNetworkACLRulePrototypeNetworkACLRuleProtocolIPv6IcmpPrototype unmarshals an instance of NetworkACLRulePrototypeNetworkACLRuleProtocolIPv6IcmpPrototype from the specified map of raw messages.
+func UnmarshalNetworkACLRulePrototypeNetworkACLRuleProtocolIPv6IcmpPrototype(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(NetworkACLRulePrototypeNetworkACLRuleProtocolIPv6IcmpPrototype)
+	err = core.UnmarshalPrimitive(m, "action", &obj.Action)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "action-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "before", &obj.Before, UnmarshalNetworkACLRuleBeforePrototype)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "before-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "destination", &obj.Destination)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "destination-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "direction", &obj.Direction)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "direction-error", common.GetComponentInfo())
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
@@ -149068,6 +150376,164 @@ func UnmarshalNetworkACLRulePrototypeNetworkACLRuleProtocolIcmptcpudpPrototype(m
 	err = core.UnmarshalPrimitive(m, "source", &obj.Source)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "source-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "code", &obj.Code)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "code-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "ip_version", &obj.IPVersion)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "ip_version-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "protocol", &obj.Protocol)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "protocol-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "type-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// NetworkACLRulePrototypeNetworkACLRuleProtocolIndividualIPv6Prototype : NetworkACLRulePrototypeNetworkACLRuleProtocolIndividualIPv6Prototype struct
+// This model "extends" NetworkACLRulePrototype
+type NetworkACLRulePrototypeNetworkACLRuleProtocolIndividualIPv6Prototype struct {
+	// The action to perform for a packet matching the rule.
+	//
+	// Must not be `deny` if `protocol` is `icmp_tcp_udp`.
+	Action *string `json:"action" validate:"required"`
+
+	Before NetworkACLRuleBeforePrototypeIntf `json:"before,omitempty"`
+
+	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` (or `::/0` if `ip_version` is `ipv6`)
+	// will match all destination addresses.
+	Destination *string `json:"destination" validate:"required"`
+
+	// The direction of traffic to match.
+	Direction *string `json:"direction" validate:"required"`
+
+	// The name for this network ACL rule. The name must not be used by another rule for the network ACL. If unspecified,
+	// the name will be a hyphenated list of randomly-selected words.
+	Name *string `json:"name,omitempty"`
+
+	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` (or `::/0` if
+	// `ip_version` is `ipv6`) will match all source addresses.
+	Source *string `json:"source" validate:"required"`
+
+	IPVersion *string `json:"ip_version" validate:"required"`
+
+	// A network protocol that requires `ip_version` to be `ipv6`:
+	// - `ipv6_hop_opt`: IPv6 Hop-by-Hop Option (protocol number `0`)
+	// - `ipv6_route`: Routing Header for IPv6 (protocol number `43`)
+	// - `ipv6_frag`: Fragment Header for IPv6 (protocol number `44`)
+	// - `ipv6_no_next`: No Next Header for IPv6 (protocol number `59`)
+	// - `ipv6_dest_opts`: Destination Options for IPv6 (protocol number `60`)
+	// - `ipv6_mobility`: Mobility Header for IPv6 (protocol number `135`).
+	Protocol *string `json:"protocol" validate:"required"`
+}
+
+// Constants associated with the NetworkACLRulePrototypeNetworkACLRuleProtocolIndividualIPv6Prototype.Action property.
+// The action to perform for a packet matching the rule.
+//
+// Must not be `deny` if `protocol` is `icmp_tcp_udp`.
+const (
+	NetworkACLRulePrototypeNetworkACLRuleProtocolIndividualIPv6PrototypeActionAllowConst = "allow"
+	NetworkACLRulePrototypeNetworkACLRuleProtocolIndividualIPv6PrototypeActionDenyConst  = "deny"
+)
+
+// Constants associated with the NetworkACLRulePrototypeNetworkACLRuleProtocolIndividualIPv6Prototype.Direction property.
+// The direction of traffic to match.
+const (
+	NetworkACLRulePrototypeNetworkACLRuleProtocolIndividualIPv6PrototypeDirectionInboundConst  = "inbound"
+	NetworkACLRulePrototypeNetworkACLRuleProtocolIndividualIPv6PrototypeDirectionOutboundConst = "outbound"
+)
+
+// Constants associated with the NetworkACLRulePrototypeNetworkACLRuleProtocolIndividualIPv6Prototype.IPVersion property.
+const (
+	NetworkACLRulePrototypeNetworkACLRuleProtocolIndividualIPv6PrototypeIPVersionIpv6Const = "ipv6"
+)
+
+// Constants associated with the NetworkACLRulePrototypeNetworkACLRuleProtocolIndividualIPv6Prototype.Protocol property.
+// A network protocol that requires `ip_version` to be `ipv6`:
+// - `ipv6_hop_opt`: IPv6 Hop-by-Hop Option (protocol number `0`)
+// - `ipv6_route`: Routing Header for IPv6 (protocol number `43`)
+// - `ipv6_frag`: Fragment Header for IPv6 (protocol number `44`)
+// - `ipv6_no_next`: No Next Header for IPv6 (protocol number `59`)
+// - `ipv6_dest_opts`: Destination Options for IPv6 (protocol number `60`)
+// - `ipv6_mobility`: Mobility Header for IPv6 (protocol number `135`).
+const (
+	NetworkACLRulePrototypeNetworkACLRuleProtocolIndividualIPv6PrototypeProtocolIpv6DestOptsConst = "ipv6_dest_opts"
+	NetworkACLRulePrototypeNetworkACLRuleProtocolIndividualIPv6PrototypeProtocolIpv6FragConst     = "ipv6_frag"
+	NetworkACLRulePrototypeNetworkACLRuleProtocolIndividualIPv6PrototypeProtocolIpv6HopOptConst   = "ipv6_hop_opt"
+	NetworkACLRulePrototypeNetworkACLRuleProtocolIndividualIPv6PrototypeProtocolIpv6MobilityConst = "ipv6_mobility"
+	NetworkACLRulePrototypeNetworkACLRuleProtocolIndividualIPv6PrototypeProtocolIpv6NoNextConst   = "ipv6_no_next"
+	NetworkACLRulePrototypeNetworkACLRuleProtocolIndividualIPv6PrototypeProtocolIpv6RouteConst    = "ipv6_route"
+)
+
+// NewNetworkACLRulePrototypeNetworkACLRuleProtocolIndividualIPv6Prototype : Instantiate NetworkACLRulePrototypeNetworkACLRuleProtocolIndividualIPv6Prototype (Generic Model Constructor)
+func (*VpcV1) NewNetworkACLRulePrototypeNetworkACLRuleProtocolIndividualIPv6Prototype(action string, destination string, direction string, source string, ipVersion string, protocol string) (_model *NetworkACLRulePrototypeNetworkACLRuleProtocolIndividualIPv6Prototype, err error) {
+	_model = &NetworkACLRulePrototypeNetworkACLRuleProtocolIndividualIPv6Prototype{
+		Action:      core.StringPtr(action),
+		Destination: core.StringPtr(destination),
+		Direction:   core.StringPtr(direction),
+		Source:      core.StringPtr(source),
+		IPVersion:   core.StringPtr(ipVersion),
+		Protocol:    core.StringPtr(protocol),
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "model-missing-required", common.GetComponentInfo())
+	}
+	return
+}
+
+func (*NetworkACLRulePrototypeNetworkACLRuleProtocolIndividualIPv6Prototype) isaNetworkACLRulePrototype() bool {
+	return true
+}
+
+// UnmarshalNetworkACLRulePrototypeNetworkACLRuleProtocolIndividualIPv6Prototype unmarshals an instance of NetworkACLRulePrototypeNetworkACLRuleProtocolIndividualIPv6Prototype from the specified map of raw messages.
+func UnmarshalNetworkACLRulePrototypeNetworkACLRuleProtocolIndividualIPv6Prototype(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(NetworkACLRulePrototypeNetworkACLRuleProtocolIndividualIPv6Prototype)
+	err = core.UnmarshalPrimitive(m, "action", &obj.Action)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "action-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "before", &obj.Before, UnmarshalNetworkACLRuleBeforePrototype)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "before-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "destination", &obj.Destination)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "destination-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "direction", &obj.Direction)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "direction-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "source", &obj.Source)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "source-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "ip_version", &obj.IPVersion)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "ip_version-error", common.GetComponentInfo())
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "protocol", &obj.Protocol)
@@ -149089,21 +150555,22 @@ type NetworkACLRulePrototypeNetworkACLRuleProtocolIndividualPrototype struct {
 
 	Before NetworkACLRuleBeforePrototypeIntf `json:"before,omitempty"`
 
-	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` will match all destination addresses.
+	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` (or `::/0` if `ip_version` is `ipv6`)
+	// will match all destination addresses.
 	Destination *string `json:"destination" validate:"required"`
 
 	// The direction of traffic to match.
 	Direction *string `json:"direction" validate:"required"`
 
-	// The IP version to match. The format of `source` and `destination` must match this property.
-	IPVersion *string `json:"ip_version,omitempty"`
-
 	// The name for this network ACL rule. The name must not be used by another rule for the network ACL. If unspecified,
 	// the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
-	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` will match all source addresses.
+	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` (or `::/0` if
+	// `ip_version` is `ipv6`) will match all source addresses.
 	Source *string `json:"source" validate:"required"`
+
+	IPVersion *string `json:"ip_version,omitempty"`
 
 	// The network protocol.
 	//
@@ -149139,9 +150606,9 @@ const (
 )
 
 // Constants associated with the NetworkACLRulePrototypeNetworkACLRuleProtocolIndividualPrototype.IPVersion property.
-// The IP version to match. The format of `source` and `destination` must match this property.
 const (
 	NetworkACLRulePrototypeNetworkACLRuleProtocolIndividualPrototypeIPVersionIpv4Const = "ipv4"
+	NetworkACLRulePrototypeNetworkACLRuleProtocolIndividualPrototypeIPVersionIpv6Const = "ipv6"
 )
 
 // Constants associated with the NetworkACLRulePrototypeNetworkACLRuleProtocolIndividualPrototype.Protocol property.
@@ -149165,7 +150632,6 @@ const (
 	NetworkACLRulePrototypeNetworkACLRuleProtocolIndividualPrototypeProtocolGreConst       = "gre"
 	NetworkACLRulePrototypeNetworkACLRuleProtocolIndividualPrototypeProtocolIPInIPConst    = "ip_in_ip"
 	NetworkACLRulePrototypeNetworkACLRuleProtocolIndividualPrototypeProtocolL2tpConst      = "l2tp"
-	NetworkACLRulePrototypeNetworkACLRuleProtocolIndividualPrototypeProtocolNumber0Const   = "number_0"
 	NetworkACLRulePrototypeNetworkACLRuleProtocolIndividualPrototypeProtocolNumber10Const  = "number_10"
 	NetworkACLRulePrototypeNetworkACLRuleProtocolIndividualPrototypeProtocolNumber100Const = "number_100"
 	NetworkACLRulePrototypeNetworkACLRuleProtocolIndividualPrototypeProtocolNumber101Const = "number_101"
@@ -149202,7 +150668,6 @@ const (
 	NetworkACLRulePrototypeNetworkACLRuleProtocolIndividualPrototypeProtocolNumber131Const = "number_131"
 	NetworkACLRulePrototypeNetworkACLRuleProtocolIndividualPrototypeProtocolNumber133Const = "number_133"
 	NetworkACLRulePrototypeNetworkACLRuleProtocolIndividualPrototypeProtocolNumber134Const = "number_134"
-	NetworkACLRulePrototypeNetworkACLRuleProtocolIndividualPrototypeProtocolNumber135Const = "number_135"
 	NetworkACLRulePrototypeNetworkACLRuleProtocolIndividualPrototypeProtocolNumber136Const = "number_136"
 	NetworkACLRulePrototypeNetworkACLRuleProtocolIndividualPrototypeProtocolNumber137Const = "number_137"
 	NetworkACLRulePrototypeNetworkACLRuleProtocolIndividualPrototypeProtocolNumber138Const = "number_138"
@@ -149353,8 +150818,6 @@ const (
 	NetworkACLRulePrototypeNetworkACLRuleProtocolIndividualPrototypeProtocolNumber40Const  = "number_40"
 	NetworkACLRulePrototypeNetworkACLRuleProtocolIndividualPrototypeProtocolNumber41Const  = "number_41"
 	NetworkACLRulePrototypeNetworkACLRuleProtocolIndividualPrototypeProtocolNumber42Const  = "number_42"
-	NetworkACLRulePrototypeNetworkACLRuleProtocolIndividualPrototypeProtocolNumber43Const  = "number_43"
-	NetworkACLRulePrototypeNetworkACLRuleProtocolIndividualPrototypeProtocolNumber44Const  = "number_44"
 	NetworkACLRulePrototypeNetworkACLRuleProtocolIndividualPrototypeProtocolNumber45Const  = "number_45"
 	NetworkACLRulePrototypeNetworkACLRuleProtocolIndividualPrototypeProtocolNumber48Const  = "number_48"
 	NetworkACLRulePrototypeNetworkACLRuleProtocolIndividualPrototypeProtocolNumber49Const  = "number_49"
@@ -149365,9 +150828,6 @@ const (
 	NetworkACLRulePrototypeNetworkACLRuleProtocolIndividualPrototypeProtocolNumber55Const  = "number_55"
 	NetworkACLRulePrototypeNetworkACLRuleProtocolIndividualPrototypeProtocolNumber56Const  = "number_56"
 	NetworkACLRulePrototypeNetworkACLRuleProtocolIndividualPrototypeProtocolNumber57Const  = "number_57"
-	NetworkACLRulePrototypeNetworkACLRuleProtocolIndividualPrototypeProtocolNumber58Const  = "number_58"
-	NetworkACLRulePrototypeNetworkACLRuleProtocolIndividualPrototypeProtocolNumber59Const  = "number_59"
-	NetworkACLRulePrototypeNetworkACLRuleProtocolIndividualPrototypeProtocolNumber60Const  = "number_60"
 	NetworkACLRulePrototypeNetworkACLRuleProtocolIndividualPrototypeProtocolNumber61Const  = "number_61"
 	NetworkACLRulePrototypeNetworkACLRuleProtocolIndividualPrototypeProtocolNumber62Const  = "number_62"
 	NetworkACLRulePrototypeNetworkACLRuleProtocolIndividualPrototypeProtocolNumber63Const  = "number_63"
@@ -149458,11 +150918,6 @@ func UnmarshalNetworkACLRulePrototypeNetworkACLRuleProtocolIndividualPrototype(m
 		err = core.SDKErrorf(err, "", "direction-error", common.GetComponentInfo())
 		return
 	}
-	err = core.UnmarshalPrimitive(m, "ip_version", &obj.IPVersion)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "ip_version-error", common.GetComponentInfo())
-		return
-	}
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
@@ -149471,6 +150926,11 @@ func UnmarshalNetworkACLRulePrototypeNetworkACLRuleProtocolIndividualPrototype(m
 	err = core.UnmarshalPrimitive(m, "source", &obj.Source)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "source-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "ip_version", &obj.IPVersion)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "ip_version-error", common.GetComponentInfo())
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "protocol", &obj.Protocol)
@@ -149492,20 +150952,19 @@ type NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudpPrototype struct {
 
 	Before NetworkACLRuleBeforePrototypeIntf `json:"before,omitempty"`
 
-	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` will match all destination addresses.
+	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` (or `::/0` if `ip_version` is `ipv6`)
+	// will match all destination addresses.
 	Destination *string `json:"destination" validate:"required"`
 
 	// The direction of traffic to match.
 	Direction *string `json:"direction" validate:"required"`
 
-	// The IP version to match. The format of `source` and `destination` must match this property.
-	IPVersion *string `json:"ip_version,omitempty"`
-
 	// The name for this network ACL rule. The name must not be used by another rule for the network ACL. If unspecified,
 	// the name will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
-	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` will match all source addresses.
+	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` (or `::/0` if
+	// `ip_version` is `ipv6`) will match all source addresses.
 	Source *string `json:"source" validate:"required"`
 
 	// The inclusive upper bound of the TCP or UDP destination port range.
@@ -149519,6 +150978,8 @@ type NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudpPrototype struct {
 	// If specified, `destination_port_max` must also be specified, and must not be smaller. If unspecified,
 	// `destination_port_max` must also be unspecified, allowing traffic for all destination ports.
 	DestinationPortMin *int64 `json:"destination_port_min,omitempty"`
+
+	IPVersion *string `json:"ip_version,omitempty"`
 
 	// The network protocol.
 	Protocol *string `json:"protocol" validate:"required"`
@@ -149553,9 +151014,9 @@ const (
 )
 
 // Constants associated with the NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudpPrototype.IPVersion property.
-// The IP version to match. The format of `source` and `destination` must match this property.
 const (
 	NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudpPrototypeIPVersionIpv4Const = "ipv4"
+	NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudpPrototypeIPVersionIpv6Const = "ipv6"
 )
 
 // Constants associated with the NetworkACLRulePrototypeNetworkACLRuleProtocolTcpudpPrototype.Protocol property.
@@ -149608,11 +151069,6 @@ func UnmarshalNetworkACLRulePrototypeNetworkACLRuleProtocolTcpudpPrototype(m map
 		err = core.SDKErrorf(err, "", "direction-error", common.GetComponentInfo())
 		return
 	}
-	err = core.UnmarshalPrimitive(m, "ip_version", &obj.IPVersion)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "ip_version-error", common.GetComponentInfo())
-		return
-	}
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
@@ -149631,6 +151087,11 @@ func UnmarshalNetworkACLRulePrototypeNetworkACLRuleProtocolTcpudpPrototype(m map
 	err = core.UnmarshalPrimitive(m, "destination_port_min", &obj.DestinationPortMin)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "destination_port_min-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "ip_version", &obj.IPVersion)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "ip_version-error", common.GetComponentInfo())
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "protocol", &obj.Protocol)
@@ -149664,10 +151125,8 @@ type NetworkACLRuleNetworkACLRuleProtocolAny struct {
 	// The date and time that the rule was created.
 	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
 
-	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all destination addresses.
-	//
-	// This property may [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support IPv6 addresses or
-	// CIDR blocks in the future.
+	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` (or `::/0` if `ip_version` is `ipv6`)
+	// matches all destination addresses.
 	Destination *string `json:"destination" validate:"required"`
 
 	// The direction of traffic to match.
@@ -149679,20 +151138,14 @@ type NetworkACLRuleNetworkACLRuleProtocolAny struct {
 	// The unique identifier for this network ACL rule.
 	ID *string `json:"id" validate:"required"`
 
-	// The IP version for this rule.
-	//
-	// The enumerated values for this property may
-	// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support `ipv6` in the future.
-	IPVersion *string `json:"ip_version" validate:"required"`
-
 	// The name for this network ACL rule. The name is unique across all rules for the network ACL.
 	Name *string `json:"name" validate:"required"`
 
-	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all source addresses.
-	//
-	// This property may [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support IPv6 CIDR blocks
-	// in the future.
+	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` (or `::/0` if
+	// `ip_version` is `ipv6`) matches all source addresses.
 	Source *string `json:"source" validate:"required"`
+
+	IPVersion *string `json:"ip_version" validate:"required"`
 
 	// The network protocol.
 	Protocol *string `json:"protocol" validate:"required"`
@@ -149713,12 +151166,9 @@ const (
 )
 
 // Constants associated with the NetworkACLRuleNetworkACLRuleProtocolAny.IPVersion property.
-// The IP version for this rule.
-//
-// The enumerated values for this property may
-// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support `ipv6` in the future.
 const (
 	NetworkACLRuleNetworkACLRuleProtocolAnyIPVersionIpv4Const = "ipv4"
+	NetworkACLRuleNetworkACLRuleProtocolAnyIPVersionIpv6Const = "ipv6"
 )
 
 // Constants associated with the NetworkACLRuleNetworkACLRuleProtocolAny.Protocol property.
@@ -149769,11 +151219,6 @@ func UnmarshalNetworkACLRuleNetworkACLRuleProtocolAny(m map[string]json.RawMessa
 		err = core.SDKErrorf(err, "", "id-error", common.GetComponentInfo())
 		return
 	}
-	err = core.UnmarshalPrimitive(m, "ip_version", &obj.IPVersion)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "ip_version-error", common.GetComponentInfo())
-		return
-	}
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
@@ -149782,6 +151227,11 @@ func UnmarshalNetworkACLRuleNetworkACLRuleProtocolAny(m map[string]json.RawMessa
 	err = core.UnmarshalPrimitive(m, "source", &obj.Source)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "source-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "ip_version", &obj.IPVersion)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "ip_version-error", common.GetComponentInfo())
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "protocol", &obj.Protocol)
@@ -149793,7 +151243,7 @@ func UnmarshalNetworkACLRuleNetworkACLRuleProtocolAny(m map[string]json.RawMessa
 	return
 }
 
-// NetworkACLRuleNetworkACLRuleProtocolIcmp : A rule for ICMP traffic.
+// NetworkACLRuleNetworkACLRuleProtocolIcmp : A rule for IPv4 ICMP traffic.
 // This model "extends" NetworkACLRule
 type NetworkACLRuleNetworkACLRuleProtocolIcmp struct {
 	// The action to perform for a packet matching the rule.
@@ -149805,10 +151255,8 @@ type NetworkACLRuleNetworkACLRuleProtocolIcmp struct {
 	// The date and time that the rule was created.
 	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
 
-	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all destination addresses.
-	//
-	// This property may [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support IPv6 addresses or
-	// CIDR blocks in the future.
+	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` (or `::/0` if `ip_version` is `ipv6`)
+	// matches all destination addresses.
 	Destination *string `json:"destination" validate:"required"`
 
 	// The direction of traffic to match.
@@ -149820,25 +151268,19 @@ type NetworkACLRuleNetworkACLRuleProtocolIcmp struct {
 	// The unique identifier for this network ACL rule.
 	ID *string `json:"id" validate:"required"`
 
-	// The IP version for this rule.
-	//
-	// The enumerated values for this property may
-	// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support `ipv6` in the future.
-	IPVersion *string `json:"ip_version" validate:"required"`
-
 	// The name for this network ACL rule. The name is unique across all rules for the network ACL.
 	Name *string `json:"name" validate:"required"`
 
-	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all source addresses.
-	//
-	// This property may [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support IPv6 CIDR blocks
-	// in the future.
+	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` (or `::/0` if
+	// `ip_version` is `ipv6`) matches all source addresses.
 	Source *string `json:"source" validate:"required"`
 
 	// The ICMP traffic code to match.
 	//
 	// If absent, all codes are matched.
 	Code *int64 `json:"code,omitempty"`
+
+	IPVersion *string `json:"ip_version" validate:"required"`
 
 	// The network protocol.
 	Protocol *string `json:"protocol" validate:"required"`
@@ -149864,10 +151306,6 @@ const (
 )
 
 // Constants associated with the NetworkACLRuleNetworkACLRuleProtocolIcmp.IPVersion property.
-// The IP version for this rule.
-//
-// The enumerated values for this property may
-// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support `ipv6` in the future.
 const (
 	NetworkACLRuleNetworkACLRuleProtocolIcmpIPVersionIpv4Const = "ipv4"
 )
@@ -149920,11 +151358,6 @@ func UnmarshalNetworkACLRuleNetworkACLRuleProtocolIcmp(m map[string]json.RawMess
 		err = core.SDKErrorf(err, "", "id-error", common.GetComponentInfo())
 		return
 	}
-	err = core.UnmarshalPrimitive(m, "ip_version", &obj.IPVersion)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "ip_version-error", common.GetComponentInfo())
-		return
-	}
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
@@ -149938,6 +151371,11 @@ func UnmarshalNetworkACLRuleNetworkACLRuleProtocolIcmp(m map[string]json.RawMess
 	err = core.UnmarshalPrimitive(m, "code", &obj.Code)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "code-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "ip_version", &obj.IPVersion)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "ip_version-error", common.GetComponentInfo())
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "protocol", &obj.Protocol)
@@ -149954,7 +151392,7 @@ func UnmarshalNetworkACLRuleNetworkACLRuleProtocolIcmp(m map[string]json.RawMess
 	return
 }
 
-// NetworkACLRuleNetworkACLRuleProtocolIcmptcpudp : NetworkACLRuleNetworkACLRuleProtocolIcmptcpudp struct
+// NetworkACLRuleNetworkACLRuleProtocolIcmptcpudp : A rule for ICMP, TCP and UDP traffic.
 // This model "extends" NetworkACLRule
 type NetworkACLRuleNetworkACLRuleProtocolIcmptcpudp struct {
 	// The action to perform for a packet matching the rule.
@@ -149966,10 +151404,8 @@ type NetworkACLRuleNetworkACLRuleProtocolIcmptcpudp struct {
 	// The date and time that the rule was created.
 	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
 
-	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all destination addresses.
-	//
-	// This property may [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support IPv6 addresses or
-	// CIDR blocks in the future.
+	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` (or `::/0` if `ip_version` is `ipv6`)
+	// matches all destination addresses.
 	Destination *string `json:"destination" validate:"required"`
 
 	// The direction of traffic to match.
@@ -149981,20 +151417,14 @@ type NetworkACLRuleNetworkACLRuleProtocolIcmptcpudp struct {
 	// The unique identifier for this network ACL rule.
 	ID *string `json:"id" validate:"required"`
 
-	// The IP version for this rule.
-	//
-	// The enumerated values for this property may
-	// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support `ipv6` in the future.
-	IPVersion *string `json:"ip_version" validate:"required"`
-
 	// The name for this network ACL rule. The name is unique across all rules for the network ACL.
 	Name *string `json:"name" validate:"required"`
 
-	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all source addresses.
-	//
-	// This property may [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support IPv6 CIDR blocks
-	// in the future.
+	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` (or `::/0` if
+	// `ip_version` is `ipv6`) matches all source addresses.
 	Source *string `json:"source" validate:"required"`
+
+	IPVersion *string `json:"ip_version" validate:"required"`
 
 	// The network protocol.
 	Protocol *string `json:"protocol" validate:"required"`
@@ -150015,10 +151445,6 @@ const (
 )
 
 // Constants associated with the NetworkACLRuleNetworkACLRuleProtocolIcmptcpudp.IPVersion property.
-// The IP version for this rule.
-//
-// The enumerated values for this property may
-// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support `ipv6` in the future.
 const (
 	NetworkACLRuleNetworkACLRuleProtocolIcmptcpudpIPVersionIpv4Const = "ipv4"
 )
@@ -150071,9 +151497,143 @@ func UnmarshalNetworkACLRuleNetworkACLRuleProtocolIcmptcpudp(m map[string]json.R
 		err = core.SDKErrorf(err, "", "id-error", common.GetComponentInfo())
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "source", &obj.Source)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "source-error", common.GetComponentInfo())
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "ip_version", &obj.IPVersion)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "ip_version-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "protocol", &obj.Protocol)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "protocol-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// NetworkACLRuleNetworkACLRuleProtocolIPv6Icmp : A rule for IPv6 ICMP traffic.
+// This model "extends" NetworkACLRule
+type NetworkACLRuleNetworkACLRuleProtocolIPv6Icmp struct {
+	// The action to perform for a packet matching the rule.
+	Action *string `json:"action" validate:"required"`
+
+	// The rule that this rule is immediately before. If absent, this is the last rule.
+	Before *NetworkACLRuleReference `json:"before,omitempty"`
+
+	// The date and time that the rule was created.
+	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
+
+	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` (or `::/0` if `ip_version` is `ipv6`)
+	// matches all destination addresses.
+	Destination *string `json:"destination" validate:"required"`
+
+	// The direction of traffic to match.
+	Direction *string `json:"direction" validate:"required"`
+
+	// The URL for this network ACL rule.
+	Href *string `json:"href" validate:"required"`
+
+	// The unique identifier for this network ACL rule.
+	ID *string `json:"id" validate:"required"`
+
+	// The name for this network ACL rule. The name is unique across all rules for the network ACL.
+	Name *string `json:"name" validate:"required"`
+
+	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` (or `::/0` if
+	// `ip_version` is `ipv6`) matches all source addresses.
+	Source *string `json:"source" validate:"required"`
+
+	// The IPv6 ICMP traffic code to match.
+	//
+	// If absent, all codes are matched.
+	Code *int64 `json:"code,omitempty"`
+
+	IPVersion *string `json:"ip_version" validate:"required"`
+
+	// The network protocol.
+	Protocol *string `json:"protocol" validate:"required"`
+
+	// The IPv6 ICMP traffic type to match.
+	//
+	// If absent, all types are matched.
+	Type *int64 `json:"type,omitempty"`
+}
+
+// Constants associated with the NetworkACLRuleNetworkACLRuleProtocolIPv6Icmp.Action property.
+// The action to perform for a packet matching the rule.
+const (
+	NetworkACLRuleNetworkACLRuleProtocolIPv6IcmpActionAllowConst = "allow"
+	NetworkACLRuleNetworkACLRuleProtocolIPv6IcmpActionDenyConst  = "deny"
+)
+
+// Constants associated with the NetworkACLRuleNetworkACLRuleProtocolIPv6Icmp.Direction property.
+// The direction of traffic to match.
+const (
+	NetworkACLRuleNetworkACLRuleProtocolIPv6IcmpDirectionInboundConst  = "inbound"
+	NetworkACLRuleNetworkACLRuleProtocolIPv6IcmpDirectionOutboundConst = "outbound"
+)
+
+// Constants associated with the NetworkACLRuleNetworkACLRuleProtocolIPv6Icmp.IPVersion property.
+const (
+	NetworkACLRuleNetworkACLRuleProtocolIPv6IcmpIPVersionIpv6Const = "ipv6"
+)
+
+// Constants associated with the NetworkACLRuleNetworkACLRuleProtocolIPv6Icmp.Protocol property.
+// The network protocol.
+const (
+	NetworkACLRuleNetworkACLRuleProtocolIPv6IcmpProtocolIpv6IcmpConst = "ipv6_icmp"
+)
+
+func (*NetworkACLRuleNetworkACLRuleProtocolIPv6Icmp) isaNetworkACLRule() bool {
+	return true
+}
+
+// UnmarshalNetworkACLRuleNetworkACLRuleProtocolIPv6Icmp unmarshals an instance of NetworkACLRuleNetworkACLRuleProtocolIPv6Icmp from the specified map of raw messages.
+func UnmarshalNetworkACLRuleNetworkACLRuleProtocolIPv6Icmp(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(NetworkACLRuleNetworkACLRuleProtocolIPv6Icmp)
+	err = core.UnmarshalPrimitive(m, "action", &obj.Action)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "action-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "before", &obj.Before, UnmarshalNetworkACLRuleReference)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "before-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "created_at", &obj.CreatedAt)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "created_at-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "destination", &obj.Destination)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "destination-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "direction", &obj.Direction)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "direction-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "href-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "id-error", common.GetComponentInfo())
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
@@ -150086,9 +151646,24 @@ func UnmarshalNetworkACLRuleNetworkACLRuleProtocolIcmptcpudp(m map[string]json.R
 		err = core.SDKErrorf(err, "", "source-error", common.GetComponentInfo())
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "code", &obj.Code)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "code-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "ip_version", &obj.IPVersion)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "ip_version-error", common.GetComponentInfo())
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "protocol", &obj.Protocol)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "protocol-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "type-error", common.GetComponentInfo())
 		return
 	}
 	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
@@ -150107,10 +151682,8 @@ type NetworkACLRuleNetworkACLRuleProtocolIndividual struct {
 	// The date and time that the rule was created.
 	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
 
-	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all destination addresses.
-	//
-	// This property may [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support IPv6 addresses or
-	// CIDR blocks in the future.
+	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` (or `::/0` if `ip_version` is `ipv6`)
+	// matches all destination addresses.
 	Destination *string `json:"destination" validate:"required"`
 
 	// The direction of traffic to match.
@@ -150122,20 +151695,14 @@ type NetworkACLRuleNetworkACLRuleProtocolIndividual struct {
 	// The unique identifier for this network ACL rule.
 	ID *string `json:"id" validate:"required"`
 
-	// The IP version for this rule.
-	//
-	// The enumerated values for this property may
-	// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support `ipv6` in the future.
-	IPVersion *string `json:"ip_version" validate:"required"`
-
 	// The name for this network ACL rule. The name is unique across all rules for the network ACL.
 	Name *string `json:"name" validate:"required"`
 
-	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all source addresses.
-	//
-	// This property may [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support IPv6 CIDR blocks
-	// in the future.
+	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` (or `::/0` if
+	// `ip_version` is `ipv6`) matches all source addresses.
 	Source *string `json:"source" validate:"required"`
+
+	IPVersion *string `json:"ip_version" validate:"required"`
 
 	// The network protocol.
 	Protocol *string `json:"protocol" validate:"required"`
@@ -150156,12 +151723,9 @@ const (
 )
 
 // Constants associated with the NetworkACLRuleNetworkACLRuleProtocolIndividual.IPVersion property.
-// The IP version for this rule.
-//
-// The enumerated values for this property may
-// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support `ipv6` in the future.
 const (
 	NetworkACLRuleNetworkACLRuleProtocolIndividualIPVersionIpv4Const = "ipv4"
+	NetworkACLRuleNetworkACLRuleProtocolIndividualIPVersionIpv6Const = "ipv6"
 )
 
 // Constants associated with the NetworkACLRuleNetworkACLRuleProtocolIndividual.Protocol property.
@@ -150172,7 +151736,6 @@ const (
 	NetworkACLRuleNetworkACLRuleProtocolIndividualProtocolGreConst       = "gre"
 	NetworkACLRuleNetworkACLRuleProtocolIndividualProtocolIPInIPConst    = "ip_in_ip"
 	NetworkACLRuleNetworkACLRuleProtocolIndividualProtocolL2tpConst      = "l2tp"
-	NetworkACLRuleNetworkACLRuleProtocolIndividualProtocolNumber0Const   = "number_0"
 	NetworkACLRuleNetworkACLRuleProtocolIndividualProtocolNumber10Const  = "number_10"
 	NetworkACLRuleNetworkACLRuleProtocolIndividualProtocolNumber100Const = "number_100"
 	NetworkACLRuleNetworkACLRuleProtocolIndividualProtocolNumber101Const = "number_101"
@@ -150209,7 +151772,6 @@ const (
 	NetworkACLRuleNetworkACLRuleProtocolIndividualProtocolNumber131Const = "number_131"
 	NetworkACLRuleNetworkACLRuleProtocolIndividualProtocolNumber133Const = "number_133"
 	NetworkACLRuleNetworkACLRuleProtocolIndividualProtocolNumber134Const = "number_134"
-	NetworkACLRuleNetworkACLRuleProtocolIndividualProtocolNumber135Const = "number_135"
 	NetworkACLRuleNetworkACLRuleProtocolIndividualProtocolNumber136Const = "number_136"
 	NetworkACLRuleNetworkACLRuleProtocolIndividualProtocolNumber137Const = "number_137"
 	NetworkACLRuleNetworkACLRuleProtocolIndividualProtocolNumber138Const = "number_138"
@@ -150360,8 +151922,6 @@ const (
 	NetworkACLRuleNetworkACLRuleProtocolIndividualProtocolNumber40Const  = "number_40"
 	NetworkACLRuleNetworkACLRuleProtocolIndividualProtocolNumber41Const  = "number_41"
 	NetworkACLRuleNetworkACLRuleProtocolIndividualProtocolNumber42Const  = "number_42"
-	NetworkACLRuleNetworkACLRuleProtocolIndividualProtocolNumber43Const  = "number_43"
-	NetworkACLRuleNetworkACLRuleProtocolIndividualProtocolNumber44Const  = "number_44"
 	NetworkACLRuleNetworkACLRuleProtocolIndividualProtocolNumber45Const  = "number_45"
 	NetworkACLRuleNetworkACLRuleProtocolIndividualProtocolNumber48Const  = "number_48"
 	NetworkACLRuleNetworkACLRuleProtocolIndividualProtocolNumber49Const  = "number_49"
@@ -150372,9 +151932,6 @@ const (
 	NetworkACLRuleNetworkACLRuleProtocolIndividualProtocolNumber55Const  = "number_55"
 	NetworkACLRuleNetworkACLRuleProtocolIndividualProtocolNumber56Const  = "number_56"
 	NetworkACLRuleNetworkACLRuleProtocolIndividualProtocolNumber57Const  = "number_57"
-	NetworkACLRuleNetworkACLRuleProtocolIndividualProtocolNumber58Const  = "number_58"
-	NetworkACLRuleNetworkACLRuleProtocolIndividualProtocolNumber59Const  = "number_59"
-	NetworkACLRuleNetworkACLRuleProtocolIndividualProtocolNumber60Const  = "number_60"
 	NetworkACLRuleNetworkACLRuleProtocolIndividualProtocolNumber61Const  = "number_61"
 	NetworkACLRuleNetworkACLRuleProtocolIndividualProtocolNumber62Const  = "number_62"
 	NetworkACLRuleNetworkACLRuleProtocolIndividualProtocolNumber63Const  = "number_63"
@@ -150464,9 +152021,150 @@ func UnmarshalNetworkACLRuleNetworkACLRuleProtocolIndividual(m map[string]json.R
 		err = core.SDKErrorf(err, "", "id-error", common.GetComponentInfo())
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "source", &obj.Source)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "source-error", common.GetComponentInfo())
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "ip_version", &obj.IPVersion)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "ip_version-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "protocol", &obj.Protocol)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "protocol-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// NetworkACLRuleNetworkACLRuleProtocolIndividualIPv6 : NetworkACLRuleNetworkACLRuleProtocolIndividualIPv6 struct
+// This model "extends" NetworkACLRule
+type NetworkACLRuleNetworkACLRuleProtocolIndividualIPv6 struct {
+	// The action to perform for a packet matching the rule.
+	Action *string `json:"action" validate:"required"`
+
+	// The rule that this rule is immediately before. If absent, this is the last rule.
+	Before *NetworkACLRuleReference `json:"before,omitempty"`
+
+	// The date and time that the rule was created.
+	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
+
+	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` (or `::/0` if `ip_version` is `ipv6`)
+	// matches all destination addresses.
+	Destination *string `json:"destination" validate:"required"`
+
+	// The direction of traffic to match.
+	Direction *string `json:"direction" validate:"required"`
+
+	// The URL for this network ACL rule.
+	Href *string `json:"href" validate:"required"`
+
+	// The unique identifier for this network ACL rule.
+	ID *string `json:"id" validate:"required"`
+
+	// The name for this network ACL rule. The name is unique across all rules for the network ACL.
+	Name *string `json:"name" validate:"required"`
+
+	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` (or `::/0` if
+	// `ip_version` is `ipv6`) matches all source addresses.
+	Source *string `json:"source" validate:"required"`
+
+	IPVersion *string `json:"ip_version" validate:"required"`
+
+	// A network protocol that requires `ip_version` to be `ipv6`:
+	// - `ipv6_hop_opt`: IPv6 Hop-by-Hop Option (protocol number `0`)
+	// - `ipv6_route`: Routing Header for IPv6 (protocol number `43`)
+	// - `ipv6_frag`: Fragment Header for IPv6 (protocol number `44`)
+	// - `ipv6_no_next`: No Next Header for IPv6 (protocol number `59`)
+	// - `ipv6_dest_opts`: Destination Options for IPv6 (protocol number `60`)
+	// - `ipv6_mobility`: Mobility Header for IPv6 (protocol number `135`).
+	Protocol *string `json:"protocol" validate:"required"`
+}
+
+// Constants associated with the NetworkACLRuleNetworkACLRuleProtocolIndividualIPv6.Action property.
+// The action to perform for a packet matching the rule.
+const (
+	NetworkACLRuleNetworkACLRuleProtocolIndividualIPv6ActionAllowConst = "allow"
+	NetworkACLRuleNetworkACLRuleProtocolIndividualIPv6ActionDenyConst  = "deny"
+)
+
+// Constants associated with the NetworkACLRuleNetworkACLRuleProtocolIndividualIPv6.Direction property.
+// The direction of traffic to match.
+const (
+	NetworkACLRuleNetworkACLRuleProtocolIndividualIPv6DirectionInboundConst  = "inbound"
+	NetworkACLRuleNetworkACLRuleProtocolIndividualIPv6DirectionOutboundConst = "outbound"
+)
+
+// Constants associated with the NetworkACLRuleNetworkACLRuleProtocolIndividualIPv6.IPVersion property.
+const (
+	NetworkACLRuleNetworkACLRuleProtocolIndividualIPv6IPVersionIpv6Const = "ipv6"
+)
+
+// Constants associated with the NetworkACLRuleNetworkACLRuleProtocolIndividualIPv6.Protocol property.
+// A network protocol that requires `ip_version` to be `ipv6`:
+// - `ipv6_hop_opt`: IPv6 Hop-by-Hop Option (protocol number `0`)
+// - `ipv6_route`: Routing Header for IPv6 (protocol number `43`)
+// - `ipv6_frag`: Fragment Header for IPv6 (protocol number `44`)
+// - `ipv6_no_next`: No Next Header for IPv6 (protocol number `59`)
+// - `ipv6_dest_opts`: Destination Options for IPv6 (protocol number `60`)
+// - `ipv6_mobility`: Mobility Header for IPv6 (protocol number `135`).
+const (
+	NetworkACLRuleNetworkACLRuleProtocolIndividualIPv6ProtocolIpv6DestOptsConst = "ipv6_dest_opts"
+	NetworkACLRuleNetworkACLRuleProtocolIndividualIPv6ProtocolIpv6FragConst     = "ipv6_frag"
+	NetworkACLRuleNetworkACLRuleProtocolIndividualIPv6ProtocolIpv6HopOptConst   = "ipv6_hop_opt"
+	NetworkACLRuleNetworkACLRuleProtocolIndividualIPv6ProtocolIpv6MobilityConst = "ipv6_mobility"
+	NetworkACLRuleNetworkACLRuleProtocolIndividualIPv6ProtocolIpv6NoNextConst   = "ipv6_no_next"
+	NetworkACLRuleNetworkACLRuleProtocolIndividualIPv6ProtocolIpv6RouteConst    = "ipv6_route"
+)
+
+func (*NetworkACLRuleNetworkACLRuleProtocolIndividualIPv6) isaNetworkACLRule() bool {
+	return true
+}
+
+// UnmarshalNetworkACLRuleNetworkACLRuleProtocolIndividualIPv6 unmarshals an instance of NetworkACLRuleNetworkACLRuleProtocolIndividualIPv6 from the specified map of raw messages.
+func UnmarshalNetworkACLRuleNetworkACLRuleProtocolIndividualIPv6(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(NetworkACLRuleNetworkACLRuleProtocolIndividualIPv6)
+	err = core.UnmarshalPrimitive(m, "action", &obj.Action)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "action-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "before", &obj.Before, UnmarshalNetworkACLRuleReference)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "before-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "created_at", &obj.CreatedAt)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "created_at-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "destination", &obj.Destination)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "destination-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "direction", &obj.Direction)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "direction-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "href-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "id-error", common.GetComponentInfo())
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
@@ -150477,6 +152175,11 @@ func UnmarshalNetworkACLRuleNetworkACLRuleProtocolIndividual(m map[string]json.R
 	err = core.UnmarshalPrimitive(m, "source", &obj.Source)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "source-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "ip_version", &obj.IPVersion)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "ip_version-error", common.GetComponentInfo())
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "protocol", &obj.Protocol)
@@ -150500,10 +152203,8 @@ type NetworkACLRuleNetworkACLRuleProtocolTcpudp struct {
 	// The date and time that the rule was created.
 	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
 
-	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all destination addresses.
-	//
-	// This property may [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support IPv6 addresses or
-	// CIDR blocks in the future.
+	// The destination IP address or CIDR block to match. The CIDR block `0.0.0.0/0` (or `::/0` if `ip_version` is `ipv6`)
+	// matches all destination addresses.
 	Destination *string `json:"destination" validate:"required"`
 
 	// The direction of traffic to match.
@@ -150515,19 +152216,11 @@ type NetworkACLRuleNetworkACLRuleProtocolTcpudp struct {
 	// The unique identifier for this network ACL rule.
 	ID *string `json:"id" validate:"required"`
 
-	// The IP version for this rule.
-	//
-	// The enumerated values for this property may
-	// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support `ipv6` in the future.
-	IPVersion *string `json:"ip_version" validate:"required"`
-
 	// The name for this network ACL rule. The name is unique across all rules for the network ACL.
 	Name *string `json:"name" validate:"required"`
 
-	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` matches all source addresses.
-	//
-	// This property may [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support IPv6 CIDR blocks
-	// in the future.
+	// The source IP address or CIDR block to match. The CIDR block `0.0.0.0/0` (or `::/0` if
+	// `ip_version` is `ipv6`) matches all source addresses.
 	Source *string `json:"source" validate:"required"`
 
 	// The inclusive upper bound of the TCP or UDP destination port range.
@@ -150535,6 +152228,8 @@ type NetworkACLRuleNetworkACLRuleProtocolTcpudp struct {
 
 	// The inclusive lower bound of the TCP or UDP destination port range.
 	DestinationPortMin *int64 `json:"destination_port_min" validate:"required"`
+
+	IPVersion *string `json:"ip_version" validate:"required"`
 
 	// The network protocol.
 	Protocol *string `json:"protocol" validate:"required"`
@@ -150561,12 +152256,9 @@ const (
 )
 
 // Constants associated with the NetworkACLRuleNetworkACLRuleProtocolTcpudp.IPVersion property.
-// The IP version for this rule.
-//
-// The enumerated values for this property may
-// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support `ipv6` in the future.
 const (
 	NetworkACLRuleNetworkACLRuleProtocolTcpudpIPVersionIpv4Const = "ipv4"
+	NetworkACLRuleNetworkACLRuleProtocolTcpudpIPVersionIpv6Const = "ipv6"
 )
 
 // Constants associated with the NetworkACLRuleNetworkACLRuleProtocolTcpudp.Protocol property.
@@ -150618,11 +152310,6 @@ func UnmarshalNetworkACLRuleNetworkACLRuleProtocolTcpudp(m map[string]json.RawMe
 		err = core.SDKErrorf(err, "", "id-error", common.GetComponentInfo())
 		return
 	}
-	err = core.UnmarshalPrimitive(m, "ip_version", &obj.IPVersion)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "ip_version-error", common.GetComponentInfo())
-		return
-	}
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
@@ -150641,6 +152328,11 @@ func UnmarshalNetworkACLRuleNetworkACLRuleProtocolTcpudp(m map[string]json.RawMe
 	err = core.UnmarshalPrimitive(m, "destination_port_min", &obj.DestinationPortMin)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "destination_port_min-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "ip_version", &obj.IPVersion)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "ip_version-error", common.GetComponentInfo())
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "protocol", &obj.Protocol)
@@ -150901,9 +152593,6 @@ func UnmarshalPublicAddressRangeAuthorizedCIDRAllocationItemFloatingIPReference(
 // This model "extends" PublicAddressRangeAuthorizedCIDRAllocationItem
 type PublicAddressRangeAuthorizedCIDRAllocationItemPublicAddressRangeReference struct {
 	// The public IP address block for this public address range, expressed in CIDR format.
-	//
-	// This property may [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support IPv6 address
-	// blocks in the future.
 	CIDR *string `json:"cidr" validate:"required"`
 
 	// The CRN for this public address range.
@@ -150978,10 +152667,244 @@ func UnmarshalPublicAddressRangeAuthorizedCIDRAllocationItemPublicAddressRangeRe
 	return
 }
 
+// PublicAddressRangeAuthorizedCIDRIdentityByCRN : PublicAddressRangeAuthorizedCIDRIdentityByCRN struct
+// This model "extends" PublicAddressRangeAuthorizedCIDRIdentity
+type PublicAddressRangeAuthorizedCIDRIdentityByCRN struct {
+	// The CRN for this public address range authorized CIDR.
+	CRN *string `json:"crn" validate:"required"`
+}
+
+// NewPublicAddressRangeAuthorizedCIDRIdentityByCRN : Instantiate PublicAddressRangeAuthorizedCIDRIdentityByCRN (Generic Model Constructor)
+func (*VpcV1) NewPublicAddressRangeAuthorizedCIDRIdentityByCRN(crn string) (_model *PublicAddressRangeAuthorizedCIDRIdentityByCRN, err error) {
+	_model = &PublicAddressRangeAuthorizedCIDRIdentityByCRN{
+		CRN: core.StringPtr(crn),
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "model-missing-required", common.GetComponentInfo())
+	}
+	return
+}
+
+func (*PublicAddressRangeAuthorizedCIDRIdentityByCRN) isaPublicAddressRangeAuthorizedCIDRIdentity() bool {
+	return true
+}
+
+// UnmarshalPublicAddressRangeAuthorizedCIDRIdentityByCRN unmarshals an instance of PublicAddressRangeAuthorizedCIDRIdentityByCRN from the specified map of raw messages.
+func UnmarshalPublicAddressRangeAuthorizedCIDRIdentityByCRN(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(PublicAddressRangeAuthorizedCIDRIdentityByCRN)
+	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "crn-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// PublicAddressRangeAuthorizedCIDRIdentityByHref : PublicAddressRangeAuthorizedCIDRIdentityByHref struct
+// This model "extends" PublicAddressRangeAuthorizedCIDRIdentity
+type PublicAddressRangeAuthorizedCIDRIdentityByHref struct {
+	// The URL for this public address range authorized CIDR.
+	Href *string `json:"href" validate:"required"`
+}
+
+// NewPublicAddressRangeAuthorizedCIDRIdentityByHref : Instantiate PublicAddressRangeAuthorizedCIDRIdentityByHref (Generic Model Constructor)
+func (*VpcV1) NewPublicAddressRangeAuthorizedCIDRIdentityByHref(href string) (_model *PublicAddressRangeAuthorizedCIDRIdentityByHref, err error) {
+	_model = &PublicAddressRangeAuthorizedCIDRIdentityByHref{
+		Href: core.StringPtr(href),
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "model-missing-required", common.GetComponentInfo())
+	}
+	return
+}
+
+func (*PublicAddressRangeAuthorizedCIDRIdentityByHref) isaPublicAddressRangeAuthorizedCIDRIdentity() bool {
+	return true
+}
+
+// UnmarshalPublicAddressRangeAuthorizedCIDRIdentityByHref unmarshals an instance of PublicAddressRangeAuthorizedCIDRIdentityByHref from the specified map of raw messages.
+func UnmarshalPublicAddressRangeAuthorizedCIDRIdentityByHref(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(PublicAddressRangeAuthorizedCIDRIdentityByHref)
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "href-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// PublicAddressRangeAuthorizedCIDRIdentityByID : PublicAddressRangeAuthorizedCIDRIdentityByID struct
+// This model "extends" PublicAddressRangeAuthorizedCIDRIdentity
+type PublicAddressRangeAuthorizedCIDRIdentityByID struct {
+	// The unique identifier for this public address range authorized CIDR.
+	ID *string `json:"id" validate:"required"`
+}
+
+// NewPublicAddressRangeAuthorizedCIDRIdentityByID : Instantiate PublicAddressRangeAuthorizedCIDRIdentityByID (Generic Model Constructor)
+func (*VpcV1) NewPublicAddressRangeAuthorizedCIDRIdentityByID(id string) (_model *PublicAddressRangeAuthorizedCIDRIdentityByID, err error) {
+	_model = &PublicAddressRangeAuthorizedCIDRIdentityByID{
+		ID: core.StringPtr(id),
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "model-missing-required", common.GetComponentInfo())
+	}
+	return
+}
+
+func (*PublicAddressRangeAuthorizedCIDRIdentityByID) isaPublicAddressRangeAuthorizedCIDRIdentity() bool {
+	return true
+}
+
+// UnmarshalPublicAddressRangeAuthorizedCIDRIdentityByID unmarshals an instance of PublicAddressRangeAuthorizedCIDRIdentityByID from the specified map of raw messages.
+func UnmarshalPublicAddressRangeAuthorizedCIDRIdentityByID(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(PublicAddressRangeAuthorizedCIDRIdentityByID)
+	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "id-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// PublicAddressRangeAuthorizedCIDRIdentityByName : PublicAddressRangeAuthorizedCIDRIdentityByName struct
+// This model "extends" PublicAddressRangeAuthorizedCIDRIdentity
+type PublicAddressRangeAuthorizedCIDRIdentityByName struct {
+	// The name for this public address range authorized CIDR. The name is unique across all public address range
+	// authorized CIDRs in the region.
+	Name *string `json:"name" validate:"required"`
+}
+
+// NewPublicAddressRangeAuthorizedCIDRIdentityByName : Instantiate PublicAddressRangeAuthorizedCIDRIdentityByName (Generic Model Constructor)
+func (*VpcV1) NewPublicAddressRangeAuthorizedCIDRIdentityByName(name string) (_model *PublicAddressRangeAuthorizedCIDRIdentityByName, err error) {
+	_model = &PublicAddressRangeAuthorizedCIDRIdentityByName{
+		Name: core.StringPtr(name),
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "model-missing-required", common.GetComponentInfo())
+	}
+	return
+}
+
+func (*PublicAddressRangeAuthorizedCIDRIdentityByName) isaPublicAddressRangeAuthorizedCIDRIdentity() bool {
+	return true
+}
+
+// UnmarshalPublicAddressRangeAuthorizedCIDRIdentityByName unmarshals an instance of PublicAddressRangeAuthorizedCIDRIdentityByName from the specified map of raw messages.
+func UnmarshalPublicAddressRangeAuthorizedCIDRIdentityByName(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(PublicAddressRangeAuthorizedCIDRIdentityByName)
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// PublicAddressRangeAuthorizedCIDRPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototype : PublicAddressRangeAuthorizedCIDRPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototype struct
+// Models which "extend" this model:
+// - PublicAddressRangeAuthorizedCIDRPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototypePublicAddressRangeAuthorizedCIDRByNetworkPrefixLength
+// This model "extends" PublicAddressRangeAuthorizedCIDRPrototype
+type PublicAddressRangeAuthorizedCIDRPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototype struct {
+	// The IP version for this public address range authorized CIDR:
+	// - `ipv6`: An IPv6 public address range authorized CIDR.
+	IPVersion *string `json:"ip_version" validate:"required"`
+
+	// The name for this public address range authorized CIDR. The name must not be used by another public address range
+	// authorized CIDR in the region. Names beginning with
+	// `ibm-` are reserved for provider-managed resources, and are not allowed.
+	//
+	// If unspecified, the name will be a hyphenated list of randomly-selected words.
+	Name *string `json:"name,omitempty"`
+
+	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
+
+	// The availability mode of the public address range authorized CIDR:
+	// - `zonal`: Resources allocated from the authorized CIDR must reside in the authorized
+	//   CIDR's `zone`.
+	AvailabilityMode *string `json:"availability_mode" validate:"required"`
+
+	// The zone this public address range authorized CIDR will reside in.
+	Zone ZoneIdentityIntf `json:"zone" validate:"required"`
+
+	// The network prefix length for this public address range authorized CIDR.
+	NetworkPrefixLength *int64 `json:"network_prefix_length,omitempty"`
+}
+
+// Constants associated with the PublicAddressRangeAuthorizedCIDRPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototype.IPVersion property.
+// The IP version for this public address range authorized CIDR:
+// - `ipv6`: An IPv6 public address range authorized CIDR.
+const (
+	PublicAddressRangeAuthorizedCIDRPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototypeIPVersionIpv6Const = "ipv6"
+)
+
+// Constants associated with the PublicAddressRangeAuthorizedCIDRPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototype.AvailabilityMode property.
+// The availability mode of the public address range authorized CIDR:
+//   - `zonal`: Resources allocated from the authorized CIDR must reside in the authorized
+//     CIDR's `zone`.
+const (
+	PublicAddressRangeAuthorizedCIDRPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototypeAvailabilityModeZonalConst = "zonal"
+)
+
+func (*PublicAddressRangeAuthorizedCIDRPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototype) isaPublicAddressRangeAuthorizedCIDRPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototype() bool {
+	return true
+}
+
+type PublicAddressRangeAuthorizedCIDRPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototypeIntf interface {
+	PublicAddressRangeAuthorizedCIDRPrototypeIntf
+	isaPublicAddressRangeAuthorizedCIDRPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototype() bool
+}
+
+func (*PublicAddressRangeAuthorizedCIDRPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototype) isaPublicAddressRangeAuthorizedCIDRPrototype() bool {
+	return true
+}
+
+// UnmarshalPublicAddressRangeAuthorizedCIDRPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototype unmarshals an instance of PublicAddressRangeAuthorizedCIDRPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototype from the specified map of raw messages.
+func UnmarshalPublicAddressRangeAuthorizedCIDRPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototype(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(PublicAddressRangeAuthorizedCIDRPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototype)
+	err = core.UnmarshalPrimitive(m, "ip_version", &obj.IPVersion)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "ip_version-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "resource_group", &obj.ResourceGroup, UnmarshalResourceGroupIdentity)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "resource_group-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "availability_mode", &obj.AvailabilityMode)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "availability_mode-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "zone", &obj.Zone, UnmarshalZoneIdentity)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "zone-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "network_prefix_length", &obj.NetworkPrefixLength)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "network_prefix_length-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
 // PublicAddressRangePrototypePublicAddressRangeByCIDR : The public IP range for this public address range, expressed in CIDR format. The host identifier in the CIDR must be
 // zero. The CIDR must be an unallocated range in a public address range authorized CIDR.
-//
-// An IPv6 CIDR will be converted to its compressed format before processing.
 // This model "extends" PublicAddressRangePrototype
 type PublicAddressRangePrototypePublicAddressRangeByCIDR struct {
 	// The name for this public address range. The name must not be used by another public address range in the region.
@@ -150991,12 +152914,9 @@ type PublicAddressRangePrototypePublicAddressRangeByCIDR struct {
 
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 
-	Target *PublicAddressRangeTargetPrototype `json:"target,omitempty"`
+	Target PublicAddressRangeTargetPrototypeIntf `json:"target,omitempty"`
 
 	// The public IP address block for this public address range, expressed in CIDR format.
-	//
-	// This property may [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support IPv6 address
-	// blocks in the future.
 	CIDR *string `json:"cidr" validate:"required"`
 }
 
@@ -151053,7 +152973,7 @@ type PublicAddressRangePrototypePublicAddressRangeByIPv4AddressCount struct {
 
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 
-	Target *PublicAddressRangeTargetPrototype `json:"target,omitempty"`
+	Target PublicAddressRangeTargetPrototypeIntf `json:"target,omitempty"`
 
 	// The total number of public IPv4 addresses required. Must be a power of 2.
 	Ipv4AddressCount *int64 `json:"ipv4_address_count" validate:"required"`
@@ -151096,6 +153016,168 @@ func UnmarshalPublicAddressRangePrototypePublicAddressRangeByIPv4AddressCount(m 
 	err = core.UnmarshalPrimitive(m, "ipv4_address_count", &obj.Ipv4AddressCount)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "ipv4_address_count-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// PublicAddressRangePrototypePublicAddressRangeByNetworkPrefixLength : The network prefix length for this public address range, and the authorized CIDR to allocate the public address range
+// from.
+// This model "extends" PublicAddressRangePrototype
+type PublicAddressRangePrototypePublicAddressRangeByNetworkPrefixLength struct {
+	// The name for this public address range. The name must not be used by another public address range in the region.
+	// Names starting with `ibm-` are reserved for provider-managed resources, and are not allowed. If unspecified, the
+	// name will be a hyphenated list of randomly-selected words.
+	Name *string `json:"name,omitempty"`
+
+	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
+
+	Target PublicAddressRangeTargetPrototypeIntf `json:"target,omitempty"`
+
+	// The authorized CIDR to allocate the public address range from. The authorized CIDR must
+	// have:
+	// - an `ip_version` value of `ipv6`, and
+	// - a contiguous unallocated block of at least 2 to the power of
+	//   (128-`network_prefix_length`) addresses.
+	AuthorizedCIDR PublicAddressRangeAuthorizedCIDRIdentityIntf `json:"authorized_cidr" validate:"required"`
+
+	// The network prefix length for this public address range.
+	NetworkPrefixLength *int64 `json:"network_prefix_length" validate:"required"`
+}
+
+// NewPublicAddressRangePrototypePublicAddressRangeByNetworkPrefixLength : Instantiate PublicAddressRangePrototypePublicAddressRangeByNetworkPrefixLength (Generic Model Constructor)
+func (*VpcV1) NewPublicAddressRangePrototypePublicAddressRangeByNetworkPrefixLength(authorizedCIDR PublicAddressRangeAuthorizedCIDRIdentityIntf, networkPrefixLength int64) (_model *PublicAddressRangePrototypePublicAddressRangeByNetworkPrefixLength, err error) {
+	_model = &PublicAddressRangePrototypePublicAddressRangeByNetworkPrefixLength{
+		AuthorizedCIDR:      authorizedCIDR,
+		NetworkPrefixLength: core.Int64Ptr(networkPrefixLength),
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "model-missing-required", common.GetComponentInfo())
+	}
+	return
+}
+
+func (*PublicAddressRangePrototypePublicAddressRangeByNetworkPrefixLength) isaPublicAddressRangePrototype() bool {
+	return true
+}
+
+// UnmarshalPublicAddressRangePrototypePublicAddressRangeByNetworkPrefixLength unmarshals an instance of PublicAddressRangePrototypePublicAddressRangeByNetworkPrefixLength from the specified map of raw messages.
+func UnmarshalPublicAddressRangePrototypePublicAddressRangeByNetworkPrefixLength(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(PublicAddressRangePrototypePublicAddressRangeByNetworkPrefixLength)
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "resource_group", &obj.ResourceGroup, UnmarshalResourceGroupIdentity)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "resource_group-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "target", &obj.Target, UnmarshalPublicAddressRangeTargetPrototype)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "target-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "authorized_cidr", &obj.AuthorizedCIDR, UnmarshalPublicAddressRangeAuthorizedCIDRIdentity)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "authorized_cidr-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "network_prefix_length", &obj.NetworkPrefixLength)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "network_prefix_length-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// PublicAddressRangeTargetPrototypePublicAddressRangeTargetByVPCZone : The VPC and zone to bind this public address range to. Supported by public address range profiles with `vpc` included
+// in `targetable_resource_types`.
+// This model "extends" PublicAddressRangeTargetPrototype
+type PublicAddressRangeTargetPrototypePublicAddressRangeTargetByVPCZone struct {
+	// The VPC to bind this public address range to.
+	VPC VPCIdentityIntf `json:"vpc" validate:"required"`
+
+	// The zone this public address range will reside in.
+	//
+	// Must have the same value as the `zone` for the public address range authorized CIDR
+	// this public address range is allocated from, if set.
+	Zone ZoneIdentityIntf `json:"zone" validate:"required"`
+}
+
+// NewPublicAddressRangeTargetPrototypePublicAddressRangeTargetByVPCZone : Instantiate PublicAddressRangeTargetPrototypePublicAddressRangeTargetByVPCZone (Generic Model Constructor)
+func (*VpcV1) NewPublicAddressRangeTargetPrototypePublicAddressRangeTargetByVPCZone(vpc VPCIdentityIntf, zone ZoneIdentityIntf) (_model *PublicAddressRangeTargetPrototypePublicAddressRangeTargetByVPCZone, err error) {
+	_model = &PublicAddressRangeTargetPrototypePublicAddressRangeTargetByVPCZone{
+		VPC:  vpc,
+		Zone: zone,
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "model-missing-required", common.GetComponentInfo())
+	}
+	return
+}
+
+func (*PublicAddressRangeTargetPrototypePublicAddressRangeTargetByVPCZone) isaPublicAddressRangeTargetPrototype() bool {
+	return true
+}
+
+// UnmarshalPublicAddressRangeTargetPrototypePublicAddressRangeTargetByVPCZone unmarshals an instance of PublicAddressRangeTargetPrototypePublicAddressRangeTargetByVPCZone from the specified map of raw messages.
+func UnmarshalPublicAddressRangeTargetPrototypePublicAddressRangeTargetByVPCZone(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(PublicAddressRangeTargetPrototypePublicAddressRangeTargetByVPCZone)
+	err = core.UnmarshalModel(m, "vpc", &obj.VPC, UnmarshalVPCIdentity)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "vpc-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "zone", &obj.Zone, UnmarshalZoneIdentity)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "zone-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// PublicAddressRangeTargetPrototypePublicAddressRangeTargetByVirtualNetworkInterface : The virtual network interface to bind this public address range to. Supported by public address range profiles with
+// `virtual_network_interface` included in
+// `targetable_resource_types`.
+//
+// The virtual network interface must not be bound to a share mount target. If the public address range was allocated
+// from an authorized CIDR with an `availability_mode` value of
+// `zonal`, then the virtual network interface must reside in the same zone as the authorized CIDR.
+// This model "extends" PublicAddressRangeTargetPrototype
+type PublicAddressRangeTargetPrototypePublicAddressRangeTargetByVirtualNetworkInterface struct {
+	// Identifies a virtual network interface by a unique property.
+	VirtualNetworkInterface VirtualNetworkInterfaceIdentityIntf `json:"virtual_network_interface" validate:"required"`
+}
+
+// NewPublicAddressRangeTargetPrototypePublicAddressRangeTargetByVirtualNetworkInterface : Instantiate PublicAddressRangeTargetPrototypePublicAddressRangeTargetByVirtualNetworkInterface (Generic Model Constructor)
+func (*VpcV1) NewPublicAddressRangeTargetPrototypePublicAddressRangeTargetByVirtualNetworkInterface(virtualNetworkInterface VirtualNetworkInterfaceIdentityIntf) (_model *PublicAddressRangeTargetPrototypePublicAddressRangeTargetByVirtualNetworkInterface, err error) {
+	_model = &PublicAddressRangeTargetPrototypePublicAddressRangeTargetByVirtualNetworkInterface{
+		VirtualNetworkInterface: virtualNetworkInterface,
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "model-missing-required", common.GetComponentInfo())
+	}
+	return
+}
+
+func (*PublicAddressRangeTargetPrototypePublicAddressRangeTargetByVirtualNetworkInterface) isaPublicAddressRangeTargetPrototype() bool {
+	return true
+}
+
+// UnmarshalPublicAddressRangeTargetPrototypePublicAddressRangeTargetByVirtualNetworkInterface unmarshals an instance of PublicAddressRangeTargetPrototypePublicAddressRangeTargetByVirtualNetworkInterface from the specified map of raw messages.
+func UnmarshalPublicAddressRangeTargetPrototypePublicAddressRangeTargetByVirtualNetworkInterface(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(PublicAddressRangeTargetPrototypePublicAddressRangeTargetByVirtualNetworkInterface)
+	err = core.UnmarshalModel(m, "virtual_network_interface", &obj.VirtualNetworkInterface, UnmarshalVirtualNetworkInterfaceIdentity)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "virtual_network_interface-error", common.GetComponentInfo())
 		return
 	}
 	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
@@ -153101,9 +155183,6 @@ func UnmarshalSecurityGroupRuleLocalPrototypeSecurityGroupRuleIPPrototype(m map[
 // This model "extends" SecurityGroupRuleLocal
 type SecurityGroupRuleLocalSecurityGroupRuleCIDR struct {
 	// The CIDR block.
-	//
-	// This property may [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support IPv6 CIDR blocks
-	// in the future.
 	CIDRBlock *string `json:"cidr_block" validate:"required"`
 }
 
@@ -153127,9 +155206,6 @@ func UnmarshalSecurityGroupRuleLocalSecurityGroupRuleCIDR(m map[string]json.RawM
 // This model "extends" SecurityGroupRuleLocal
 type SecurityGroupRuleLocalSecurityGroupRuleIP struct {
 	// The IP address.
-	//
-	// This property may [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support IPv6 addresses in
-	// the future.
 	Address *string `json:"address" validate:"required"`
 }
 
@@ -153161,15 +155237,6 @@ type SecurityGroupRuleProtocolAny struct {
 	// The unique identifier for this security group rule.
 	ID *string `json:"id" validate:"required"`
 
-	// The IP version to allow.
-	//
-	// If `remote` references a security group, then this rule only applies to IP addresses in that group matching this IP
-	// version.
-	//
-	// The enumerated values for this property may
-	// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support `ipv6` in the future.
-	IPVersion *string `json:"ip_version" validate:"required"`
-
 	Local SecurityGroupRuleLocalIntf `json:"local" validate:"required"`
 
 	// The name for this security group rule. The name is unique across all rules in the security group.
@@ -153179,6 +155246,8 @@ type SecurityGroupRuleProtocolAny struct {
 
 	// The resource type.
 	ResourceType *string `json:"resource_type" validate:"required"`
+
+	IPVersion *string `json:"ip_version" validate:"required"`
 
 	// The network protocol.
 	Protocol *string `json:"protocol" validate:"required"`
@@ -153191,22 +155260,16 @@ const (
 	SecurityGroupRuleProtocolAnyDirectionOutboundConst = "outbound"
 )
 
-// Constants associated with the SecurityGroupRuleProtocolAny.IPVersion property.
-// The IP version to allow.
-//
-// If `remote` references a security group, then this rule only applies to IP addresses in that group matching this IP
-// version.
-//
-// The enumerated values for this property may
-// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support `ipv6` in the future.
-const (
-	SecurityGroupRuleProtocolAnyIPVersionIpv4Const = "ipv4"
-)
-
 // Constants associated with the SecurityGroupRuleProtocolAny.ResourceType property.
 // The resource type.
 const (
 	SecurityGroupRuleProtocolAnyResourceTypeSecurityGroupRuleConst = "security_group_rule"
+)
+
+// Constants associated with the SecurityGroupRuleProtocolAny.IPVersion property.
+const (
+	SecurityGroupRuleProtocolAnyIPVersionIpv4Const = "ipv4"
+	SecurityGroupRuleProtocolAnyIPVersionIpv6Const = "ipv6"
 )
 
 // Constants associated with the SecurityGroupRuleProtocolAny.Protocol property.
@@ -153237,11 +155300,6 @@ func UnmarshalSecurityGroupRuleProtocolAny(m map[string]json.RawMessage, result 
 		err = core.SDKErrorf(err, "", "id-error", common.GetComponentInfo())
 		return
 	}
-	err = core.UnmarshalPrimitive(m, "ip_version", &obj.IPVersion)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "ip_version-error", common.GetComponentInfo())
-		return
-	}
 	err = core.UnmarshalModel(m, "local", &obj.Local, UnmarshalSecurityGroupRuleLocal)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "local-error", common.GetComponentInfo())
@@ -153260,6 +155318,11 @@ func UnmarshalSecurityGroupRuleProtocolAny(m map[string]json.RawMessage, result 
 	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "resource_type-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "ip_version", &obj.IPVersion)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "ip_version-error", common.GetComponentInfo())
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "protocol", &obj.Protocol)
@@ -153283,15 +155346,6 @@ type SecurityGroupRuleProtocolIcmptcpudp struct {
 	// The unique identifier for this security group rule.
 	ID *string `json:"id" validate:"required"`
 
-	// The IP version to allow.
-	//
-	// If `remote` references a security group, then this rule only applies to IP addresses in that group matching this IP
-	// version.
-	//
-	// The enumerated values for this property may
-	// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support `ipv6` in the future.
-	IPVersion *string `json:"ip_version" validate:"required"`
-
 	Local SecurityGroupRuleLocalIntf `json:"local" validate:"required"`
 
 	// The name for this security group rule. The name is unique across all rules in the security group.
@@ -153301,6 +155355,8 @@ type SecurityGroupRuleProtocolIcmptcpudp struct {
 
 	// The resource type.
 	ResourceType *string `json:"resource_type" validate:"required"`
+
+	IPVersion *string `json:"ip_version" validate:"required"`
 
 	// The network protocol.
 	Protocol *string `json:"protocol" validate:"required"`
@@ -153313,22 +155369,15 @@ const (
 	SecurityGroupRuleProtocolIcmptcpudpDirectionOutboundConst = "outbound"
 )
 
-// Constants associated with the SecurityGroupRuleProtocolIcmptcpudp.IPVersion property.
-// The IP version to allow.
-//
-// If `remote` references a security group, then this rule only applies to IP addresses in that group matching this IP
-// version.
-//
-// The enumerated values for this property may
-// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support `ipv6` in the future.
-const (
-	SecurityGroupRuleProtocolIcmptcpudpIPVersionIpv4Const = "ipv4"
-)
-
 // Constants associated with the SecurityGroupRuleProtocolIcmptcpudp.ResourceType property.
 // The resource type.
 const (
 	SecurityGroupRuleProtocolIcmptcpudpResourceTypeSecurityGroupRuleConst = "security_group_rule"
+)
+
+// Constants associated with the SecurityGroupRuleProtocolIcmptcpudp.IPVersion property.
+const (
+	SecurityGroupRuleProtocolIcmptcpudpIPVersionIpv4Const = "ipv4"
 )
 
 // Constants associated with the SecurityGroupRuleProtocolIcmptcpudp.Protocol property.
@@ -153359,9 +155408,120 @@ func UnmarshalSecurityGroupRuleProtocolIcmptcpudp(m map[string]json.RawMessage, 
 		err = core.SDKErrorf(err, "", "id-error", common.GetComponentInfo())
 		return
 	}
+	err = core.UnmarshalModel(m, "local", &obj.Local, UnmarshalSecurityGroupRuleLocal)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "local-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "remote", &obj.Remote, UnmarshalSecurityGroupRuleRemote)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "remote-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "resource_type-error", common.GetComponentInfo())
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "ip_version", &obj.IPVersion)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "ip_version-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "protocol", &obj.Protocol)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "protocol-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// SecurityGroupRuleProtocolIPv6Icmp : A rule specifying the IPv6 ICMP traffic to allow.
+//
+// Requires `ip_version` to be `ipv6`.
+// This model "extends" SecurityGroupRule
+type SecurityGroupRuleProtocolIPv6Icmp struct {
+	// The direction of traffic to allow.
+	Direction *string `json:"direction" validate:"required"`
+
+	// The URL for this security group rule.
+	Href *string `json:"href" validate:"required"`
+
+	// The unique identifier for this security group rule.
+	ID *string `json:"id" validate:"required"`
+
+	Local SecurityGroupRuleLocalIntf `json:"local" validate:"required"`
+
+	// The name for this security group rule. The name is unique across all rules in the security group.
+	Name *string `json:"name" validate:"required"`
+
+	Remote SecurityGroupRuleRemoteIntf `json:"remote" validate:"required"`
+
+	// The resource type.
+	ResourceType *string `json:"resource_type" validate:"required"`
+
+	// The IPv6 ICMP traffic code to allow. If absent, all codes are allowed.
+	Code *int64 `json:"code,omitempty"`
+
+	IPVersion *string `json:"ip_version" validate:"required"`
+
+	// The network protocol.
+	Protocol *string `json:"protocol" validate:"required"`
+
+	// The IPv6 ICMP traffic type to allow. If absent, all types are allowed.
+	Type *int64 `json:"type,omitempty"`
+}
+
+// Constants associated with the SecurityGroupRuleProtocolIPv6Icmp.Direction property.
+// The direction of traffic to allow.
+const (
+	SecurityGroupRuleProtocolIPv6IcmpDirectionInboundConst  = "inbound"
+	SecurityGroupRuleProtocolIPv6IcmpDirectionOutboundConst = "outbound"
+)
+
+// Constants associated with the SecurityGroupRuleProtocolIPv6Icmp.ResourceType property.
+// The resource type.
+const (
+	SecurityGroupRuleProtocolIPv6IcmpResourceTypeSecurityGroupRuleConst = "security_group_rule"
+)
+
+// Constants associated with the SecurityGroupRuleProtocolIPv6Icmp.IPVersion property.
+const (
+	SecurityGroupRuleProtocolIPv6IcmpIPVersionIpv6Const = "ipv6"
+)
+
+// Constants associated with the SecurityGroupRuleProtocolIPv6Icmp.Protocol property.
+// The network protocol.
+const (
+	SecurityGroupRuleProtocolIPv6IcmpProtocolIpv6IcmpConst = "ipv6_icmp"
+)
+
+func (*SecurityGroupRuleProtocolIPv6Icmp) isaSecurityGroupRule() bool {
+	return true
+}
+
+// UnmarshalSecurityGroupRuleProtocolIPv6Icmp unmarshals an instance of SecurityGroupRuleProtocolIPv6Icmp from the specified map of raw messages.
+func UnmarshalSecurityGroupRuleProtocolIPv6Icmp(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(SecurityGroupRuleProtocolIPv6Icmp)
+	err = core.UnmarshalPrimitive(m, "direction", &obj.Direction)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "direction-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "href-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "id-error", common.GetComponentInfo())
 		return
 	}
 	err = core.UnmarshalModel(m, "local", &obj.Local, UnmarshalSecurityGroupRuleLocal)
@@ -153384,9 +155544,24 @@ func UnmarshalSecurityGroupRuleProtocolIcmptcpudp(m map[string]json.RawMessage, 
 		err = core.SDKErrorf(err, "", "resource_type-error", common.GetComponentInfo())
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "code", &obj.Code)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "code-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "ip_version", &obj.IPVersion)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "ip_version-error", common.GetComponentInfo())
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "protocol", &obj.Protocol)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "protocol-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "type-error", common.GetComponentInfo())
 		return
 	}
 	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
@@ -153405,15 +155580,6 @@ type SecurityGroupRuleProtocolIndividual struct {
 	// The unique identifier for this security group rule.
 	ID *string `json:"id" validate:"required"`
 
-	// The IP version to allow.
-	//
-	// If `remote` references a security group, then this rule only applies to IP addresses in that group matching this IP
-	// version.
-	//
-	// The enumerated values for this property may
-	// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support `ipv6` in the future.
-	IPVersion *string `json:"ip_version" validate:"required"`
-
 	Local SecurityGroupRuleLocalIntf `json:"local" validate:"required"`
 
 	// The name for this security group rule. The name is unique across all rules in the security group.
@@ -153423,6 +155589,8 @@ type SecurityGroupRuleProtocolIndividual struct {
 
 	// The resource type.
 	ResourceType *string `json:"resource_type" validate:"required"`
+
+	IPVersion *string `json:"ip_version" validate:"required"`
 
 	// The network protocol to allow.
 	//
@@ -153448,22 +155616,16 @@ const (
 	SecurityGroupRuleProtocolIndividualDirectionOutboundConst = "outbound"
 )
 
-// Constants associated with the SecurityGroupRuleProtocolIndividual.IPVersion property.
-// The IP version to allow.
-//
-// If `remote` references a security group, then this rule only applies to IP addresses in that group matching this IP
-// version.
-//
-// The enumerated values for this property may
-// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support `ipv6` in the future.
-const (
-	SecurityGroupRuleProtocolIndividualIPVersionIpv4Const = "ipv4"
-)
-
 // Constants associated with the SecurityGroupRuleProtocolIndividual.ResourceType property.
 // The resource type.
 const (
 	SecurityGroupRuleProtocolIndividualResourceTypeSecurityGroupRuleConst = "security_group_rule"
+)
+
+// Constants associated with the SecurityGroupRuleProtocolIndividual.IPVersion property.
+const (
+	SecurityGroupRuleProtocolIndividualIPVersionIpv4Const = "ipv4"
+	SecurityGroupRuleProtocolIndividualIPVersionIpv6Const = "ipv6"
 )
 
 // Constants associated with the SecurityGroupRuleProtocolIndividual.Protocol property.
@@ -153487,7 +155649,6 @@ const (
 	SecurityGroupRuleProtocolIndividualProtocolGreConst       = "gre"
 	SecurityGroupRuleProtocolIndividualProtocolIPInIPConst    = "ip_in_ip"
 	SecurityGroupRuleProtocolIndividualProtocolL2tpConst      = "l2tp"
-	SecurityGroupRuleProtocolIndividualProtocolNumber0Const   = "number_0"
 	SecurityGroupRuleProtocolIndividualProtocolNumber10Const  = "number_10"
 	SecurityGroupRuleProtocolIndividualProtocolNumber100Const = "number_100"
 	SecurityGroupRuleProtocolIndividualProtocolNumber101Const = "number_101"
@@ -153524,7 +155685,6 @@ const (
 	SecurityGroupRuleProtocolIndividualProtocolNumber131Const = "number_131"
 	SecurityGroupRuleProtocolIndividualProtocolNumber133Const = "number_133"
 	SecurityGroupRuleProtocolIndividualProtocolNumber134Const = "number_134"
-	SecurityGroupRuleProtocolIndividualProtocolNumber135Const = "number_135"
 	SecurityGroupRuleProtocolIndividualProtocolNumber136Const = "number_136"
 	SecurityGroupRuleProtocolIndividualProtocolNumber137Const = "number_137"
 	SecurityGroupRuleProtocolIndividualProtocolNumber138Const = "number_138"
@@ -153675,8 +155835,6 @@ const (
 	SecurityGroupRuleProtocolIndividualProtocolNumber40Const  = "number_40"
 	SecurityGroupRuleProtocolIndividualProtocolNumber41Const  = "number_41"
 	SecurityGroupRuleProtocolIndividualProtocolNumber42Const  = "number_42"
-	SecurityGroupRuleProtocolIndividualProtocolNumber43Const  = "number_43"
-	SecurityGroupRuleProtocolIndividualProtocolNumber44Const  = "number_44"
 	SecurityGroupRuleProtocolIndividualProtocolNumber45Const  = "number_45"
 	SecurityGroupRuleProtocolIndividualProtocolNumber48Const  = "number_48"
 	SecurityGroupRuleProtocolIndividualProtocolNumber49Const  = "number_49"
@@ -153687,9 +155845,6 @@ const (
 	SecurityGroupRuleProtocolIndividualProtocolNumber55Const  = "number_55"
 	SecurityGroupRuleProtocolIndividualProtocolNumber56Const  = "number_56"
 	SecurityGroupRuleProtocolIndividualProtocolNumber57Const  = "number_57"
-	SecurityGroupRuleProtocolIndividualProtocolNumber58Const  = "number_58"
-	SecurityGroupRuleProtocolIndividualProtocolNumber59Const  = "number_59"
-	SecurityGroupRuleProtocolIndividualProtocolNumber60Const  = "number_60"
 	SecurityGroupRuleProtocolIndividualProtocolNumber61Const  = "number_61"
 	SecurityGroupRuleProtocolIndividualProtocolNumber62Const  = "number_62"
 	SecurityGroupRuleProtocolIndividualProtocolNumber63Const  = "number_63"
@@ -153759,9 +155914,129 @@ func UnmarshalSecurityGroupRuleProtocolIndividual(m map[string]json.RawMessage, 
 		err = core.SDKErrorf(err, "", "id-error", common.GetComponentInfo())
 		return
 	}
+	err = core.UnmarshalModel(m, "local", &obj.Local, UnmarshalSecurityGroupRuleLocal)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "local-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "remote", &obj.Remote, UnmarshalSecurityGroupRuleRemote)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "remote-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "resource_type-error", common.GetComponentInfo())
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "ip_version", &obj.IPVersion)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "ip_version-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "protocol", &obj.Protocol)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "protocol-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// SecurityGroupRuleProtocolIndividualIPv6 : A rule allowing traffic for a protocol that requires `ip_version` to be `ipv6`.
+// This model "extends" SecurityGroupRule
+type SecurityGroupRuleProtocolIndividualIPv6 struct {
+	// The direction of traffic to allow.
+	Direction *string `json:"direction" validate:"required"`
+
+	// The URL for this security group rule.
+	Href *string `json:"href" validate:"required"`
+
+	// The unique identifier for this security group rule.
+	ID *string `json:"id" validate:"required"`
+
+	Local SecurityGroupRuleLocalIntf `json:"local" validate:"required"`
+
+	// The name for this security group rule. The name is unique across all rules in the security group.
+	Name *string `json:"name" validate:"required"`
+
+	Remote SecurityGroupRuleRemoteIntf `json:"remote" validate:"required"`
+
+	// The resource type.
+	ResourceType *string `json:"resource_type" validate:"required"`
+
+	IPVersion *string `json:"ip_version" validate:"required"`
+
+	// A protocol that requires `ip_version` to be `ipv6`:
+	// - `ipv6_hop_opt`: IPv6 Hop-by-Hop Option (protocol number `0`)
+	// - `ipv6_route`: Routing Header for IPv6 (protocol number `43`)
+	// - `ipv6_frag`: Fragment Header for IPv6 (protocol number `44`)
+	// - `ipv6_no_next`: No Next Header for IPv6 (protocol number `59`)
+	// - `ipv6_dest_opts`: Destination Options for IPv6 (protocol number `60`)
+	// - `ipv6_mobility`: Mobility Header for IPv6 (protocol number `135`).
+	Protocol *string `json:"protocol" validate:"required"`
+}
+
+// Constants associated with the SecurityGroupRuleProtocolIndividualIPv6.Direction property.
+// The direction of traffic to allow.
+const (
+	SecurityGroupRuleProtocolIndividualIPv6DirectionInboundConst  = "inbound"
+	SecurityGroupRuleProtocolIndividualIPv6DirectionOutboundConst = "outbound"
+)
+
+// Constants associated with the SecurityGroupRuleProtocolIndividualIPv6.ResourceType property.
+// The resource type.
+const (
+	SecurityGroupRuleProtocolIndividualIPv6ResourceTypeSecurityGroupRuleConst = "security_group_rule"
+)
+
+// Constants associated with the SecurityGroupRuleProtocolIndividualIPv6.IPVersion property.
+const (
+	SecurityGroupRuleProtocolIndividualIPv6IPVersionIpv6Const = "ipv6"
+)
+
+// Constants associated with the SecurityGroupRuleProtocolIndividualIPv6.Protocol property.
+// A protocol that requires `ip_version` to be `ipv6`:
+// - `ipv6_hop_opt`: IPv6 Hop-by-Hop Option (protocol number `0`)
+// - `ipv6_route`: Routing Header for IPv6 (protocol number `43`)
+// - `ipv6_frag`: Fragment Header for IPv6 (protocol number `44`)
+// - `ipv6_no_next`: No Next Header for IPv6 (protocol number `59`)
+// - `ipv6_dest_opts`: Destination Options for IPv6 (protocol number `60`)
+// - `ipv6_mobility`: Mobility Header for IPv6 (protocol number `135`).
+const (
+	SecurityGroupRuleProtocolIndividualIPv6ProtocolIpv6DestOptsConst = "ipv6_dest_opts"
+	SecurityGroupRuleProtocolIndividualIPv6ProtocolIpv6FragConst     = "ipv6_frag"
+	SecurityGroupRuleProtocolIndividualIPv6ProtocolIpv6HopOptConst   = "ipv6_hop_opt"
+	SecurityGroupRuleProtocolIndividualIPv6ProtocolIpv6MobilityConst = "ipv6_mobility"
+	SecurityGroupRuleProtocolIndividualIPv6ProtocolIpv6NoNextConst   = "ipv6_no_next"
+	SecurityGroupRuleProtocolIndividualIPv6ProtocolIpv6RouteConst    = "ipv6_route"
+)
+
+func (*SecurityGroupRuleProtocolIndividualIPv6) isaSecurityGroupRule() bool {
+	return true
+}
+
+// UnmarshalSecurityGroupRuleProtocolIndividualIPv6 unmarshals an instance of SecurityGroupRuleProtocolIndividualIPv6 from the specified map of raw messages.
+func UnmarshalSecurityGroupRuleProtocolIndividualIPv6(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(SecurityGroupRuleProtocolIndividualIPv6)
+	err = core.UnmarshalPrimitive(m, "direction", &obj.Direction)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "direction-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "href-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "id-error", common.GetComponentInfo())
 		return
 	}
 	err = core.UnmarshalModel(m, "local", &obj.Local, UnmarshalSecurityGroupRuleLocal)
@@ -153784,6 +156059,11 @@ func UnmarshalSecurityGroupRuleProtocolIndividual(m map[string]json.RawMessage, 
 		err = core.SDKErrorf(err, "", "resource_type-error", common.GetComponentInfo())
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "ip_version", &obj.IPVersion)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "ip_version-error", common.GetComponentInfo())
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "protocol", &obj.Protocol)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "protocol-error", common.GetComponentInfo())
@@ -153794,17 +156074,12 @@ func UnmarshalSecurityGroupRuleProtocolIndividual(m map[string]json.RawMessage, 
 }
 
 // SecurityGroupRulePrototypeSecurityGroupRuleProtocolIcmp : A rule specifying the ICMP traffic to allow.
+//
+// Requires `ip_version` to be `ipv4`.
 // This model "extends" SecurityGroupRulePrototype
 type SecurityGroupRulePrototypeSecurityGroupRuleProtocolIcmp struct {
 	// The direction of traffic to allow.
 	Direction *string `json:"direction" validate:"required"`
-
-	// The IP version to allow. The format of `local.address`, `remote.address`,
-	// `local.cidr_block` or `remote.cidr_block` must match this property, if they are used.
-	//
-	// If `remote` references a security group, then this rule will only apply to IP addresses in that group matching this
-	// IP version.
-	IPVersion *string `json:"ip_version,omitempty"`
 
 	Local SecurityGroupRuleLocalPrototypeIntf `json:"local,omitempty"`
 
@@ -153818,6 +156093,8 @@ type SecurityGroupRulePrototypeSecurityGroupRuleProtocolIcmp struct {
 	//
 	// If specified, `type` must also be specified.  If unspecified, all codes are allowed.
 	Code *int64 `json:"code,omitempty"`
+
+	IPVersion *string `json:"ip_version,omitempty"`
 
 	// The network protocol.
 	Protocol *string `json:"protocol" validate:"required"`
@@ -153836,11 +156113,6 @@ const (
 )
 
 // Constants associated with the SecurityGroupRulePrototypeSecurityGroupRuleProtocolIcmp.IPVersion property.
-// The IP version to allow. The format of `local.address`, `remote.address`,
-// `local.cidr_block` or `remote.cidr_block` must match this property, if they are used.
-//
-// If `remote` references a security group, then this rule will only apply to IP addresses in that group matching this
-// IP version.
 const (
 	SecurityGroupRulePrototypeSecurityGroupRuleProtocolIcmpIPVersionIpv4Const = "ipv4"
 )
@@ -153876,11 +156148,6 @@ func UnmarshalSecurityGroupRulePrototypeSecurityGroupRuleProtocolIcmp(m map[stri
 		err = core.SDKErrorf(err, "", "direction-error", common.GetComponentInfo())
 		return
 	}
-	err = core.UnmarshalPrimitive(m, "ip_version", &obj.IPVersion)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "ip_version-error", common.GetComponentInfo())
-		return
-	}
 	err = core.UnmarshalModel(m, "local", &obj.Local, UnmarshalSecurityGroupRuleLocalPrototype)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "local-error", common.GetComponentInfo())
@@ -153899,6 +156166,11 @@ func UnmarshalSecurityGroupRulePrototypeSecurityGroupRuleProtocolIcmp(m map[stri
 	err = core.UnmarshalPrimitive(m, "code", &obj.Code)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "code-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "ip_version", &obj.IPVersion)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "ip_version-error", common.GetComponentInfo())
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "protocol", &obj.Protocol)
@@ -153921,13 +156193,6 @@ type SecurityGroupRulePrototypeSecurityGroupRuleProtocolTcpudp struct {
 	// The direction of traffic to allow.
 	Direction *string `json:"direction" validate:"required"`
 
-	// The IP version to allow. The format of `local.address`, `remote.address`,
-	// `local.cidr_block` or `remote.cidr_block` must match this property, if they are used.
-	//
-	// If `remote` references a security group, then this rule will only apply to IP addresses in that group matching this
-	// IP version.
-	IPVersion *string `json:"ip_version,omitempty"`
-
 	Local SecurityGroupRuleLocalPrototypeIntf `json:"local,omitempty"`
 
 	// The name for this security group rule. The name must not be used by another rule in the security group. If
@@ -153935,6 +156200,8 @@ type SecurityGroupRulePrototypeSecurityGroupRuleProtocolTcpudp struct {
 	Name *string `json:"name,omitempty"`
 
 	Remote SecurityGroupRuleRemotePrototypeIntf `json:"remote,omitempty"`
+
+	IPVersion *string `json:"ip_version,omitempty"`
 
 	// The inclusive upper bound of the TCP or UDP destination port range.
 	//
@@ -153960,13 +156227,9 @@ const (
 )
 
 // Constants associated with the SecurityGroupRulePrototypeSecurityGroupRuleProtocolTcpudp.IPVersion property.
-// The IP version to allow. The format of `local.address`, `remote.address`,
-// `local.cidr_block` or `remote.cidr_block` must match this property, if they are used.
-//
-// If `remote` references a security group, then this rule will only apply to IP addresses in that group matching this
-// IP version.
 const (
 	SecurityGroupRulePrototypeSecurityGroupRuleProtocolTcpudpIPVersionIpv4Const = "ipv4"
+	SecurityGroupRulePrototypeSecurityGroupRuleProtocolTcpudpIPVersionIpv6Const = "ipv6"
 )
 
 // Constants associated with the SecurityGroupRulePrototypeSecurityGroupRuleProtocolTcpudp.Protocol property.
@@ -154001,11 +156264,6 @@ func UnmarshalSecurityGroupRulePrototypeSecurityGroupRuleProtocolTcpudp(m map[st
 		err = core.SDKErrorf(err, "", "direction-error", common.GetComponentInfo())
 		return
 	}
-	err = core.UnmarshalPrimitive(m, "ip_version", &obj.IPVersion)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "ip_version-error", common.GetComponentInfo())
-		return
-	}
 	err = core.UnmarshalModel(m, "local", &obj.Local, UnmarshalSecurityGroupRuleLocalPrototype)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "local-error", common.GetComponentInfo())
@@ -154019,6 +156277,11 @@ func UnmarshalSecurityGroupRulePrototypeSecurityGroupRuleProtocolTcpudp(m map[st
 	err = core.UnmarshalModel(m, "remote", &obj.Remote, UnmarshalSecurityGroupRuleRemotePrototype)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "remote-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "ip_version", &obj.IPVersion)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "ip_version-error", common.GetComponentInfo())
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "port_max", &obj.PortMax)
@@ -154046,13 +156309,6 @@ type SecurityGroupRulePrototypeSecurityGroupRuleProtocolAnyPrototype struct {
 	// The direction of traffic to allow.
 	Direction *string `json:"direction" validate:"required"`
 
-	// The IP version to allow. The format of `local.address`, `remote.address`,
-	// `local.cidr_block` or `remote.cidr_block` must match this property, if they are used.
-	//
-	// If `remote` references a security group, then this rule will only apply to IP addresses in that group matching this
-	// IP version.
-	IPVersion *string `json:"ip_version,omitempty"`
-
 	Local SecurityGroupRuleLocalPrototypeIntf `json:"local,omitempty"`
 
 	// The name for this security group rule. The name must not be used by another rule in the security group. If
@@ -154060,6 +156316,8 @@ type SecurityGroupRulePrototypeSecurityGroupRuleProtocolAnyPrototype struct {
 	Name *string `json:"name,omitempty"`
 
 	Remote SecurityGroupRuleRemotePrototypeIntf `json:"remote,omitempty"`
+
+	IPVersion *string `json:"ip_version,omitempty"`
 
 	// The network protocol.
 	Protocol *string `json:"protocol" validate:"required"`
@@ -154073,13 +156331,9 @@ const (
 )
 
 // Constants associated with the SecurityGroupRulePrototypeSecurityGroupRuleProtocolAnyPrototype.IPVersion property.
-// The IP version to allow. The format of `local.address`, `remote.address`,
-// `local.cidr_block` or `remote.cidr_block` must match this property, if they are used.
-//
-// If `remote` references a security group, then this rule will only apply to IP addresses in that group matching this
-// IP version.
 const (
 	SecurityGroupRulePrototypeSecurityGroupRuleProtocolAnyPrototypeIPVersionIpv4Const = "ipv4"
+	SecurityGroupRulePrototypeSecurityGroupRuleProtocolAnyPrototypeIPVersionIpv6Const = "ipv6"
 )
 
 // Constants associated with the SecurityGroupRulePrototypeSecurityGroupRuleProtocolAnyPrototype.Protocol property.
@@ -154113,11 +156367,6 @@ func UnmarshalSecurityGroupRulePrototypeSecurityGroupRuleProtocolAnyPrototype(m 
 		err = core.SDKErrorf(err, "", "direction-error", common.GetComponentInfo())
 		return
 	}
-	err = core.UnmarshalPrimitive(m, "ip_version", &obj.IPVersion)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "ip_version-error", common.GetComponentInfo())
-		return
-	}
 	err = core.UnmarshalModel(m, "local", &obj.Local, UnmarshalSecurityGroupRuleLocalPrototype)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "local-error", common.GetComponentInfo())
@@ -154133,6 +156382,11 @@ func UnmarshalSecurityGroupRulePrototypeSecurityGroupRuleProtocolAnyPrototype(m 
 		err = core.SDKErrorf(err, "", "remote-error", common.GetComponentInfo())
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "ip_version", &obj.IPVersion)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "ip_version-error", common.GetComponentInfo())
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "protocol", &obj.Protocol)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "protocol-error", common.GetComponentInfo())
@@ -154143,17 +156397,12 @@ func UnmarshalSecurityGroupRulePrototypeSecurityGroupRuleProtocolAnyPrototype(m 
 }
 
 // SecurityGroupRulePrototypeSecurityGroupRuleProtocolIcmptcpudpPrototype : A rule allowing ICMP, TCP and UDP traffic.
+//
+// Requires `ip_version` to be `ipv4`.
 // This model "extends" SecurityGroupRulePrototype
 type SecurityGroupRulePrototypeSecurityGroupRuleProtocolIcmptcpudpPrototype struct {
 	// The direction of traffic to allow.
 	Direction *string `json:"direction" validate:"required"`
-
-	// The IP version to allow. The format of `local.address`, `remote.address`,
-	// `local.cidr_block` or `remote.cidr_block` must match this property, if they are used.
-	//
-	// If `remote` references a security group, then this rule will only apply to IP addresses in that group matching this
-	// IP version.
-	IPVersion *string `json:"ip_version,omitempty"`
 
 	Local SecurityGroupRuleLocalPrototypeIntf `json:"local,omitempty"`
 
@@ -154162,6 +156411,8 @@ type SecurityGroupRulePrototypeSecurityGroupRuleProtocolIcmptcpudpPrototype stru
 	Name *string `json:"name,omitempty"`
 
 	Remote SecurityGroupRuleRemotePrototypeIntf `json:"remote,omitempty"`
+
+	IPVersion *string `json:"ip_version,omitempty"`
 
 	// The network protocol.
 	Protocol *string `json:"protocol" validate:"required"`
@@ -154175,11 +156426,6 @@ const (
 )
 
 // Constants associated with the SecurityGroupRulePrototypeSecurityGroupRuleProtocolIcmptcpudpPrototype.IPVersion property.
-// The IP version to allow. The format of `local.address`, `remote.address`,
-// `local.cidr_block` or `remote.cidr_block` must match this property, if they are used.
-//
-// If `remote` references a security group, then this rule will only apply to IP addresses in that group matching this
-// IP version.
 const (
 	SecurityGroupRulePrototypeSecurityGroupRuleProtocolIcmptcpudpPrototypeIPVersionIpv4Const = "ipv4"
 )
@@ -154215,9 +156461,109 @@ func UnmarshalSecurityGroupRulePrototypeSecurityGroupRuleProtocolIcmptcpudpProto
 		err = core.SDKErrorf(err, "", "direction-error", common.GetComponentInfo())
 		return
 	}
+	err = core.UnmarshalModel(m, "local", &obj.Local, UnmarshalSecurityGroupRuleLocalPrototype)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "local-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "remote", &obj.Remote, UnmarshalSecurityGroupRuleRemotePrototype)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "remote-error", common.GetComponentInfo())
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "ip_version", &obj.IPVersion)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "ip_version-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "protocol", &obj.Protocol)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "protocol-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// SecurityGroupRulePrototypeSecurityGroupRuleProtocolIPv6IcmpPrototype : A rule specifying the IPv6 ICMP traffic to allow.
+//
+// Requires `ip_version` to be `ipv6`.
+// This model "extends" SecurityGroupRulePrototype
+type SecurityGroupRulePrototypeSecurityGroupRuleProtocolIPv6IcmpPrototype struct {
+	// The direction of traffic to allow.
+	Direction *string `json:"direction" validate:"required"`
+
+	Local SecurityGroupRuleLocalPrototypeIntf `json:"local,omitempty"`
+
+	// The name for this security group rule. The name must not be used by another rule in the security group. If
+	// unspecified, the name will be a hyphenated list of randomly-selected words.
+	Name *string `json:"name,omitempty"`
+
+	Remote SecurityGroupRuleRemotePrototypeIntf `json:"remote,omitempty"`
+
+	// The IPv6 ICMP traffic code to allow.
+	//
+	// If specified, `type` must also be specified.  If unspecified, all codes are allowed.
+	Code *int64 `json:"code,omitempty"`
+
+	IPVersion *string `json:"ip_version" validate:"required"`
+
+	// The network protocol.
+	Protocol *string `json:"protocol" validate:"required"`
+
+	// The IPv6 ICMP traffic type to allow.
+	//
+	// If unspecified, all types are allowed.
+	Type *int64 `json:"type,omitempty"`
+}
+
+// Constants associated with the SecurityGroupRulePrototypeSecurityGroupRuleProtocolIPv6IcmpPrototype.Direction property.
+// The direction of traffic to allow.
+const (
+	SecurityGroupRulePrototypeSecurityGroupRuleProtocolIPv6IcmpPrototypeDirectionInboundConst  = "inbound"
+	SecurityGroupRulePrototypeSecurityGroupRuleProtocolIPv6IcmpPrototypeDirectionOutboundConst = "outbound"
+)
+
+// Constants associated with the SecurityGroupRulePrototypeSecurityGroupRuleProtocolIPv6IcmpPrototype.IPVersion property.
+const (
+	SecurityGroupRulePrototypeSecurityGroupRuleProtocolIPv6IcmpPrototypeIPVersionIpv6Const = "ipv6"
+)
+
+// Constants associated with the SecurityGroupRulePrototypeSecurityGroupRuleProtocolIPv6IcmpPrototype.Protocol property.
+// The network protocol.
+const (
+	SecurityGroupRulePrototypeSecurityGroupRuleProtocolIPv6IcmpPrototypeProtocolIpv6IcmpConst = "ipv6_icmp"
+)
+
+// NewSecurityGroupRulePrototypeSecurityGroupRuleProtocolIPv6IcmpPrototype : Instantiate SecurityGroupRulePrototypeSecurityGroupRuleProtocolIPv6IcmpPrototype (Generic Model Constructor)
+func (*VpcV1) NewSecurityGroupRulePrototypeSecurityGroupRuleProtocolIPv6IcmpPrototype(direction string, ipVersion string, protocol string) (_model *SecurityGroupRulePrototypeSecurityGroupRuleProtocolIPv6IcmpPrototype, err error) {
+	_model = &SecurityGroupRulePrototypeSecurityGroupRuleProtocolIPv6IcmpPrototype{
+		Direction: core.StringPtr(direction),
+		IPVersion: core.StringPtr(ipVersion),
+		Protocol:  core.StringPtr(protocol),
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "model-missing-required", common.GetComponentInfo())
+	}
+	return
+}
+
+func (*SecurityGroupRulePrototypeSecurityGroupRuleProtocolIPv6IcmpPrototype) isaSecurityGroupRulePrototype() bool {
+	return true
+}
+
+// UnmarshalSecurityGroupRulePrototypeSecurityGroupRuleProtocolIPv6IcmpPrototype unmarshals an instance of SecurityGroupRulePrototypeSecurityGroupRuleProtocolIPv6IcmpPrototype from the specified map of raw messages.
+func UnmarshalSecurityGroupRulePrototypeSecurityGroupRuleProtocolIPv6IcmpPrototype(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(SecurityGroupRulePrototypeSecurityGroupRuleProtocolIPv6IcmpPrototype)
+	err = core.UnmarshalPrimitive(m, "direction", &obj.Direction)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "direction-error", common.GetComponentInfo())
 		return
 	}
 	err = core.UnmarshalModel(m, "local", &obj.Local, UnmarshalSecurityGroupRuleLocalPrototype)
@@ -154235,6 +156581,131 @@ func UnmarshalSecurityGroupRulePrototypeSecurityGroupRuleProtocolIcmptcpudpProto
 		err = core.SDKErrorf(err, "", "remote-error", common.GetComponentInfo())
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "code", &obj.Code)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "code-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "ip_version", &obj.IPVersion)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "ip_version-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "protocol", &obj.Protocol)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "protocol-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "type-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// SecurityGroupRulePrototypeSecurityGroupRuleProtocolIndividualIPv6Prototype : SecurityGroupRulePrototypeSecurityGroupRuleProtocolIndividualIPv6Prototype struct
+// This model "extends" SecurityGroupRulePrototype
+type SecurityGroupRulePrototypeSecurityGroupRuleProtocolIndividualIPv6Prototype struct {
+	// The direction of traffic to allow.
+	Direction *string `json:"direction" validate:"required"`
+
+	Local SecurityGroupRuleLocalPrototypeIntf `json:"local,omitempty"`
+
+	// The name for this security group rule. The name must not be used by another rule in the security group. If
+	// unspecified, the name will be a hyphenated list of randomly-selected words.
+	Name *string `json:"name,omitempty"`
+
+	Remote SecurityGroupRuleRemotePrototypeIntf `json:"remote,omitempty"`
+
+	IPVersion *string `json:"ip_version" validate:"required"`
+
+	// A protocol that requires `ip_version` to be `ipv6`:
+	// - `ipv6_hop_opt`: IPv6 Hop-by-Hop Option (protocol number `0`)
+	// - `ipv6_route`: Routing Header for IPv6 (protocol number `43`)
+	// - `ipv6_frag`: Fragment Header for IPv6 (protocol number `44`)
+	// - `ipv6_no_next`: No Next Header for IPv6 (protocol number `59`)
+	// - `ipv6_dest_opts`: Destination Options for IPv6 (protocol number `60`)
+	// - `ipv6_mobility`: Mobility Header for IPv6 (protocol number `135`).
+	Protocol *string `json:"protocol" validate:"required"`
+}
+
+// Constants associated with the SecurityGroupRulePrototypeSecurityGroupRuleProtocolIndividualIPv6Prototype.Direction property.
+// The direction of traffic to allow.
+const (
+	SecurityGroupRulePrototypeSecurityGroupRuleProtocolIndividualIPv6PrototypeDirectionInboundConst  = "inbound"
+	SecurityGroupRulePrototypeSecurityGroupRuleProtocolIndividualIPv6PrototypeDirectionOutboundConst = "outbound"
+)
+
+// Constants associated with the SecurityGroupRulePrototypeSecurityGroupRuleProtocolIndividualIPv6Prototype.IPVersion property.
+const (
+	SecurityGroupRulePrototypeSecurityGroupRuleProtocolIndividualIPv6PrototypeIPVersionIpv6Const = "ipv6"
+)
+
+// Constants associated with the SecurityGroupRulePrototypeSecurityGroupRuleProtocolIndividualIPv6Prototype.Protocol property.
+// A protocol that requires `ip_version` to be `ipv6`:
+// - `ipv6_hop_opt`: IPv6 Hop-by-Hop Option (protocol number `0`)
+// - `ipv6_route`: Routing Header for IPv6 (protocol number `43`)
+// - `ipv6_frag`: Fragment Header for IPv6 (protocol number `44`)
+// - `ipv6_no_next`: No Next Header for IPv6 (protocol number `59`)
+// - `ipv6_dest_opts`: Destination Options for IPv6 (protocol number `60`)
+// - `ipv6_mobility`: Mobility Header for IPv6 (protocol number `135`).
+const (
+	SecurityGroupRulePrototypeSecurityGroupRuleProtocolIndividualIPv6PrototypeProtocolIpv6DestOptsConst = "ipv6_dest_opts"
+	SecurityGroupRulePrototypeSecurityGroupRuleProtocolIndividualIPv6PrototypeProtocolIpv6FragConst     = "ipv6_frag"
+	SecurityGroupRulePrototypeSecurityGroupRuleProtocolIndividualIPv6PrototypeProtocolIpv6HopOptConst   = "ipv6_hop_opt"
+	SecurityGroupRulePrototypeSecurityGroupRuleProtocolIndividualIPv6PrototypeProtocolIpv6MobilityConst = "ipv6_mobility"
+	SecurityGroupRulePrototypeSecurityGroupRuleProtocolIndividualIPv6PrototypeProtocolIpv6NoNextConst   = "ipv6_no_next"
+	SecurityGroupRulePrototypeSecurityGroupRuleProtocolIndividualIPv6PrototypeProtocolIpv6RouteConst    = "ipv6_route"
+)
+
+// NewSecurityGroupRulePrototypeSecurityGroupRuleProtocolIndividualIPv6Prototype : Instantiate SecurityGroupRulePrototypeSecurityGroupRuleProtocolIndividualIPv6Prototype (Generic Model Constructor)
+func (*VpcV1) NewSecurityGroupRulePrototypeSecurityGroupRuleProtocolIndividualIPv6Prototype(direction string, ipVersion string, protocol string) (_model *SecurityGroupRulePrototypeSecurityGroupRuleProtocolIndividualIPv6Prototype, err error) {
+	_model = &SecurityGroupRulePrototypeSecurityGroupRuleProtocolIndividualIPv6Prototype{
+		Direction: core.StringPtr(direction),
+		IPVersion: core.StringPtr(ipVersion),
+		Protocol:  core.StringPtr(protocol),
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "model-missing-required", common.GetComponentInfo())
+	}
+	return
+}
+
+func (*SecurityGroupRulePrototypeSecurityGroupRuleProtocolIndividualIPv6Prototype) isaSecurityGroupRulePrototype() bool {
+	return true
+}
+
+// UnmarshalSecurityGroupRulePrototypeSecurityGroupRuleProtocolIndividualIPv6Prototype unmarshals an instance of SecurityGroupRulePrototypeSecurityGroupRuleProtocolIndividualIPv6Prototype from the specified map of raw messages.
+func UnmarshalSecurityGroupRulePrototypeSecurityGroupRuleProtocolIndividualIPv6Prototype(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(SecurityGroupRulePrototypeSecurityGroupRuleProtocolIndividualIPv6Prototype)
+	err = core.UnmarshalPrimitive(m, "direction", &obj.Direction)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "direction-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "local", &obj.Local, UnmarshalSecurityGroupRuleLocalPrototype)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "local-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "remote", &obj.Remote, UnmarshalSecurityGroupRuleRemotePrototype)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "remote-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "ip_version", &obj.IPVersion)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "ip_version-error", common.GetComponentInfo())
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "protocol", &obj.Protocol)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "protocol-error", common.GetComponentInfo())
@@ -154250,13 +156721,6 @@ type SecurityGroupRulePrototypeSecurityGroupRuleProtocolIndividualPrototype stru
 	// The direction of traffic to allow.
 	Direction *string `json:"direction" validate:"required"`
 
-	// The IP version to allow. The format of `local.address`, `remote.address`,
-	// `local.cidr_block` or `remote.cidr_block` must match this property, if they are used.
-	//
-	// If `remote` references a security group, then this rule will only apply to IP addresses in that group matching this
-	// IP version.
-	IPVersion *string `json:"ip_version,omitempty"`
-
 	Local SecurityGroupRuleLocalPrototypeIntf `json:"local,omitempty"`
 
 	// The name for this security group rule. The name must not be used by another rule in the security group. If
@@ -154264,6 +156728,8 @@ type SecurityGroupRulePrototypeSecurityGroupRuleProtocolIndividualPrototype stru
 	Name *string `json:"name,omitempty"`
 
 	Remote SecurityGroupRuleRemotePrototypeIntf `json:"remote,omitempty"`
+
+	IPVersion *string `json:"ip_version,omitempty"`
 
 	// The network protocol to allow.
 	//
@@ -154290,13 +156756,9 @@ const (
 )
 
 // Constants associated with the SecurityGroupRulePrototypeSecurityGroupRuleProtocolIndividualPrototype.IPVersion property.
-// The IP version to allow. The format of `local.address`, `remote.address`,
-// `local.cidr_block` or `remote.cidr_block` must match this property, if they are used.
-//
-// If `remote` references a security group, then this rule will only apply to IP addresses in that group matching this
-// IP version.
 const (
 	SecurityGroupRulePrototypeSecurityGroupRuleProtocolIndividualPrototypeIPVersionIpv4Const = "ipv4"
+	SecurityGroupRulePrototypeSecurityGroupRuleProtocolIndividualPrototypeIPVersionIpv6Const = "ipv6"
 )
 
 // Constants associated with the SecurityGroupRulePrototypeSecurityGroupRuleProtocolIndividualPrototype.Protocol property.
@@ -154320,7 +156782,6 @@ const (
 	SecurityGroupRulePrototypeSecurityGroupRuleProtocolIndividualPrototypeProtocolGreConst       = "gre"
 	SecurityGroupRulePrototypeSecurityGroupRuleProtocolIndividualPrototypeProtocolIPInIPConst    = "ip_in_ip"
 	SecurityGroupRulePrototypeSecurityGroupRuleProtocolIndividualPrototypeProtocolL2tpConst      = "l2tp"
-	SecurityGroupRulePrototypeSecurityGroupRuleProtocolIndividualPrototypeProtocolNumber0Const   = "number_0"
 	SecurityGroupRulePrototypeSecurityGroupRuleProtocolIndividualPrototypeProtocolNumber10Const  = "number_10"
 	SecurityGroupRulePrototypeSecurityGroupRuleProtocolIndividualPrototypeProtocolNumber100Const = "number_100"
 	SecurityGroupRulePrototypeSecurityGroupRuleProtocolIndividualPrototypeProtocolNumber101Const = "number_101"
@@ -154357,7 +156818,6 @@ const (
 	SecurityGroupRulePrototypeSecurityGroupRuleProtocolIndividualPrototypeProtocolNumber131Const = "number_131"
 	SecurityGroupRulePrototypeSecurityGroupRuleProtocolIndividualPrototypeProtocolNumber133Const = "number_133"
 	SecurityGroupRulePrototypeSecurityGroupRuleProtocolIndividualPrototypeProtocolNumber134Const = "number_134"
-	SecurityGroupRulePrototypeSecurityGroupRuleProtocolIndividualPrototypeProtocolNumber135Const = "number_135"
 	SecurityGroupRulePrototypeSecurityGroupRuleProtocolIndividualPrototypeProtocolNumber136Const = "number_136"
 	SecurityGroupRulePrototypeSecurityGroupRuleProtocolIndividualPrototypeProtocolNumber137Const = "number_137"
 	SecurityGroupRulePrototypeSecurityGroupRuleProtocolIndividualPrototypeProtocolNumber138Const = "number_138"
@@ -154508,8 +156968,6 @@ const (
 	SecurityGroupRulePrototypeSecurityGroupRuleProtocolIndividualPrototypeProtocolNumber40Const  = "number_40"
 	SecurityGroupRulePrototypeSecurityGroupRuleProtocolIndividualPrototypeProtocolNumber41Const  = "number_41"
 	SecurityGroupRulePrototypeSecurityGroupRuleProtocolIndividualPrototypeProtocolNumber42Const  = "number_42"
-	SecurityGroupRulePrototypeSecurityGroupRuleProtocolIndividualPrototypeProtocolNumber43Const  = "number_43"
-	SecurityGroupRulePrototypeSecurityGroupRuleProtocolIndividualPrototypeProtocolNumber44Const  = "number_44"
 	SecurityGroupRulePrototypeSecurityGroupRuleProtocolIndividualPrototypeProtocolNumber45Const  = "number_45"
 	SecurityGroupRulePrototypeSecurityGroupRuleProtocolIndividualPrototypeProtocolNumber48Const  = "number_48"
 	SecurityGroupRulePrototypeSecurityGroupRuleProtocolIndividualPrototypeProtocolNumber49Const  = "number_49"
@@ -154520,9 +156978,6 @@ const (
 	SecurityGroupRulePrototypeSecurityGroupRuleProtocolIndividualPrototypeProtocolNumber55Const  = "number_55"
 	SecurityGroupRulePrototypeSecurityGroupRuleProtocolIndividualPrototypeProtocolNumber56Const  = "number_56"
 	SecurityGroupRulePrototypeSecurityGroupRuleProtocolIndividualPrototypeProtocolNumber57Const  = "number_57"
-	SecurityGroupRulePrototypeSecurityGroupRuleProtocolIndividualPrototypeProtocolNumber58Const  = "number_58"
-	SecurityGroupRulePrototypeSecurityGroupRuleProtocolIndividualPrototypeProtocolNumber59Const  = "number_59"
-	SecurityGroupRulePrototypeSecurityGroupRuleProtocolIndividualPrototypeProtocolNumber60Const  = "number_60"
 	SecurityGroupRulePrototypeSecurityGroupRuleProtocolIndividualPrototypeProtocolNumber61Const  = "number_61"
 	SecurityGroupRulePrototypeSecurityGroupRuleProtocolIndividualPrototypeProtocolNumber62Const  = "number_62"
 	SecurityGroupRulePrototypeSecurityGroupRuleProtocolIndividualPrototypeProtocolNumber63Const  = "number_63"
@@ -154595,11 +157050,6 @@ func UnmarshalSecurityGroupRulePrototypeSecurityGroupRuleProtocolIndividualProto
 		err = core.SDKErrorf(err, "", "direction-error", common.GetComponentInfo())
 		return
 	}
-	err = core.UnmarshalPrimitive(m, "ip_version", &obj.IPVersion)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "ip_version-error", common.GetComponentInfo())
-		return
-	}
 	err = core.UnmarshalModel(m, "local", &obj.Local, UnmarshalSecurityGroupRuleLocalPrototype)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "local-error", common.GetComponentInfo())
@@ -154613,6 +157063,11 @@ func UnmarshalSecurityGroupRulePrototypeSecurityGroupRuleProtocolIndividualProto
 	err = core.UnmarshalModel(m, "remote", &obj.Remote, UnmarshalSecurityGroupRuleRemotePrototype)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "remote-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "ip_version", &obj.IPVersion)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "ip_version-error", common.GetComponentInfo())
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "protocol", &obj.Protocol)
@@ -154964,9 +157419,6 @@ func UnmarshalSecurityGroupRuleRemoteSecurityGroupReference(m map[string]json.Ra
 // This model "extends" SecurityGroupRuleRemote
 type SecurityGroupRuleRemoteSecurityGroupRuleCIDR struct {
 	// The CIDR block.
-	//
-	// This property may [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support IPv6 CIDR blocks
-	// in the future.
 	CIDRBlock *string `json:"cidr_block" validate:"required"`
 }
 
@@ -154990,9 +157442,6 @@ func UnmarshalSecurityGroupRuleRemoteSecurityGroupRuleCIDR(m map[string]json.Raw
 // This model "extends" SecurityGroupRuleRemote
 type SecurityGroupRuleRemoteSecurityGroupRuleIP struct {
 	// The IP address.
-	//
-	// This property may [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support IPv6 addresses in
-	// the future.
 	Address *string `json:"address" validate:"required"`
 }
 
@@ -155024,15 +157473,6 @@ type SecurityGroupRuleSecurityGroupRuleProtocolIcmp struct {
 	// The unique identifier for this security group rule.
 	ID *string `json:"id" validate:"required"`
 
-	// The IP version to allow.
-	//
-	// If `remote` references a security group, then this rule only applies to IP addresses in that group matching this IP
-	// version.
-	//
-	// The enumerated values for this property may
-	// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support `ipv6` in the future.
-	IPVersion *string `json:"ip_version" validate:"required"`
-
 	Local SecurityGroupRuleLocalIntf `json:"local" validate:"required"`
 
 	// The name for this security group rule. The name is unique across all rules in the security group.
@@ -155045,6 +157485,8 @@ type SecurityGroupRuleSecurityGroupRuleProtocolIcmp struct {
 
 	// The ICMP traffic code to allow. If absent, all codes are allowed.
 	Code *int64 `json:"code,omitempty"`
+
+	IPVersion *string `json:"ip_version" validate:"required"`
 
 	// The network protocol.
 	Protocol *string `json:"protocol" validate:"required"`
@@ -155060,22 +157502,15 @@ const (
 	SecurityGroupRuleSecurityGroupRuleProtocolIcmpDirectionOutboundConst = "outbound"
 )
 
-// Constants associated with the SecurityGroupRuleSecurityGroupRuleProtocolIcmp.IPVersion property.
-// The IP version to allow.
-//
-// If `remote` references a security group, then this rule only applies to IP addresses in that group matching this IP
-// version.
-//
-// The enumerated values for this property may
-// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support `ipv6` in the future.
-const (
-	SecurityGroupRuleSecurityGroupRuleProtocolIcmpIPVersionIpv4Const = "ipv4"
-)
-
 // Constants associated with the SecurityGroupRuleSecurityGroupRuleProtocolIcmp.ResourceType property.
 // The resource type.
 const (
 	SecurityGroupRuleSecurityGroupRuleProtocolIcmpResourceTypeSecurityGroupRuleConst = "security_group_rule"
+)
+
+// Constants associated with the SecurityGroupRuleSecurityGroupRuleProtocolIcmp.IPVersion property.
+const (
+	SecurityGroupRuleSecurityGroupRuleProtocolIcmpIPVersionIpv4Const = "ipv4"
 )
 
 // Constants associated with the SecurityGroupRuleSecurityGroupRuleProtocolIcmp.Protocol property.
@@ -155106,11 +157541,6 @@ func UnmarshalSecurityGroupRuleSecurityGroupRuleProtocolIcmp(m map[string]json.R
 		err = core.SDKErrorf(err, "", "id-error", common.GetComponentInfo())
 		return
 	}
-	err = core.UnmarshalPrimitive(m, "ip_version", &obj.IPVersion)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "ip_version-error", common.GetComponentInfo())
-		return
-	}
 	err = core.UnmarshalModel(m, "local", &obj.Local, UnmarshalSecurityGroupRuleLocal)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "local-error", common.GetComponentInfo())
@@ -155134,6 +157564,11 @@ func UnmarshalSecurityGroupRuleSecurityGroupRuleProtocolIcmp(m map[string]json.R
 	err = core.UnmarshalPrimitive(m, "code", &obj.Code)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "code-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "ip_version", &obj.IPVersion)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "ip_version-error", common.GetComponentInfo())
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "protocol", &obj.Protocol)
@@ -155165,15 +157600,6 @@ type SecurityGroupRuleSecurityGroupRuleProtocolTcpudp struct {
 	// The unique identifier for this security group rule.
 	ID *string `json:"id" validate:"required"`
 
-	// The IP version to allow.
-	//
-	// If `remote` references a security group, then this rule only applies to IP addresses in that group matching this IP
-	// version.
-	//
-	// The enumerated values for this property may
-	// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support `ipv6` in the future.
-	IPVersion *string `json:"ip_version" validate:"required"`
-
 	Local SecurityGroupRuleLocalIntf `json:"local" validate:"required"`
 
 	// The name for this security group rule. The name is unique across all rules in the security group.
@@ -155183,6 +157609,8 @@ type SecurityGroupRuleSecurityGroupRuleProtocolTcpudp struct {
 
 	// The resource type.
 	ResourceType *string `json:"resource_type" validate:"required"`
+
+	IPVersion *string `json:"ip_version" validate:"required"`
 
 	// The inclusive upper bound of the TCP or UDP destination port range.
 	PortMax *int64 `json:"port_max,omitempty"`
@@ -155201,22 +157629,16 @@ const (
 	SecurityGroupRuleSecurityGroupRuleProtocolTcpudpDirectionOutboundConst = "outbound"
 )
 
-// Constants associated with the SecurityGroupRuleSecurityGroupRuleProtocolTcpudp.IPVersion property.
-// The IP version to allow.
-//
-// If `remote` references a security group, then this rule only applies to IP addresses in that group matching this IP
-// version.
-//
-// The enumerated values for this property may
-// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support `ipv6` in the future.
-const (
-	SecurityGroupRuleSecurityGroupRuleProtocolTcpudpIPVersionIpv4Const = "ipv4"
-)
-
 // Constants associated with the SecurityGroupRuleSecurityGroupRuleProtocolTcpudp.ResourceType property.
 // The resource type.
 const (
 	SecurityGroupRuleSecurityGroupRuleProtocolTcpudpResourceTypeSecurityGroupRuleConst = "security_group_rule"
+)
+
+// Constants associated with the SecurityGroupRuleSecurityGroupRuleProtocolTcpudp.IPVersion property.
+const (
+	SecurityGroupRuleSecurityGroupRuleProtocolTcpudpIPVersionIpv4Const = "ipv4"
+	SecurityGroupRuleSecurityGroupRuleProtocolTcpudpIPVersionIpv6Const = "ipv6"
 )
 
 // Constants associated with the SecurityGroupRuleSecurityGroupRuleProtocolTcpudp.Protocol property.
@@ -155248,11 +157670,6 @@ func UnmarshalSecurityGroupRuleSecurityGroupRuleProtocolTcpudp(m map[string]json
 		err = core.SDKErrorf(err, "", "id-error", common.GetComponentInfo())
 		return
 	}
-	err = core.UnmarshalPrimitive(m, "ip_version", &obj.IPVersion)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "ip_version-error", common.GetComponentInfo())
-		return
-	}
 	err = core.UnmarshalModel(m, "local", &obj.Local, UnmarshalSecurityGroupRuleLocal)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "local-error", common.GetComponentInfo())
@@ -155271,6 +157688,11 @@ func UnmarshalSecurityGroupRuleSecurityGroupRuleProtocolTcpudp(m map[string]json
 	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "resource_type-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "ip_version", &obj.IPVersion)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "ip_version-error", common.GetComponentInfo())
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "port_max", &obj.PortMax)
@@ -155960,8 +158382,10 @@ func UnmarshalShareIdentityByID(m map[string]json.RawMessage, result interface{}
 // - not be in the same VPC as an existing mount target for this share
 // - not have `ips` other than the `primary_ip` address
 //
-// If an existing virtual network interface is specified, it must not have a floating IP bound to it, and it must not be
-// the target of a flow log collector.
+// If an existing virtual network interface is specified, it must:
+// - not have a floating IP bound to it
+// - not have a public address range bound to it
+// - not be the target of a flow log collector.
 //
 // Required if the share's `access_control_mode` is `security_group`.
 // This model "extends" ShareMountTargetPrototype
@@ -162886,6 +165310,141 @@ func UnmarshalVirtualNetworkInterfaceIPPrototypeReservedIPPrototypeVirtualNetwor
 		return
 	}
 	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// VirtualNetworkInterfaceIdentityByCRN : VirtualNetworkInterfaceIdentityByCRN struct
+// This model "extends" VirtualNetworkInterfaceIdentity
+type VirtualNetworkInterfaceIdentityByCRN struct {
+	// The CRN for this virtual network interface.
+	CRN *string `json:"crn" validate:"required"`
+}
+
+// NewVirtualNetworkInterfaceIdentityByCRN : Instantiate VirtualNetworkInterfaceIdentityByCRN (Generic Model Constructor)
+func (*VpcV1) NewVirtualNetworkInterfaceIdentityByCRN(crn string) (_model *VirtualNetworkInterfaceIdentityByCRN, err error) {
+	_model = &VirtualNetworkInterfaceIdentityByCRN{
+		CRN: core.StringPtr(crn),
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "model-missing-required", common.GetComponentInfo())
+	}
+	return
+}
+
+func (*VirtualNetworkInterfaceIdentityByCRN) isaVirtualNetworkInterfaceIdentity() bool {
+	return true
+}
+
+// UnmarshalVirtualNetworkInterfaceIdentityByCRN unmarshals an instance of VirtualNetworkInterfaceIdentityByCRN from the specified map of raw messages.
+func UnmarshalVirtualNetworkInterfaceIdentityByCRN(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VirtualNetworkInterfaceIdentityByCRN)
+	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "crn-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// asPatch returns a generic map representation of the VirtualNetworkInterfaceIdentityByCRN
+func (virtualNetworkInterfaceIdentityByCRN *VirtualNetworkInterfaceIdentityByCRN) asPatch() (_patch map[string]interface{}) {
+	_patch = map[string]interface{}{}
+	if !core.IsNil(virtualNetworkInterfaceIdentityByCRN.CRN) {
+		_patch["crn"] = virtualNetworkInterfaceIdentityByCRN.CRN
+	}
+
+	return
+}
+
+// VirtualNetworkInterfaceIdentityByHref : VirtualNetworkInterfaceIdentityByHref struct
+// This model "extends" VirtualNetworkInterfaceIdentity
+type VirtualNetworkInterfaceIdentityByHref struct {
+	// The URL for this virtual network interface.
+	Href *string `json:"href" validate:"required"`
+}
+
+// NewVirtualNetworkInterfaceIdentityByHref : Instantiate VirtualNetworkInterfaceIdentityByHref (Generic Model Constructor)
+func (*VpcV1) NewVirtualNetworkInterfaceIdentityByHref(href string) (_model *VirtualNetworkInterfaceIdentityByHref, err error) {
+	_model = &VirtualNetworkInterfaceIdentityByHref{
+		Href: core.StringPtr(href),
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "model-missing-required", common.GetComponentInfo())
+	}
+	return
+}
+
+func (*VirtualNetworkInterfaceIdentityByHref) isaVirtualNetworkInterfaceIdentity() bool {
+	return true
+}
+
+// UnmarshalVirtualNetworkInterfaceIdentityByHref unmarshals an instance of VirtualNetworkInterfaceIdentityByHref from the specified map of raw messages.
+func UnmarshalVirtualNetworkInterfaceIdentityByHref(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VirtualNetworkInterfaceIdentityByHref)
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "href-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// asPatch returns a generic map representation of the VirtualNetworkInterfaceIdentityByHref
+func (virtualNetworkInterfaceIdentityByHref *VirtualNetworkInterfaceIdentityByHref) asPatch() (_patch map[string]interface{}) {
+	_patch = map[string]interface{}{}
+	if !core.IsNil(virtualNetworkInterfaceIdentityByHref.Href) {
+		_patch["href"] = virtualNetworkInterfaceIdentityByHref.Href
+	}
+
+	return
+}
+
+// VirtualNetworkInterfaceIdentityByID : VirtualNetworkInterfaceIdentityByID struct
+// This model "extends" VirtualNetworkInterfaceIdentity
+type VirtualNetworkInterfaceIdentityByID struct {
+	// The unique identifier for this virtual network interface.
+	ID *string `json:"id" validate:"required"`
+}
+
+// NewVirtualNetworkInterfaceIdentityByID : Instantiate VirtualNetworkInterfaceIdentityByID (Generic Model Constructor)
+func (*VpcV1) NewVirtualNetworkInterfaceIdentityByID(id string) (_model *VirtualNetworkInterfaceIdentityByID, err error) {
+	_model = &VirtualNetworkInterfaceIdentityByID{
+		ID: core.StringPtr(id),
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "model-missing-required", common.GetComponentInfo())
+	}
+	return
+}
+
+func (*VirtualNetworkInterfaceIdentityByID) isaVirtualNetworkInterfaceIdentity() bool {
+	return true
+}
+
+// UnmarshalVirtualNetworkInterfaceIdentityByID unmarshals an instance of VirtualNetworkInterfaceIdentityByID from the specified map of raw messages.
+func UnmarshalVirtualNetworkInterfaceIdentityByID(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VirtualNetworkInterfaceIdentityByID)
+	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "id-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// asPatch returns a generic map representation of the VirtualNetworkInterfaceIdentityByID
+func (virtualNetworkInterfaceIdentityByID *VirtualNetworkInterfaceIdentityByID) asPatch() (_patch map[string]interface{}) {
+	_patch = map[string]interface{}{}
+	if !core.IsNil(virtualNetworkInterfaceIdentityByID.ID) {
+		_patch["id"] = virtualNetworkInterfaceIdentityByID.ID
+	}
+
 	return
 }
 
@@ -174609,6 +177168,109 @@ func UnmarshalNetworkInterfaceIPPrototypeReservedIPIdentityByID(m map[string]jso
 	return
 }
 
+// PublicAddressRangeAuthorizedCIDRPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototypePublicAddressRangeAuthorizedCIDRByNetworkPrefixLength : PublicAddressRangeAuthorizedCIDRPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototypePublicAddressRangeAuthorizedCIDRByNetworkPrefixLength struct
+// This model "extends" PublicAddressRangeAuthorizedCIDRPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototype
+type PublicAddressRangeAuthorizedCIDRPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototypePublicAddressRangeAuthorizedCIDRByNetworkPrefixLength struct {
+	// The IP version for this public address range authorized CIDR:
+	// - `ipv6`: An IPv6 public address range authorized CIDR.
+	IPVersion *string `json:"ip_version" validate:"required"`
+
+	// The name for this public address range authorized CIDR. The name must not be used by another public address range
+	// authorized CIDR in the region. Names beginning with
+	// `ibm-` are reserved for provider-managed resources, and are not allowed.
+	//
+	// If unspecified, the name will be a hyphenated list of randomly-selected words.
+	Name *string `json:"name,omitempty"`
+
+	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
+
+	// The availability mode of the public address range authorized CIDR:
+	// - `zonal`: Resources allocated from the authorized CIDR must reside in the authorized
+	//   CIDR's `zone`.
+	AvailabilityMode *string `json:"availability_mode" validate:"required"`
+
+	// The zone this public address range authorized CIDR will reside in.
+	Zone ZoneIdentityIntf `json:"zone" validate:"required"`
+
+	// The network prefix length for this public address range authorized CIDR.
+	NetworkPrefixLength *int64 `json:"network_prefix_length" validate:"required"`
+}
+
+// Constants associated with the PublicAddressRangeAuthorizedCIDRPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototypePublicAddressRangeAuthorizedCIDRByNetworkPrefixLength.IPVersion property.
+// The IP version for this public address range authorized CIDR:
+// - `ipv6`: An IPv6 public address range authorized CIDR.
+const (
+	PublicAddressRangeAuthorizedCIDRPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototypePublicAddressRangeAuthorizedCIDRByNetworkPrefixLengthIPVersionIpv6Const = "ipv6"
+)
+
+// Constants associated with the PublicAddressRangeAuthorizedCIDRPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototypePublicAddressRangeAuthorizedCIDRByNetworkPrefixLength.AvailabilityMode property.
+// The availability mode of the public address range authorized CIDR:
+//   - `zonal`: Resources allocated from the authorized CIDR must reside in the authorized
+//     CIDR's `zone`.
+const (
+	PublicAddressRangeAuthorizedCIDRPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototypePublicAddressRangeAuthorizedCIDRByNetworkPrefixLengthAvailabilityModeZonalConst = "zonal"
+)
+
+// NewPublicAddressRangeAuthorizedCIDRPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototypePublicAddressRangeAuthorizedCIDRByNetworkPrefixLength : Instantiate PublicAddressRangeAuthorizedCIDRPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototypePublicAddressRangeAuthorizedCIDRByNetworkPrefixLength (Generic Model Constructor)
+func (*VpcV1) NewPublicAddressRangeAuthorizedCIDRPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototypePublicAddressRangeAuthorizedCIDRByNetworkPrefixLength(ipVersion string, availabilityMode string, zone ZoneIdentityIntf, networkPrefixLength int64) (_model *PublicAddressRangeAuthorizedCIDRPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototypePublicAddressRangeAuthorizedCIDRByNetworkPrefixLength, err error) {
+	_model = &PublicAddressRangeAuthorizedCIDRPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototypePublicAddressRangeAuthorizedCIDRByNetworkPrefixLength{
+		IPVersion:           core.StringPtr(ipVersion),
+		AvailabilityMode:    core.StringPtr(availabilityMode),
+		Zone:                zone,
+		NetworkPrefixLength: core.Int64Ptr(networkPrefixLength),
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "model-missing-required", common.GetComponentInfo())
+	}
+	return
+}
+
+func (*PublicAddressRangeAuthorizedCIDRPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototypePublicAddressRangeAuthorizedCIDRByNetworkPrefixLength) isaPublicAddressRangeAuthorizedCIDRPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototype() bool {
+	return true
+}
+
+func (*PublicAddressRangeAuthorizedCIDRPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototypePublicAddressRangeAuthorizedCIDRByNetworkPrefixLength) isaPublicAddressRangeAuthorizedCIDRPrototype() bool {
+	return true
+}
+
+// UnmarshalPublicAddressRangeAuthorizedCIDRPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototypePublicAddressRangeAuthorizedCIDRByNetworkPrefixLength unmarshals an instance of PublicAddressRangeAuthorizedCIDRPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototypePublicAddressRangeAuthorizedCIDRByNetworkPrefixLength from the specified map of raw messages.
+func UnmarshalPublicAddressRangeAuthorizedCIDRPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototypePublicAddressRangeAuthorizedCIDRByNetworkPrefixLength(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(PublicAddressRangeAuthorizedCIDRPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototypePublicAddressRangeAuthorizedCIDRByNetworkPrefixLength)
+	err = core.UnmarshalPrimitive(m, "ip_version", &obj.IPVersion)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "ip_version-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "resource_group", &obj.ResourceGroup, UnmarshalResourceGroupIdentity)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "resource_group-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "availability_mode", &obj.AvailabilityMode)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "availability_mode-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "zone", &obj.Zone, UnmarshalZoneIdentity)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "zone-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "network_prefix_length", &obj.NetworkPrefixLength)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "network_prefix_length-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
 // PublicGatewayFloatingIPPrototypeFloatingIPIdentityFloatingIPIdentityByAddress : PublicGatewayFloatingIPPrototypeFloatingIPIdentityFloatingIPIdentityByAddress struct
 // This model "extends" PublicGatewayFloatingIPPrototypeFloatingIPIdentity
 type PublicGatewayFloatingIPPrototypeFloatingIPIdentityFloatingIPIdentityByAddress struct {
@@ -177282,6 +179944,98 @@ func (pager *BackupPolicyJobsPager) GetNext() (page []BackupPolicyJob, err error
 
 // GetAll invokes GetAllWithContext() using context.Background() as the Context parameter.
 func (pager *BackupPolicyJobsPager) GetAll() (allItems []BackupPolicyJob, err error) {
+	allItems, err = pager.GetAllWithContext(context.Background())
+	err = core.RepurposeSDKProblem(err, "")
+	return
+}
+
+// BareMetalServerCapacitiesPager can be used to simplify the use of the "ListBareMetalServerCapacities" method.
+type BareMetalServerCapacitiesPager struct {
+	hasNext     bool
+	options     *ListBareMetalServerCapacitiesOptions
+	client      *VpcV1
+	pageContext struct {
+		next *string
+	}
+}
+
+// NewBareMetalServerCapacitiesPager returns a new BareMetalServerCapacitiesPager instance.
+func (vpc *VpcV1) NewBareMetalServerCapacitiesPager(options *ListBareMetalServerCapacitiesOptions) (pager *BareMetalServerCapacitiesPager, err error) {
+	if options.Start != nil && *options.Start != "" {
+		err = core.SDKErrorf(nil, "the 'options.Start' field should not be set", "no-query-setting", common.GetComponentInfo())
+		return
+	}
+
+	var optionsCopy ListBareMetalServerCapacitiesOptions = *options
+	pager = &BareMetalServerCapacitiesPager{
+		hasNext: true,
+		options: &optionsCopy,
+		client:  vpc,
+	}
+	return
+}
+
+// HasNext returns true if there are potentially more results to be retrieved.
+func (pager *BareMetalServerCapacitiesPager) HasNext() bool {
+	return pager.hasNext
+}
+
+// GetNextWithContext returns the next page of results using the specified Context.
+func (pager *BareMetalServerCapacitiesPager) GetNextWithContext(ctx context.Context) (page []BareMetalServerCapacity, err error) {
+	if !pager.HasNext() {
+		return nil, fmt.Errorf("no more results available")
+	}
+
+	pager.options.Start = pager.pageContext.next
+
+	result, _, err := pager.client.ListBareMetalServerCapacitiesWithContext(ctx, pager.options)
+	if err != nil {
+		err = core.RepurposeSDKProblem(err, "error-getting-next-page")
+		return
+	}
+
+	var next *string
+	if result.Next != nil {
+		var start *string
+		start, err = core.GetQueryParam(result.Next.Href, "start")
+		if err != nil {
+			errMsg := fmt.Sprintf("error retrieving 'start' query parameter from URL '%s': %s", *result.Next.Href, err.Error())
+			err = core.SDKErrorf(err, errMsg, "get-query-error", common.GetComponentInfo())
+			return
+		}
+		next = start
+	}
+	pager.pageContext.next = next
+	pager.hasNext = (pager.pageContext.next != nil)
+	page = result.Capacities
+
+	return
+}
+
+// GetAllWithContext returns all results by invoking GetNextWithContext() repeatedly
+// until all pages of results have been retrieved.
+func (pager *BareMetalServerCapacitiesPager) GetAllWithContext(ctx context.Context) (allItems []BareMetalServerCapacity, err error) {
+	for pager.HasNext() {
+		var nextPage []BareMetalServerCapacity
+		nextPage, err = pager.GetNextWithContext(ctx)
+		if err != nil {
+			err = core.RepurposeSDKProblem(err, "error-getting-next-page")
+			return
+		}
+		allItems = append(allItems, nextPage...)
+	}
+	return
+}
+
+// GetNext invokes GetNextWithContext() using context.Background() as the Context parameter.
+func (pager *BareMetalServerCapacitiesPager) GetNext() (page []BareMetalServerCapacity, err error) {
+	page, err = pager.GetNextWithContext(context.Background())
+	err = core.RepurposeSDKProblem(err, "")
+	return
+}
+
+// GetAll invokes GetAllWithContext() using context.Background() as the Context parameter.
+func (pager *BareMetalServerCapacitiesPager) GetAll() (allItems []BareMetalServerCapacity, err error) {
 	allItems, err = pager.GetAllWithContext(context.Background())
 	err = core.RepurposeSDKProblem(err, "")
 	return

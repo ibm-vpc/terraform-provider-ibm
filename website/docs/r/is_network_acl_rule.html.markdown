@@ -162,10 +162,44 @@ resource "ibm_is_network_acl_rule" "example1" {
 }
 ```
 
+## Example usage (IPv6 ipv6_icmp)
+
+```terraform
+resource "ibm_is_network_acl_rule" "example_ipv6_icmp" {
+  network_acl = ibm_is_network_acl.example.id
+  name        = "ipv6-icmp-inbound"
+  action      = "allow"
+  source      = "::/0"
+  destination = "::/0"
+  direction   = "inbound"
+  ip_version  = "ipv6"
+  protocol    = "ipv6_icmp"
+  type        = 135
+  code        = 0
+}
+```
+
+## Example usage (IPv6 tcp with ip_version)
+
+```terraform
+resource "ibm_is_network_acl_rule" "example_ipv6_tcp" {
+  network_acl = ibm_is_network_acl.example.id
+  name        = "ipv6-tcp-outbound"
+  action      = "allow"
+  source      = "::/0"
+  destination = "::/0"
+  direction   = "outbound"
+  ip_version  = "ipv6"
+  protocol    = "tcp"
+  port_min    = 80
+  port_max    = 80
+}
+```
+
 ## Argument reference
 Review the argument references that you can specify for your resource.
 
-- `action` - (Required, String) Whether to **allow** or **deny** matching traffic. Provide `protocol` mandatory if actions is `deny`, otherwise `any` protocol gets denied which may cause discrepancies in older versions of provider. 
+- `action` - (Required, String) Whether to **allow** or **deny** matching traffic. Provide `protocol` mandatory if actions is `deny`, otherwise `any` protocol gets denied which may cause discrepancies in older versions of provider.
 - `before` - (Optional, String) The unique identifier of the rule that this rule is immediately before. If unspecified, this rule will be inserted after all existing rules. While modifying the resource, specify **"null"** (within double quotes) to move this rule after all existing rules.
 
 ~> **NOTE:** When using the `before` attribute to specify rule ordering:</br>
@@ -178,9 +212,10 @@ Review the argument references that you can specify for your resource.
 - `direction` - (Required, String) Whether the traffic to be matched is **inbound** or **outbound**.
 - `icmp` - (Optional, DEPRECATED, List) The protocol ICMP. `icmp` is deprecated and use `protocol`, `code`, and `type` argument instead.
 
-  Nested scheme for `icmp`:
-  - `code` - (Optional, Integer) The ICMP traffic code to allow. Valid values from 0 to 255. If unspecified, all codes are allowed. This can only be specified if type is also specified.
-  - `type` - (Optional, Integer) The ICMP traffic type to allow. Valid values from 0 to 254. If unspecified, all types are allowed by this rule.
+   Nested scheme for `icmp`:
+   - `code` - (Optional, Integer) The ICMP traffic code to allow. Valid values from 0 to 255. If unspecified, all codes are allowed. This can only be specified if type is also specified.
+   - `type` - (Optional, Integer) The ICMP traffic type to allow. Valid values from 0 to 254. If unspecified, all types are allowed by this rule.
+- `ip_version` - (Optional, String) The IP version to be matched. Supported values are `ipv4` and `ipv6`. When set to `ipv6`, the `source` and `destination` fields must use IPv6 CIDR format and IPv6-specific protocol values such as `ipv6_icmp`, `ipv6_tcp_udp`, or `ipv6_all` should be used.
 - `network_acl` - (Required, String) The ID of the network ACL.
 - `name` - (Optional, String) The user-defined name for this rule.
 - `port_max` - (Optional, Integer) The highest port in the range of ports to be matched; if unspecified, **65535** is used.
@@ -205,7 +240,7 @@ Review the argument references that you can specify for your resource.
   - `source_port_max` - (Optional, Integer) The highest port in the range of ports to be matched; if unspecified, **65535** is used.
   - `source_port_min` - (Optional, Integer) The lowest port in the range of ports to be matched; if unspecified, **1** is used.
 
-~> **NOTE:** Only one type of protocol out of **icmp**, **tcp**, or **udp** can be used to create a new rule. If none is provided, **all** is selected.
+~> **NOTE:** Only one type of protocol out of **icmp**, **tcp**, **udp**, **ipv6_icmp**, **ipv6_tcp_udp**, or **ipv6_all** can be used to create a new rule. If none is provided, **all** is selected.
 
 ## Attribute reference
 In addition to all argument reference list, you can access the following attribute reference after your resource is created.
