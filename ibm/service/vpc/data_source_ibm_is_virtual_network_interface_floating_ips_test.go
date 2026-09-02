@@ -30,6 +30,7 @@ func TestAccIBMIsVirtualNetworkInterfaceFloatingIPsDataSourceBasic(t *testing.T)
 					resource.TestCheckResourceAttrSet("data.ibm_is_virtual_network_interface_floating_ips.is_floating_ips", "floating_ips.0.href"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_virtual_network_interface_floating_ips.is_floating_ips", "floating_ips.0.id"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_virtual_network_interface_floating_ips.is_floating_ips", "floating_ips.0.name"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_virtual_network_interface_floating_ips.is_floating_ips", "floating_ips.0.resource_type"),
 				),
 			},
 		},

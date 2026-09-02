@@ -53,3 +53,4 @@ Review the attribute references that you can access after you retrieve your data
     Nested scheme for `floating_ip`:
     - `id` - (String) ID of the floating ip bound to the public gateway.
     - `address` - (String) IP address of the floating ip bound to the public gateway.
+    - `resource_type` - (String) The resource type.

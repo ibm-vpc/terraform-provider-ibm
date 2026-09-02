@@ -98,6 +98,7 @@ In addition to all arguments above, the following attributes are exported:
 	- `href` - (String) The URL for this floating IP.
 	- `id` - (String) The unique identifier for this floating IP.
 	- `name` - (String) The unique user-defined name for this floating IP.
+	- `resource_type` - (String) The resource type.
 
 - `href` - (String) The URL for this network interface.
 

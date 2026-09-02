@@ -43,6 +43,8 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCKVmnMOlHKcZK8tpt3MP1lqOLAcqcJzhsvJcjscgVE
 						"ibm_is_instance_network_interface_floating_ip.vsi_nic_fip", "name", fipname),
 					resource.TestCheckResourceAttr(
 						"ibm_is_instance_network_interface_floating_ip.vsi_nic_fip", "zone", acc.ISZoneName),
+					resource.TestCheckResourceAttrSet(
+						"ibm_is_instance_network_interface_floating_ip.vsi_nic_fip", "resource_type"),
 				),
 			},
 		},

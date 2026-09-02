@@ -39,6 +39,8 @@ func TestAccIBMISSubnetPublicGatewayAttachment_basic(t *testing.T) {
 						"ibm_is_subnet_public_gateway_attachment.attach", "resource_type"),
 					resource.TestCheckResourceAttrSet(
 						"ibm_is_subnet_public_gateway_attachment.attach", "status"),
+					resource.TestCheckResourceAttrSet(
+						"ibm_is_subnet_public_gateway_attachment.attach", "floating_ip.0.resource_type"),
 				),
 			},
 		},

@@ -372,3 +372,37 @@ func testAccCheckIBMISFloatingIPTagsUpdateConfig(name string) string {
 	}
 `, name, acc.ISZoneName)
 }
+
+func TestAccIBMISFloatingIP_Byoip(t *testing.T) {
+	var ip string
+	name := "my-byoip-fip"
+	address := "46.16.188.26"
+	resourceKey := "ibm_is_floating_ip.from_byoip"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acc.TestAccPreCheck(t) },
+		Providers:    acc.TestAccProviders,
+		CheckDestroy: testAccCheckIBMISFloatingIPDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckIBMISFloatingIPByoipConfig(name, address),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckIBMISFloatingIPExists(resourceKey, ip),
+					resource.TestCheckResourceAttr(resourceKey, "name", name),
+					resource.TestCheckResourceAttr(resourceKey, "address", address),
+					resource.TestCheckResourceAttrSet(resourceKey, "status"),
+					resource.TestCheckResourceAttrSet(resourceKey, "crn"),
+				),
+			},
+		},
+	})
+}
+
+func testAccCheckIBMISFloatingIPByoipConfig(name, address string) string {
+	return fmt.Sprintf(`
+	resource "ibm_is_floating_ip" "from_byoip" {
+		name    = "%s"
+		address = "%s"
+	}
+`, name, address)
+}

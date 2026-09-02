@@ -104,13 +104,14 @@ In addition to all arguments above, the following attributes are exported:
 
 - `created_at` - (String) The date and time that the network interface was created.
 - `floating_ips` - (List) The floating IPs associated with this network interface. Nested `floating_ips` blocks have the following structure:
-  - `address` - (String) The globally unique IP address.
-  - `crn` - (String) The CRN for this floating IP.
-  - `deleted` - (List) If present, this property indicates the referenced resource has been deleted and providessome supplementary information. Nested `deleted` blocks have the following structure:
-    - `more_info` - (String) Link to documentation about deleted resources.
-  - `href` - (String) The URL for this floating IP.
-  - `id` - (String) The unique identifier for this floating IP.
-  - `name` - (String) The unique user-defined name for this floating IP.
+	- `address` - (String) The globally unique IP address.
+	- `crn` - (String) The CRN for this floating IP.
+	- `deleted` - (List) If present, this property indicates the referenced resource has been deleted and providessome supplementary information. Nested `deleted` blocks have the following structure:
+		- `more_info` - (String) Link to documentation about deleted resources.
+	- `href` - (String) The URL for this floating IP.
+	- `id` - (String) The unique identifier for this floating IP.
+	- `name` - (String) The unique user-defined name for this floating IP.
+	- `resource_type` - (String) The resource type.
 - `href` - (String) The URL for this network interface.
 - `id` - (String) The unique identifier of the resource. Follows the format <instance_id>/<network_interface_id>.
 - `network_interface` - (String) The unique identifier of the NetworkInterface.

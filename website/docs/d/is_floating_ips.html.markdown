@@ -44,19 +44,34 @@ In addition to all argument references listed, you can access the following attr
 - `floating_ips` - (List) Collection of floating IPs.
   
     Nested scheme for **floating_ips**:
-	- `access_tags`  - (String) Access management tags associated for the floating ip.
+ - `access_tags`  - (String) Access management tags associated for the floating ip.
     - `address` - (String) The globally unique IP address.
+    - `authorized_cidr` - (List) The authorized CIDR block associated with this floating IP.
+
+      Nested scheme for `authorized_cidr`:
+      - `cidr` - (String) The CIDR block.
+      - `href` - (String) The URL for this authorized CIDR.
+      - `id` - (String) The unique identifier for this authorized CIDR.
+      - `name` - (String) The name for this authorized CIDR.
+      - `resource_type` - (String) The resource type.
     - `created_at` - (String) The date and time that the floating IP was created.
     - `crn` - (String) The CRN for this floating IP.
     - `href` - (String) The URL for this floating IP.
     - `id` - (String) The unique identifier for this floating IP.
     - `name` - (String) The unique user-defined name for this floating IP.
+    - `profile` - (List) The profile for this floating IP.
+
+      Nested scheme for `profile`:
+      - `href` - (String) The URL for this floating IP profile.
+      - `name` - (String) The globally unique name for this floating IP profile.
+      - `resource_type` - (String) The resource type.
     - `resource_group` - (List) The resource group object, for this floating IP.
 	    
 		Nested scheme for **resource_group**:
       	- `href` - (String) The URL for this resource group.
 		- `id` - (String) The unique identifier for this resource group.
 		- `name` - (String) The user-defined name for this resource group.
+	- `resource_type` - (String) The resource type.
 	- `status` - (String) The status of the floating IP.
 	- `target` - (List) The target of this floating IP.
 	    

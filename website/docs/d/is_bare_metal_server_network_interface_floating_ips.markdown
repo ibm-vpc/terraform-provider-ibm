@@ -44,8 +44,23 @@ In addition to the argument reference list, you can access the following attribu
 
   Nested scheme for `floating_ips`:
     - `address` - (String) The floating IP address.
+    - `authorized_cidr` - (List) The authorized CIDR block associated with this floating IP.
+
+      Nested scheme for `authorized_cidr`:
+      - `cidr` - (String) The CIDR block.
+      - `href` - (String) The URL for this authorized CIDR.
+      - `id` - (String) The unique identifier for this authorized CIDR.
+      - `name` - (String) The name for this authorized CIDR.
+      - `resource_type` - (String) The resource type.
     - `crn` - (String) The CRN for this floating IP.
     - `id` - (String) The unique identifier of the floating IP.
+    - `profile` - (List) The profile for this floating IP.
+
+      Nested scheme for `profile`:
+      - `href` - (String) The URL for this floating IP profile.
+      - `name` - (String) The globally unique name for this floating IP profile.
+      - `resource_type` - (String) The resource type.
+    - `resource_type` - (String) The resource type.
     - `status` - (String) Provisioning status of the floating IP address.
     - `tags` - (String) The tags associated with VPC.
     - `target` - (String) The ID of the network interface used to allocate the floating IP address.

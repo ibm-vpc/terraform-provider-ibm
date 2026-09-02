@@ -189,6 +189,11 @@ func ResourceIBMIsInstanceNetworkInterface() *schema.Resource {
 							Computed:    true,
 							Description: "The unique user-defined name for this floating IP.",
 						},
+						"resource_type": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The resource type.",
+						},
 					},
 				},
 			},
@@ -556,6 +561,9 @@ func resourceIBMIsInstanceNetworkInterfaceFloatingIPReferenceToMap(floatingIPRef
 	floatingIPReferenceMap["href"] = floatingIPReference.Href
 	floatingIPReferenceMap["id"] = floatingIPReference.ID
 	floatingIPReferenceMap["name"] = floatingIPReference.Name
+	if floatingIPReference.ResourceType != nil {
+		floatingIPReferenceMap["resource_type"] = *floatingIPReference.ResourceType
+	}
 
 	return floatingIPReferenceMap
 }

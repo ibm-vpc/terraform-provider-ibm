@@ -535,6 +535,12 @@ func DataSourceIBMISVPCs() *schema.Resource {
 											},
 										},
 									},
+									"cidr": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The public IP address block for this public address range, expressed in CIDR format.",
+									},
+
 									"href": &schema.Schema{
 										Type:        schema.TypeString,
 										Computed:    true,

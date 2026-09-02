@@ -91,8 +91,76 @@ func ResourceIBMISFloatingIP() *schema.Resource {
 		Schema: map[string]*schema.Schema{
 			isFloatingIPAddress: {
 				Type:        schema.TypeString,
+				Optional:    true,
 				Computed:    true,
-				Description: "Floating IP address",
+				ForceNew:    true,
+				Description: "The IP address to request for this floating IP. Must be an unallocated address in a public address range authorized CIDR.",
+			},
+
+			isFloatingIPResourceType: {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The resource type",
+			},
+
+			isFloatingIPAuthorizedCIDR: {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "The public address range authorized CIDR this floating IP is allocated from",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						isFloatingIPAuthorizedCIDRID: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The unique identifier for this public address range authorized CIDR",
+						},
+						isFloatingIPAuthorizedCIDRCIDR: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The public IPv4 address block, expressed in CIDR format",
+						},
+						isFloatingIPAuthorizedCIDRHref: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The URL for this public address range authorized CIDR",
+						},
+						isFloatingIPAuthorizedCIDRName: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The name for this public address range authorized CIDR",
+						},
+						isFloatingIPAuthorizedCIDRResType: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The resource type",
+						},
+					},
+				},
+			},
+
+			isFloatingIPProfile: {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "The profile for this floating IP",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						isFloatingIPProfileName: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The globally unique name for this floating IP profile",
+						},
+						isFloatingIPProfileHref: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The URL for this floating IP profile",
+						},
+						isFloatingIPResourceType: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The resource type",
+						},
+					},
+				},
 			},
 
 			isFloatingIPName: {
@@ -115,7 +183,6 @@ func ResourceIBMISFloatingIP() *schema.Resource {
 				Optional:      true,
 				Computed:      true,
 				ConflictsWith: []string{isFloatingIPTarget},
-				ExactlyOneOf:  []string{isFloatingIPTarget, isFloatingIPZone},
 				Description:   "Zone name",
 			},
 
@@ -124,7 +191,6 @@ func ResourceIBMISFloatingIP() *schema.Resource {
 				Optional:      true,
 				Computed:      true,
 				ConflictsWith: []string{isFloatingIPZone},
-				ExactlyOneOf:  []string{isFloatingIPTarget, isFloatingIPZone},
 				Description:   "Target info",
 			},
 			floatingIPTargets: {
@@ -333,39 +399,40 @@ func fipCreate(context context.Context, d *schema.ResourceData, meta interface{}
 		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
 		return tfErr.GetDiag()
 	}
-
-	floatingIPPrototype := &vpcv1.FloatingIPPrototype{
+	createFloatingIPOptions := &vpcv1.CreateFloatingIPOptions{
 		Name: &name,
 	}
+
+	if addr, ok := d.GetOk(isFloatingIPAddress); ok {
+		addrStr := addr.(string)
+		createFloatingIPOptions.Address = &addrStr
+	}
+
 	zone, target := "", ""
 	if zn, ok := d.GetOk(isFloatingIPZone); ok {
 		zone = zn.(string)
-		floatingIPPrototype.Zone = &vpcv1.ZoneIdentity{
+		createFloatingIPOptions.Zone = &vpcv1.ZoneIdentity{
 			Name: &zone,
 		}
 	}
 
 	if tgt, ok := d.GetOk(isFloatingIPTarget); ok {
 		target = tgt.(string)
-		floatingIPPrototype.Target = &vpcv1.FloatingIPTargetPrototypeNetworkInterfaceIdentity{
+		createFloatingIPOptions.Target = &vpcv1.FloatingIPTargetPrototypeNetworkInterfaceIdentity{
 			ID: &target,
 		}
 	}
 
-	if zone == "" && target == "" {
-		err = fmt.Errorf("%s or %s need to be provided", isFloatingIPZone, isFloatingIPTarget)
+	if zone == "" && target == "" && createFloatingIPOptions.Address == nil {
+		err = fmt.Errorf("%s, or %s, or %s need to be provided", isFloatingIPZone, isFloatingIPTarget, isFloatingIPAddress)
 		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_floating_ip", "create", "validation").GetDiag()
 	}
 
 	if rgrp, ok := d.GetOk(isFloatingIPResourceGroup); ok {
 		rg := rgrp.(string)
-		floatingIPPrototype.ResourceGroup = &vpcv1.ResourceGroupIdentity{
+		createFloatingIPOptions.ResourceGroup = &vpcv1.ResourceGroupIdentity{
 			ID: &rg,
 		}
-	}
-
-	createFloatingIPOptions := &vpcv1.CreateFloatingIPOptions{
-		FloatingIPPrototype: floatingIPPrototype,
 	}
 
 	floatingip, response, err := vpcClient.CreateFloatingIPWithContext(context, createFloatingIPOptions)
@@ -520,6 +587,50 @@ func fipGet(context context.Context, d *schema.ResourceData, meta interface{}, i
 		if err = d.Set(isFloatingIPResourceGroup, floatingip.ResourceGroup.ID); err != nil {
 			err = fmt.Errorf("Error setting resource_group: %s", err)
 			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_floating_ip", "read", "set-resource_group").GetDiag()
+		}
+	}
+	if floatingip.ResourceType != nil {
+		if err = d.Set(isFloatingIPResourceType, *floatingip.ResourceType); err != nil {
+			err = fmt.Errorf("Error setting resource_type: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_floating_ip", "read", "set-resource_type").GetDiag()
+		}
+	}
+	if floatingip.AuthorizedCIDR != nil {
+		authorizedCIDRMap := map[string]interface{}{}
+		if floatingip.AuthorizedCIDR.ID != nil {
+			authorizedCIDRMap[isFloatingIPAuthorizedCIDRID] = *floatingip.AuthorizedCIDR.ID
+		}
+		if floatingip.AuthorizedCIDR.CIDR != nil {
+			authorizedCIDRMap[isFloatingIPAuthorizedCIDRCIDR] = *floatingip.AuthorizedCIDR.CIDR
+		}
+		if floatingip.AuthorizedCIDR.Href != nil {
+			authorizedCIDRMap[isFloatingIPAuthorizedCIDRHref] = *floatingip.AuthorizedCIDR.Href
+		}
+		if floatingip.AuthorizedCIDR.Name != nil {
+			authorizedCIDRMap[isFloatingIPAuthorizedCIDRName] = *floatingip.AuthorizedCIDR.Name
+		}
+		if floatingip.AuthorizedCIDR.ResourceType != nil {
+			authorizedCIDRMap[isFloatingIPAuthorizedCIDRResType] = *floatingip.AuthorizedCIDR.ResourceType
+		}
+		if err = d.Set(isFloatingIPAuthorizedCIDR, []map[string]interface{}{authorizedCIDRMap}); err != nil {
+			err = fmt.Errorf("Error setting authorized_cidr: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_floating_ip", "read", "set-authorized_cidr").GetDiag()
+		}
+	}
+	if floatingip.Profile != nil {
+		profileMap := map[string]interface{}{}
+		if floatingip.Profile.Name != nil {
+			profileMap[isFloatingIPProfileName] = *floatingip.Profile.Name
+		}
+		if floatingip.Profile.Href != nil {
+			profileMap[isFloatingIPProfileHref] = *floatingip.Profile.Href
+		}
+		if floatingip.Profile.ResourceType != nil {
+			profileMap[isFloatingIPResourceType] = *floatingip.Profile.ResourceType
+		}
+		if err = d.Set(isFloatingIPProfile, []map[string]interface{}{profileMap}); err != nil {
+			err = fmt.Errorf("Error setting profile: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_floating_ip", "read", "set-profile").GetDiag()
 		}
 	}
 	return nil

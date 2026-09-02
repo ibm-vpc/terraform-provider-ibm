@@ -38,6 +38,7 @@ After your resource is created, you can read values from the listed arguments an
   Nested scheme for **deleted**:
   - `more_info` - (String) Link to documentation about deleted resources.
 - `name` - (String) The name for this floating IP. The name is unique across all floating IPs in the region.
+- `resource_type` - (String) The resource type.
 
 ## Import
 

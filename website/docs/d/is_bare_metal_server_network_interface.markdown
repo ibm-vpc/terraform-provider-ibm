@@ -44,6 +44,11 @@ In addition to the argument reference list, you can access the following attribu
 - `allowed_vlans` - (Array) Indicates what VLAN IDs (for VLAN type only) can use this physical (PCI type) interface. A given VLAN can only be in the allowed_vlans array for one PCI type adapter per bare metal server.
 - `enable_infrastructure_nat` - (Boolean) If true, the VPC infrastructure performs any needed NAT operations. If false, the packet is passed unmodified to/from the network interface, allowing the workload to perform any needed NAT operations.
 - `floating_ips` - (List) The floating IPs associated with this network interface.
+
+  Nested scheme for `floating_ips`:
+  - `address` - (String) The globally unique IP address.
+  - `id` - (String) The unique identifier for this floating IP.
+  - `resource_type` - (String) The resource type.
 - `href` - (String) The URL for this network interface
 - `id` - (String) The unique identifier for this network interface
 - `interface_type` - (String) The network interface type, supported values are [ **pci**, **vlan** ]

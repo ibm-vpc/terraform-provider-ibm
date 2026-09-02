@@ -93,6 +93,74 @@ func DataSourceIBMIsPublicAddressRange() *schema.Resource {
 				Computed:    true,
 				Description: "The resource type.",
 			},
+			"ip_version": &schema.Schema{
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The IP version for this public address range.",
+			},
+			"network_prefix_length": &schema.Schema{
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: "The network prefix length for this public address range.",
+			},
+			"authorized_cidr": &schema.Schema{
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "The public address range authorized CIDR this public address range is allocated from.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"cidr": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The public IP address block, expressed in CIDR format.",
+						},
+						"href": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The URL for this public address range authorized CIDR.",
+						},
+						"id": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The unique identifier for this public address range authorized CIDR.",
+						},
+						"name": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The name for this public address range authorized CIDR.",
+						},
+						"resource_type": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The resource type.",
+						},
+					},
+				},
+			},
+			"profile": &schema.Schema{
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "The profile for this public address range.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"href": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The URL for this public address range profile.",
+						},
+						"name": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The globally unique name for this public address range profile.",
+						},
+						"resource_type": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The resource type.",
+						},
+					},
+				},
+			},
 			"target": &schema.Schema{
 				Type:        schema.TypeList,
 				Computed:    true,
@@ -294,6 +362,52 @@ func dataSourceIBMIsPublicAddressRangeRead(context context.Context, d *schema.Re
 
 	if err = d.Set("resource_type", publicAddressRange.ResourceType); err != nil {
 		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting resource_type: %s", err), "(Data) ibm_is_public_address_range", "read", "set-resource_type").GetDiag()
+	}
+	if publicAddressRange.IPVersion != nil {
+		if err = d.Set("ip_version", publicAddressRange.IPVersion); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting ip_version: %s", err), "(Data) ibm_public_address_range", "read", "set-ip_version").GetDiag()
+		}
+	}
+	if publicAddressRange.NetworkPrefixLength != nil {
+		if err = d.Set("network_prefix_length", flex.IntValue(publicAddressRange.NetworkPrefixLength)); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting network_prefix_length: %s", err), "(Data) ibm_public_address_range", "read", "set-network_prefix_length").GetDiag()
+		}
+	}
+	if publicAddressRange.AuthorizedCIDR != nil {
+		authorizedCIDRMap := map[string]interface{}{}
+		if publicAddressRange.AuthorizedCIDR.CIDR != nil {
+			authorizedCIDRMap["cidr"] = *publicAddressRange.AuthorizedCIDR.CIDR
+		}
+		if publicAddressRange.AuthorizedCIDR.Href != nil {
+			authorizedCIDRMap["href"] = *publicAddressRange.AuthorizedCIDR.Href
+		}
+		if publicAddressRange.AuthorizedCIDR.ID != nil {
+			authorizedCIDRMap["id"] = *publicAddressRange.AuthorizedCIDR.ID
+		}
+		if publicAddressRange.AuthorizedCIDR.Name != nil {
+			authorizedCIDRMap["name"] = *publicAddressRange.AuthorizedCIDR.Name
+		}
+		if publicAddressRange.AuthorizedCIDR.ResourceType != nil {
+			authorizedCIDRMap["resource_type"] = *publicAddressRange.AuthorizedCIDR.ResourceType
+		}
+		if err = d.Set("authorized_cidr", []map[string]interface{}{authorizedCIDRMap}); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting authorized_cidr: %s", err), "(Data) ibm_public_address_range", "read", "set-authorized_cidr").GetDiag()
+		}
+	}
+	if publicAddressRange.Profile != nil {
+		profileMap := map[string]interface{}{}
+		if publicAddressRange.Profile.Href != nil {
+			profileMap["href"] = *publicAddressRange.Profile.Href
+		}
+		if publicAddressRange.Profile.Name != nil {
+			profileMap["name"] = *publicAddressRange.Profile.Name
+		}
+		if publicAddressRange.Profile.ResourceType != nil {
+			profileMap["resource_type"] = *publicAddressRange.Profile.ResourceType
+		}
+		if err = d.Set("profile", []map[string]interface{}{profileMap}); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting profile: %s", err), "(Data) ibm_public_address_range", "read", "set-profile").GetDiag()
+		}
 	}
 
 	target := []map[string]interface{}{}

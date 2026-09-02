@@ -33,6 +33,7 @@ data "ibm_is_public_address_ranges" "is_public_address_ranges" {
 
 You can specify the following arguments for this data source.
 
+- `profile_name` - (Optional, String) Filters the collection to public address ranges with a profile matching the specified name.
 - `resource_group` - (Optional, String) The ID of the Resource group this public gateway belongs to.
 
 ## Attribute Reference
@@ -43,14 +44,30 @@ After your data source is created, you can read values from the following attrib
 - `public_address_ranges` - (List) Collection of public address ranges.
 	
 	Nested schema for `public_address_ranges`:
+	- `authorized_cidr` - (List) The authorized CIDR block for this public address range.
+
+		Nested schema for `authorized_cidr`:
+		- `cidr` - (String) The CIDR block.
+		- `href` - (String) The URL for this authorized CIDR.
+		- `id` - (String) The unique identifier for this authorized CIDR.
+		- `name` - (String) The name for this authorized CIDR.
+		- `resource_type` - (String) The resource type.
 	- `cidr` - (String) The public IPv4 range, expressed in CIDR format.
 	- `created_at` - (String) The date and time that the public address range was created.
 	- `crn` - (String) The CRN for this public address range.
 	- `href` - (String) The URL for this public address range.
 	- `id` - (String) The unique identifier for this public address range.
+	- `ip_version` - (String) The IP version.
 	- `ipv4_address_count` - (Integer) The number of IPv4 addresses in this public address range.
 	- `lifecycle_state` - (String) The lifecycle state of the public address range.
 	- `name` - (String) The name for this public address range. The name is unique across all public address ranges in the region.
+	- `network_prefix_length` - (Integer) The network prefix length of the CIDR block.
+	- `profile` - (List) The profile for this public address range.
+
+		Nested schema for `profile`:
+		- `href` - (String) The URL for this public address range profile.
+		- `name` - (String) The globally unique name for this public address range profile.
+		- `resource_type` - (String) The resource type.
 	- `resource_group` - (List) The resource group for this public address range.
 		
 		Nested schema for `resource_group`:

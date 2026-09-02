@@ -38,6 +38,8 @@ func TestAccIBMISPublicGateway_basic(t *testing.T) {
 						"ibm_is_public_gateway.testacc_public_gateway", "name", name1),
 					resource.TestCheckResourceAttr(
 						"ibm_is_public_gateway.testacc_public_gateway", "zone", zone),
+					resource.TestCheckResourceAttrSet(
+						"ibm_is_public_gateway.testacc_public_gateway", "floating_ip.0.resource_type"),
 				),
 			},
 

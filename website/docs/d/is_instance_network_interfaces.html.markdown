@@ -77,17 +77,18 @@ In addition to all argument references listed, you can access the following attr
 - `network_interfaces` - (List) Collection of network interfaces. Nested `network_interfaces` blocks have the following structure:
 	- `allow_ip_spoofing` - (Boolean) Indicates whether source IP spoofing is allowed on this interface. If false, source IP spoofing is prevented on this interface. If true, source IP spoofing is allowed on this interface.
 	- `created_at` - (String) The date and time that the network interface was created.
-	- `floating_ips` - (List) The floating IPs associated with this network interface. 
+	- `floating_ips` - (List) The floating IPs associated with this network interface.
 	
 	  Nested scheme for `floating_ips`:
 	  - `address` - (String) The globally unique IP address.
 	  - `crn` - (String) The CRN for this floating IP.
-	  - `deleted` - (List) If present, this property indicates the referenced resource has been deleted and providessome supplementary information. 
+	  - `deleted` - (List) If present, this property indicates the referenced resource has been deleted and providessome supplementary information.
 			Nested scheme for `deleted`:
 			- `more_info` - (String) Link to documentation about deleted resources.
 	  - `href` - (String) The URL for this floating IP.
 	  - `id` - (String) The unique identifier for this floating IP.
 	  - `name` - (String) The unique user-defined name for this floating IP.
+	  - `resource_type` - (String) The resource type.
 	- `href` - (String) The URL for this network interface.
 	- `id` - (String) The unique identifier for this network interface.
 	- `name` - (String) The user-defined name for this network interface.

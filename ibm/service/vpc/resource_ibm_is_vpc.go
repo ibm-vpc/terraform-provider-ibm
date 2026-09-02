@@ -613,6 +613,12 @@ func ResourceIBMISVPC() *schema.Resource {
 								},
 							},
 						},
+						"cidr": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The public IP address block for this public address range, expressed in CIDR format.",
+						},
+
 						"href": &schema.Schema{
 							Type:        schema.TypeString,
 							Computed:    true,
@@ -2305,6 +2311,9 @@ func resourceIBMIsVPCAccountReferenceToMap(model *vpcv1.AccountReference) (map[s
 
 func ResourceIBMIsVPCPublicAddressRangeReferenceToMap(model *vpcv1.PublicAddressRangeReference) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
+	if model.CIDR != nil {
+		modelMap["cidr"] = *model.CIDR
+	}
 	modelMap["crn"] = *model.CRN
 	if model.Deleted != nil {
 		deletedMap, err := ResourceIBMIsVPCDeletedToMap(model.Deleted)

@@ -42,6 +42,7 @@ func TestAccIBMISVPC_basic(t *testing.T) {
 						"ibm_is_vpc.testacc_vpc", "default_routing_table_name", "drtn"),
 					resource.TestCheckResourceAttr(
 						"ibm_is_vpc.testacc_vpc", "tags.#", "2"),
+					resource.TestCheckResourceAttrSet("ibm_is_vpc.testacc_vpc", "public_address_ranges.#"),
 				),
 			},
 			{

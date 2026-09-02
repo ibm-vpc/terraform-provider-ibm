@@ -72,6 +72,11 @@ func ResourceIBMIsVirtualNetworkInterfaceFloatingIP() *schema.Resource {
 				Computed:    true,
 				Description: "The URL for this floating IP.",
 			},
+			"resource_type": &schema.Schema{
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The resource type.",
+			},
 		},
 	}
 }
@@ -150,6 +155,12 @@ func resourceIBMIsVirtualNetworkInterfaceFloatingIPGet(d *schema.ResourceData, f
 	if err := d.Set("href", floatingIP.Href); err != nil {
 		err = fmt.Errorf("Error setting href: %s", err)
 		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_virtual_network_interface_floating_ip", "read", "set-href").GetDiag()
+	}
+	if floatingIP.ResourceType != nil {
+		if err := d.Set("resource_type", *floatingIP.ResourceType); err != nil {
+			err = fmt.Errorf("Error setting resource_type: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_virtual_network_interface_floating_ip", "read", "set-resource_type").GetDiag()
+		}
 	}
 	deleted := make(map[string]interface{})
 

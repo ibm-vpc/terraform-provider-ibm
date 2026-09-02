@@ -26,6 +26,11 @@ func DataSourceIBMIsPublicAddressRanges() *schema.Resource {
 				Optional:    true,
 				Description: "Filters the collection to resources with a `resource_group` property matching the specified identifier.",
 			},
+			"profile_name": &schema.Schema{
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Filters the collection to resources with a `profile.name` property matching the specified value.",
+			},
 			"public_address_ranges": &schema.Schema{
 				Type:        schema.TypeList,
 				Computed:    true,
@@ -100,6 +105,74 @@ func DataSourceIBMIsPublicAddressRanges() *schema.Resource {
 							Type:        schema.TypeString,
 							Computed:    true,
 							Description: "The resource type.",
+						},
+						"ip_version": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The IP version for this public address range.",
+						},
+						"network_prefix_length": &schema.Schema{
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: "The network prefix length for this public address range.",
+						},
+						"authorized_cidr": &schema.Schema{
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "The public address range authorized CIDR this public address range is allocated from.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"cidr": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The public IP address block, expressed in CIDR format.",
+									},
+									"href": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The URL for this public address range authorized CIDR.",
+									},
+									"id": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The unique identifier for this public address range authorized CIDR.",
+									},
+									"name": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The name for this public address range authorized CIDR.",
+									},
+									"resource_type": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The resource type.",
+									},
+								},
+							},
+						},
+						"profile": &schema.Schema{
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "The profile for this public address range.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"href": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The URL for this public address range profile.",
+									},
+									"name": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The globally unique name for this public address range profile.",
+									},
+									"resource_type": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The resource type.",
+									},
+								},
+							},
 						},
 						"target": &schema.Schema{
 							Type:        schema.TypeList,
@@ -223,6 +296,10 @@ func dataSourceIBMIsPublicAddressRangesRead(context context.Context, d *schema.R
 		if rgroup != "" {
 			listPublicAddressRanges.ResourceGroupID = &rgroup
 		}
+		if pn, ok := d.GetOk("profile_name"); ok {
+			profileName := pn.(string)
+			listPublicAddressRanges.ProfileName = &profileName
+		}
 		publicAddressRangeCollection, response, err := vpcClient.ListPublicAddressRangesWithContext(context, listPublicAddressRanges)
 		if err != nil {
 			log.Printf("[DEBUG] ListPublicAddressRangesWithContext failed %s\n%s", err, response)
@@ -273,6 +350,44 @@ func DataSourceIBMIsPublicAddressRangesPublicAddressRangeToMap(model *vpcv1.Publ
 		return modelMap, err
 	}
 	modelMap["resource_group"] = []map[string]interface{}{resourceGroupMap}
+	if model.IPVersion != nil {
+		modelMap["ip_version"] = *model.IPVersion
+	}
+	if model.NetworkPrefixLength != nil {
+		modelMap["network_prefix_length"] = flex.IntValue(model.NetworkPrefixLength)
+	}
+	if model.AuthorizedCIDR != nil {
+		authorizedCIDRMap := map[string]interface{}{}
+		if model.AuthorizedCIDR.CIDR != nil {
+			authorizedCIDRMap["cidr"] = *model.AuthorizedCIDR.CIDR
+		}
+		if model.AuthorizedCIDR.Href != nil {
+			authorizedCIDRMap["href"] = *model.AuthorizedCIDR.Href
+		}
+		if model.AuthorizedCIDR.ID != nil {
+			authorizedCIDRMap["id"] = *model.AuthorizedCIDR.ID
+		}
+		if model.AuthorizedCIDR.Name != nil {
+			authorizedCIDRMap["name"] = *model.AuthorizedCIDR.Name
+		}
+		if model.AuthorizedCIDR.ResourceType != nil {
+			authorizedCIDRMap["resource_type"] = *model.AuthorizedCIDR.ResourceType
+		}
+		modelMap["authorized_cidr"] = []map[string]interface{}{authorizedCIDRMap}
+	}
+	if model.Profile != nil {
+		profileMap := map[string]interface{}{}
+		if model.Profile.Href != nil {
+			profileMap["href"] = *model.Profile.Href
+		}
+		if model.Profile.Name != nil {
+			profileMap["name"] = *model.Profile.Name
+		}
+		if model.Profile.ResourceType != nil {
+			profileMap["resource_type"] = *model.Profile.ResourceType
+		}
+		modelMap["profile"] = []map[string]interface{}{profileMap}
+	}
 	modelMap["resource_type"] = *model.ResourceType
 	if model.Target != nil {
 		targetMap, err := DataSourceIBMIsPublicAddressRangesPublicAddressRangeTargetToMap(model.Target)
