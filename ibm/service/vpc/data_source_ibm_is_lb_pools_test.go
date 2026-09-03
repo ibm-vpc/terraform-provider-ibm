@@ -33,6 +33,7 @@ func TestAccIBMIsLbPoolsDataSourceBasic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet("data.ibm_is_lb_pools.is_lb_pools", "lb"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_lb_pools.is_lb_pools", "pools.#"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_lb_pools.is_lb_pools", "pools.0.http_version"),
 				),
 			},
 		},

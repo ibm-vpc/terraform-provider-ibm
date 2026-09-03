@@ -239,6 +239,11 @@ func DataSourceIBMISLBPool() *schema.Resource {
 				Computed:    true,
 				Description: "The PROXY protocol setting for this pool:- `v1`: Enabled with version 1 (human-readable header format)- `v2`: Enabled with version 2 (binary header format)- `disabled`: DisabledSupported by load balancers in the `application` family (otherwise always `disabled`).",
 			},
+			"http_version": &schema.Schema{
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The HTTP version to use for communication with pool members. Supported only when `protocol` is `http` or `https`. Allowable values are: `http1_1`, `http2`.",
+			},
 			"session_persistence": &schema.Schema{
 				Type:        schema.TypeList,
 				Computed:    true,
@@ -374,6 +379,11 @@ func dataSourceIBMIsLbPoolRead(context context.Context, d *schema.ResourceData, 
 
 	if err = d.Set("proxy_protocol", loadBalancerPool.ProxyProtocol); err != nil {
 		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting proxy_protocol: %s", err), "(Data) ibm_is_lb_pool", "read", "set-proxy_protocol").GetDiag()
+	}
+	if loadBalancerPool.HTTPVersion != nil {
+		if err = d.Set("http_version", loadBalancerPool.HTTPVersion); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting http_version: %s", err), "(Data) ibm_is_lb_pool", "read", "set-http_version").GetDiag()
+		}
 	}
 
 	if loadBalancerPool.SessionPersistence != nil {

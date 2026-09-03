@@ -42,6 +42,7 @@ func TestAccIBMIsLbPoolDataSourceBasic(t *testing.T) {
 					resource.TestCheckResourceAttrSet("data.ibm_is_lb_pool.is_lb_pool", "protocol"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_lb_pool.is_lb_pool", "provisioning_status"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_lb_pool.is_lb_pool", "proxy_protocol"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_lb_pool.is_lb_pool", "http_version"),
 				),
 			},
 		},
