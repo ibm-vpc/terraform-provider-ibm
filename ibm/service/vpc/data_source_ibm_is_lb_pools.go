@@ -353,6 +353,11 @@ func DataSourceIBMISLBPools() *schema.Resource {
 								},
 							},
 						},
+						"http_version": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The HTTP version to use for communication with pool members. Supported only when `protocol` is `http` or `https`. Allowable values are: `http1_1`, `http2`.",
+						},
 						"session_persistence": &schema.Schema{
 							Type:        schema.TypeList,
 							Computed:    true,
@@ -478,6 +483,9 @@ func dataSourceLoadBalancerPoolCollectionPoolsToMap(poolsItem vpcv1.LoadBalancer
 	}
 	if poolsItem.ProxyProtocol != nil {
 		poolsMap["proxy_protocol"] = poolsItem.ProxyProtocol
+	}
+	if poolsItem.HTTPVersion != nil {
+		poolsMap["http_version"] = poolsItem.HTTPVersion
 	}
 	if poolsItem.FailsafePolicy != nil {
 		failsafePolicyMap, err := dataSourceIBMIsLbPoolsLoadBalancerPoolFailsafePolicyToMap(poolsItem.FailsafePolicy)

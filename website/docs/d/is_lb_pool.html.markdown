@@ -94,6 +94,8 @@ In addition to all argument references listed, you can access the following attr
 - `protocol` - (String) The protocol used for this load balancer pool.The enumerated values for this property are expected to expand in the future. When processing this property, check for and log unknown values. Optionally halt processing and surface the error, or bypass the pool on which the unexpected property value was encountered.
 - `provisioning_status` - (String) The provisioning status of this pool.
 - `proxy_protocol` - (String) The PROXY protocol setting for this pool:- `v1`: Enabled with version 1 (human-readable header format)- `v2`: Enabled with version 2 (binary header format)- `disabled`: DisabledSupported by load balancers in the `application` family (otherwise always `disabled`).
+- `http_version` - (String) The HTTP version used for communication with pool members. `http1_1` for HTTP/1.1, `http2` for HTTP/2. Only present when `protocol` is `http` or `https`.
+
 - `session_persistence` - (List) The session persistence of this pool.The enumerated values for this property are expected to expand in the future. Whenprocessing this property, check for and log unknown values. Optionally haltprocessing and surface the error, or bypass the pool on which the unexpectedproperty value was encountered.
 	Nested scheme for `session_persistence`:
     	- `cookie_name` - (String) The session persistence cookie name. Applicable only for type `app_cookie`. Names starting with `IBM` are not allowed.

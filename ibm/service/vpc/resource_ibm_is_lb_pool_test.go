@@ -2605,3 +2605,74 @@ func testAccCheckIBMISLBPoolHealthMonitorBodyRemovedConfig(vpcname, subnetname, 
 	}
 	`, vpcname, subnetname, zone, cidr, name, poolName)
 }
+
+func TestAccIBMISLBPool_http_version(t *testing.T) {
+	var lb string
+	vpcname := fmt.Sprintf("tflbp-vpc-%d", acctest.RandIntRange(10, 100))
+	subnetname := fmt.Sprintf("tflbpc-name-%d", acctest.RandIntRange(10, 100))
+	name := fmt.Sprintf("tfcreate%d", acctest.RandIntRange(10, 100))
+	poolName := fmt.Sprintf("tflbpoolc%d", acctest.RandIntRange(10, 100))
+	alg := "round_robin"
+	protocol := "https"
+	delay := "45"
+	retries := "5"
+	timeout := "15"
+	healthType := "https"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acc.TestAccPreCheck(t) },
+		Providers:    acc.TestAccProviders,
+		CheckDestroy: testAccCheckIBMISLBPoolDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckIBMISLBPoolHTTPVersionConfig(vpcname, subnetname, acc.ISZoneName, acc.ISCIDR, name, poolName, alg, protocol, delay, retries, timeout, healthType, "http2"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckIBMISLBPoolExists("ibm_is_lb_pool.testacc_lb_pool", lb),
+					resource.TestCheckResourceAttr(
+						"ibm_is_lb_pool.testacc_lb_pool", "protocol", protocol),
+					resource.TestCheckResourceAttr(
+						"ibm_is_lb_pool.testacc_lb_pool", "http_version", "http2"),
+				),
+			},
+			{
+				Config: testAccCheckIBMISLBPoolHTTPVersionConfig(vpcname, subnetname, acc.ISZoneName, acc.ISCIDR, name, poolName, alg, protocol, delay, retries, timeout, healthType, "http1_1"),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckIBMISLBPoolExists("ibm_is_lb_pool.testacc_lb_pool", lb),
+					resource.TestCheckResourceAttr(
+						"ibm_is_lb_pool.testacc_lb_pool", "http_version", "http1_1"),
+				),
+			},
+		},
+	})
+}
+
+func testAccCheckIBMISLBPoolHTTPVersionConfig(vpcname, subnetname, zone, cidr, name, poolName, algorithm, protocol, delay, retries, timeout, healthType, httpVersion string) string {
+	return fmt.Sprintf(`
+	resource "ibm_is_vpc" "testacc_vpc" {
+		name = "%s"
+	}
+
+	resource "ibm_is_subnet" "testacc_subnet" {
+		name            = "%s"
+		vpc             = "${ibm_is_vpc.testacc_vpc.id}"
+		zone            = "%s"
+		ipv4_cidr_block = "%s"
+	}
+
+	resource "ibm_is_lb" "testacc_LB" {
+		name    = "%s"
+		subnets = ["${ibm_is_subnet.testacc_subnet.id}"]
+	}
+
+	resource "ibm_is_lb_pool" "testacc_lb_pool" {
+		name           = "%s"
+		lb             = "${ibm_is_lb.testacc_LB.id}"
+		algorithm      = "%s"
+		protocol       = "%s"
+		http_version   = "%s"
+		health_delay   = %s
+		health_retries = %s
+		health_timeout = %s
+		health_type    = "%s"
+	}`, vpcname, subnetname, zone, cidr, name, poolName, algorithm, protocol, httpVersion, delay, retries, timeout, healthType)
+}
