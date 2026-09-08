@@ -153,6 +153,16 @@ func DataSourceIBMISLbProfile() *schema.Resource {
 					},
 				},
 			},
+			"ipv6_supported": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: "The IPv6 support for a load balancer with this profile",
+			},
+			"ipv6_supported_type": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The IPv6 support type for this load balancer profile, one of [fixed, dependent]",
+			},
 		},
 	}
 }
@@ -303,6 +313,46 @@ func dataSourceIBMISLbProfileRead(context context.Context, d *schema.ResourceDat
 			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting targetable_resource_types: %s", err), "(Data) ibm_is_lb_profile", "read", "set-targetable_resource_types").GetDiag()
 		}
 	}
+
+	if loadBalancerProfile.Ipv6Supported != nil {
+		ipv6Support := loadBalancerProfile.Ipv6Supported
+		switch reflect.TypeOf(ipv6Support).String() {
+		case "*vpcv1.LoadBalancerProfileIPv6SupportedFixed":
+			{
+				ipv6 := ipv6Support.(*vpcv1.LoadBalancerProfileIPv6SupportedFixed)
+				if err = d.Set("ipv6_supported", ipv6.Value); err != nil {
+					return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting ipv6_supported: %s", err), "(Data) ibm_is_lb_profile", "read", "set-ipv6_supported").GetDiag()
+				}
+				if err = d.Set("ipv6_supported_type", ipv6.Type); err != nil {
+					return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting ipv6_supported_type: %s", err), "(Data) ibm_is_lb_profile", "read", "set-ipv6_supported_type").GetDiag()
+				}
+			}
+		case "*vpcv1.LoadBalancerProfileIPv6SupportedDependent":
+			{
+				ipv6 := ipv6Support.(*vpcv1.LoadBalancerProfileIPv6SupportedDependent)
+				if ipv6.Type != nil {
+					if err = d.Set("ipv6_supported_type", *ipv6.Type); err != nil {
+						return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting ipv6_supported_type: %s", err), "(Data) ibm_is_lb_profile", "read", "set-ipv6_supported_type").GetDiag()
+					}
+				}
+			}
+		case "*vpcv1.LoadBalancerProfileIPv6Supported":
+			{
+				ipv6 := ipv6Support.(*vpcv1.LoadBalancerProfileIPv6Supported)
+				if ipv6.Type != nil {
+					if err = d.Set("ipv6_supported_type", *ipv6.Type); err != nil {
+						return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting ipv6_supported_type: %s", err), "(Data) ibm_is_lb_profile", "read", "set-ipv6_supported_type").GetDiag()
+					}
+				}
+				if ipv6.Value != nil {
+					if err = d.Set("ipv6_supported", *ipv6.Value); err != nil {
+						return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting ipv6_supported: %s", err), "(Data) ibm_is_lb_profile", "read", "set-ipv6_supported").GetDiag()
+					}
+				}
+			}
+		}
+	}
+
 	d.SetId(*loadBalancerProfile.Name)
 	return nil
 }

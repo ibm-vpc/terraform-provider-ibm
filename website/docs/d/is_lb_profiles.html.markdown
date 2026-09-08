@@ -70,6 +70,8 @@ You can access the following attribute references after your data source is crea
 		Nested scheme for `instance_groups_supported`:
 		- `type` - (String) The instance groups support type.  One of **fixed**, **dependent**
 		- `value` - (String) Indicated whether instance groups is supported. Applicable only if `type` is **fixed**
+	- `ipv6_supported` - (Bool) The IPv6 support for a load balancer with this profile.
+	- `ipv6_supported_type` - (String) The IPv6 support type for this load balancer profile, one of [fixed, dependent].	
 	- `source_ip_session_persistence_supported` - (List) The source IP session persistence support for a load balancer with this profile
 
 		Nested scheme for `source_ip_session_persistence_supported`:
@@ -92,4 +94,5 @@ You can access the following attribute references after your data source is crea
 		- `values` - (List) The resource types that pool members of load balancers with this profile can target.
 	- `udp_supported` - (Bool) The UDP support for a load balancer with this profile.
 	- `udp_supported_type` - (String) The UDP support type for a load balancer with this profile, one of [fixed, dependent]
+	
 

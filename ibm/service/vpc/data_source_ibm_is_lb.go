@@ -103,6 +103,12 @@ func DataSourceIBMISLB() *schema.Resource {
 				Description: "Indicates whether this load balancer supports UDP.",
 			},
 
+			isLBIpv6Enabled: {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: "Indicates whether this load balancer supports public IPv6 addresses.",
+			},
+
 			isLBStatus: {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -492,6 +498,9 @@ func lbGetByName(context context.Context, d *schema.ResourceData, meta interface
 			}
 			if err = d.Set("operating_status", loadBalancer.OperatingStatus); err != nil {
 				return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting operating_status: %s", err), "(Data) ibm_is_lb", "read", "set-operating_status").GetDiag()
+			}
+			if err = d.Set(isLBIpv6Enabled, loadBalancer.Ipv6Enabled); err != nil {
+				return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting ipv6_enabled: %s", err), "(Data) ibm_is_lb", "read", "set-ipv6_enabled").GetDiag()
 			}
 			publicIpList := make([]string, 0)
 			if loadBalancer.PublicIps != nil {

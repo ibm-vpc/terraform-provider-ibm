@@ -68,6 +68,18 @@ resource "ibm_is_lb" "example" {
 }
 ```
 
+An example to create an IPv6-enabled public application load balancer.
+
+```terraform
+resource "ibm_is_lb" "example" {
+  name         = "example-ipv6-lb"
+  type         = "public"
+  profile      = "dynamic"
+  ipv6_enabled = true
+  subnets      = [ibm_is_subnet.example.id]
+}
+```
+
 ## Timeouts
 The `ibm_is_lb` resource provides the following [Timeouts](https://www.terraform.io/docs/language/resources/syntax.html) configuration options:
 
@@ -98,6 +110,7 @@ Review the argument references that you can specify for your resource.
     - `fail`: Fails requests with an HTTP 503 status code.
     - `forward`: Forwards requests to the target pool.
 
+- `ipv6_enabled` - (Optional, Bool) Indicates whether IPv6 support is enabled for this public application load balancer. Default value is **false**.
 - `logging`- (Optional, Bool) Enable or disable datapath logging for the load balancer. This is applicable only for application load balancer. Supported values are **true** or **false**. Default value is **false**.
 - `name` - (Required, String) The name of the VPC load balancer.
 - `profile` - (Optional, Forces new resource, String) For a Network Load Balancer, this attribute is required for network and private path load balancers. Should be set to  `network-private-path` for private path load balancers and `network-fixed` for a network load balancer. For Application Load Balancer, profile is not a required attribute.
@@ -145,6 +158,7 @@ In addition to all argument reference list, you can access the following attribu
 - `status` - (String) The status of the load balancer.
 - `security_groups_supported`- (Bool) Indicates if this load balancer supports security groups.
 - `source_ip_session_persistence_supported` - (Boolean) Indicates whether this load balancer supports source IP session persistence.
+- `ipv6_enabled` - (Bool) Indicates whether this load balancer supports public IPv6 addresses.
 - `udp_supported`- (Bool) Indicates whether this load balancer supports UDP.
 
 

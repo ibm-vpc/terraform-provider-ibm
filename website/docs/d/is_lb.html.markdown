@@ -77,6 +77,7 @@ In addition to all argument reference list, you can access the following attribu
 - `hostname` - (String) Fully qualified domain name assigned to this load balancer.
 - `id` - (String) The ID of the load balancer.
 - `instance_groups_supported` - (Boolean) Indicates whether this load balancer supports instance groups.
+- `ipv6_enabled` - (Boolean) Indicates whether IPv6 is enabled for this load balancer. Only supported for public application load balancers with a profile that has `ipv6_supported` set to `true`.
 - `listeners` - (String) The ID of the listeners attached to this load balancer.
 - `logging`-  (Bool) Enable (**true**) or disable (**false**) datapath logging for this load balancer. If unspecified, datapath logging is disabled. This option is supported only for application load balancers.
 - `operating_status` - (String) The operating status of this load balancer.
