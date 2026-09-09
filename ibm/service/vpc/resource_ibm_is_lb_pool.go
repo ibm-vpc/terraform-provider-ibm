@@ -38,6 +38,7 @@ const (
 	isLBPoolSessPersistenceHttpCookieName = "session_persistence_http_cookie_name"
 	isLBPoolProvisioningStatus            = "provisioning_status"
 	isLBPoolProxyProtocol                 = "proxy_protocol"
+	isLBPoolHTTPVersion                   = "http_version"
 	isLBPoolActive                        = "active"
 	isLBPoolCreatePending                 = "create_pending"
 	isLBPoolUpdatePending                 = "update_pending"
@@ -343,6 +344,14 @@ func ResourceIBMISLBPool() *schema.Resource {
 				},
 			},
 
+			isLBPoolHTTPVersion: {
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ValidateFunc: validate.InvokeValidator("ibm_is_lb_pool", isLBPoolHTTPVersion),
+				Description:  "The HTTP version to use for communication with pool members. Supported only when `protocol` is `http` or `https`. Allowable values are: `http1_1`, `http2`. The value `http2` requires `protocol` to be `https`.",
+			},
+
 			isLBPool: {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -365,6 +374,7 @@ func ResourceIBMISLBPoolValidator() *validate.ResourceValidator {
 	protocol := "http, tcp, https, udp"
 	persistanceType := "source_ip, app_cookie, http_cookie"
 	proxyProtocol := "disabled, v1, v2"
+	httpVersion := "http1_1, http2"
 	validateSchema = append(validateSchema,
 		validate.ValidateSchema{
 			Identifier:                 isLBPoolName,
@@ -404,6 +414,13 @@ func ResourceIBMISLBPoolValidator() *validate.ResourceValidator {
 			AllowedValues:              proxyProtocol})
 	validateSchema = append(validateSchema,
 		validate.ValidateSchema{
+			Identifier:                 isLBPoolHTTPVersion,
+			ValidateFunctionIdentifier: validate.ValidateAllowedStringValue,
+			Type:                       validate.TypeString,
+			Optional:                   true,
+			AllowedValues:              httpVersion})
+	validateSchema = append(validateSchema,
+		validate.ValidateSchema{
 			Identifier:                 isLBPoolSessPersistenceAppCookieName,
 			ValidateFunctionIdentifier: validate.ValidateRegexpLen,
 			Type:                       validate.TypeString,
@@ -435,7 +452,7 @@ func resourceIBMISLBPoolCreate(context context.Context, d *schema.ResourceData, 
 	healthTimeOut := int64(d.Get(isLBPoolHealthTimeout).(int))
 	healthType := d.Get(isLBPoolHealthType).(string)
 
-	var spType, cName, healthMonitorURL, pProtocol string
+	var spType, cName, healthMonitorURL, pProtocol, httpVersion string
 	var healthMonitorPort int64
 	if pt, ok := d.GetOk(isLBPoolSessPersistenceType); ok {
 		spType = pt.(string)
@@ -446,6 +463,9 @@ func resourceIBMISLBPoolCreate(context context.Context, d *schema.ResourceData, 
 	}
 	if pp, ok := d.GetOk(isLBPoolProxyProtocol); ok {
 		pProtocol = pp.(string)
+	}
+	if hv, ok := d.GetOk(isLBPoolHTTPVersion); ok {
+		httpVersion = hv.(string)
 	}
 
 	if hmu, ok := d.GetOk(isLBPoolHealthMonitorURL); ok {
@@ -480,7 +500,7 @@ func resourceIBMISLBPoolCreate(context context.Context, d *schema.ResourceData, 
 		}
 	}
 
-	err := lbPoolCreate(context, d, meta, name, lbID, algorithm, protocol, healthType, spType, cName, healthMonitorURL, pProtocol, clientAuthCertCRN, serverAuthCA, healthDelay, maxRetries, healthTimeOut, healthMonitorPort, serverAuthVerifyCert)
+	err := lbPoolCreate(context, d, meta, name, lbID, algorithm, protocol, healthType, spType, cName, healthMonitorURL, pProtocol, clientAuthCertCRN, serverAuthCA, httpVersion, healthDelay, maxRetries, healthTimeOut, healthMonitorPort, serverAuthVerifyCert)
 	if err != nil {
 		return err
 	}
@@ -488,7 +508,7 @@ func resourceIBMISLBPoolCreate(context context.Context, d *schema.ResourceData, 
 	return resourceIBMISLBPoolRead(context, d, meta)
 }
 
-func lbPoolCreate(context context.Context, d *schema.ResourceData, meta interface{}, name, lbID, algorithm, protocol, healthType, spType, cName, healthMonitorURL, pProtocol, clientAuthCertCRN, serverAuthCA string, healthDelay, maxRetries, healthTimeOut, healthMonitorPort int64, serverAuthVerifyCert bool) diag.Diagnostics {
+func lbPoolCreate(context context.Context, d *schema.ResourceData, meta interface{}, name, lbID, algorithm, protocol, healthType, spType, cName, healthMonitorURL, pProtocol, clientAuthCertCRN, serverAuthCA, httpVersion string, healthDelay, maxRetries, healthTimeOut, healthMonitorPort int64, serverAuthVerifyCert bool) diag.Diagnostics {
 	sess, err := vpcClient(meta)
 	if err != nil {
 		tfErr := flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_lb_pool", "create", "initialize-client")
@@ -541,6 +561,9 @@ func lbPoolCreate(context context.Context, d *schema.ResourceData, meta interfac
 	}
 	if pProtocol != "" {
 		options.ProxyProtocol = &pProtocol
+	}
+	if httpVersion != "" {
+		options.HTTPVersion = &httpVersion
 	}
 	if _, ok := d.GetOk("failsafe_policy"); ok {
 		failsafePolicyModel, err := resourceIBMIsLbPoolMapToLoadBalancerPoolFailsafePolicyPrototype(d.Get("failsafe_policy.0").(map[string]interface{}))
@@ -792,6 +815,12 @@ func lbPoolGet(context context.Context, d *schema.ResourceData, meta interface{}
 		if err = d.Set(isLBPoolServerAuthentication, serverAuthList); err != nil {
 			err = fmt.Errorf("Error setting server_authentication: %s", err)
 			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_lb_pool", "read", "set-server_authentication").GetDiag()
+		}
+	}
+	if loadBalancerPool.HTTPVersion != nil {
+		if err = d.Set(isLBPoolHTTPVersion, *loadBalancerPool.HTTPVersion); err != nil {
+			err = fmt.Errorf("Error setting http_version: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_lb_pool", "read", "set-http_version").GetDiag()
 		}
 	}
 
@@ -1055,6 +1084,12 @@ func lbPoolUpdate(context context.Context, d *schema.ResourceData, meta interfac
 		} else {
 			serverAuthRemoved = true
 		}
+		hasChanged = true
+	}
+
+	if d.HasChange(isLBPoolHTTPVersion) {
+		httpVersion := d.Get(isLBPoolHTTPVersion).(string)
+		loadBalancerPoolPatchModel.HTTPVersion = &httpVersion
 		hasChanged = true
 	}
 

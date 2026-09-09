@@ -168,6 +168,22 @@ resource "ibm_is_lb_pool" "route_mode_example" {
 }
 ```
 
+### Load balancer pool with HTTP/2 backend protocol
+
+Use `http_version = "http2"` with an `https` pool to enable HTTP/2 between the load balancer and backend members via ALPN:
+
+```terraform
+resource "ibm_is_lb_pool" "example" {
+  name           = "example-http2-pool"
+  lb             = ibm_is_lb.example.id
+  algorithm      = "round_robin"
+  protocol       = "https"
+  http_version   = "http2"
+  health_delay   = 60
+  health_retries = 5
+  health_timeout = 30
+  health_type    = "https"
+}
 ### Route mode load balancer pool with weighted_forwarding algorithm
 
 For route mode network load balancers supporting asymmetric routing, use the `weighted_forwarding` algorithm to distribute traffic based on member weights:
@@ -292,6 +308,7 @@ Review the argument references that you can specify for your resource.
 - `lb`  - (Required, Forces new resource, String) The unique identifier of the load balancer. Changing this forces recreation of the resource.
 - `name` - (Required, String) The name of the pool. Must be unique within the load balancer and follow standard naming conventions.
 - `protocol` - (Required, String) The pool protocol for traffic forwarding. Supported values: `http`, `https`, `tcp`, `udp`. Choose based on your application requirements.
+- `http_version` - (Optional, String) The HTTP version to use for communication with pool members. Supported only when `protocol` is `http` or `https`. Allowable values are `http1_1` (default) and `http2`. The value `http2` requires `protocol` to be `https`. When `http2` is specified, application-layer protocol negotiation (ALPN) is used and pool members must support HTTP/2.
 - `proxy_protocol` - (Optional, String) Proxy protocol setting for preserving client connection information. Supported values: `disabled` (default), `v1`, `v2`. Only supported by application load balancers, not network load balancers.
 - `server_authentication` - (Optional, List) The server authentication configuration for this pool. Supported by load balancers with `mtls_supported` set to `true`. The pool must have a protocol of `https`.
 
