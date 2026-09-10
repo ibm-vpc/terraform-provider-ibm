@@ -152,6 +152,10 @@ func DataSourceIBMISLBS() *schema.Resource {
 							Computed:    true,
 							Description: "Indicates whether this load balancer supports UDP.",
 						},
+						isLBIpv6Enabled: {
+							Type:        schema.TypeBool,
+							Computed:    true,
+							Description: "Indicates whether this load balancer supports public IPv6 addresses.",
 						"asymmetric_routing_supported": {
 							Type:        schema.TypeBool,
 							Computed:    true,
@@ -445,6 +449,8 @@ func getLbs(context context.Context, d *schema.ResourceData, meta interface{}) d
 		if lb.UDPSupported != nil {
 			lbInfo[isLBUdpSupported] = *lb.UDPSupported
 		}
+		if lb.Ipv6Enabled != nil {
+			lbInfo[isLBIpv6Enabled] = *lb.Ipv6Enabled
 		if lb.AsymmetricRoutingSupported != nil {
 			lbInfo["asymmetric_routing_supported"] = *lb.AsymmetricRoutingSupported
 		}

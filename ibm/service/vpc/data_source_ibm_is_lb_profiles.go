@@ -227,6 +227,15 @@ func DataSourceIBMISLbProfiles() *schema.Resource {
 								},
 							},
 						},
+						"ipv6_supported": {
+							Type:        schema.TypeBool,
+							Computed:    true,
+							Description: "The IPv6 support for a load balancer with this profile",
+						},
+						"ipv6_supported_type": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The IPv6 support type for this load balancer profile, one of [fixed, dependent]",
 						"asymmetric_routing_supported": {
 							Type:        schema.TypeBool,
 							Computed:    true,
@@ -505,6 +514,36 @@ func dataSourceIBMISLbProfilesRead(context context.Context, d *schema.ResourceDa
 			sourceIpPersistenceSupportList = append(sourceIpPersistenceSupportList, sourceIpPersistenceSupportMap)
 			l["instance_groups_supported"] = sourceIpPersistenceSupportList
 		}
+
+		if profileCollector.Ipv6Supported != nil {
+			ipv6Support := profileCollector.Ipv6Supported
+			switch reflect.TypeOf(ipv6Support).String() {
+			case "*vpcv1.LoadBalancerProfileIPv6SupportedFixed":
+				{
+					ipv6 := ipv6Support.(*vpcv1.LoadBalancerProfileIPv6SupportedFixed)
+					l["ipv6_supported"] = ipv6.Value
+					l["ipv6_supported_type"] = ipv6.Type
+				}
+			case "*vpcv1.LoadBalancerProfileIPv6SupportedDependent":
+				{
+					ipv6 := ipv6Support.(*vpcv1.LoadBalancerProfileIPv6SupportedDependent)
+					if ipv6.Type != nil {
+						l["ipv6_supported_type"] = *ipv6.Type
+					}
+				}
+			case "*vpcv1.LoadBalancerProfileIPv6Supported":
+				{
+					ipv6 := ipv6Support.(*vpcv1.LoadBalancerProfileIPv6Supported)
+					if ipv6.Type != nil {
+						l["ipv6_supported_type"] = *ipv6.Type
+					}
+					if ipv6.Value != nil {
+						l["ipv6_supported"] = *ipv6.Value
+					}
+				}
+			}
+		}
+
 		if profileCollector.MtlsSupported != nil {
 			mtlsSupport := profileCollector.MtlsSupported
 			switch reflect.TypeOf(mtlsSupport).String() {

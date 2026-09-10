@@ -48,6 +48,7 @@ Review the attribute references that you can access after you retrieve your data
 	- `availability` - (String) The availability of this load balancer
 	- `id` - (String) The unique identifier of the load balancer.
 	- `instance_groups_supported` - (Boolean) Indicates whether this load balancer supports instance groups.
+	- `ipv6_enabled` - (Boolean) Indicates whether IPv6 is enabled for this load balancer. Only supported for public application load balancers with a profile that has `ipv6_supported` set to `true`.
 	- `created_at` - (String) The date and time this load balancer was created.
 	- `crn` - (String) The load balancer's CRN.
 	- `dns` - (List) The DNS configuration for this load balancer.

@@ -46,6 +46,7 @@ const (
 	isLBProfile                      = "profile"
 	isLBRouteMode                    = "route_mode"
 	isLBUdpSupported                 = "udp_supported"
+	isLBIpv6Enabled                  = "ipv6_enabled"
 	isLBLogging                      = "logging"
 	isLBSecurityGroups               = "security_groups"
 	isLBSecurityGroupsSupported      = "security_group_supported"
@@ -329,6 +330,11 @@ func ResourceIBMISLB() *schema.Resource {
 				Description: "Indicates whether this load balancer supports UDP.",
 			},
 
+			isLBIpv6Enabled: {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Computed:    true,
+				Description: "Indicates whether this load balancer supports public IPv6 addresses.",
 			"asymmetric_routing_supported": {
 				Type:        schema.TypeBool,
 				Computed:    true,
@@ -539,6 +545,11 @@ func lbCreate(context context.Context, d *schema.ResourceData, meta interface{},
 		options.ResourceGroup = &vpcv1.ResourceGroupIdentity{
 			ID: &rg,
 		}
+	}
+
+	if ipv6Enabled, ok := d.GetOk(isLBIpv6Enabled); ok {
+		ipv6 := ipv6Enabled.(bool)
+		options.Ipv6Enabled = &ipv6
 	}
 
 	if _, ok := d.GetOk(isLBProfile); ok {
@@ -836,6 +847,9 @@ func lbGet(context context.Context, d *schema.ResourceData, meta interface{}, id
 			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_lb", "read", "set-udp_supported").GetDiag()
 		}
 	}
+	if err = d.Set(isLBIpv6Enabled, loadBalancer.Ipv6Enabled); err != nil {
+		err = fmt.Errorf("Error setting ipv6_enabled: %s", err)
+		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_lb", "read", "set-ipv6_enabled").GetDiag()
 	if loadBalancer.AsymmetricRoutingSupported != nil {
 		if err = d.Set("asymmetric_routing_supported", *loadBalancer.AsymmetricRoutingSupported); err != nil {
 			err = fmt.Errorf("Error setting asymmetric_routing_supported: %s", err)
@@ -896,6 +910,7 @@ func resourceIBMISLBUpdate(context context.Context, d *schema.ResourceData, meta
 	hasChangedLog := false
 	var remove, add []string
 	hasChangedSecurityGroups := false
+	hasChangedIpv6 := false
 
 	if d.HasChange(isLBName) {
 		name = d.Get(isLBName).(string)
@@ -913,8 +928,11 @@ func resourceIBMISLBUpdate(context context.Context, d *schema.ResourceData, meta
 		add = flex.ExpandStringList(nSecurityGroups.Difference(oSecurityGroups).List())
 		hasChangedSecurityGroups = true
 	}
+	if d.HasChange(isLBIpv6Enabled) {
+		hasChangedIpv6 = true
+	}
 
-	err := lbUpdate(context, d, meta, id, name, hasChanged, isLogging, hasChangedLog, hasChangedSecurityGroups, remove, add)
+	err := lbUpdate(context, d, meta, id, name, hasChanged, isLogging, hasChangedLog, hasChangedSecurityGroups, hasChangedIpv6, remove, add)
 	if err != nil {
 		return err
 	}
@@ -922,7 +940,7 @@ func resourceIBMISLBUpdate(context context.Context, d *schema.ResourceData, meta
 	return resourceIBMISLBRead(context, d, meta)
 }
 
-func lbUpdate(context context.Context, d *schema.ResourceData, meta interface{}, id, name string, hasChanged bool, isLogging bool, hasChangedLog bool, hasChangedSecurityGroups bool, remove, add []string) diag.Diagnostics {
+func lbUpdate(context context.Context, d *schema.ResourceData, meta interface{}, id, name string, hasChanged bool, isLogging bool, hasChangedLog bool, hasChangedSecurityGroups bool, hasChangedIpv6 bool, remove, add []string) diag.Diagnostics {
 	sess, err := vpcClient(meta)
 	if err != nil {
 		tfErr := flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_lb", "update", "initialize-client")
@@ -1150,6 +1168,36 @@ func lbUpdate(context context.Context, d *schema.ResourceData, meta interface{},
 			}
 		}
 	}
+
+	if hasChangedIpv6 {
+		updateLoadBalancerOptions := &vpcv1.UpdateLoadBalancerOptions{
+			ID: &id,
+		}
+		ipv6Enabled := d.Get(isLBIpv6Enabled).(bool)
+		loadBalancerPatchModel := &vpcv1.LoadBalancerPatch{
+			Ipv6Enabled: &ipv6Enabled,
+		}
+		loadBalancerPatch, err := loadBalancerPatchModel.AsPatch()
+		if err != nil {
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("loadBalancerPatchModel.AsPatch() failed: %s", err.Error()), "ibm_is_lb", "update")
+			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+			return tfErr.GetDiag()
+		}
+		updateLoadBalancerOptions.LoadBalancerPatch = loadBalancerPatch
+		_, _, err = sess.UpdateLoadBalancerWithContext(context, updateLoadBalancerOptions)
+		if err != nil {
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("UpdateLoadBalancerWithContext failed: %s", err.Error()), "ibm_is_lb", "update")
+			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+			return tfErr.GetDiag()
+		}
+		_, err = isWaitForLBAvailable(sess, d.Id(), d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("isWaitForLBAvailable failed: %s", err.Error()), "ibm_is_lb", "update")
+			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+			return tfErr.GetDiag()
+		}
+	}
+
 	return nil
 }
 
