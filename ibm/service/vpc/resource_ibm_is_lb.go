@@ -53,6 +53,7 @@ const (
 
 	isAttachedLoadBalancerPoolMembers = "attached_load_balancer_pool_members"
 	isLBAccessTags                    = "access_tags"
+	isLBMtlsSupported                 = "mtls_supported"
 )
 
 func ResourceIBMISLB() *schema.Resource {
@@ -103,6 +104,17 @@ func ResourceIBMISLB() *schema.Resource {
 				Default:      "public",
 				ValidateFunc: validate.InvokeValidator("ibm_is_lb", isLBType),
 				Description:  "Load Balancer type",
+			},
+			// http bundle
+			"advanced_health_checks_supported": &schema.Schema{
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: "Indicates whether this load balancer supports advanced health checks.",
+			},
+			"fqdn_pool_members_supported": &schema.Schema{
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: "Indicates whether this load balancer supports pool members specified by their fully qualified domain names.",
 			},
 			isAttachedLoadBalancerPoolMembers: {
 				Type:        schema.TypeList,
@@ -323,6 +335,16 @@ func ResourceIBMISLB() *schema.Resource {
 				Optional:    true,
 				Computed:    true,
 				Description: "Indicates whether this load balancer supports public IPv6 addresses.",
+			"asymmetric_routing_supported": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: "Indicates whether this load balancer supports asymmetric routing.",
+			},
+
+			isLBMtlsSupported: {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: "Indicates whether this load balancer supports mTLS.",
 			},
 
 			isLBHostName: {
@@ -617,6 +639,15 @@ func lbGet(context context.Context, d *schema.ResourceData, meta interface{}, id
 		err = fmt.Errorf("Error setting availability: %s", err)
 		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_lb", "read", "set-availability").GetDiag()
 	}
+	// http bundle
+	if err = d.Set("advanced_health_checks_supported", loadBalancer.AdvancedHealthChecksSupported); err != nil {
+		err = fmt.Errorf("Error setting advanced_health_checks_supported: %s", err)
+		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_lb", "read", "set-advanced_health_checks_supported").GetDiag()
+	}
+	if err = d.Set("fqdn_pool_members_supported", loadBalancer.FqdnPoolMembersSupported); err != nil {
+		err = fmt.Errorf("Error setting fqdn_pool_members_supported: %s", err)
+		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_lb", "read", "set-fqdn_pool_members_supported").GetDiag()
+	}
 	if loadBalancer.AttachedLoadBalancerPoolMembers != nil {
 		d.Set(isAttachedLoadBalancerPoolMembers, dataSourceAttachedLoadBalancerPoolFlattenMembers(loadBalancer.AttachedLoadBalancerPoolMembers))
 	}
@@ -804,6 +835,12 @@ func lbGet(context context.Context, d *schema.ResourceData, meta interface{}, id
 		err = fmt.Errorf("Error setting hostname: %s", err)
 		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_lb", "read", "set-hostname").GetDiag()
 	}
+	if loadBalancer.MtlsSupported != nil {
+		if err = d.Set(isLBMtlsSupported, *loadBalancer.MtlsSupported); err != nil {
+			err = fmt.Errorf("Error setting mtls_supported: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_lb", "read", "set-mtls_supported").GetDiag()
+		}
+	}
 	if loadBalancer.UDPSupported != nil {
 		if err = d.Set(isLBUdpSupported, *loadBalancer.UDPSupported); err != nil {
 			err = fmt.Errorf("Error setting udp_supported: %s", err)
@@ -813,6 +850,11 @@ func lbGet(context context.Context, d *schema.ResourceData, meta interface{}, id
 	if err = d.Set(isLBIpv6Enabled, loadBalancer.Ipv6Enabled); err != nil {
 		err = fmt.Errorf("Error setting ipv6_enabled: %s", err)
 		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_lb", "read", "set-ipv6_enabled").GetDiag()
+	if loadBalancer.AsymmetricRoutingSupported != nil {
+		if err = d.Set("asymmetric_routing_supported", *loadBalancer.AsymmetricRoutingSupported); err != nil {
+			err = fmt.Errorf("Error setting asymmetric_routing_supported: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_lb", "read", "set-asymmetric_routing_supported").GetDiag()
+		}
 	}
 	tags, err := flex.GetGlobalTagsUsingCRN(meta, *loadBalancer.CRN, "", isUserTagType)
 	if err != nil {

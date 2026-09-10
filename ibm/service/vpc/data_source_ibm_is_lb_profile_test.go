@@ -31,6 +31,9 @@ func TestAccIBMISLBProfileDatasource_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet("data.ibm_is_lb_profile.test_profile", "targetable_load_balancer_profiles.#"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_lb_profile.test_profile", "ipv6_supported"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_lb_profile.test_profile", "ipv6_supported_type"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_lb_profile.test_profile", "asymmetric_routing_supported"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_lb_profile.test_profile", "asymmetric_routing_supported_type"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_lb_profile.test_profile", "mtls_supported"),
 				),
 			},
 		},
@@ -54,11 +57,49 @@ func TestAccIBMISLBProfileDatasource_failsafepolicyactions(t *testing.T) {
 					resource.TestCheckResourceAttrSet("data.ibm_is_lb_profile.test_profile", "failsafe_policy_actions.0.default"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_lb_profile.test_profile", "failsafe_policy_actions.0.type"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_lb_profile.test_profile", "failsafe_policy_actions.0.values.#"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_lb_profile.test_profile", "mtls_supported"),
 				),
 			},
 		},
 	})
 }
+
+func TestAccIBMISLBProfileDatasource_mTLS(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { acc.TestAccPreCheck(t) },
+		Providers: acc.TestAccProviders,
+		Steps: []resource.TestStep{
+			{
+
+				Config: testDSCheckIBMISLBProfileBasicConfig(),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("data.ibm_is_lb_profile.test_profile", "name", "network-fixed"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_lb_profile.test_profile", "mtls_supported"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccIBMISLBProfileDatasource_asymmetric_routing(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { acc.TestAccPreCheck(t) },
+		Providers: acc.TestAccProviders,
+		Steps: []resource.TestStep{
+			{
+
+				Config: testDSCheckIBMISLBProfileBasicConfig(),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("data.ibm_is_lb_profile.test_profile", "name", "network-fixed"),
+					resource.TestCheckResourceAttr("data.ibm_is_lb_profile.test_profile", "family", "network"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_lb_profile.test_profile", "asymmetric_routing_supported"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_lb_profile.test_profile", "asymmetric_routing_supported_type"),
+				),
+			},
+		},
+	})
+}
+
 func testDSCheckIBMISLBProfileBasicConfig() string {
 	return fmt.Sprintf(`
 	data "ibm_is_lb_profile" "test_profile" {
@@ -96,4 +137,30 @@ func TestAccIBMISLBProfileDatasource_ipv6(t *testing.T) {
 			},
 		},
 	})
+}
+
+func TestAccIBMISLBProfileDatasource_http_bundle(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { acc.TestAccPreCheck(t) },
+		Providers: acc.TestAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testDSCheckIBMISLBProfileApplicationConfig(),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet("data.ibm_is_lb_profile.test_alb_profile", "name"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_lb_profile.test_alb_profile", "advanced_health_checks_supported.#"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_lb_profile.test_alb_profile", "advanced_health_checks_supported.0.type"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_lb_profile.test_alb_profile", "fqdn_pool_members_supported.#"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_lb_profile.test_alb_profile", "fqdn_pool_members_supported.0.type"),
+				),
+			},
+		},
+	})
+}
+
+func testDSCheckIBMISLBProfileApplicationConfig() string {
+	return `
+	data "ibm_is_lb_profile" "test_alb_profile" {
+		name = "application"
+	} `
 }

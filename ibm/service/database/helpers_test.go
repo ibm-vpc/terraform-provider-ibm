@@ -11,6 +11,7 @@ import (
 	"github.com/IBM/cloud-databases-go-sdk/clouddatabasesv5"
 	"github.com/IBM/go-sdk-core/v5/core"
 	"github.com/go-openapi/strfmt"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/stretchr/testify/require"
 )
 
@@ -285,5 +286,351 @@ func TestIsGen2Plan(t *testing.T) {
 		if got := isGen2Plan(c.plan); got != c.want {
 			t.Errorf("isGen2Plan(%q) = %v, want %v", c.plan, got, c.want)
 		}
+	}
+}
+
+// TestClearGen2UnsupportedAttributes tests the clearGen2UnsupportedAttributes function
+func TestClearGen2UnsupportedAttributes(t *testing.T) {
+	adminPasswordValue := "example-admin-value"
+
+	d := schema.TestResourceDataRaw(t, map[string]*schema.Schema{
+		"adminuser": {
+			Type:     schema.TypeString,
+			Optional: true,
+		},
+		"adminpassword": {
+			Type:      schema.TypeString,
+			Optional:  true,
+			Sensitive: true,
+		},
+		"auto_scaling": {
+			Type:     schema.TypeList,
+			Optional: true,
+			Elem: &schema.Resource{
+				Schema: map[string]*schema.Schema{
+					"enabled": {
+						Type:     schema.TypeBool,
+						Optional: true,
+					},
+				},
+			},
+		},
+		"allowlist": {
+			Type:     schema.TypeList,
+			Optional: true,
+			Elem: &schema.Resource{
+				Schema: map[string]*schema.Schema{
+					"address": {
+						Type:     schema.TypeString,
+						Optional: true,
+					},
+				},
+			},
+		},
+		"users": {
+			Type:     schema.TypeList,
+			Optional: true,
+			Elem: &schema.Resource{
+				Schema: map[string]*schema.Schema{
+					"name": {
+						Type:     schema.TypeString,
+						Optional: true,
+					},
+				},
+			},
+		},
+		"configuration_schema": {
+			Type:     schema.TypeString,
+			Optional: true,
+		},
+	}, map[string]interface{}{
+		"adminuser":            "admin",
+		"adminpassword":        adminPasswordValue,
+		"auto_scaling":         []interface{}{map[string]interface{}{"enabled": true}},
+		"allowlist":            []interface{}{map[string]interface{}{"address": "1.2.3.4"}},
+		"users":                []interface{}{map[string]interface{}{"name": "user1"}},
+		"configuration_schema": "some_schema",
+	})
+
+	clearGen2UnsupportedAttributes(d)
+
+	// Verify all Gen2 unsupported attributes are cleared (d.Set(key, nil) results in empty values, not nil)
+
+	adminuser := d.Get("adminuser")
+	require.Equal(t, "", adminuser, "adminuser should be empty string after clearing")
+
+	adminpassword := d.Get("adminpassword")
+	require.Equal(t, "", adminpassword, "adminpassword should be empty string after clearing")
+
+	autoScaling := d.Get("auto_scaling")
+	require.NotNil(t, autoScaling, "auto_scaling should be set to empty value")
+	require.Empty(t, autoScaling, "auto_scaling should be empty after clearing")
+
+	allowlist := d.Get("allowlist")
+	require.NotNil(t, allowlist, "allowlist should be set to empty value")
+	require.Empty(t, allowlist, "allowlist should be empty after clearing")
+
+	users := d.Get("users")
+	require.NotNil(t, users, "users should be set to empty value")
+	require.Empty(t, users, "users should be empty after clearing")
+
+	configSchema := d.Get("configuration_schema")
+	require.Equal(t, "", configSchema, "configuration_schema should be empty string after clearing")
+
+	// Note: platform_options.backup_encryption_key_crn is also not supported in Gen2,
+	// but it's handled by the data source implementation which only sets disk_encryption_key_crn
+}
+
+func TestExtractDeploymentIDFromCRN(t *testing.T) {
+	testcases := []struct {
+		description   string
+		catalogCRN    string
+		expectedID    string
+		expectError   bool
+		errorContains string
+	}{
+		{
+			description: "Valid CRN with deployment ID",
+			catalogCRN:  "crn:v1:bluemix:public:globalcatalog::::deployment:standard-gen2-deployment-ca-mon-11b01c58",
+			expectedID:  "standard-gen2-deployment-ca-mon-11b01c58",
+			expectError: false,
+		},
+		{
+			description: "Valid CRN with different deployment ID",
+			catalogCRN:  "crn:v1:bluemix:public:globalcatalog::::deployment:databases-for-postgresql-standard-us-south",
+			expectedID:  "databases-for-postgresql-standard-us-south",
+			expectError: false,
+		},
+		{
+			description:   "Invalid CRN - missing deployment prefix",
+			catalogCRN:    "crn:v1:bluemix:public:globalcatalog::::standard-gen2-deployment-ca-mon-11b01c58",
+			expectError:   true,
+			errorContains: "invalid catalog CRN format",
+		},
+		{
+			description:   "Invalid CRN - empty deployment ID",
+			catalogCRN:    "crn:v1:bluemix:public:globalcatalog::::deployment:",
+			expectError:   true,
+			errorContains: "empty deployment ID",
+		},
+		{
+			description:   "Invalid CRN - multiple deployment prefixes",
+			catalogCRN:    "crn:v1:bluemix:public:globalcatalog::::deployment:test:deployment:another",
+			expectError:   true,
+			errorContains: "invalid catalog CRN format",
+		},
+		{
+			description:   "Empty CRN",
+			catalogCRN:    "",
+			expectError:   true,
+			errorContains: "invalid catalog CRN format",
+		},
+	}
+
+	for _, tc := range testcases {
+		t.Run(tc.description, func(t *testing.T) {
+			deploymentID, err := extractDeploymentIDFromCRN(tc.catalogCRN)
+
+			if tc.expectError {
+				require.Error(t, err)
+				require.Contains(t, err.Error(), tc.errorContains)
+				require.Empty(t, deploymentID)
+			} else {
+				require.NoError(t, err)
+				require.Equal(t, tc.expectedID, deploymentID)
+			}
+		})
+	}
+}
+
+func TestExtractGen2BackupExtensions(t *testing.T) {
+	testcases := []struct {
+		description        string
+		extensions         map[string]interface{}
+		expectedSourceCRN  string
+		expectedBackupType string
+	}{
+		{
+			description: "Valid extensions with source_data_service_crn and type",
+			extensions: map[string]interface{}{
+				"dataservices": map[string]interface{}{
+					"backup": map[string]interface{}{
+						"source_data_service_crn": "crn:v1:bluemix:public:databases-for-postgresql:us-south:a/abc123:deployment-id::",
+						"type":                    "on_demand",
+					},
+				},
+			},
+			expectedSourceCRN:  "crn:v1:bluemix:public:databases-for-postgresql:us-south:a/abc123:deployment-id::",
+			expectedBackupType: "on_demand",
+		},
+		{
+			description: "Valid extensions with scheduled backup type",
+			extensions: map[string]interface{}{
+				"dataservices": map[string]interface{}{
+					"backup": map[string]interface{}{
+						"source_data_service_crn": "crn:v1:bluemix:public:databases-for-mysql:us-east:a/abc123:deployment-id::",
+						"type":                    "scheduled",
+					},
+				},
+			},
+			expectedSourceCRN:  "crn:v1:bluemix:public:databases-for-mysql:us-east:a/abc123:deployment-id::",
+			expectedBackupType: "scheduled",
+		},
+		{
+			description:        "Nil extensions",
+			extensions:         nil,
+			expectedSourceCRN:  "",
+			expectedBackupType: "",
+		},
+		{
+			description:        "Empty extensions map",
+			extensions:         map[string]interface{}{},
+			expectedSourceCRN:  "",
+			expectedBackupType: "",
+		},
+		{
+			description: "Missing dataservices key",
+			extensions: map[string]interface{}{
+				"other_key": "some_value",
+			},
+			expectedSourceCRN:  "",
+			expectedBackupType: "",
+		},
+		{
+			description: "dataservices is not a map",
+			extensions: map[string]interface{}{
+				"dataservices": "not-a-map",
+			},
+			expectedSourceCRN:  "",
+			expectedBackupType: "",
+		},
+		{
+			description: "Missing backup key within dataservices",
+			extensions: map[string]interface{}{
+				"dataservices": map[string]interface{}{
+					"other_key": "some_value",
+				},
+			},
+			expectedSourceCRN:  "",
+			expectedBackupType: "",
+		},
+		{
+			description: "backup is not a map",
+			extensions: map[string]interface{}{
+				"dataservices": map[string]interface{}{
+					"backup": "not-a-map",
+				},
+			},
+			expectedSourceCRN:  "",
+			expectedBackupType: "",
+		},
+		{
+			description: "Missing source_data_service_crn field",
+			extensions: map[string]interface{}{
+				"dataservices": map[string]interface{}{
+					"backup": map[string]interface{}{
+						"type": "on_demand",
+					},
+				},
+			},
+			expectedSourceCRN:  "",
+			expectedBackupType: "on_demand",
+		},
+		{
+			description: "Missing type field",
+			extensions: map[string]interface{}{
+				"dataservices": map[string]interface{}{
+					"backup": map[string]interface{}{
+						"source_data_service_crn": "crn:v1:bluemix:public:databases-for-postgresql:us-south:a/abc123:deployment-id::",
+					},
+				},
+			},
+			expectedSourceCRN:  "crn:v1:bluemix:public:databases-for-postgresql:us-south:a/abc123:deployment-id::",
+			expectedBackupType: "",
+		},
+		{
+			description: "source_data_service_crn is not a string",
+			extensions: map[string]interface{}{
+				"dataservices": map[string]interface{}{
+					"backup": map[string]interface{}{
+						"source_data_service_crn": 12345,
+						"type":                    "on_demand",
+					},
+				},
+			},
+			expectedSourceCRN:  "",
+			expectedBackupType: "on_demand",
+		},
+		{
+			description: "type is not a string",
+			extensions: map[string]interface{}{
+				"dataservices": map[string]interface{}{
+					"backup": map[string]interface{}{
+						"source_data_service_crn": "crn:v1:bluemix:public:databases-for-postgresql:us-south:a/abc123:deployment-id::",
+						"type":                    42,
+					},
+				},
+			},
+			expectedSourceCRN:  "crn:v1:bluemix:public:databases-for-postgresql:us-south:a/abc123:deployment-id::",
+			expectedBackupType: "",
+		},
+	}
+
+	for _, tc := range testcases {
+		t.Run(tc.description, func(t *testing.T) {
+			sourceDataServiceCRN, backupType := extractGen2BackupExtensions(tc.extensions)
+
+			require.Equal(t, tc.expectedSourceCRN, sourceDataServiceCRN)
+			require.Equal(t, tc.expectedBackupType, backupType)
+		})
+	}
+}
+
+func TestGetInstancesNext(t *testing.T) {
+	testcases := []struct {
+		description string
+		next        *string
+		expected    string
+		expectError bool
+	}{
+		{
+			description: "Nil next returns empty string and no error",
+			next:        nil,
+			expected:    "",
+		},
+		{
+			description: "URL with next_url query parameter",
+			next:        core.StringPtr("https://api.example.com/v2/resource_instances?next_url=abc123"),
+			expected:    "abc123",
+		},
+		{
+			description: "URL without next_url query parameter",
+			next:        core.StringPtr("https://api.example.com/v2/resource_instances?start=abc123"),
+			expected:    "",
+		},
+		{
+			description: "Empty string URL",
+			next:        core.StringPtr(""),
+			expected:    "",
+		},
+		{
+			description: "Malformed URL returns error",
+			next:        core.StringPtr("https://api.example.com/v2/resource_instances/%zz"),
+			expected:    "",
+			expectError: true,
+		},
+	}
+
+	for _, tc := range testcases {
+		t.Run(tc.description, func(t *testing.T) {
+			result, err := getInstancesNext(tc.next)
+
+			if tc.expectError {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+			}
+			require.Equal(t, tc.expected, result)
+		})
 	}
 }

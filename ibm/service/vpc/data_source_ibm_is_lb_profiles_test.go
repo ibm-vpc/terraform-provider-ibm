@@ -31,6 +31,9 @@ func TestAccIBMISLBProfilesDatasource_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet("data.ibm_is_lb_profiles.test_profiles", "lb_profiles.0.udp_supported"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_lb_profiles.test_profiles", "lb_profiles.0.ipv6_supported"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_lb_profiles.test_profiles", "lb_profiles.0.ipv6_supported_type"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_lb_profiles.test_profiles", "lb_profiles.0.asymmetric_routing_supported"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_lb_profiles.test_profiles", "lb_profiles.0.asymmetric_routing_supported_type"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_lb_profiles.test_profiles", "lb_profiles.0.mtls_supported"),
 				),
 			},
 		},
@@ -57,6 +60,7 @@ func TestAccIBMISLBProfilesDatasource_failsafepolicyactions(t *testing.T) {
 					resource.TestCheckResourceAttrSet("data.ibm_is_lb_profiles.test_profiles", "lb_profiles.0.route_mode_type"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_lb_profiles.test_profiles", "lb_profiles.0.udp_supported"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_lb_profiles.test_profiles", "lb_profiles.0.udp_supported_type"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_lb_profiles.test_profiles", "lb_profiles.0.mtls_supported"),
 				),
 			},
 		},
@@ -77,6 +81,24 @@ func TestAccIBMISLBProfilesDatasource_filter(t *testing.T) {
 					resource.TestCheckResourceAttr("data.ibm_is_lb_profiles.test_profiles", "lb_profiles.0.targetable_resource_types.0.values.0", "instance"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_lb_profiles.test_profiles", "lb_profiles.0.href"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_lb_profiles.test_profiles", "lb_profiles.0.udp_supported"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_lb_profiles.test_profiles", "lb_profiles.0.mtls_supported"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccIBMISLBProfilesDatasource_mTLS(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { acc.TestAccPreCheck(t) },
+		Providers: acc.TestAccProviders,
+		Steps: []resource.TestStep{
+			{
+
+				Config: testDSCheckIBMISLBProfilesConfig(),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet("data.ibm_is_lb_profiles.test_profiles", "lb_profiles.#"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_lb_profiles.test_profiles", "lb_profiles.0.mtls_supported"),
 				),
 			},
 		},
