@@ -279,6 +279,136 @@ func DataSourceIBMIsBareMetalServerProfiles() *schema.Resource {
 								},
 							},
 						},
+						isBareMetalServerProfileGpuCount: {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "The GPU count for a bare metal server with this profile.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									isBareMetalServerProfileType: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The type for this profile field.",
+									},
+									isBareMetalServerProfileValue: {
+										Type:        schema.TypeInt,
+										Computed:    true,
+										Description: "The value for this profile field.",
+									},
+									isBareMetalServerProfileDefault: {
+										Type:        schema.TypeInt,
+										Computed:    true,
+										Description: "The default value for this profile field.",
+									},
+									"max": {
+										Type:        schema.TypeInt,
+										Computed:    true,
+										Description: "The maximum value for this profile field.",
+									},
+									"min": {
+										Type:        schema.TypeInt,
+										Computed:    true,
+										Description: "The minimum value for this profile field.",
+									},
+									"step": {
+										Type:        schema.TypeInt,
+										Computed:    true,
+										Description: "The increment step value for this profile field.",
+									},
+									isBareMetalServerProfileValues: {
+										Type:        schema.TypeList,
+										Computed:    true,
+										Description: "The permitted values for this profile field.",
+										Elem:        &schema.Schema{Type: schema.TypeInt},
+									},
+								},
+							},
+						},
+						isBareMetalServerProfileGpuManufacturer: {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "The GPU manufacturer for a bare metal server with this profile.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									isBareMetalServerProfileType: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The type for this profile field.",
+									},
+									isBareMetalServerProfileValues: {
+										Type:        schema.TypeList,
+										Computed:    true,
+										Description: "The permitted values for this profile field.",
+										Elem:        &schema.Schema{Type: schema.TypeString},
+									},
+								},
+							},
+						},
+						isBareMetalServerProfileGpuMemory: {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "The overall amount of GPU memory in GiB (gibibytes) for a bare metal server with this profile.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									isBareMetalServerProfileType: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The type for this profile field.",
+									},
+									isBareMetalServerProfileValue: {
+										Type:        schema.TypeInt,
+										Computed:    true,
+										Description: "The value for this profile field.",
+									},
+									isBareMetalServerProfileDefault: {
+										Type:        schema.TypeInt,
+										Computed:    true,
+										Description: "The default value for this profile field.",
+									},
+									"max": {
+										Type:        schema.TypeInt,
+										Computed:    true,
+										Description: "The maximum value for this profile field.",
+									},
+									"min": {
+										Type:        schema.TypeInt,
+										Computed:    true,
+										Description: "The minimum value for this profile field.",
+									},
+									"step": {
+										Type:        schema.TypeInt,
+										Computed:    true,
+										Description: "The increment step value for this profile field.",
+									},
+									isBareMetalServerProfileValues: {
+										Type:        schema.TypeList,
+										Computed:    true,
+										Description: "The permitted values for this profile field.",
+										Elem:        &schema.Schema{Type: schema.TypeInt},
+									},
+								},
+							},
+						},
+						isBareMetalServerProfileGpuModel: {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "The GPU model for a bare metal server with this profile.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									isBareMetalServerProfileType: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The type for this profile field.",
+									},
+									isBareMetalServerProfileValues: {
+										Type:        schema.TypeList,
+										Computed:    true,
+										Description: "The permitted values for this profile field.",
+										Elem:        &schema.Schema{Type: schema.TypeString},
+									},
+								},
+							},
+						},
 						isBareMetalServerProfileSTPMMs: {
 							Type:        schema.TypeList,
 							Computed:    true,
@@ -555,6 +685,18 @@ func dataSourceIBMIsBareMetalServerProfilesRead(context context.Context, d *sche
 			}
 			memList = append(memList, m)
 			l[isBareMetalServerProfileMemory] = memList
+		}
+		if profile.GpuCount != nil {
+			l[isBareMetalServerProfileGpuCount] = dataSourceBMSProfileFlattenGpuCount(*profile.GpuCount.(*vpcv1.BareMetalServerProfileGpuCount))
+		}
+		if profile.GpuManufacturer != nil {
+			l[isBareMetalServerProfileGpuManufacturer] = dataSourceBMSProfileFlattenGpuManufacturer(*profile.GpuManufacturer)
+		}
+		if profile.GpuMemory != nil {
+			l[isBareMetalServerProfileGpuMemory] = dataSourceBMSProfileFlattenGpuMemory(*profile.GpuMemory.(*vpcv1.BareMetalServerProfileGpuMemory))
+		}
+		if profile.GpuModel != nil {
+			l[isBareMetalServerProfileGpuModel] = dataSourceBMSProfileFlattenGpuModel(*profile.GpuModel)
 		}
 		l[isBareMetalServerProfileRT] = profile.ResourceType
 		if profile.SupportedTrustedPlatformModuleModes != nil {

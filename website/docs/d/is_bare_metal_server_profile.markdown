@@ -91,6 +91,36 @@ In addition to all argument reference list, you can access the following attribu
         - `default` - (String) The enumerated values for this property are expected to expand in the future. When processing this property, check for and log unknown values. Optionally halt processing and surface the error, or bypass the resource on which the unexpected property value was encountered.
         - `type` - (String) The type for this profile field.
         - `values` - (Array) The supported disk interfaces used for attaching the disk.
+- `gpu_count` - (List) The GPU count for a bare metal server with this profile. Only present for GPU profiles.
+
+  Nested scheme for `gpu_count`:
+    - `default` - (Integer) The default value for this profile field.
+    - `max` - (Integer) The maximum value for this profile field.
+    - `min` - (Integer) The minimum value for this profile field.
+    - `step` - (Integer) The increment step value for this profile field.
+    - `type` - (String) The type for this profile field.
+    - `value` - (Integer) The value for this profile field.
+    - `values` - (List) The permitted values for this profile field.
+- `gpu_manufacturer` - (List) The GPU manufacturer for a bare metal server with this profile. Only present for GPU profiles.
+
+  Nested scheme for `gpu_manufacturer`:
+    - `type` - (String) The type for this profile field.
+    - `values` - (List) The permitted values for this profile field.
+- `gpu_memory` - (List) The overall amount of GPU memory in GiB (gibibytes) for a bare metal server with this profile. Only present for GPU profiles.
+
+  Nested scheme for `gpu_memory`:
+    - `default` - (Integer) The default value for this profile field.
+    - `max` - (Integer) The maximum value for this profile field.
+    - `min` - (Integer) The minimum value for this profile field.
+    - `step` - (Integer) The increment step value for this profile field.
+    - `type` - (String) The type for this profile field.
+    - `value` - (Integer) The value for this profile field.
+    - `values` - (List) The permitted values for this profile field.
+- `gpu_model` - (List) The GPU model for a bare metal server with this profile. Only present for GPU profiles.
+
+  Nested scheme for `gpu_model`:
+    - `type` - (String) The type for this profile field.
+    - `values` - (List) The permitted values for this profile field.        
 - `family` - (String) The product family this bare metal server profile belongs to.
 - `href` - (String) The URL for this bare metal server profile.
 - `id` - (String) The name of the profile.

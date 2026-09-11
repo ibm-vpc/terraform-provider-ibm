@@ -251,6 +251,35 @@ func DataSourceIBMIsBareMetalServers() *schema.Resource {
 							Computed:    true,
 							Description: "The amount of memory, truncated to whole gibibytes",
 						},
+						isBareMetalServerGpu: {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "The GPU configuration for this bare metal server. Only present if the server has GPU hardware.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									isBareMetalServerGpuCount: {
+										Type:        schema.TypeInt,
+										Computed:    true,
+										Description: "The number of GPUs assigned to the bare metal server.",
+									},
+									isBareMetalServerGpuManufacturer: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The GPU manufacturer.",
+									},
+									isBareMetalServerGpuMemory: {
+										Type:        schema.TypeInt,
+										Computed:    true,
+										Description: "The overall amount of GPU memory in GiB (gibibytes).",
+									},
+									isBareMetalServerGpuModel: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The GPU model.",
+									},
+								},
+							},
+						},
 
 						isBareMetalServerPrimaryNetworkInterface: {
 							Type:        schema.TypeList,
@@ -1102,6 +1131,18 @@ func dataSourceIBMISBareMetalServersRead(context context.Context, d *schema.Reso
 		l[isBareMetalServerHref] = *bms.Href
 		l[isBareMetalServerMemory] = *bms.Memory
 		l[isBareMetalServerProfile] = *bms.Profile.Name
+
+		gpuList := make([]map[string]interface{}, 0)
+		if bms.Gpu != nil {
+			currentGpu := map[string]interface{}{
+				isBareMetalServerGpuManufacturer: bms.Gpu.Manufacturer,
+				isBareMetalServerGpuModel:        bms.Gpu.Model,
+				isBareMetalServerGpuCount:        bms.Gpu.Count,
+				isBareMetalServerGpuMemory:       bms.Gpu.Memory,
+			}
+			gpuList = append(gpuList, currentGpu)
+		}
+		l[isBareMetalServerGpu] = gpuList
 
 		//enable secure boot
 		if bms.EnableSecureBoot != nil {

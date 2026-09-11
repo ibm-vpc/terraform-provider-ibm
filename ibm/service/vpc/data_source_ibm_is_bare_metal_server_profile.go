@@ -36,6 +36,10 @@ const (
 	isBareMetalServerProfileRT              = "resource_type"
 	isBareMetalServerProfileSIFs            = "supported_image_flags"
 	isBareMetalServerProfileSTPMMs          = "supported_trusted_platform_module_modes"
+	isBareMetalServerProfileGpuCount        = "gpu_count"
+	isBareMetalServerProfileGpuManufacturer = "gpu_manufacturer"
+	isBareMetalServerProfileGpuMemory       = "gpu_memory"
+	isBareMetalServerProfileGpuModel        = "gpu_model"
 )
 
 func DataSourceIBMIsBareMetalServerProfile() *schema.Resource {
@@ -281,6 +285,136 @@ func DataSourceIBMIsBareMetalServerProfile() *schema.Resource {
 							Type:        schema.TypeInt,
 							Computed:    true,
 							Description: "The value for this profile field",
+						},
+					},
+				},
+			},
+			isBareMetalServerProfileGpuCount: {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "The number of GPUs for a bare metal server with this profile. Only present for GPU profiles.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						isBareMetalServerProfileType: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The type for this profile field.",
+						},
+						isBareMetalServerProfileValue: {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: "The value for this profile field.",
+						},
+						isBareMetalServerProfileDefault: {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: "The default value for this profile field.",
+						},
+						"max": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: "The maximum value for this profile field.",
+						},
+						"min": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: "The minimum value for this profile field.",
+						},
+						"step": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: "The increment step value for this profile field.",
+						},
+						isBareMetalServerProfileValues: {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "The permitted values for this profile field.",
+							Elem:        &schema.Schema{Type: schema.TypeInt},
+						},
+					},
+				},
+			},
+			isBareMetalServerProfileGpuManufacturer: {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "The GPU manufacturer for a bare metal server with this profile. Only present for GPU profiles.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						isBareMetalServerProfileType: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The type for this profile field.",
+						},
+						isBareMetalServerProfileValues: {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "The permitted values for this profile field.",
+							Elem:        &schema.Schema{Type: schema.TypeString},
+						},
+					},
+				},
+			},
+			isBareMetalServerProfileGpuMemory: {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "The overall amount of GPU memory in GiB (gibibytes) for a bare metal server with this profile. Only present for GPU profiles.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						isBareMetalServerProfileType: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The type for this profile field.",
+						},
+						isBareMetalServerProfileValue: {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: "The value for this profile field.",
+						},
+						isBareMetalServerProfileDefault: {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: "The default value for this profile field.",
+						},
+						"max": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: "The maximum value for this profile field.",
+						},
+						"min": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: "The minimum value for this profile field.",
+						},
+						"step": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: "The increment step value for this profile field.",
+						},
+						isBareMetalServerProfileValues: {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "The permitted values for this profile field.",
+							Elem:        &schema.Schema{Type: schema.TypeInt},
+						},
+					},
+				},
+			},
+			isBareMetalServerProfileGpuModel: {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "The GPU model for a bare metal server with this profile. Only present for GPU profiles.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						isBareMetalServerProfileType: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The type for this profile field.",
+						},
+						isBareMetalServerProfileValues: {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "The permitted values for this profile field.",
+							Elem:        &schema.Schema{Type: schema.TypeString},
 						},
 					},
 				},
@@ -567,6 +701,26 @@ func dataSourceIBMISBMSProfileRead(context context.Context, d *schema.ResourceDa
 			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting memory: %s", err), "(Data) ibm_is_bare_metal_server_profile", "read", "set-memory").GetDiag()
 		}
 	}
+	if bareMetalServerProfile.GpuCount != nil {
+		if err = d.Set(isBareMetalServerProfileGpuCount, dataSourceBMSProfileFlattenGpuCount(*bareMetalServerProfile.GpuCount.(*vpcv1.BareMetalServerProfileGpuCount))); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting gpu_count: %s", err), "(Data) ibm_is_bare_metal_server_profile", "read", "set-gpu_count").GetDiag()
+		}
+	}
+	if bareMetalServerProfile.GpuManufacturer != nil {
+		if err = d.Set(isBareMetalServerProfileGpuManufacturer, dataSourceBMSProfileFlattenGpuManufacturer(*bareMetalServerProfile.GpuManufacturer)); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting gpu_manufacturer: %s", err), "(Data) ibm_is_bare_metal_server_profile", "read", "set-gpu_manufacturer").GetDiag()
+		}
+	}
+	if bareMetalServerProfile.GpuMemory != nil {
+		if err = d.Set(isBareMetalServerProfileGpuMemory, dataSourceBMSProfileFlattenGpuMemory(*bareMetalServerProfile.GpuMemory.(*vpcv1.BareMetalServerProfileGpuMemory))); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting gpu_memory: %s", err), "(Data) ibm_is_bare_metal_server_profile", "read", "set-gpu_memory").GetDiag()
+		}
+	}
+	if bareMetalServerProfile.GpuModel != nil {
+		if err = d.Set(isBareMetalServerProfileGpuModel, dataSourceBMSProfileFlattenGpuModel(*bareMetalServerProfile.GpuModel)); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting gpu_model: %s", err), "(Data) ibm_is_bare_metal_server_profile", "read", "set-gpu_model").GetDiag()
+		}
+	}
 	if err = d.Set(isBareMetalServerProfileRT, bareMetalServerProfile.ResourceType); err != nil {
 		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting resource_type: %s", err), "(Data) ibm_is_bare_metal_server_profile", "read", "set-resource_type").GetDiag()
 	}
@@ -788,4 +942,86 @@ func dataSourceIBMIsBareMetalServerProfileBareMetalServerProfileNetworkAttachmen
 	modelMap := make(map[string]interface{})
 	modelMap["type"] = model.Type
 	return modelMap, nil
+}
+
+func dataSourceBMSProfileFlattenGpuCount(result vpcv1.BareMetalServerProfileGpuCount) []map[string]interface{} {
+	finalList := []map[string]interface{}{}
+	finalMap := map[string]interface{}{}
+	if result.Type != nil {
+		finalMap[isBareMetalServerProfileType] = result.Type
+	}
+	if result.Value != nil {
+		finalMap[isBareMetalServerProfileValue] = result.Value
+	}
+	if result.Default != nil {
+		finalMap[isBareMetalServerProfileDefault] = result.Default
+	}
+	if result.Max != nil {
+		finalMap["max"] = result.Max
+	}
+	if result.Min != nil {
+		finalMap["min"] = result.Min
+	}
+	if result.Step != nil {
+		finalMap["step"] = result.Step
+	}
+	if result.Values != nil {
+		finalMap[isBareMetalServerProfileValues] = result.Values
+	}
+	finalList = append(finalList, finalMap)
+	return finalList
+}
+
+func dataSourceBMSProfileFlattenGpuManufacturer(result vpcv1.BareMetalServerProfileGpuManufacturer) []map[string]interface{} {
+	finalList := []map[string]interface{}{}
+	finalMap := map[string]interface{}{}
+	if result.Type != nil {
+		finalMap[isBareMetalServerProfileType] = result.Type
+	}
+	if result.Values != nil {
+		finalMap[isBareMetalServerProfileValues] = result.Values
+	}
+	finalList = append(finalList, finalMap)
+	return finalList
+}
+
+func dataSourceBMSProfileFlattenGpuMemory(result vpcv1.BareMetalServerProfileGpuMemory) []map[string]interface{} {
+	finalList := []map[string]interface{}{}
+	finalMap := map[string]interface{}{}
+	if result.Type != nil {
+		finalMap[isBareMetalServerProfileType] = result.Type
+	}
+	if result.Value != nil {
+		finalMap[isBareMetalServerProfileValue] = result.Value
+	}
+	if result.Default != nil {
+		finalMap[isBareMetalServerProfileDefault] = result.Default
+	}
+	if result.Max != nil {
+		finalMap["max"] = result.Max
+	}
+	if result.Min != nil {
+		finalMap["min"] = result.Min
+	}
+	if result.Step != nil {
+		finalMap["step"] = result.Step
+	}
+	if result.Values != nil {
+		finalMap[isBareMetalServerProfileValues] = result.Values
+	}
+	finalList = append(finalList, finalMap)
+	return finalList
+}
+
+func dataSourceBMSProfileFlattenGpuModel(result vpcv1.BareMetalServerProfileGpuModel) []map[string]interface{} {
+	finalList := []map[string]interface{}{}
+	finalMap := map[string]interface{}{}
+	if result.Type != nil {
+		finalMap[isBareMetalServerProfileType] = result.Type
+	}
+	if result.Values != nil {
+		finalMap[isBareMetalServerProfileValues] = result.Values
+	}
+	finalList = append(finalList, finalMap)
+	return finalList
 }

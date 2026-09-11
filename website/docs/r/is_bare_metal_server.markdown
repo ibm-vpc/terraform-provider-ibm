@@ -466,6 +466,13 @@ In addition to all argument reference list, you can access the following attribu
 - `href` - (String) The URL for this bare metal server
 - `id` - (String) The unique identifier for this bare metal server
 - `memory` - (Integer) The amount of memory, truncated to whole gibibytes
+- `gpu` - (List) The gpu hardware information for this bare metal server. If the physical hardware does not contain GPUs, this property will be empty.
+
+  Nested scheme for `gpu`:
+    - `count` - (Integer) The number of GPUs assigned to the bare metal server.
+    - `manufacturer` - (String) The GPU manufacturer.
+    - `memory` - (Integer) The overall amount of GPU memory in GiB (gibibytes).
+    - `model` - (String) The GPU model.
 - `metadata_service` - (List) The metadata service configuration for the bare metal server
   Nested scheme for `metadata_service`:
   - `enabled` - (Boolean) Indicates whether the metadata service endpoint is available to the bare metal server

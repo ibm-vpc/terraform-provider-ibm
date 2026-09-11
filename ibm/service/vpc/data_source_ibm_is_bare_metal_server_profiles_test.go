@@ -133,3 +133,26 @@ func testAccCheckIBMISBMSProfilesDataSourceConfig() string {
       data "ibm_is_bare_metal_server_profiles" "test1" {
       }`)
 }
+
+func TestAccIBMISBMSProfilesDataSource_gpu(t *testing.T) {
+	resName := "data.ibm_is_bare_metal_server_profiles.test1"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { acc.TestAccPreCheck(t) },
+		Providers: acc.TestAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckIBMISBMSProfilesDataSourceConfig(),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(resName, "profiles.0.name"),
+					// GPU fields are optional — only populated for GPU profiles;
+					// the list returns all profiles so we just verify the schema keys exist.
+					resource.TestCheckResourceAttrSet(resName, "profiles.0.gpu_count.#"),
+					resource.TestCheckResourceAttrSet(resName, "profiles.0.gpu_manufacturer.#"),
+					resource.TestCheckResourceAttrSet(resName, "profiles.0.gpu_memory.#"),
+					resource.TestCheckResourceAttrSet(resName, "profiles.0.gpu_model.#"),
+				),
+			},
+		},
+	})
+}

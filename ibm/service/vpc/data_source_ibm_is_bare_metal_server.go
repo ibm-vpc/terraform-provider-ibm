@@ -209,6 +209,35 @@ func DataSourceIBMIsBareMetalServer() *schema.Resource {
 				Computed:    true,
 				Description: "The amount of memory, truncated to whole gibibytes",
 			},
+			isBareMetalServerGpu: {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "The gpu hardware information for this bare metal server. If the physical hardware does not contain GPUs, this property will be empty.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						isBareMetalServerGpuCount: {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: "The number of GPUs assigned to the bare metal server.",
+						},
+						isBareMetalServerGpuManufacturer: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The GPU manufacturer.",
+						},
+						isBareMetalServerGpuMemory: {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: "The overall amount of GPU memory in GiB (gibibytes).",
+						},
+						isBareMetalServerGpuModel: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The GPU model.",
+						},
+					},
+				},
+			},
 
 			isBareMetalServerPrimaryNetworkInterface: {
 				Type:        schema.TypeList,
@@ -1091,6 +1120,19 @@ func dataSourceIBMISBareMetalServerRead(context context.Context, d *schema.Resou
 	}
 	if err = d.Set(isBareMetalServerMemory, bareMetalServer.Memory); err != nil {
 		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting memory: %s", err), "(Data) ibm_is_bare_metal_server", "read", "set-memory").GetDiag()
+	}
+	gpuList := make([]map[string]interface{}, 0)
+	if bareMetalServer.Gpu != nil {
+		currentGpu := map[string]interface{}{
+			isBareMetalServerGpuManufacturer: bareMetalServer.Gpu.Manufacturer,
+			isBareMetalServerGpuModel:        bareMetalServer.Gpu.Model,
+			isBareMetalServerGpuCount:        bareMetalServer.Gpu.Count,
+			isBareMetalServerGpuMemory:       bareMetalServer.Gpu.Memory,
+		}
+		gpuList = append(gpuList, currentGpu)
+	}
+	if err = d.Set(isBareMetalServerGpu, gpuList); err != nil {
+		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting gpu: %s", err), "(Data) ibm_is_bare_metal_server", "read", "set-gpu").GetDiag()
 	}
 	if err = d.Set(isBareMetalServerName, *bareMetalServer.Name); err != nil {
 		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting name: %s", err), "(Data) ibm_is_bare_metal_server", "read", "set-name").GetDiag()

@@ -88,6 +88,11 @@ const (
 	isBareMetalServerMetadataService                     = "metadata_service"
 	isBareMetalServerMetadataServiceEnabled              = "enabled"
 	isBareMetalServerMetadataServiceProtocol             = "protocol"
+	isBareMetalServerGpu                                 = "gpu"
+	isBareMetalServerGpuCount                            = "count"
+	isBareMetalServerGpuManufacturer                     = "manufacturer"
+	isBareMetalServerGpuMemory                           = "memory"
+	isBareMetalServerGpuModel                            = "model"
 )
 
 func ResourceIBMIsBareMetalServer() *schema.Resource {
@@ -320,6 +325,35 @@ func ResourceIBMIsBareMetalServer() *schema.Resource {
 				Type:        schema.TypeInt,
 				Computed:    true,
 				Description: "The amount of memory, truncated to whole gibibytes",
+			},
+			isBareMetalServerGpu: {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "The gpu hardware information for this bare metal server. If the physical hardware does not contain GPUs, this property will be empty.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						isBareMetalServerGpuCount: {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: "The number of GPUs assigned to the bare metal server.",
+						},
+						isBareMetalServerGpuManufacturer: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The GPU manufacturer.",
+						},
+						isBareMetalServerGpuMemory: {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: "The overall amount of GPU memory in GiB (gibibytes).",
+						},
+						isBareMetalServerGpuModel: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The GPU model.",
+						},
+					},
+				},
 			},
 			isBareMetalServerDeleteType: {
 				Type:        schema.TypeString,
@@ -2367,6 +2401,20 @@ func bareMetalServerGet(context context.Context, d *schema.ResourceData, meta in
 	if err = d.Set(isBareMetalServerMemory, *bms.Memory); err != nil {
 		err = fmt.Errorf("Error setting memory: %s", err)
 		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_bare_metal_server", "read", "set-memory").GetDiag()
+	}
+	gpuList := make([]map[string]interface{}, 0)
+	if bms.Gpu != nil {
+		currentGpu := map[string]interface{}{
+			isBareMetalServerGpuManufacturer: bms.Gpu.Manufacturer,
+			isBareMetalServerGpuModel:        bms.Gpu.Model,
+			isBareMetalServerGpuCount:        bms.Gpu.Count,
+			isBareMetalServerGpuMemory:       bms.Gpu.Memory,
+		}
+		gpuList = append(gpuList, currentGpu)
+	}
+	if err = d.Set(isBareMetalServerGpu, gpuList); err != nil {
+		err = fmt.Errorf("Error setting gpu: %s", err)
+		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_bare_metal_server", "read", "set-gpu").GetDiag()
 	}
 	if err = d.Set(isBareMetalServerName, *bms.Name); err != nil {
 		err = fmt.Errorf("Error setting name: %s", err)

@@ -83,6 +83,13 @@ Review the attribute references that you can access after you retrieve your data
   - `image` - (String) Image used in the bare metal server.
   - `keys` - (String) Image used in the bare metal server.
   - `memory` - (Integer) The amount of memory, truncated to whole gibibytes
+  - `gpu` - (List) The GPU configuration for this bare metal server. Only present if the server has GPU hardware.
+
+    Nested scheme for `gpu`:
+      - `count` - (Integer) The number of GPUs assigned to the bare metal server.
+      - `manufacturer` - (String) The GPU manufacturer.
+      - `memory` - (Integer) The overall amount of GPU memory in GiB (gibibytes).
+      - `model` - (String) The GPU model.
   - `metadata_service` - (List) The metadata service configuration for the bare metal server
       Nested scheme for `metadata_service`:
       - `enabled` - (Boolean) Indicates whether the metadata service endpoint is available to the bare metal server
