@@ -83,7 +83,7 @@ Review the attribute references that you can access after you retrieve your data
   - `image` - (String) Image used in the bare metal server.
   - `keys` - (String) Image used in the bare metal server.
   - `memory` - (Integer) The amount of memory, truncated to whole gibibytes
-  - `gpu` - (List) The GPU configuration for this bare metal server. Only present if the server has GPU hardware.
+  - `gpu` - (List) The gpu hardware information for this bare metal server. If the physical hardware does not contain GPUs, this property will be empty.
 
     Nested scheme for `gpu`:
       - `count` - (Integer) The number of GPUs assigned to the bare metal server.
