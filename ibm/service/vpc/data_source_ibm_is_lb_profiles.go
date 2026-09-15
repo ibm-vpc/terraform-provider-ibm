@@ -236,6 +236,7 @@ func DataSourceIBMISLbProfiles() *schema.Resource {
 							Type:        schema.TypeString,
 							Computed:    true,
 							Description: "The IPv6 support type for this load balancer profile, one of [fixed, dependent]",
+						},
 						"asymmetric_routing_supported": {
 							Type:        schema.TypeBool,
 							Computed:    true,

@@ -335,6 +335,7 @@ func ResourceIBMISLB() *schema.Resource {
 				Optional:    true,
 				Computed:    true,
 				Description: "Indicates whether this load balancer supports public IPv6 addresses.",
+			},
 			"asymmetric_routing_supported": {
 				Type:        schema.TypeBool,
 				Computed:    true,
@@ -850,6 +851,7 @@ func lbGet(context context.Context, d *schema.ResourceData, meta interface{}, id
 	if err = d.Set(isLBIpv6Enabled, loadBalancer.Ipv6Enabled); err != nil {
 		err = fmt.Errorf("Error setting ipv6_enabled: %s", err)
 		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_lb", "read", "set-ipv6_enabled").GetDiag()
+	}
 	if loadBalancer.AsymmetricRoutingSupported != nil {
 		if err = d.Set("asymmetric_routing_supported", *loadBalancer.AsymmetricRoutingSupported); err != nil {
 			err = fmt.Errorf("Error setting asymmetric_routing_supported: %s", err)

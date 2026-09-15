@@ -162,6 +162,7 @@ func DataSourceIBMISLbProfile() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "The IPv6 support type for this load balancer profile, one of [fixed, dependent]",
+			},
 			"asymmetric_routing_supported": {
 				Type:        schema.TypeBool,
 				Computed:    true,
@@ -463,6 +464,11 @@ func dataSourceIBMISLbProfileRead(context context.Context, d *schema.ResourceDat
 				if ipv6.Value != nil {
 					if err = d.Set("ipv6_supported", *ipv6.Value); err != nil {
 						return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting ipv6_supported: %s", err), "(Data) ibm_is_lb_profile", "read", "set-ipv6_supported").GetDiag()
+					}
+				}
+			}
+		}
+	}
 	if loadBalancerProfile.AsymmetricRoutingSupported != nil {
 		asymmetricRoutingSupport := loadBalancerProfile.AsymmetricRoutingSupported
 		switch reflect.TypeOf(asymmetricRoutingSupport).String() {

@@ -118,6 +118,7 @@ func DataSourceIBMISLB() *schema.Resource {
 				Type:        schema.TypeBool,
 				Computed:    true,
 				Description: "Indicates whether this load balancer supports public IPv6 addresses.",
+			},
 			"asymmetric_routing_supported": {
 				Type:        schema.TypeBool,
 				Computed:    true,

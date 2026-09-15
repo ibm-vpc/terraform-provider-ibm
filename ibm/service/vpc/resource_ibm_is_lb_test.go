@@ -855,11 +855,6 @@ func TestAccIBMISLB_ipv6_dynamic(t *testing.T) {
 	vpcname := fmt.Sprintf("tflb-vpc-%d", acctest.RandIntRange(10, 100))
 	subnetname := fmt.Sprintf("tflb-subnet-name-%d", acctest.RandIntRange(10, 100))
 	name := fmt.Sprintf("tflb-ipv6-%d", acctest.RandIntRange(10, 100))
-func TestAccIBMISLB_advanced_health_checks(t *testing.T) {
-	var lb string
-	vpcname := fmt.Sprintf("tflb-vpc-%d", acctest.RandIntRange(10, 100))
-	subnetname := fmt.Sprintf("tflb-subnet-name-%d", acctest.RandIntRange(10, 100))
-	name := fmt.Sprintf("tfcreate%d", acctest.RandIntRange(10, 100))
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { acc.TestAccPreCheck(t) },
@@ -882,6 +877,24 @@ func TestAccIBMISLB_advanced_health_checks(t *testing.T) {
 					testAccCheckIBMISLBExists("ibm_is_lb.testacc_LB", lb),
 					resource.TestCheckResourceAttr("ibm_is_lb.testacc_LB", "ipv6_enabled", "false"),
 					resource.TestCheckResourceAttrSet("ibm_is_lb.testacc_LB", "ipv6_enabled"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccIBMISLB_advanced_health_checks(t *testing.T) {
+	var lb string
+	vpcname := fmt.Sprintf("tflb-vpc-%d", acctest.RandIntRange(10, 100))
+	subnetname := fmt.Sprintf("tflb-subnet-name-%d", acctest.RandIntRange(10, 100))
+	name := fmt.Sprintf("tfcreate%d", acctest.RandIntRange(10, 100))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acc.TestAccPreCheck(t) },
+		Providers:    acc.TestAccProviders,
+		CheckDestroy: testAccCheckIBMISLBDestroy,
+		Steps: []resource.TestStep{
+			{
 				Config: testAccCheckIBMISLBConfig(vpcname, subnetname, acc.ISZoneName, acc.ISCIDR, name),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckIBMISLBExists("ibm_is_lb.testacc_LB", lb),
