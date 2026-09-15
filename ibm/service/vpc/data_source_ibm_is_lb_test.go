@@ -165,6 +165,33 @@ data "ibm_is_lb" "ds_lb" {
 }`, vpcname, subnetname, zone, cidr, name)
 }
 
+func testDSCheckIBMISLBIPv6Config(vpcname, subnetname, zone, cidr, name string) string {
+	return testAccCheckIBMISLBIPv6Config(vpcname, subnetname, zone, cidr, name, true) + fmt.Sprintf(`
+data "ibm_is_lb" "ds_lb" {
+  name = ibm_is_lb.testacc_LB.name
+}`)
+}
+
+func TestAccIBMISLBDatasource_ipv6(t *testing.T) {
+	name := fmt.Sprintf("tflb-ipv6-%d", acctest.RandIntRange(10, 100))
+	vpcname := fmt.Sprintf("tflb-vpc-%d", acctest.RandIntRange(10, 100))
+	subnetname := fmt.Sprintf("tflb-subnet-name-%d", acctest.RandIntRange(10, 100))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { acc.TestAccPreCheck(t) },
+		Providers: acc.TestAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testDSCheckIBMISLBIPv6Config(vpcname, subnetname, acc.ISZoneName, acc.ISCIDR, name),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("data.ibm_is_lb.ds_lb", "name", name),
+					resource.TestCheckResourceAttr("data.ibm_is_lb.ds_lb", "ipv6_enabled", "true"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckIBMISDSLBDNS(vpcname, subnetname, name string) string {
 	// status filter defaults to empty
 	return testAccCheckIBMISLBDNS(vpcname, subnetname, acc.ISZoneName, acc.ISCIDR, name, acc.DNSInstanceCRN, acc.DNSZoneID) + fmt.Sprintf(`
