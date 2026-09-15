@@ -206,9 +206,7 @@ func dataSourceIBMISBareMetalServerVolumeAttachmentsRead(context context.Context
 		if volAtt.Bandwidth != nil {
 			entry[isBMSVolAttBandwidth] = int(*volAtt.Bandwidth)
 		}
-		if volAtt.CreatedAt != nil {
-			entry[isBMSVolAttCreatedAt] = volAtt.CreatedAt.String()
-		}
+		entry[isBMSVolAttCreatedAt] = volAtt.CreatedAt.String()
 		if volAtt.Device != nil && volAtt.Device.ID != nil {
 			entry[isBMSVolAttDevice] = *volAtt.Device.ID
 		}
@@ -260,7 +258,9 @@ func dataSourceIBMISBareMetalServerVolumeAttachmentsRead(context context.Context
 	}
 
 	d.SetId(time.Now().UTC().String())
-	d.Set(isBMSVolAttBareMetalServer, bareMetalServerID)
+	if err = d.Set(isBMSVolAttBareMetalServer, bareMetalServerID); err != nil {
+		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting %s: %s", isBMSVolAttBareMetalServer, err), "(Data) ibm_is_bare_metal_server_volume_attachments", "read", "set-bare_metal_server").GetDiag()
+	}
 	if err = d.Set("volume_attachments", volAttsList); err != nil {
 		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting volume_attachments: %s", err), "(Data) ibm_is_bare_metal_server_volume_attachments", "read", "set-volume_attachments").GetDiag()
 	}

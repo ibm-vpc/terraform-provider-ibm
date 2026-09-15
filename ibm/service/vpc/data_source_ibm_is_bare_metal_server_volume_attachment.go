@@ -199,23 +199,40 @@ func dataSourceIBMISBareMetalServerVolumeAttachmentRead(context context.Context,
 		}
 
 		d.SetId(makeTerraformVolAttID(bareMetalServerID, *volumeAttachment.ID))
-		d.Set(isBMSVolAttBareMetalServer, bareMetalServerID)
-		d.Set(isBMSVolAttName, *volumeAttachment.Name)
+
+		if err = d.Set(isBMSVolAttBareMetalServer, bareMetalServerID); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting %s: %s", isBMSVolAttBareMetalServer, err), "(Data) ibm_is_bare_metal_server_volume_attachment", "read", "set-bare_metal_server").GetDiag()
+		}
+		if err = d.Set(isBMSVolAttName, *volumeAttachment.Name); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting %s: %s", isBMSVolAttName, err), "(Data) ibm_is_bare_metal_server_volume_attachment", "read", "set-name").GetDiag()
+		}
 
 		if volumeAttachment.Bandwidth != nil {
-			d.Set(isBMSVolAttBandwidth, int(*volumeAttachment.Bandwidth))
+			if err = d.Set(isBMSVolAttBandwidth, int(*volumeAttachment.Bandwidth)); err != nil {
+				return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting %s: %s", isBMSVolAttBandwidth, err), "(Data) ibm_is_bare_metal_server_volume_attachment", "read", "set-bandwidth").GetDiag()
+			}
 		}
-		if volumeAttachment.CreatedAt != nil {
-			d.Set(isBMSVolAttCreatedAt, volumeAttachment.CreatedAt.String())
+		if err = d.Set(isBMSVolAttCreatedAt, volumeAttachment.CreatedAt.String()); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting %s: %s", isBMSVolAttCreatedAt, err), "(Data) ibm_is_bare_metal_server_volume_attachment", "read", "set-created_at").GetDiag()
 		}
-		d.Set(isBMSVolAttDeleteOnServerDelete, *volumeAttachment.DeleteVolumeOnBareMetalServerDelete)
+		if err = d.Set(isBMSVolAttDeleteOnServerDelete, *volumeAttachment.DeleteVolumeOnBareMetalServerDelete); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting %s: %s", isBMSVolAttDeleteOnServerDelete, err), "(Data) ibm_is_bare_metal_server_volume_attachment", "read", "set-delete_volume_on_bare_metal_server_delete").GetDiag()
+		}
 
 		if volumeAttachment.Device != nil && volumeAttachment.Device.ID != nil {
-			d.Set(isBMSVolAttDevice, *volumeAttachment.Device.ID)
+			if err = d.Set(isBMSVolAttDevice, *volumeAttachment.Device.ID); err != nil {
+				return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting %s: %s", isBMSVolAttDevice, err), "(Data) ibm_is_bare_metal_server_volume_attachment", "read", "set-device").GetDiag()
+			}
 		}
-		d.Set(isBMSVolAttHref, *volumeAttachment.Href)
-		d.Set(isBMSVolAttId, *volumeAttachment.ID)
-		d.Set(isBMSVolAttStatus, *volumeAttachment.Status)
+		if err = d.Set(isBMSVolAttHref, *volumeAttachment.Href); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting %s: %s", isBMSVolAttHref, err), "(Data) ibm_is_bare_metal_server_volume_attachment", "read", "set-href").GetDiag()
+		}
+		if err = d.Set(isBMSVolAttId, *volumeAttachment.ID); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting %s: %s", isBMSVolAttId, err), "(Data) ibm_is_bare_metal_server_volume_attachment", "read", "set-volume_attachment_id").GetDiag()
+		}
+		if err = d.Set(isBMSVolAttStatus, *volumeAttachment.Status); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting %s: %s", isBMSVolAttStatus, err), "(Data) ibm_is_bare_metal_server_volume_attachment", "read", "set-status").GetDiag()
+		}
 
 		if volumeAttachment.StatusReason != nil {
 			statusReasonList := make([]map[string]interface{}, 0)
@@ -231,24 +248,34 @@ func dataSourceIBMISBareMetalServerVolumeAttachmentRead(context context.Context,
 			}
 			if len(statusReasonMap) > 0 {
 				statusReasonList = append(statusReasonList, statusReasonMap)
-				d.Set(isBMSVolAttStatusReason, statusReasonList)
+				if err = d.Set(isBMSVolAttStatusReason, statusReasonList); err != nil {
+					return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting %s: %s", isBMSVolAttStatusReason, err), "(Data) ibm_is_bare_metal_server_volume_attachment", "read", "set-status_reason").GetDiag()
+				}
 			}
 		}
 
-		d.Set(isBMSVolAttType, *volumeAttachment.Type)
+		if err = d.Set(isBMSVolAttType, *volumeAttachment.Type); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting %s: %s", isBMSVolAttType, err), "(Data) ibm_is_bare_metal_server_volume_attachment", "read", "set-type").GetDiag()
+		}
 
 		if volumeAttachment.Protocol != nil {
-			d.Set(isBMSVolAttProtocol, *volumeAttachment.Protocol)
+			if err = d.Set(isBMSVolAttProtocol, *volumeAttachment.Protocol); err != nil {
+				return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting %s: %s", isBMSVolAttProtocol, err), "(Data) ibm_is_bare_metal_server_volume_attachment", "read", "set-protocol").GetDiag()
+			}
 		}
 		if volumeAttachment.NvmeQualifiedName != nil {
-			d.Set(isBMSVolAttNvmeQualifiedName, *volumeAttachment.NvmeQualifiedName)
+			if err = d.Set(isBMSVolAttNvmeQualifiedName, *volumeAttachment.NvmeQualifiedName); err != nil {
+				return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting %s: %s", isBMSVolAttNvmeQualifiedName, err), "(Data) ibm_is_bare_metal_server_volume_attachment", "read", "set-nvme_qualified_name").GetDiag()
+			}
 		}
 		if len(volumeAttachment.Ips) > 0 {
 			ips := make([]string, len(volumeAttachment.Ips))
 			for i, ip := range volumeAttachment.Ips {
 				ips[i] = *ip.Address
 			}
-			d.Set(isBMSVolAttIps, ips)
+			if err = d.Set(isBMSVolAttIps, ips); err != nil {
+				return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting %s: %s", isBMSVolAttIps, err), "(Data) ibm_is_bare_metal_server_volume_attachment", "read", "set-ips").GetDiag()
+			}
 		}
 
 		if volumeAttachment.Volume != nil {

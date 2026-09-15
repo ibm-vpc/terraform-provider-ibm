@@ -94,22 +94,35 @@ func dataSourceIBMISBareMetalServerStorageAccessRead(context context.Context, d 
 	}
 
 	d.SetId(bareMetalServerID)
-	d.Set(isBareMetalServerID, bareMetalServerID)
-	d.Set(isBMSStorageAccessCreatedAt, storageAccess.CreatedAt.String())
+
+	if err = d.Set(isBareMetalServerID, bareMetalServerID); err != nil {
+		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting %s: %s", isBareMetalServerID, err), "(Data) ibm_is_bare_metal_server_storage_access", "read", "set-bare_metal_server").GetDiag()
+	}
+	if err = d.Set(isBMSStorageAccessCreatedAt, storageAccess.CreatedAt.String()); err != nil {
+		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting %s: %s", isBMSStorageAccessCreatedAt, err), "(Data) ibm_is_bare_metal_server_storage_access", "read", "set-created_at").GetDiag()
+	}
 
 	if storageAccess.EncryptedSecret != nil {
-		d.Set(isBMSStorageAccessEncryptedSecret, *storageAccess.EncryptedSecret)
+		if err = d.Set(isBMSStorageAccessEncryptedSecret, *storageAccess.EncryptedSecret); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting %s: %s", isBMSStorageAccessEncryptedSecret, err), "(Data) ibm_is_bare_metal_server_storage_access", "read", "set-encrypted_secret").GetDiag()
+		}
 	}
 
 	if storageAccess.PublicKey != nil && storageAccess.PublicKey.Fingerprint != nil {
-		d.Set(isBMSStorageAccessPublicKey, *storageAccess.PublicKey.Fingerprint)
+		if err = d.Set(isBMSStorageAccessPublicKey, *storageAccess.PublicKey.Fingerprint); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting %s: %s", isBMSStorageAccessPublicKey, err), "(Data) ibm_is_bare_metal_server_storage_access", "read", "set-public_key").GetDiag()
+		}
 	}
 
 	if storageAccess.RotatedAt != nil {
-		d.Set(isBMSStorageAccessRotatedAt, storageAccess.RotatedAt.String())
+		if err = d.Set(isBMSStorageAccessRotatedAt, storageAccess.RotatedAt.String()); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting %s: %s", isBMSStorageAccessRotatedAt, err), "(Data) ibm_is_bare_metal_server_storage_access", "read", "set-rotated_at").GetDiag()
+		}
 	}
 
-	d.Set(isBMSStorageAccessStatus, *storageAccess.Status)
+	if err = d.Set(isBMSStorageAccessStatus, *storageAccess.Status); err != nil {
+		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting %s: %s", isBMSStorageAccessStatus, err), "(Data) ibm_is_bare_metal_server_storage_access", "read", "set-status").GetDiag()
+	}
 
 	return nil
 }
