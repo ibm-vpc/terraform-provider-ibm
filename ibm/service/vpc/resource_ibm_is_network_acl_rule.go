@@ -153,7 +153,6 @@ func ResourceIBMISNetworkACLRule() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
-				Default:      "ipv4",
 				Description:  "The IP version for this rule. Supported values are ipv4 and ipv6. If unspecified, ipv4 is used.",
 				ValidateFunc: validate.InvokeValidator("ibm_is_network_acl_rule", isNetworkACLRuleIPVersion),
 			},
@@ -516,18 +515,17 @@ func nwaclRuleCreate(context context.Context, d *schema.ResourceData, meta inter
 		protocol = protocolVal.(string)
 	}
 
-	ipVersion := "ipv4"
-	if v, ok := d.GetOk(isNetworkACLRuleIPVersion); ok {
-		ipVersion = v.(string)
-	}
-
 	ruleTemplate := &vpcv1.NetworkACLRulePrototype{
 		Action:      &action,
 		Destination: &destination,
 		Direction:   &direction,
 		Source:      &source,
 		Name:        &name,
-		IPVersion:   &ipVersion,
+	}
+
+	if v, ok := d.GetOk(isNetworkACLRuleIPVersion); ok {
+		ipVersion := v.(string)
+		ruleTemplate.IPVersion = &ipVersion
 	}
 
 	if before, ok := d.GetOk(isNwACLRuleBefore); ok {

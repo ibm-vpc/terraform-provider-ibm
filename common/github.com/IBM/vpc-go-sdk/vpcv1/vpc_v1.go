@@ -69,7 +69,7 @@ type VpcV1Options struct {
 
 	// The API version, in format `YYYY-MM-DD`. For the API behavior documented here, specify any date between `2026-04-07`
 	// and `2026-08-10`.
-	Version *string `validate:"required"`
+	Version *string
 }
 
 // NewVpcV1UsingExternalConfig : constructs an instance of VpcV1 with passed in options and external configuration.
@@ -132,6 +132,10 @@ func NewVpcV1(options *VpcV1Options) (service *VpcV1, err error) {
 		}
 	}
 
+	now := time.Now().UTC()
+	if options.Version == nil {
+		options.Version = core.StringPtr(now.Format("2006-01-02"))
+	}
 	service = &VpcV1{
 		Service:    baseService,
 		Generation: options.Generation,
@@ -19060,6 +19064,7 @@ func (vpc *VpcV1) ListNetworkAclsWithContext(ctx context.Context, listNetworkAcl
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("maturity", fmt.Sprint("development"))
 	if listNetworkAclsOptions.Start != nil {
 		builder.AddQuery("start", fmt.Sprint(*listNetworkAclsOptions.Start))
 	}
@@ -19140,6 +19145,7 @@ func (vpc *VpcV1) CreateNetworkACLWithContext(ctx context.Context, createNetwork
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("maturity", fmt.Sprint("development"))
 
 	_, err = builder.SetBodyContentJSON(createNetworkACLOptions.NetworkACLPrototype)
 	if err != nil {
@@ -19218,6 +19224,7 @@ func (vpc *VpcV1) DeleteNetworkACLWithContext(ctx context.Context, deleteNetwork
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("maturity", fmt.Sprint("development"))
 
 	request, err := builder.Build()
 	if err != nil {
@@ -19281,6 +19288,7 @@ func (vpc *VpcV1) GetNetworkACLWithContext(ctx context.Context, getNetworkACLOpt
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("maturity", fmt.Sprint("development"))
 
 	request, err := builder.Build()
 	if err != nil {
@@ -19354,6 +19362,7 @@ func (vpc *VpcV1) UpdateNetworkACLWithContext(ctx context.Context, updateNetwork
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("maturity", fmt.Sprint("development"))
 
 	_, err = builder.SetBodyContentJSON(updateNetworkACLOptions.NetworkACLPatch)
 	if err != nil {
@@ -19433,6 +19442,7 @@ func (vpc *VpcV1) ListNetworkACLRulesWithContext(ctx context.Context, listNetwor
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("maturity", fmt.Sprint("development"))
 	if listNetworkACLRulesOptions.Start != nil {
 		builder.AddQuery("start", fmt.Sprint(*listNetworkACLRulesOptions.Start))
 	}
@@ -19516,6 +19526,7 @@ func (vpc *VpcV1) CreateNetworkACLRuleWithContext(ctx context.Context, createNet
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("maturity", fmt.Sprint("development"))
 
 	_, err = builder.SetBodyContentJSON(createNetworkACLRuleOptions.NetworkACLRulePrototype)
 	if err != nil {
@@ -19594,6 +19605,7 @@ func (vpc *VpcV1) DeleteNetworkACLRuleWithContext(ctx context.Context, deleteNet
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("maturity", fmt.Sprint("development"))
 
 	request, err := builder.Build()
 	if err != nil {
@@ -19658,6 +19670,7 @@ func (vpc *VpcV1) GetNetworkACLRuleWithContext(ctx context.Context, getNetworkAC
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("maturity", fmt.Sprint("development"))
 
 	request, err := builder.Build()
 	if err != nil {
@@ -19734,6 +19747,7 @@ func (vpc *VpcV1) UpdateNetworkACLRuleWithContext(ctx context.Context, updateNet
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("maturity", fmt.Sprint("development"))
 
 	_, err = builder.SetBodyContentJSON(updateNetworkACLRuleOptions.NetworkACLRulePatch)
 	if err != nil {
@@ -21474,6 +21488,7 @@ func (vpc *VpcV1) ListPublicAddressRangeAuthorizedCIDRsWithContext(ctx context.C
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("maturity", fmt.Sprint("development"))
 	if listPublicAddressRangeAuthorizedCIDRsOptions.Start != nil {
 		builder.AddQuery("start", fmt.Sprint(*listPublicAddressRangeAuthorizedCIDRsOptions.Start))
 	}
@@ -21557,6 +21572,7 @@ func (vpc *VpcV1) CreatePublicAddressRangeAuthorizedCIDRWithContext(ctx context.
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("maturity", fmt.Sprint("development"))
 
 	_, err = builder.SetBodyContentJSON(createPublicAddressRangeAuthorizedCIDROptions.PublicAddressRangeAuthorizedCIDRPrototype)
 	if err != nil {
@@ -21638,6 +21654,7 @@ func (vpc *VpcV1) ListPublicAddressRangeAuthorizedCIDRAllocationsWithContext(ctx
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("maturity", fmt.Sprint("development"))
 	if listPublicAddressRangeAuthorizedCIDRAllocationsOptions.Start != nil {
 		builder.AddQuery("start", fmt.Sprint(*listPublicAddressRangeAuthorizedCIDRAllocationsOptions.Start))
 	}
@@ -21720,6 +21737,7 @@ func (vpc *VpcV1) GetPublicAddressRangeAuthorizedCIDRAllocationWithContext(ctx c
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("maturity", fmt.Sprint("development"))
 
 	request, err := builder.Build()
 	if err != nil {
@@ -21796,6 +21814,7 @@ func (vpc *VpcV1) DeletePublicAddressRangeAuthorizedCIDRWithContext(ctx context.
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("maturity", fmt.Sprint("development"))
 
 	request, err := builder.Build()
 	if err != nil {
@@ -21859,6 +21878,7 @@ func (vpc *VpcV1) GetPublicAddressRangeAuthorizedCIDRWithContext(ctx context.Con
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("maturity", fmt.Sprint("development"))
 
 	request, err := builder.Build()
 	if err != nil {
@@ -21934,6 +21954,7 @@ func (vpc *VpcV1) UpdatePublicAddressRangeAuthorizedCIDRWithContext(ctx context.
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("maturity", fmt.Sprint("development"))
 
 	_, err = builder.SetBodyContentJSON(updatePublicAddressRangeAuthorizedCIDROptions.PublicAddressRangeAuthorizedCIDRPatch)
 	if err != nil {
@@ -22004,6 +22025,8 @@ func (vpc *VpcV1) ListPublicAddressRangeProfilesWithContext(ctx context.Context,
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("maturity", fmt.Sprint("development"))
+
 	if listPublicAddressRangeProfilesOptions.Start != nil {
 		builder.AddQuery("start", fmt.Sprint(*listPublicAddressRangeProfilesOptions.Start))
 	}
@@ -22082,6 +22105,7 @@ func (vpc *VpcV1) GetPublicAddressRangeProfileWithContext(ctx context.Context, g
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("maturity", fmt.Sprint("development"))
 
 	request, err := builder.Build()
 	if err != nil {
@@ -22152,6 +22176,7 @@ func (vpc *VpcV1) ListPublicAddressRangesWithContext(ctx context.Context, listPu
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("maturity", fmt.Sprint("development"))
 	if listPublicAddressRangesOptions.Start != nil {
 		builder.AddQuery("start", fmt.Sprint(*listPublicAddressRangesOptions.Start))
 	}
@@ -22235,6 +22260,7 @@ func (vpc *VpcV1) CreatePublicAddressRangeWithContext(ctx context.Context, creat
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("maturity", fmt.Sprint("development"))
 
 	_, err = builder.SetBodyContentJSON(createPublicAddressRangeOptions.PublicAddressRangePrototype)
 	if err != nil {
@@ -22314,6 +22340,7 @@ func (vpc *VpcV1) DeletePublicAddressRangeWithContext(ctx context.Context, delet
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("maturity", fmt.Sprint("development"))
 
 	request, err := builder.Build()
 	if err != nil {
@@ -22386,6 +22413,7 @@ func (vpc *VpcV1) GetPublicAddressRangeWithContext(ctx context.Context, getPubli
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("maturity", fmt.Sprint("development"))
 
 	request, err := builder.Build()
 	if err != nil {
@@ -22461,6 +22489,7 @@ func (vpc *VpcV1) UpdatePublicAddressRangeWithContext(ctx context.Context, updat
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("maturity", fmt.Sprint("development"))
 
 	_, err = builder.SetBodyContentJSON(updatePublicAddressRangeOptions.PublicAddressRangePatch)
 	if err != nil {
@@ -23390,6 +23419,7 @@ func (vpc *VpcV1) ListSecurityGroupsWithContext(ctx context.Context, listSecurit
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("maturity", fmt.Sprint("development"))
 	if listSecurityGroupsOptions.Start != nil {
 		builder.AddQuery("start", fmt.Sprint(*listSecurityGroupsOptions.Start))
 	}
@@ -23480,6 +23510,7 @@ func (vpc *VpcV1) CreateSecurityGroupWithContext(ctx context.Context, createSecu
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("maturity", fmt.Sprint("development"))
 
 	body := make(map[string]interface{})
 	if createSecurityGroupOptions.VPC != nil {
@@ -23571,6 +23602,7 @@ func (vpc *VpcV1) DeleteSecurityGroupWithContext(ctx context.Context, deleteSecu
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("maturity", fmt.Sprint("development"))
 
 	request, err := builder.Build()
 	if err != nil {
@@ -23634,6 +23666,7 @@ func (vpc *VpcV1) GetSecurityGroupWithContext(ctx context.Context, getSecurityGr
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("maturity", fmt.Sprint("development"))
 
 	request, err := builder.Build()
 	if err != nil {
@@ -23709,6 +23742,7 @@ func (vpc *VpcV1) UpdateSecurityGroupWithContext(ctx context.Context, updateSecu
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("maturity", fmt.Sprint("development"))
 
 	_, err = builder.SetBodyContentJSON(updateSecurityGroupOptions.SecurityGroupPatch)
 	if err != nil {
@@ -23788,6 +23822,7 @@ func (vpc *VpcV1) ListSecurityGroupRulesWithContext(ctx context.Context, listSec
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("maturity", fmt.Sprint("development"))
 
 	request, err := builder.Build()
 	if err != nil {
@@ -23866,6 +23901,7 @@ func (vpc *VpcV1) CreateSecurityGroupRuleWithContext(ctx context.Context, create
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("maturity", fmt.Sprint("development"))
 
 	_, err = builder.SetBodyContentJSON(createSecurityGroupRuleOptions.SecurityGroupRulePrototype)
 	if err != nil {
@@ -23945,6 +23981,7 @@ func (vpc *VpcV1) DeleteSecurityGroupRuleWithContext(ctx context.Context, delete
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("maturity", fmt.Sprint("development"))
 
 	request, err := builder.Build()
 	if err != nil {
@@ -24009,6 +24046,7 @@ func (vpc *VpcV1) GetSecurityGroupRuleWithContext(ctx context.Context, getSecuri
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("maturity", fmt.Sprint("development"))
 
 	request, err := builder.Build()
 	if err != nil {
@@ -24085,6 +24123,7 @@ func (vpc *VpcV1) UpdateSecurityGroupRuleWithContext(ctx context.Context, update
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("maturity", fmt.Sprint("development"))
 
 	_, err = builder.SetBodyContentJSON(updateSecurityGroupRuleOptions.SecurityGroupRulePatch)
 	if err != nil {
@@ -27903,6 +27942,7 @@ func (vpc *VpcV1) GetSubnetNetworkACLWithContext(ctx context.Context, getSubnetN
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("maturity", fmt.Sprint("development"))
 
 	request, err := builder.Build()
 	if err != nil {
@@ -27976,6 +28016,7 @@ func (vpc *VpcV1) ReplaceSubnetNetworkACLWithContext(ctx context.Context, replac
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("maturity", fmt.Sprint("development"))
 
 	_, err = builder.SetBodyContentJSON(replaceSubnetNetworkACLOptions.NetworkACLIdentity)
 	if err != nil {
@@ -28828,6 +28869,7 @@ func (vpc *VpcV1) ListVirtualNetworkInterfacesWithContext(ctx context.Context, l
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("maturity", fmt.Sprint("development"))
 	if listVirtualNetworkInterfacesOptions.Start != nil {
 		builder.AddQuery("start", fmt.Sprint(*listVirtualNetworkInterfacesOptions.Start))
 	}
@@ -28908,6 +28950,7 @@ func (vpc *VpcV1) CreateVirtualNetworkInterfaceWithContext(ctx context.Context, 
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("maturity", fmt.Sprint("development"))
 
 	body := make(map[string]interface{})
 	if createVirtualNetworkInterfaceOptions.AllowIPSpoofing != nil {
@@ -29022,6 +29065,7 @@ func (vpc *VpcV1) DeleteVirtualNetworkInterfacesWithContext(ctx context.Context,
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("maturity", fmt.Sprint("development"))
 
 	request, err := builder.Build()
 	if err != nil {
@@ -29094,6 +29138,7 @@ func (vpc *VpcV1) GetVirtualNetworkInterfaceWithContext(ctx context.Context, get
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("maturity", fmt.Sprint("development"))
 
 	request, err := builder.Build()
 	if err != nil {
@@ -29172,6 +29217,7 @@ func (vpc *VpcV1) UpdateVirtualNetworkInterfaceWithContext(ctx context.Context, 
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("maturity", fmt.Sprint("development"))
 
 	_, err = builder.SetBodyContentJSON(updateVirtualNetworkInterfaceOptions.VirtualNetworkInterfacePatch)
 	if err != nil {
@@ -30922,6 +30968,7 @@ func (vpc *VpcV1) ListVpcsWithContext(ctx context.Context, listVpcsOptions *List
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("maturity", fmt.Sprint("development"))
 	if listVpcsOptions.Start != nil {
 		builder.AddQuery("start", fmt.Sprint(*listVpcsOptions.Start))
 	}
@@ -31009,6 +31056,7 @@ func (vpc *VpcV1) CreateVPCWithContext(ctx context.Context, createVPCOptions *Cr
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("maturity", fmt.Sprint("development"))
 
 	body := make(map[string]interface{})
 	if createVPCOptions.AddressPrefixManagement != nil {
@@ -31115,6 +31163,7 @@ func (vpc *VpcV1) DeleteVPCWithContext(ctx context.Context, deleteVPCOptions *De
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("maturity", fmt.Sprint("development"))
 
 	request, err := builder.Build()
 	if err != nil {
@@ -31178,6 +31227,7 @@ func (vpc *VpcV1) GetVPCWithContext(ctx context.Context, getVPCOptions *GetVPCOp
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("maturity", fmt.Sprint("development"))
 
 	request, err := builder.Build()
 	if err != nil {
@@ -31255,6 +31305,7 @@ func (vpc *VpcV1) UpdateVPCWithContext(ctx context.Context, updateVPCOptions *Up
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("maturity", fmt.Sprint("development"))
 
 	_, err = builder.SetBodyContentJSON(updateVPCOptions.VPCPatch)
 	if err != nil {
@@ -31334,6 +31385,7 @@ func (vpc *VpcV1) GetVPCDefaultNetworkACLWithContext(ctx context.Context, getVPC
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("maturity", fmt.Sprint("development"))
 
 	request, err := builder.Build()
 	if err != nil {
@@ -31481,6 +31533,7 @@ func (vpc *VpcV1) GetVPCDefaultSecurityGroupWithContext(ctx context.Context, get
 
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	builder.AddQuery("maturity", fmt.Sprint("development"))
 
 	request, err := builder.Build()
 	if err != nil {

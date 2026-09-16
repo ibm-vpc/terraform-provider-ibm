@@ -78,6 +78,13 @@ func ResourceIBMIsPublicAddressRangeAuthorizedCIDR() *schema.Resource {
 				ValidateFunc: validate.InvokeValidator("ibm_is_public_address_range_authorized_cidr", "network_prefix_length"),
 				Description:  "The network prefix length for this public address range authorized CIDR.",
 			},
+			"resource_group": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Computed:    true,
+				ForceNew:    true,
+				Description: "The resource_group for this public address range authorized CIDR",
+			},
 			// Computed fields
 			"allocation": {
 				Type:        schema.TypeList,
@@ -102,6 +109,11 @@ func ResourceIBMIsPublicAddressRangeAuthorizedCIDR() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "The public IP address block for the public address range authorized CIDR, expressed in CIDR format.",
+			},
+			"created_at": &schema.Schema{
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The date and time that the public address range was created.",
 			},
 			"crn": {
 				Type:        schema.TypeString,
@@ -142,30 +154,6 @@ func ResourceIBMIsPublicAddressRangeAuthorizedCIDR() *schema.Resource {
 				Computed:    true,
 				Description: "The lifecycle state of the public address range authorized CIDR.",
 			},
-			"resource_group": {
-				Type:        schema.TypeList,
-				Computed:    true,
-				Description: "The resource group for this public address range authorized CIDR.",
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"href": {
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: "The URL for this resource group.",
-						},
-						"id": {
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: "The unique identifier for this resource group.",
-						},
-						"name": {
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: "The user-defined name for this resource group.",
-						},
-					},
-				},
-			},
 			"resource_type": {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -194,10 +182,11 @@ func ResourceIBMIsPublicAddressRangeAuthorizedCIDRValidator() *validate.Resource
 		},
 		validate.ValidateSchema{
 			Identifier:                 "network_prefix_length",
-			ValidateFunctionIdentifier: validate.ValidateAllowedIntValue,
+			ValidateFunctionIdentifier: validate.IntBetween,
 			Type:                       validate.TypeInt,
 			Required:                   true,
-			AllowedValues:              "64",
+			MinValue:                   "64",
+			MaxValue:                   "64",
 		},
 	)
 
@@ -222,6 +211,10 @@ func resourceIBMIsPublicAddressRangeAuthorizedCIDRCreate(context context.Context
 	prototype.AvailabilityMode = core.StringPtr(d.Get("availability_mode").(string))
 	prototype.Zone = &vpcv1.ZoneIdentity{Name: core.StringPtr(d.Get("zone").(string))}
 	prototype.NetworkPrefixLength = core.Int64Ptr(int64(d.Get("network_prefix_length").(int)))
+	if resourceGroupIntf, ok := d.GetOk("resource_group"); ok && resourceGroupIntf.(string) != "" {
+		resourceGroup := resourceGroupIntf.(string)
+		prototype.ResourceGroup = &vpcv1.ResourceGroupIdentity{ID: &resourceGroup}
+	}
 
 	createOptions := &vpcv1.CreatePublicAddressRangeAuthorizedCIDROptions{
 		PublicAddressRangeAuthorizedCIDRPrototype: prototype,
@@ -315,11 +308,7 @@ func resourceIBMIsPublicAddressRangeAuthorizedCIDRRead(context context.Context, 
 		}
 	}
 	if !core.IsNil(authorizedCIDR.ResourceGroup) {
-		rgMap, err := resourceIBMIsPublicAddressRangeAuthorizedCIDRResourceGroupReferenceToMap(authorizedCIDR.ResourceGroup)
-		if err != nil {
-			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_public_address_range_authorized_cidr", "read", "resource_group-to-map").GetDiag()
-		}
-		if err = d.Set("resource_group", []map[string]interface{}{rgMap}); err != nil {
+		if err = d.Set("resource_group", *authorizedCIDR.ResourceGroup.ID); err != nil {
 			err = fmt.Errorf("Error setting resource_group: %s", err)
 			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_public_address_range_authorized_cidr", "read", "set-resource_group").GetDiag()
 		}
@@ -509,14 +498,6 @@ func isPublicAddressRangeAuthorizedCIDRDeleteRefreshFunc(sess *vpcv1.VpcV1, id s
 		}
 		return authorizedCIDR, *authorizedCIDR.LifecycleState, nil
 	}
-}
-
-func resourceIBMIsPublicAddressRangeAuthorizedCIDRResourceGroupReferenceToMap(model *vpcv1.ResourceGroupReference) (map[string]interface{}, error) {
-	modelMap := make(map[string]interface{})
-	modelMap["href"] = *model.Href
-	modelMap["id"] = *model.ID
-	modelMap["name"] = *model.Name
-	return modelMap, nil
 }
 
 func resourceIBMIsPublicAddressRangeAuthorizedCIDRAllocationToMap(model *vpcv1.PublicAddressRangeAuthorizedCIDRAllocation) (map[string]interface{}, error) {

@@ -176,7 +176,6 @@ func ResourceIBMISNetworkACL() *schema.Resource {
 							Type:         schema.TypeString,
 							Optional:     true,
 							Computed:     true,
-							Default:      "ipv4",
 							Description:  "The IP version for this rule. Supported values are ipv4 and ipv6. If unspecified, ipv4 is used.",
 							ValidateFunc: validate.InvokeValidator("ibm_is_network_acl", isNetworkACLRuleIPVersion),
 						},
@@ -1262,7 +1261,7 @@ func nwaclUpdate(context context.Context, d *schema.ResourceData, meta interface
 			// otherwise from top-level flat fields. Old state always stores both
 			// at the top level (nwaclGet populates rule["type"] and rule["code"]
 			// unconditionally), so the comparison target is always oldInfo.data.
-			if rawInfo.protocol == "icmp" {
+			if rawInfo.protocol == "icmp" || rawInfo.protocol == "ipv6_icmp" {
 				icmpSrc := rawInfo.val // default: top-level flat fields
 				icmpAttr := rawInfo.val.GetAttr("icmp")
 				if !icmpAttr.IsNull() && icmpAttr.LengthInt() > 0 {
@@ -1447,6 +1446,7 @@ func nwaclRawValToStateMap(rv cty.Value) map[string]interface{} {
 		isNetworkACLRuleDestination: nwaclStringAttr(rv, "destination"),
 		isNetworkACLRuleDirection:   nwaclStringAttr(rv, "direction"),
 		isNetworkACLRuleProtocol:    nwaclStringAttr(rv, "protocol"),
+		isNetworkACLRuleIPVersion:   nwaclStringAttr(rv, "ip_version"),
 		isNetworkACLRuleICMP:        []interface{}{},
 		isNetworkACLRuleTCP:         []interface{}{},
 		isNetworkACLRuleUDP:         []interface{}{},
@@ -1787,12 +1787,6 @@ func createInlineRules(d *schema.ResourceData, nwaclC *vpcv1.VpcV1, nwaclid stri
 				protocol = str
 			}
 		}
-		ipVersion := "ipv4"
-		if v, ok := rulex[isNetworkACLRuleIPVersion]; ok {
-			if str, ok := v.(string); ok && str != "" {
-				ipVersion = str
-			}
-		}
 
 		ruleTemplate := &vpcv1.NetworkACLRulePrototype{
 			Action:      &action,
@@ -1800,9 +1794,13 @@ func createInlineRules(d *schema.ResourceData, nwaclC *vpcv1.VpcV1, nwaclid stri
 			Direction:   &direction,
 			Source:      &source,
 			Name:        &name,
-			IPVersion:   &ipVersion,
 		}
 
+		if v, ok := rulex[isNetworkACLRuleIPVersion]; ok {
+			if str, ok := v.(string); ok && str != "" {
+				ruleTemplate.IPVersion = &str
+			}
+		}
 		if before != "" {
 			ruleTemplate.Before = &vpcv1.NetworkACLRuleBeforePrototype{
 				ID: &before,
@@ -2140,6 +2138,12 @@ func createSingleNwaclRuleForUpdateLegacy(d *schema.ResourceData, nwaclC *vpcv1.
 		Protocol:    &protocol,
 	}
 
+	if v, ok := rulex[isNetworkACLRuleIPVersion]; ok {
+		if str, ok := v.(string); ok && str != "" {
+			ruleTemplate.IPVersion = &str
+		}
+	}
+
 	switch protocol {
 	case "icmp":
 		ruleTemplate.Type = rawIcmpType
@@ -2154,6 +2158,9 @@ func createSingleNwaclRuleForUpdateLegacy(d *schema.ResourceData, nwaclC *vpcv1.
 				ruleTemplate.Type = &v
 			}
 		}
+	case "ipv6_icmp":
+		ruleTemplate.Type = rawIcmpType
+		ruleTemplate.Code = rawIcmpCode
 	case "tcp", "udp":
 		ruleTemplate.DestinationPortMin = rawPortMin
 		ruleTemplate.DestinationPortMax = rawPortMax
@@ -2329,6 +2336,11 @@ func createSingleNwaclRuleForUpdate(d *schema.ResourceData, nwaclC *vpcv1.VpcV1,
 		Name:        &name,
 	}
 
+	if v, ok := rulex[isNetworkACLRuleIPVersion]; ok {
+		if str, ok := v.(string); ok && str != "" {
+			ruleTemplate.IPVersion = &str
+		}
+	}
 	if before != "" {
 		ruleTemplate.Before = &vpcv1.NetworkACLRuleBeforePrototype{
 			ID: &before,
@@ -2351,6 +2363,9 @@ func createSingleNwaclRuleForUpdate(d *schema.ResourceData, nwaclC *vpcv1.VpcV1,
 				ruleTemplate.Type = &v
 			}
 		}
+	case "ipv6_icmp":
+		ruleTemplate.Type = rawIcmpType
+		ruleTemplate.Code = rawIcmpCode
 	case "tcp", "udp":
 		ruleTemplate.DestinationPortMin = rawPortMin
 		ruleTemplate.DestinationPortMax = rawPortMax
@@ -2378,6 +2393,10 @@ func createSingleNwaclRuleForUpdate(d *schema.ResourceData, nwaclC *vpcv1.VpcV1,
 		case *vpcv1.NetworkACLRuleNetworkACLRuleProtocolIndividual:
 			newID = *r.ID
 		case *vpcv1.NetworkACLRuleNetworkACLRuleProtocolIcmptcpudp:
+			newID = *r.ID
+		case *vpcv1.NetworkACLRuleNetworkACLRuleProtocolIPv6Icmp:
+			newID = *r.ID
+		case *vpcv1.NetworkACLRuleNetworkACLRuleProtocolIndividualIPv6:
 			newID = *r.ID
 		case *vpcv1.NetworkACLRule:
 			newID = *r.ID

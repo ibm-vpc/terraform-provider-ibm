@@ -60,6 +60,7 @@ func ResourceIBMPublicAddressRange() *schema.Resource {
 				Type:          schema.TypeInt,
 				Optional:      true,
 				Computed:      true,
+				ForceNew:      true,
 				ConflictsWith: []string{"cidr", "authorized_cidr", "network_prefix_length"},
 				Description:   "The number of IPv4 addresses in this public address range.",
 			},
@@ -68,6 +69,7 @@ func ResourceIBMPublicAddressRange() *schema.Resource {
 				MaxItems:      1,
 				Optional:      true,
 				Computed:      true,
+				ForceNew:      true,
 				ConflictsWith: []string{"ipv4_address_count", "cidr"},
 				Description:   "The authorized CIDR this public address range is allocated from.",
 				Elem: &schema.Resource{
@@ -76,6 +78,7 @@ func ResourceIBMPublicAddressRange() *schema.Resource {
 							Type:        schema.TypeString,
 							Optional:    true,
 							Computed:    true,
+							ForceNew:    true,
 							Description: "The unique identifier for this public address range authorized CIDR.",
 						},
 						"cidr": &schema.Schema{
@@ -110,6 +113,7 @@ func ResourceIBMPublicAddressRange() *schema.Resource {
 				Type:          schema.TypeInt,
 				Optional:      true,
 				Computed:      true,
+				ForceNew:      true,
 				ConflictsWith: []string{"cidr", "ipv4_address_count"},
 				Description:   "The network prefix length for this public address range.",
 			},
@@ -254,6 +258,7 @@ func ResourceIBMPublicAddressRange() *schema.Resource {
 							Type:        schema.TypeList,
 							MaxItems:    1,
 							Optional:    true,
+							Computed:    true,
 							Description: "The zone this public address range resides in.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -276,12 +281,12 @@ func ResourceIBMPublicAddressRange() *schema.Resource {
 				},
 			},
 			"cidr": &schema.Schema{
-				Type:         schema.TypeString,
-				Optional:     true,
-				Computed:     true,
-				ForceNew:     true,
-				ExactlyOneOf: []string{"ipv4_address_count", "cidr"},
-				Description:  "The public IPv4 range, expressed in CIDR format. If specified, used to allocate this public address range from a specific authorized CIDR.",
+				Type:          schema.TypeString,
+				Optional:      true,
+				Computed:      true,
+				ForceNew:      true,
+				ConflictsWith: []string{"ipv4_address_count", "authorized_cidr", "network_prefix_length"},
+				Description:   "The public IPv4 range, expressed in CIDR format. If specified, used to allocate this public address range from a specific authorized CIDR.",
 			},
 			"created_at": &schema.Schema{
 				Type:        schema.TypeString,
