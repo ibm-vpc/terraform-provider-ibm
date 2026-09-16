@@ -43,13 +43,13 @@ Nested schema for **authorized_cidrs**:
 		  * Constraints: Allowable values are: `provider`, `user`. The value must match regular expression `/^[a-z][a-z0-9]*(_[a-z0-9]+)*$/`.
 	* `availability_mode` - (String) The availability mode of the public address range authorized CIDR:- `regional`: Resources allocated from the authorized CIDR can reside in any zone in the  region.- `zonal`: Resources allocated from the authorized CIDR must reside in the authorized  CIDR's `zone`.The enumerated values for this property may[expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.
 	  * Constraints: Allowable values are: `regional`, `zonal`. The value must match regular expression `/^[a-z][a-z0-9]*(_[a-z0-9]+)*$/`.
-	* `cidr` - (String) The public IP address block for the public address range authorized CIDR, expressed in CIDR format.This property may [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support IPv6 address blocks in the future.
+	* `cidr` - (String) The public IP address block for the public address range authorized CIDR, expressed in CIDR format.
 	* `href` - (String) The URL for this public address range authorized CIDR.
 	  * Constraints: The maximum length is `8000` characters. The minimum length is `10` characters. The value must match regular expression `/^http(s)?:\/\/([^\/?#]*)([^?#]*)(\\?([^#]*))?(#(.*))?$/`.
 	* `id` - (String) The unique identifier for this public address range authorized CIDR.
 	  * Constraints: The maximum length is `64` characters. The minimum length is `1` character. The value must match regular expression `/^[-0-9a-z_]+$/`.
-	* `ip_version` - (String) The IP version for this public address range authorized CIDR:- `ipv4`: An IPv4 public address range authorized CIDR.The enumerated values for this property may[expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.
-	  * Constraints: Allowable values are: `ipv4`. The value must match regular expression `/^[a-z][a-z0-9]*(_[a-z0-9]+)*$/`.
+	* `ip_version` - (String) The IP version for this public address range authorized CIDR:- `ipv4`: An IPv4 public address range authorized CIDR.- `ipv6`: An IPv6 public address range authorized CIDR.The enumerated values for this property may[expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.
+	  * Constraints: Allowable values are: `ipv4`, `ipv6`. The value must match regular expression `/^[a-z][a-z0-9]*(_[a-z0-9]+)*$/`.
 	* `lifecycle_reasons` - (List) The reasons for the current `lifecycle_state` (if any).
 	Nested schema for **lifecycle_reasons**:
 		* `code` - (String) A reason code for this lifecycle state:- `finalizing`: System reconciliation in progress.- `internal_error`: internal error (contact IBM support)- `resource_suspended_by_provider`: The resource has been suspended (contact IBM support)The enumerated values for this property may [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.

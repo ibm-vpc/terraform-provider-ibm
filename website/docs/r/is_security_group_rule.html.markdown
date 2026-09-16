@@ -123,23 +123,51 @@ resource "ibm_is_security_group_rule" "example_security_group_rule_tcp" {
 
 ```
 
+An example shows how to create an IPv6 security group rule using `ipv6_icmp` protocol.
+
+```terraform
+resource "ibm_is_security_group_rule" "example_ipv6_icmp" {
+  group      = ibm_is_security_group.example.id
+  direction  = "inbound"
+  remote     = "::/0"
+  ip_version = "ipv6"
+  protocol   = "ipv6_icmp"
+  type       = 135
+  code       = 0
+}
+```
+
+An example shows how to create an IPv6 security group rule using `tcp` with `ip_version = "ipv6"`.
+
+```terraform
+resource "ibm_is_security_group_rule" "example_ipv6_tcp" {
+  group      = ibm_is_security_group.example.id
+  direction  = "inbound"
+  remote     = "::/0"
+  ip_version = "ipv6"
+  protocol   = "tcp"
+  port_min   = 443
+  port_max   = 443
+}
+```
+
 ## Argument reference
-Review the argument references that you can specify for your resource. 
-- `code` - (Optional, Integer) The ICMP traffic code to allow. Valid values from 0 to 255. If unspecified, all codes are allowed.
+Review the argument references that you can specify for your resource.
+- `code` - (Optional, Integer) The ICMP traffic code to allow. Valid values from 0 to 255. If unspecified, all codes are allowed. Also used for `ipv6_icmp` to specify the ICMPv6 code.
 - `direction` - (Required, String) The direction of the traffic either `inbound` or `outbound`.
 - `group` - (Required, Forces new resource, String) The security group ID.
-- `local` - (String) 	The local IP address or range of local IP addresses to which this rule will allow inbound traffic (or from which, for outbound traffic). A CIDR block of 0.0.0.0/0 allows traffic to all local IP addresses (or from all local IP addresses, for outbound rules). an IP address, a `CIDR` block.
-- `ip_version` - (Optional, String) The IP version to enforce. The format of local.address, remote.address, local.cidr_block or remote.cidr_block must match this property, if they are used. If remote references a security group, then this rule only applies to IP addresses (network interfaces) in that group matching this IP version. Supported value is [`ipv4`].
+- `local` - (String) The local IP address or range of local IP addresses to which this rule will allow inbound traffic (or from which, for outbound traffic). A CIDR block of `0.0.0.0/0` allows traffic to all local IPv4 addresses; `::/0` allows traffic to all local IPv6 addresses. Accepts an IP address or a `CIDR` block (IPv4 or IPv6).
+- `ip_version` - (Optional, String) The IP version to enforce. The format of `local` and `remote` address or CIDR block must match this property. If `remote` references a security group, then this rule only applies to IP addresses in that group matching this IP version. Supported values are `ipv4` and `ipv6`. When set to `ipv6`, IPv6-specific protocols (`ipv6_icmp`, `ipv6_hop_opt`, `ipv6_route`, `ipv6_frag`, `ipv6_dest_opts`, `ipv6_no_next`, `ipv6_mobility`) may be used.
 - `icmp` - (Optional, DEPRECATED, List) A nested block describes the `icmp` protocol of this security group rule. `icmp` is deprecated and use `protocol`, `code`, and `type` argument instead.
 
   Nested scheme for `icmp`:
-  - `type`- (Optional, Integer) The ICMP traffic type to allow. Valid values from 0 to 254. If unspecified, all codes are allowed. 
+  - `type`- (Optional, Integer) The ICMP traffic type to allow. Valid values from 0 to 254. If unspecified, all codes are allowed.
   - `code` - (Optional, Integer) The ICMP traffic code to allow. Valid values from 0 to 255. If unspecified, all codes are allowed.
 - `name` - (String) The name for this security group rule. The name must not be used by another rule in the security group.
-- `port_min`- (Required, Integer) The TCP port range that includes the minimum bound. Valid values are from 1 to 65535.
-- `port_max`- (Required, Integer) The TCP port range that includes the maximum bound. Valid values are from 1 to 65535.
-- `protocol` - (Optional, String) The name of the network protocol.
-- `remote` - (Optional, String) Security group ID, an IP address, a CIDR block, or a single security group identifier.
+- `port_min`- (Required, Integer) The TCP/UDP port range that includes the minimum bound. Valid values are from 1 to 65535.
+- `port_max`- (Required, Integer) The TCP/UDP port range that includes the maximum bound. Valid values are from 1 to 65535.
+- `protocol` - (Optional, String) The name of the network protocol. Supported values for IPv4 rules: `icmp`, `tcp`, `udp`, `any`, `icmp_tcp_udp`, `ah`, `esp`, `gre`, `ip_in_ip`, `l2tp`, `rsvp`, `sctp`, `vrrp`, and `number_<N>` (e.g. `number_99`) for other protocol numbers. Supported additional values for IPv6 rules (`ip_version = "ipv6"`): `ipv6_icmp` (protocol 58, supports `type` and `code`), `ipv6_hop_opt` (protocol 0), `ipv6_route` (protocol 43), `ipv6_frag` (protocol 44), `ipv6_no_next` (protocol 59), `ipv6_dest_opts` (protocol 60), `ipv6_mobility` (protocol 135). IPv6-specific protocols require `ip_version = "ipv6"`.
+- `remote` - (Optional, String) Security group ID, an IP address, a CIDR block (IPv4 or IPv6), or a single security group identifier.
 - `tcp` - (Optional, DEPRECATED, List) A nested block describes the `tcp` protocol of this security group rule. `tcp` is deprecated and use `protocol`, `port_min`, and `port_max` argument instead.
 
   Nested scheme for `tcp`:
@@ -152,7 +180,7 @@ Review the argument references that you can specify for your resource.
   - `port_min`- (Required, Integer) The UDP port range that includes minimum bound. Valid values are from 1 to 65535.
   - `port_max`- (Required, Integer) The UDP port range that includes maximum bound. Valid values are from 1 to 65535.
 
-~> **Note:** Note: If no `protocol` block is specified; it creates a rule with protocol `icmp_tcp_udp`. Protocol `all` in older versions is replaced with `icmp_tcp_udp` from `1.87.0-beta1`.
+~> **Note:** If no `protocol` is specified, a rule with protocol `icmp_tcp_udp` is created. Protocol `all` in older versions is replaced with `icmp_tcp_udp` from `1.87.0-beta1`. IPv6-specific protocols (`ipv6_icmp`, `ipv6_hop_opt`, `ipv6_route`, `ipv6_frag`, `ipv6_dest_opts`, `ipv6_no_next`, `ipv6_mobility`) must be used with `ip_version = "ipv6"`.
 
 ## Attribute reference
 In addition to all argument reference list, you can access the following attribute reference after your resource is created.
