@@ -9,9 +9,9 @@ description: |-
 
 # ibm_is_network_acl_rule
 
-Provides a network ACL rule resource with `icmp`, `tcp`, `udp`, `any`, `icmp_tcp_udp`, `ah`, `gre`, `ip_in_ip`, `l2tp`, `rsvp`, `sctp`, `vrrp`. For other protocols, value of number_<N>, where <N> is the protocol number in decimal from 0 to 255 (e.g., number_99).
-(Note: A selection of well-known protocols uses their standard names (e.g., tcp for protocol 6). For these, the corresponding number_<N> value must not be used (e.g., number_6 is invalid — use tcp instead). Each protocol has exactly one valid identifier, either a named protocol or a number_<N> ). 
-This allows Network ACL rule to create, update, and delete an existing network ACL. For more information, about managing IBM Cloud Network ACL , see [about network acl](https://cloud.ibm.com/docs/vpc?topic=vpc-using-acls). Protocol `all` in older versions is replaced with `icmp_tcp_udp` from `1.87.0-beta1`.
+Provides a network ACL rule resource with `icmp`, `tcp`, `udp`, `any`, `icmp_tcp_udp`, `ah`, `gre`, `ip_in_ip`, `l2tp`, `rsvp`, `sctp`, `vrrp`. For other protocols, value of `number_<N>`, where `<N>` is the protocol number in decimal from 0 to 255 (e.g., `number_99`). For IPv6 rules, the following additional protocols are supported: `ipv6_icmp` (protocol 58), `ipv6_hop_opt` (protocol 0), `ipv6_route` (protocol 43), `ipv6_frag` (protocol 44), `ipv6_no_next` (protocol 59), `ipv6_dest_opts` (protocol 60), `ipv6_mobility` (protocol 135).
+(Note: A selection of well-known protocols uses their standard names (e.g., `tcp` for protocol 6). For these, the corresponding `number_<N>` value must not be used (e.g., `number_6` is invalid — use `tcp` instead). Each protocol has exactly one valid identifier, either a named protocol or a `number_<N>`. IPv6-specific protocols require `ip_version = "ipv6"`.)
+This allows Network ACL rule to create, update, and delete an existing network ACL. For more information, about managing IBM Cloud Network ACL, see [about network acl](https://cloud.ibm.com/docs/vpc?topic=vpc-using-acls). Protocol `all` in older versions is replaced with `icmp_tcp_udp` from `1.87.0-beta1`.
 
 **Note:** 
 VPC infrastructure services are a regional specific based endpoint, by default targets to `us-south`. Please make sure to target right region in the provider block as shown in the `provider.tf` file, if VPC service is created in region other than `us-south`.
@@ -208,20 +208,20 @@ Review the argument references that you can specify for your resource.
     3. Setting `before = "null"` will move the rule to the end of the ACL rule list.</br>
     These position changes are expected and reflect the actual state of your network ACL ruleset, however, they may cause Terraform to show additional changes in other rules during subsequent plan/apply operations.
 - `code` - (Optional, Integer) The ICMP traffic code to allow. Valid values from 0 to 255. If unspecified, all codes are allowed. This can only be specified if type is also specified.
-- `destination` - (Required, String) The destination IP address or CIDR block.
+- `destination` - (Required, String) The destination IP address or CIDR block. Accepts IPv4 or IPv6 CIDR notation (e.g., `0.0.0.0/0` for all IPv4, `::/0` for all IPv6).
 - `direction` - (Required, String) Whether the traffic to be matched is **inbound** or **outbound**.
 - `icmp` - (Optional, DEPRECATED, List) The protocol ICMP. `icmp` is deprecated and use `protocol`, `code`, and `type` argument instead.
 
    Nested scheme for `icmp`:
    - `code` - (Optional, Integer) The ICMP traffic code to allow. Valid values from 0 to 255. If unspecified, all codes are allowed. This can only be specified if type is also specified.
    - `type` - (Optional, Integer) The ICMP traffic type to allow. Valid values from 0 to 254. If unspecified, all types are allowed by this rule.
-- `ip_version` - (Optional, String) The IP version to be matched. Supported values are `ipv4` and `ipv6`. When set to `ipv6`, the `source` and `destination` fields must use IPv6 CIDR format and IPv6-specific protocol values such as `ipv6_icmp`, `ipv6_tcp_udp`, or `ipv6_all` should be used.
+- `ip_version` - (Optional, String) The IP version to be matched. Supported values are `ipv4` and `ipv6`. When set to `ipv6`, the `source` and `destination` fields must use IPv6 CIDR format and IPv6-specific protocols (`ipv6_icmp`, `ipv6_hop_opt`, `ipv6_route`, `ipv6_frag`, `ipv6_dest_opts`, `ipv6_no_next`, `ipv6_mobility`) may be used.
 - `network_acl` - (Required, String) The ID of the network ACL.
 - `name` - (Optional, String) The user-defined name for this rule.
 - `port_max` - (Optional, Integer) The highest port in the range of ports to be matched; if unspecified, **65535** is used.
 - `port_min` - (Optional, Integer) The lowest port in the range of ports to be matched; if unspecified, **1** is used.
-- `protocol` - (Optional, String) The name of the network protocol.
-- `source` - (Required, String) The source IP address or CIDR block.
+- `protocol` - (Optional, String) The name of the network protocol. Supported values for IPv4 rules: `icmp`, `tcp`, `udp`, `any`, `icmp_tcp_udp`, `ah`, `gre`, `ip_in_ip`, `l2tp`, `rsvp`, `sctp`, `vrrp`, and `number_<N>`. Supported additional values for IPv6 rules (`ip_version = "ipv6"`): `ipv6_icmp` (protocol 58, supports `type` and `code`), `ipv6_hop_opt` (protocol 0), `ipv6_route` (protocol 43), `ipv6_frag` (protocol 44), `ipv6_no_next` (protocol 59), `ipv6_dest_opts` (protocol 60), `ipv6_mobility` (protocol 135).
+- `source` - (Required, String) The source IP address or CIDR block. Accepts IPv4 or IPv6 CIDR notation (e.g., `0.0.0.0/0` for all IPv4, `::/0` for all IPv6).
 - `source_port_max` - (Optional, Integer) The highest port in the range of ports to be matched; if unspecified, **65535** is used.
 - `source_port_min` - (Optional, Integer) The lowest port in the range of ports to be matched; if unspecified, **1** is used.
 - `tcp` - (Optional, DEPRECATED, List) TCP protocol. `tcp` is deprecated and use `protocol`, `port_min`, `port_max`, `source_port_max` and `source_port_min` argument instead.
@@ -240,7 +240,7 @@ Review the argument references that you can specify for your resource.
   - `source_port_max` - (Optional, Integer) The highest port in the range of ports to be matched; if unspecified, **65535** is used.
   - `source_port_min` - (Optional, Integer) The lowest port in the range of ports to be matched; if unspecified, **1** is used.
 
-~> **NOTE:** Only one type of protocol out of **icmp**, **tcp**, **udp**, **ipv6_icmp**, **ipv6_tcp_udp**, or **ipv6_all** can be used to create a new rule. If none is provided, **all** is selected.
+~> **NOTE:** Only one type of protocol can be used to create a new rule. If none is provided, **icmp_tcp_udp** is selected. IPv6-specific protocols (`ipv6_icmp`, `ipv6_hop_opt`, `ipv6_route`, `ipv6_frag`, `ipv6_dest_opts`, `ipv6_no_next`, `ipv6_mobility`) must be used with `ip_version = "ipv6"`.
 
 ## Attribute reference
 In addition to all argument reference list, you can access the following attribute reference after your resource is created.

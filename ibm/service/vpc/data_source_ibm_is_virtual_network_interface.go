@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/IBM/go-sdk-core/v5/core"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -419,6 +420,59 @@ func DataSourceIBMIsVirtualNetworkInterface() *schema.Resource {
 					},
 				},
 			},
+			"public_address_ranges": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "The public address ranges attached to this virtual network interface.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"cidr": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The public IP address block for this public address range, expressed in CIDR format.",
+						},
+						"crn": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The CRN for this public address range.",
+						},
+						"deleted": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "If present, this property indicates the referenced resource has been deleted, and provides some supplementary information.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"more_info": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "Link to documentation about deleted resources.",
+									},
+								},
+							},
+						},
+						"href": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The URL for this public address range.",
+						},
+						"id": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The unique identifier for this public address range.",
+						},
+						"name": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The name for this public address range. The name is unique across all public address ranges in the region.",
+						},
+						"resource_type": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The resource type.",
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -606,6 +660,20 @@ func dataSourceIBMIsVirtualNetworkInterfaceRead(context context.Context, d *sche
 	}
 	if err = d.Set("ips", ips); err != nil {
 		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting ips: %s", err), "(Data) ibm_is_virtual_network_interface", "read", "set-ips").GetDiag()
+	}
+
+	if !core.IsNil(virtualNetworkInterface.PublicAddressRanges) {
+		publicAddressRanges := []map[string]interface{}{}
+		for _, parItem := range virtualNetworkInterface.PublicAddressRanges {
+			parItemMap, err := dataSourceIBMIsVirtualNetworkInterfacePublicAddressRangeReferenceToMap(&parItem)
+			if err != nil {
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_virtual_network_interface", "read", "public_address_ranges-to-map").GetDiag()
+			}
+			publicAddressRanges = append(publicAddressRanges, parItemMap)
+		}
+		if err = d.Set("public_address_ranges", publicAddressRanges); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting public_address_ranges: %s", err), "(Data) ibm_is_virtual_network_interface", "read", "set-public_address_ranges").GetDiag()
+		}
 	}
 
 	return nil
@@ -833,5 +901,22 @@ func dataSourceIBMIsVirtualNetworkInterfaceZoneReferenceToMap(model *vpcv1.ZoneR
 	if model.Name != nil {
 		modelMap["name"] = *model.Name
 	}
+	return modelMap, nil
+}
+
+func dataSourceIBMIsVirtualNetworkInterfacePublicAddressRangeReferenceToMap(model *vpcv1.PublicAddressRangeReference) (map[string]interface{}, error) {
+	modelMap := make(map[string]interface{})
+	modelMap["cidr"] = model.CIDR
+	modelMap["crn"] = model.CRN
+	if model.Deleted != nil {
+		deletedMap := map[string]interface{}{
+			"more_info": model.Deleted.MoreInfo,
+		}
+		modelMap["deleted"] = []map[string]interface{}{deletedMap}
+	}
+	modelMap["href"] = model.Href
+	modelMap["id"] = model.ID
+	modelMap["name"] = model.Name
+	modelMap["resource_type"] = model.ResourceType
 	return modelMap, nil
 }

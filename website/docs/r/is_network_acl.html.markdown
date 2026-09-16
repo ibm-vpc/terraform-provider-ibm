@@ -195,8 +195,8 @@ Review the argument references that you can specify for your resource.
     - `type` - (Optional, Integer) The ICMP traffic type to allow. Valid values from 0 to 254. If unspecified, all types are allowed by this rule.
   - `port_max` - (Optional, Integer) The highest port in the range of ports to be matched; if unspecified, **65535** is used.
   - `port_min` - (Optional, Integer) The lowest port in the range of ports to be matched; if unspecified, **1** is used.  
-  - `ip_version` - (Optional, String) The IP version for this rule. Supported values are `ipv4` and `ipv6`. When set to `ipv6`, the `source` and `destination` fields must use IPv6 CIDR format.
-  - `protocol` - (Optional, String) The name of the network protocol.
+  - `ip_version` - (Optional, String) The IP version for this rule. Supported values are `ipv4` and `ipv6`. When set to `ipv6`, the `source` and `destination` fields must use IPv6 CIDR format and IPv6-specific protocols (`ipv6_icmp`, `ipv6_hop_opt`, `ipv6_route`, `ipv6_frag`, `ipv6_dest_opts`, `ipv6_no_next`, `ipv6_mobility`) may be used.
+  - `protocol` - (Optional, String) The name of the network protocol. Supported values for IPv4 rules: `icmp`, `tcp`, `udp`, `any`, `icmp_tcp_udp`, `ah`, `gre`, `ip_in_ip`, `l2tp`, `rsvp`, `sctp`, `vrrp`, and `number_<N>`. Supported additional values for IPv6 rules (`ip_version = "ipv6"`): `ipv6_icmp` (protocol 58, supports `type` and `code`), `ipv6_hop_opt` (protocol 0), `ipv6_route` (protocol 43), `ipv6_frag` (protocol 44), `ipv6_no_next` (protocol 59), `ipv6_dest_opts` (protocol 60), `ipv6_mobility` (protocol 135).
   - `source_port_max` - (Optional, Integer) The highest port in the range of ports to be matched; if unspecified, **65535** is used.
   - `source_port_min` - (Optional, Integer) The lowest port in the range of ports to be matched; if unspecified, **1** is used.
   - `tcp`- (Optional, DEPRECATED, List) TCP protocol. `tcp` is deprecated and use `protocol`, `port_min`, `port_max`, `source_port_max` and `source_port_min` argument instead.
