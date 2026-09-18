@@ -107,6 +107,8 @@ Review the argument references that you can specify for your resource.
       **&#x2022;** `gpu.memory` - (integer) The overall amount of GPU memory in GiB (gibibytes). </br>
       **&#x2022;** `gpu.model` - (string) The GPU model. </br>
       **&#x2022;** `enable_secure_boot` - (boolean) Indicates whether secure boot is enabled. </br>
+      **&#x2022;** `boot_firmware_selection_mode` - (string) The firmware selection mode for the instance. Allowable values are: `bios`, `detect`, `uefi`. </br>
+
 - `bandwidth` - (Optional, Integer) The maximum bandwidth (in megabits per second) for the volume. For this property to be specified, the volume storage_generation must be 2.
 - `capacity` - (Optional, Integer) (The capacity of the volume in gigabytes. This defaults to `100`, minimum to `10 ` and maximum to `16000`.
 

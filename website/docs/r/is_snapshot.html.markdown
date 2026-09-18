@@ -137,6 +137,8 @@ Review the argument references that you can specify for your resource.
       **&#x2022;** `gpu.memory` - (integer) The overall amount of GPU memory in GiB (gibibytes). </br>
       **&#x2022;** `gpu.model` - (string) The GPU. </br>
       **&#x2022;** `enable_secure_boot` - (boolean) Indicates whether secure boot is enabled. </br>  
+      **&#x2022;** `boot_firmware_selection_mode` - (string) The firmware selection mode for the instance. Allowable values are: `bios`, `detect`, `uefi`. </br>
+
 - `clones` - (Optional, List) The list of zones to create a clone of this snapshot.
 - `encryption_key` - (String) A reference CRN to the root key used to wrap the data encryption key for the source snapshot.
 - `name` - (Optional, String) The name of the snapshot.

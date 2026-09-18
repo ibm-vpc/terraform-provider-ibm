@@ -121,6 +121,8 @@ In addition to all argument reference list, you can access the following attribu
       **&#x2022;** `gpu.memory` - (integer) The overall amount of GPU memory in GiB (gibibytes). </br> 
       **&#x2022;** `gpu.model` - (string) The GPU model. </br> 
       **&#x2022;** `enable_secure_boot` - (boolean) Indicates whether secure boot is enabled. </br> 
+      **&#x2022;** `boot_firmware_selection_mode` - (string) The firmware selection mode for the instance. Allowable values are: `bios`, `detect`, `uefi`. </br>
+
 - `user_data_format` - (String) The user data format for this image.
 - `remote` - (Optional, List) If present, this property indicates that the resource associated with this reference is remote and therefore may not be directly retrievable.
 

@@ -82,6 +82,8 @@ You can access the following attribute references after your data source is crea
       - `gpu.memory` - (Integer) The overall amount of GPU memory in GiB (gibibytes).
       - `gpu.model` - (String) The GPU model.
       - `enable_secure_boot` - (Boolean) Indicates whether secure boot is enabled.
+      - `boot_firmware_selection_mode` - (String) The firmware selection mode for the instance. Allowable values are: `bios`, `detect`, `uefi`.
+
 
   - `architecture` - (String) The architecture for this image.
   - `catalog_offering` - (List) The catalog offering for this image.

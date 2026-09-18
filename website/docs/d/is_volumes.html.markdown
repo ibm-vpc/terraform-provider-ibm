@@ -66,6 +66,8 @@ In addition to all argument references listed, you can access the following attr
        **&#x2022;** `gpu.memory` - (integer) The overall amount of GPU memory in GiB (gibibytes). </br>
        **&#x2022;** `gpu.model` - (string) The GPU model. </br>
        **&#x2022;** `enable_secure_boot` - (boolean)Indicates whether secure boot is enabled. </br>
+       **&#x2022;** `boot_firmware_selection_mode` - (string) The firmware selection mode for the instance. Allowable values are: `bios`, `detect`, `uefi`. </br>
+
 	- `bandwidth` - (Integer) The maximum bandwidth (in megabits per second) for the volume.
 	- `busy` - (Boolean) Indicates whether this volume is performing an operation that must be serialized. This must be `false` to perform an operation that is specified to require serialization.
 	- `capacity` - (Integer) The capacity to use for the volume (in gigabytes). The specified minimum and maximum capacity values for creating or updating volumes may expand in the future.
