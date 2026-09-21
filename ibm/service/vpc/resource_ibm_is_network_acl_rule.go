@@ -153,6 +153,7 @@ func ResourceIBMISNetworkACLRule() *schema.Resource {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
+				ForceNew:     true,
 				Description:  "The IP version for this rule. Supported values are ipv4 and ipv6. If unspecified, ipv4 is used.",
 				ValidateFunc: validate.InvokeValidator("ibm_is_network_acl_rule", isNetworkACLRuleIPVersion),
 			},
@@ -160,7 +161,7 @@ func ResourceIBMISNetworkACLRule() *schema.Resource {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     false,
-				Description:  "The source CIDR block. The CIDR block 0.0.0.0/0 applies to all addresses.",
+				Description:  "The source CIDR block. The CIDR block 0.0.0.0/0 (or ::/0 if ip_version is ipv6) will match all source addresses.",
 				ValidateFunc: validate.InvokeValidator("ibm_is_network_acl_rule", isNetworkACLRuleSource),
 			},
 			isNetworkACLRuleDestination: {
@@ -168,7 +169,7 @@ func ResourceIBMISNetworkACLRule() *schema.Resource {
 				Required:     true,
 				ForceNew:     false,
 				ValidateFunc: validate.InvokeValidator("ibm_is_network_acl_rule", isNetworkACLRuleDestination),
-				Description:  "The destination CIDR block. The CIDR block 0.0.0.0/0 applies to all addresses.",
+				Description:  "The destination CIDR block. The CIDR block 0.0.0.0/0 (or ::/0 if ip_version is ipv6) will match all source addresses.",
 			},
 			isNetworkACLRuleDirection: {
 				Type:         schema.TypeString,

@@ -7,6 +7,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -56,6 +57,14 @@ func ResourceIBMIsPublicAddressRangeAuthorizedCIDR() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Computed:    true,
+				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
+					value := v.(string)
+					if strings.HasPrefix(value, "ibm-") {
+						errors = append(errors, fmt.Errorf("%q cannot start with 'ibm-'", k))
+						return
+					}
+					return validate.InvokeValidator("ibm_is_public_address_range", "name")(v, k)
+				},
 				Description: "The name for this public address range authorized CIDR. The name must not be used by another public address range authorized CIDR in the region. Names beginning with `ibm-` are reserved for provider-managed resources, and are not allowed.",
 			},
 			"availability_mode": {

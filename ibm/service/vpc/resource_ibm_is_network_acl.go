@@ -1185,15 +1185,24 @@ func nwaclUpdate(context context.Context, d *schema.ResourceData, meta interface
 				continue
 			}
 
-			// Scenario: Immutable field changed (name or protocol)
+			// Scenario: Immutable field changed (name or protocol or ip_version)
 			// Name change: the rule name in rawConfig differs from oldState key.
 			// Protocol change: rawConfig protocol differs from old state protocol.
+			// ip_version change: rawConfig ip_version differs from old state ip_version.
 			oldProtocol := oldInfo.protocol
 			newProtocol := rawInfo.protocol
 			protocolChanged := oldProtocol != "" && newProtocol != "" && oldProtocol != newProtocol
 
-			if protocolChanged {
-				log.Printf("[DEBUG] nwaclUpdate: protocol changed for rule %q (%s→%s), delete+recreate", ruleName, oldProtocol, newProtocol)
+			oldIPVersion, _ := oldInfo.data[isNetworkACLRuleIPVersion].(string)
+			newIPVersion := nwaclStringAttr(rawInfo.val, "ip_version")
+			ipVersionChanged := oldIPVersion != "" && newIPVersion != "" && oldIPVersion != newIPVersion
+
+			if protocolChanged || ipVersionChanged {
+				if protocolChanged {
+					log.Printf("[DEBUG] nwaclUpdate: protocol changed for rule %q (%s→%s), delete+recreate", ruleName, oldProtocol, newProtocol)
+				} else {
+					log.Printf("[DEBUG] nwaclUpdate: ip_version changed for rule %q (%s→%s), delete+recreate", ruleName, oldIPVersion, newIPVersion)
+				}
 				beforeID := beforeIDForIndex(desiredIdx)
 
 				deleteOpts := &vpcv1.DeleteNetworkACLRuleOptions{

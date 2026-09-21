@@ -79,6 +79,7 @@ func ResourceIBMISSecurityGroupRule() *schema.Resource {
 
 			isSecurityGroupRuleIPVersion: {
 				Type:         schema.TypeString,
+				ForceNew:     true,
 				Optional:     true,
 				Description:  "IP version: ipv4, ipv6",
 				Default:      isSecurityGroupRuleIPVersionDefault,
