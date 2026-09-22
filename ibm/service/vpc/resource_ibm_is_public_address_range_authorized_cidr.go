@@ -54,9 +54,9 @@ func ResourceIBMIsPublicAddressRangeAuthorizedCIDR() *schema.Resource {
 				Description:  "The IP version for this public address range authorized CIDR. Currently only `ipv6` is supported.",
 			},
 			"name": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
 				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
 					value := v.(string)
 					if strings.HasPrefix(value, "ibm-") {
