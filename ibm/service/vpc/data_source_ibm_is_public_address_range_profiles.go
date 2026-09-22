@@ -57,6 +57,26 @@ func DataSourceIBMIsPublicAddressRangeProfiles() *schema.Resource {
 							Computed:    true,
 							Description: "The resource type.",
 						},
+						"targetable_resource_types": &schema.Schema{
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "The resource types that public address ranges with this profile can target.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"type": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The type for this profile field.",
+									},
+									"values": &schema.Schema{
+										Type:        schema.TypeList,
+										Computed:    true,
+										Description: "The resource types that public address ranges with this profile can target.",
+										Elem:        &schema.Schema{Type: schema.TypeString},
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -119,5 +139,12 @@ func DataSourceIBMIsPublicAddressRangeProfilesPublicAddressRangeProfileToMap(mod
 	modelMap["ip_version"] = *model.IPVersion
 	modelMap["name"] = *model.Name
 	modelMap["resource_type"] = *model.ResourceType
+	if model.TargetableResourceTypes != nil {
+		targetableResourceTypesMap := map[string]interface{}{
+			"type":   *model.TargetableResourceTypes.Type,
+			"values": model.TargetableResourceTypes.Values,
+		}
+		modelMap["targetable_resource_types"] = []map[string]interface{}{targetableResourceTypesMap}
+	}
 	return modelMap, nil
 }

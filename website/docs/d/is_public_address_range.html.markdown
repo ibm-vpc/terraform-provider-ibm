@@ -50,11 +50,11 @@ After your data source is created, you can read values from the following attrib
   - `id` - (String) The unique identifier for this authorized CIDR.
   - `name` - (String) The name for this authorized CIDR.
   - `resource_type` - (String) The resource type.
-- `cidr` - (String) The public IPv4 range, expressed in CIDR format.
+- `cidr` - (String) The public IP address block for this public address range, expressed in CIDR format.
 - `created_at` - (String) The date and time that the public address range was created.
 - `crn` - (String) The CRN for this public address range.
 - `href` - (String) The URL for this public address range.
-- `ip_version` - (String) The IP version.
+- `ip_version` - (String) The IP version (`ipv4` or `ipv6`).
 - `ipv4_address_count` - (Integer) The number of IPv4 addresses in this public address range.
 - `lifecycle_state` - (String) The lifecycle state of the public address range.
 - `name` - (String) The name for this public address range. The name is unique across all public address ranges in the region.
@@ -72,14 +72,22 @@ After your data source is created, you can read values from the following attrib
 	- `id` - (String) The unique identifier for this resource group.
 	- `name` - (String) The name for this resource group.
 - `resource_type` - (String) The resource type.
-- `target` - (List) The target this public address range is bound to.If absent, this public address range is not bound to a target.
+- `target` - (List) The target this public address range is bound to. If absent, this public address range is not bound to a target.
 	
 	Nested schema for `target`:
-	- `vpc` - (List) The VPC this public address range is bound to.
+	- `virtual_network_interface` - (List) The virtual network interface this public address range is bound to. Present for IPv6 public address ranges.
+
+		Nested schema for `virtual_network_interface`:
+		- `crn` - (String) The CRN for this virtual network interface.
+		- `href` - (String) The URL for this virtual network interface.
+		- `id` - (String) The unique identifier for this virtual network interface.
+		- `name` - (String) The name for this virtual network interface.
+		- `resource_type` - (String) The resource type.
+	- `vpc` - (List) The VPC this public address range is bound to. Present for IPv4 public address ranges.
 		
 		Nested schema for `vpc`:
 		- `crn` - (String) The CRN for this VPC.
-		- `deleted` - (List) If present, this property indicates the referenced resource has been deleted, and providessome supplementary information.
+		- `deleted` - (List) If present, this property indicates the referenced resource has been deleted, and provides some supplementary information.
 			
 			Nested schema for `deleted`:
 			- `more_info` - (String) Link to documentation about deleted resources.

@@ -347,6 +347,51 @@ func networkACLRulesList(context context.Context, d *schema.ResourceData, meta i
 				l[isNetworkACLRuleTCP] = make([]map[string]int, 0, 0)
 				l[isNetworkACLRuleUDP] = make([]map[string]int, 0, 0)
 			}
+		case "*vpcv1.NetworkACLRuleItemNetworkACLRuleProtocolIPv6Icmp":
+			{
+				rulex := rule.(*vpcv1.NetworkACLRuleItemNetworkACLRuleProtocolIPv6Icmp)
+				l[isNwACLRuleId] = *rulex.ID
+				l[isNetworkACLRuleHref] = *rulex.Href
+				l[isNetworkACLRuleProtocol] = *rulex.Protocol
+				if rulex.Before != nil {
+					l[isNwACLRuleBefore] = *rulex.Before.ID
+				}
+				l[isNetworkACLRuleName] = *rulex.Name
+				l[isNetworkACLRuleAction] = *rulex.Action
+				l[isNetworkACLRuleIPVersion] = *rulex.IPVersion
+				l[isNetworkACLRuleSource] = *rulex.Source
+				l[isNetworkACLRuleDestination] = *rulex.Destination
+				l[isNetworkACLRuleDirection] = *rulex.Direction
+				l[isNetworkACLRuleTCP] = make([]map[string]int, 0, 0)
+				l[isNetworkACLRuleUDP] = make([]map[string]int, 0, 0)
+				icmp := make([]map[string]int, 1, 1)
+				if rulex.Code != nil && rulex.Type != nil {
+					icmp[0] = map[string]int{
+						isNetworkACLRuleICMPCode: int(*rulex.Code),
+						isNetworkACLRuleICMPType: int(*rulex.Type),
+					}
+				}
+				l[isNetworkACLRuleICMP] = icmp
+			}
+		case "*vpcv1.NetworkACLRuleItemNetworkACLRuleProtocolIndividualIPv6":
+			{
+				rulex := rule.(*vpcv1.NetworkACLRuleItemNetworkACLRuleProtocolIndividualIPv6)
+				l[isNwACLRuleId] = *rulex.ID
+				l[isNetworkACLRuleHref] = *rulex.Href
+				l[isNetworkACLRuleProtocol] = *rulex.Protocol
+				if rulex.Before != nil {
+					l[isNwACLRuleBefore] = *rulex.Before.ID
+				}
+				l[isNetworkACLRuleName] = *rulex.Name
+				l[isNetworkACLRuleAction] = *rulex.Action
+				l[isNetworkACLRuleIPVersion] = *rulex.IPVersion
+				l[isNetworkACLRuleSource] = *rulex.Source
+				l[isNetworkACLRuleDestination] = *rulex.Destination
+				l[isNetworkACLRuleDirection] = *rulex.Direction
+				l[isNetworkACLRuleICMP] = make([]map[string]int, 0, 0)
+				l[isNetworkACLRuleTCP] = make([]map[string]int, 0, 0)
+				l[isNetworkACLRuleUDP] = make([]map[string]int, 0, 0)
+			}
 		case "*vpcv1.NetworkACLRuleItem":
 			{
 				rulex := rule.(*vpcv1.NetworkACLRuleItem)

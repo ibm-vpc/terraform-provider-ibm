@@ -29,10 +29,16 @@ Nested schema for **profiles**:
 	  * Constraints: Allowable values are: `provider`, `user`. The value must match regular expression `/^[a-z][a-z0-9]*(_[a-z0-9]+)*$/`.
 	* `href` - (String) The URL for this public address range profile.
 	  * Constraints: The maximum length is `8000` characters. The minimum length is `10` characters. The value must match regular expression `/^http(s)?:\/\/([^\/?#]*)([^?#]*)\/public_address_range\/profiles\/([^?#]+)$/`.
-	* `ip_version` - (String) The IP version for public address ranges with this profile:- `ipv4`: An IPv4 public address range.The enumerated values for this property may[expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.
-	  * Constraints: Allowable values are: `ipv4`. The value must match regular expression `/^[a-z][a-z0-9]*(_[a-z0-9]+)*$/`.
+	* `ip_version` - (String) The IP version for public address ranges with this profile:- `ipv4`: An IPv4 public address range.- `ipv6`: An IPv6 public address range.The enumerated values for this property may[expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.
+	  * Constraints: Allowable values are: `ipv4`, `ipv6`. The value must match regular expression `/^[a-z][a-z0-9]*(_[a-z0-9]+)*$/`.
 	* `name` - (String) The globally unique name for this public address range profile.
 	  * Constraints: The maximum length is `63` characters. The minimum length is `1` character. The value must match regular expression `/^([a-z]|[a-z][-a-z0-9]*[a-z0-9]|[0-9][-a-z0-9]*([a-z]|[-a-z][-a-z0-9]*[a-z0-9]))$/`.
 	* `resource_type` - (String) The resource type.
 	  * Constraints: Allowable values are: `public_address_range_profile`. The value must match regular expression `/^[a-z][a-z0-9]*(_[a-z0-9]+)*$/`.
+	* `targetable_resource_types` - (List) The resource types that public address ranges with this profile can target.
+	Nested schema for **targetable_resource_types**:
+	  * `type` - (String) The type for this profile field.
+	    * Constraints: Allowable values are: `enum`.
+	  * `values` - (List) The resource types that public address ranges with this profile can target. If empty, the public address range cannot target a resource.
+	    * Constraints: Allowable values are: `virtual_network_interface`, `vpc`.
 
