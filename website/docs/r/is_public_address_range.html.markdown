@@ -43,20 +43,6 @@ resource "ibm_is_public_address_range" "public_address_range_instance" {
 }
 ```
 
-An example shows how you can create a public address range bound to an IPv6-enabled load balancer.
-
-```terraform
-resource "ibm_is_public_address_range" "public_address_range_lb" {
-  ipv4_address_count = 1
-  name               = "example-public-address-range-lb"
-  target {
-    load_balancer {
-      id = ibm_is_lb.example.id
-    }
-  }
-}
-```
-
 An example shows how you can create public address range not attached to vpc and zone
 
 ```terraform
@@ -79,22 +65,16 @@ You can specify the following arguments for this resource.
 
   Nested schema for `resource_group`:
   - `id` - (Required, String) The unique identifier for this resource group.
-- `target` - (Optional, List) The target this public address range is bound to. If absent, this public address range is not bound to a target. Specify exactly one of `load_balancer` or `vpc`+`zone`.
+- `target` - (Optional, List) The target this public address range is bound to.If absent, this public address range is not bound to a target.
 
   Nested schema for `target`:
-  - `load_balancer` - (Optional, List) The load balancer to bind this public address range to. The load balancer must have `ipv6_enabled` set to `true`. Specify one of `id`, `crn`, or `href`.
-
-    Nested schema for `load_balancer`:
-    - `id` - (Optional, String) The unique identifier for this load balancer.
-    - `crn` - (Optional, String) The CRN for this load balancer.
-    - `href` - (Optional, String) The URL for this load balancer.
-  - `vpc` - (Optional, List) The VPC this public address range is bound to. If present, any of the below values must be specified.
+  - `vpc` - (Required, List) The VPC this public address range is bound to. If present, any of the below value must be specified.
 
     Nested schema for `vpc`:
     - `crn` - (Optional, String) The CRN for this VPC.
     - `href` - (Optional, String) The URL for this VPC.
     - `id` - (Optional, String) The unique identifier for this VPC.
-  - `zone` - (Optional, List) The zone this public address range resides in. If present, any of the below values must be specified.
+  - `zone` - (Required, List) The zone this public address range resides in. If present, any of the below value must be specified.
 
     Nested schema for `zone`:
     - `href` - (Optional, String) The URL for this zone.
@@ -116,26 +96,14 @@ In addition to all argument reference list, you can access the following attribu
   - `href` - (String) The URL for this resource group.
   - `id` - (String) The unique identifier for this resource group.
   - `name` - (String) The name for this resource group.
-- `target` - (List) The target this public address range is bound to. If absent, this public address range is not bound to a target.
+- `target` - (List) The target this public address range is bound to.If absent, this public address range is not bound to a target.
 
   Nested schema for `target`:
-  - `load_balancer` - (Optional, List) The load balancer this public address range is bound to. Specify to bind the public address range to an IPv6-enabled load balancer. Populated in read when the public address range is bound to a load balancer.
-
-    Nested schema for `load_balancer`:
-    - `id` - (Optional, Computed, String) The unique identifier for this load balancer.
-    - `crn` - (Optional, Computed, String) The CRN for this load balancer.
-    - `href` - (Optional, Computed, String) The URL for this load balancer.
-    - `deleted` - (Computed, List) If present, this property indicates the referenced resource has been deleted, and provides some supplementary information.
-
-      Nested schema for `deleted`:
-      - `more_info` - (Computed, String) Link to documentation about deleted resources.
-    - `name` - (Computed, String) The name for this load balancer.
-    - `resource_type` - (Computed, String) The resource type.
-  - `vpc` - (Computed, List) The VPC this public address range is bound to.
+  - `vpc` - (List) The VPC this public address range is bound to.
 
     Nested schema for `vpc`:
     - `crn` - (String) The CRN for this VPC.
-    - `deleted` - (List) If present, this property indicates the referenced resource has been deleted, and provides some supplementary information.
+    - `deleted` - (List) If present, this property indicates the referenced resource has been deleted, and providessome supplementary information.
 
       Nested schema for `deleted`:
       - `more_info` - (Computed, String) Link to documentation about deleted resources.
@@ -143,7 +111,7 @@ In addition to all argument reference list, you can access the following attribu
     - `id` - (String) The unique identifier for this VPC.
     - `name` - (Computed, String) The name for this VPC. The name is unique across all VPCs in the region.
     - `resource_type` - (Computed, String) The resource type.
-  - `zone` - (Computed, List) The zone this public address range resides in.
+  - `zone` - (List) The zone this public address range resides in.
 
     Nested schema for `zone`:
     - `href` - (String) The URL for this zone.

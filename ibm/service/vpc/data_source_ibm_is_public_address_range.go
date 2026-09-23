@@ -96,57 +96,9 @@ func DataSourceIBMIsPublicAddressRange() *schema.Resource {
 			"target": &schema.Schema{
 				Type:        schema.TypeList,
 				Computed:    true,
-				Description: "The target this public address range is bound to. If absent, this public address range is not bound to a target.",
+				Description: "The target this public address range is bound to.If absent, this pubic address range is not bound to a target.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"load_balancer": &schema.Schema{
-							Type:        schema.TypeList,
-							Computed:    true,
-							Description: "The load balancer this public address range is bound to.",
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"crn": &schema.Schema{
-										Type:        schema.TypeString,
-										Computed:    true,
-										Description: "The CRN for this load balancer.",
-									},
-									"deleted": &schema.Schema{
-										Type:        schema.TypeList,
-										Computed:    true,
-										Description: "If present, this property indicates the referenced resource has been deleted, and provides some supplementary information.",
-										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{
-												"more_info": &schema.Schema{
-													Type:        schema.TypeString,
-													Computed:    true,
-													Description: "Link to documentation about deleted resources.",
-												},
-											},
-										},
-									},
-									"href": &schema.Schema{
-										Type:        schema.TypeString,
-										Computed:    true,
-										Description: "The URL for this load balancer.",
-									},
-									"id": &schema.Schema{
-										Type:        schema.TypeString,
-										Computed:    true,
-										Description: "The unique identifier for this load balancer.",
-									},
-									"name": &schema.Schema{
-										Type:        schema.TypeString,
-										Computed:    true,
-										Description: "The name for this load balancer.",
-									},
-									"resource_type": &schema.Schema{
-										Type:        schema.TypeString,
-										Computed:    true,
-										Description: "The resource type.",
-									},
-								},
-							},
-						},
 						"vpc": &schema.Schema{
 							Type:        schema.TypeList,
 							Computed:    true,
@@ -161,7 +113,7 @@ func DataSourceIBMIsPublicAddressRange() *schema.Resource {
 									"deleted": &schema.Schema{
 										Type:        schema.TypeList,
 										Computed:    true,
-										Description: "If present, this property indicates the referenced resource has been deleted, and provides some supplementary information.",
+										Description: "If present, this property indicates the referenced resource has been deleted, and providessome supplementary information.",
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"more_info": &schema.Schema{
@@ -384,44 +336,16 @@ func DataSourceIBMIsPublicAddressRangeResourceGroupReferenceToMap(model *vpcv1.R
 
 func DataSourceIBMIsPublicAddressRangePublicAddressRangeTargetToMap(model *vpcv1.PublicAddressRangeTarget) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
-	if model.LoadBalancer != nil {
-		lbMap, err := DataSourceIBMIsPublicAddressRangeLoadBalancerReferenceToMap(model.LoadBalancer)
-		if err != nil {
-			return modelMap, err
-		}
-		modelMap["load_balancer"] = []map[string]interface{}{lbMap}
+	vpcMap, err := DataSourceIBMIsPublicAddressRangeVPCReferenceToMap(model.VPC)
+	if err != nil {
+		return modelMap, err
 	}
-	if model.VPC != nil {
-		vpcMap, err := DataSourceIBMIsPublicAddressRangeVPCReferenceToMap(model.VPC)
-		if err != nil {
-			return modelMap, err
-		}
-		modelMap["vpc"] = []map[string]interface{}{vpcMap}
+	modelMap["vpc"] = []map[string]interface{}{vpcMap}
+	zoneMap, err := DataSourceIBMIsPublicAddressRangeZoneReferenceToMap(model.Zone)
+	if err != nil {
+		return modelMap, err
 	}
-	if model.Zone != nil {
-		zoneMap, err := DataSourceIBMIsPublicAddressRangeZoneReferenceToMap(model.Zone)
-		if err != nil {
-			return modelMap, err
-		}
-		modelMap["zone"] = []map[string]interface{}{zoneMap}
-	}
-	return modelMap, nil
-}
-
-func DataSourceIBMIsPublicAddressRangeLoadBalancerReferenceToMap(model *vpcv1.LoadBalancerReference) (map[string]interface{}, error) {
-	modelMap := make(map[string]interface{})
-	modelMap["crn"] = *model.CRN
-	if model.Deleted != nil {
-		deletedMap, err := DataSourceIBMIsPublicAddressRangeDeletedToMap(model.Deleted)
-		if err != nil {
-			return modelMap, err
-		}
-		modelMap["deleted"] = []map[string]interface{}{deletedMap}
-	}
-	modelMap["href"] = *model.Href
-	modelMap["id"] = *model.ID
-	modelMap["name"] = *model.Name
-	modelMap["resource_type"] = *model.ResourceType
+	modelMap["zone"] = []map[string]interface{}{zoneMap}
 	return modelMap, nil
 }
 

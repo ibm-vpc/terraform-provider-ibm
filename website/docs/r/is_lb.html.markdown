@@ -71,18 +71,6 @@ resource "ibm_is_lb" "example" {
 }
 ```
 
-An example to create an IPv6-enabled public application load balancer.
-
-```terraform
-resource "ibm_is_lb" "example" {
-  name         = "example-ipv6-lb"
-  type         = "public"
-  profile      = "dynamic"
-  ipv6_enabled = true
-  subnets      = [ibm_is_subnet.example.id]
-}
-```
-
 ## Timeouts
 The `ibm_is_lb` resource provides the following [Timeouts](https://www.terraform.io/docs/language/resources/syntax.html) configuration options:
 
@@ -113,7 +101,6 @@ Review the argument references that you can specify for your resource.
     - `fail`: Fails requests with an HTTP 503 status code.
     - `forward`: Forwards requests to the target pool.
 
-- `ipv6_enabled` - (Optional, Bool) Indicates whether IPv6 support is enabled for this public application load balancer. Default value is **false**.
 - `logging`- (Optional, Bool) Enable or disable datapath logging for the load balancer. This is applicable only for application load balancer. Supported values are **true** or **false**. Default value is **false**.
 - `name` - (Required, String) The name of the VPC load balancer.
 - `profile` - (Optional, Forces new resource, String) For a Network Load Balancer, this attribute is required for network and private path load balancers. Should be set to  `network-private-path` for private path load balancers and `network-fixed` for a network load balancer. For Application Load Balancer, profile is not a required attribute.
@@ -128,7 +115,7 @@ Review the argument references that you can specify for your resource.
   The subnets must be in the same `VPC`. The load balancer's `availability` will depend on the availability of the `zones` the specified subnets reside in. The load balancer must be in the `application` family for `updating subnets`. Load balancers in the `network` family allow only `one subnet` to be specified.
 
 - `private_ips` - (Optional, List of String) The reserved IP IDs to assign as private IP addresses to this load balancer. Only applicable when `address_mode` is `static`.
-- `public_ips` - (Optional, List of String, Min: 1, Max: 6) The floating IPs to use for this load balancer's public IP addresses. Requires `is_public` to be `true` and `address_mode` to be `static`. All floating IPs must already exist, be unbound, and be in the same region as the load balancer. Application load balancers require three floating IPs; network load balancers require one. Each floating IP must be in the same zone as the corresponding private IP. If `ipv6_enabled` is `true`, up to three IPv6 public address ranges may also be specified as CRNs or hrefs — each must be in the same zone as the corresponding private IP, and exactly three are required when `address_mode` is `static`.
+- `public_ips` - (Optional, List of String) The floating IP IDs to assign as public IP addresses to this load balancer. Only applicable when `address_mode` is `static`.
 - `tags` (Optional, Array of Strings) A list of tags that you want to add to your load balancer. Tags can help you find the load balancer more easily later.
 - `type` - (Optional, Forces new resource, String) The type of the load balancer. Default value is `public`. Supported values are `public`, `private` and `private_path`.
 
@@ -154,20 +141,18 @@ In addition to all argument reference list, you can access the following attribu
 - `operating_status` - (String) The operating status of this load balancer.
 - `address_mode` - (String) The address mode for this load balancer. One of `static` (IPs remain unchanged throughout the life of the load balancer, horizontal scaling disabled) or `dynamic` (IPs may change during maintenance).
 - `public_ips` - (List) The public IP addresses assigned to this load balancer. Will be empty if `is_public` is `false`.
-- `public_ip` - (List) The detailed public IP addresses (floating IPs or public address ranges) assigned to this load balancer.
+- `public_ip` - (List) The public IP address details assigned to this load balancer. Each entry is either a floating IP reference or a plain IP address.
 
   Nested scheme for `public_ip`:
-  - `address` - (String) The IP address. For a floating IP, this is the floating IP address. Absent for a public address range.
-  - `cidr` - (String) The CIDR block. Present only when the public IP is a public address range.
-  - `crn` - (String) The CRN for this public IP resource.
-  - `deleted` - (List) If present, this property indicates the referenced resource has been deleted.
+  - `address` - (String) The globally unique IP address. This property may expand to support IPv6 addresses in the future.
+  - `crn` - (String) The CRN for this floating IP. Present only when the public IP is a floating IP.
+  - `deleted` - (List) If present, this property indicates the referenced resource has been deleted and provides some supplementary information.
 
     Nested scheme for `deleted`:
     - `more_info` - (String) Link to documentation about deleted resources.
-  - `href` - (String) The URL for this public IP resource.
-  - `id` - (String) The unique identifier for this public IP resource.
-  - `name` - (String) The name for this public IP resource.
-  - `resource_type` - (String) The resource type. Value is `public_address_range` for a public address range.
+  - `href` - (String) The URL for this floating IP. Present only when the public IP is a floating IP.
+  - `id` - (String) The unique identifier for this floating IP. Present only when the public IP is a floating IP.
+  - `name` - (String) The name for this floating IP. The name is unique across all floating IPs in the region. Present only when the public IP is a floating IP.
 - `private_ip` - (List) The private IP addresses assigned to this load balancer as reserved IP references.
 
   Nested scheme for `private_ip`:
@@ -180,7 +165,6 @@ In addition to all argument reference list, you can access the following attribu
 - `status` - (String) The status of the load balancer.
 - `security_groups_supported`- (Bool) Indicates if this load balancer supports security groups.
 - `source_ip_session_persistence_supported` - (Boolean) Indicates whether this load balancer supports source IP session persistence.
-- `ipv6_enabled` - (Bool) Indicates whether this load balancer supports public IPv6 addresses.
 - `udp_supported`- (Bool) Indicates whether this load balancer supports UDP.
 
 

@@ -80,7 +80,6 @@ In addition to all argument reference list, you can access the following attribu
 - `hostname` - (String) Fully qualified domain name assigned to this load balancer.
 - `id` - (String) The ID of the load balancer.
 - `instance_groups_supported` - (Boolean) Indicates whether this load balancer supports instance groups.
-- `ipv6_enabled` - (Boolean) Indicates whether IPv6 is enabled for this load balancer. Only supported for public application load balancers with a profile that has `ipv6_supported` set to `true`.
 - `listeners` - (String) The ID of the listeners attached to this load balancer.
 - `logging`-  (Bool) Enable (**true**) or disable (**false**) datapath logging for this load balancer. If unspecified, datapath logging is disabled. This option is supported only for application load balancers.
 - `operating_status` - (String) The operating status of this load balancer.
@@ -120,20 +119,18 @@ In addition to all argument reference list, you can access the following attribu
 	- `type` - (String) The session persistence type.
 - `address_mode` - (String) The address mode for this load balancer. One of `static` (IPs remain unchanged throughout the life of the load balancer, horizontal scaling disabled) or `dynamic` (IPs may change during maintenance).
 - `public_ips` - (List) The public IP addresses assigned to this load balancer. Will be empty if `is_public` is `false`.
-- `public_ip` - (List) The detailed public IP addresses (floating IPs or public address ranges) assigned to this load balancer.
+- `public_ip` - (List) The public IP address details assigned to this load balancer. Each entry is either a floating IP reference or a plain IP address.
 
 	Nested scheme for `public_ip`:
-	- `address` - (String) The IP address. For a floating IP, this is the floating IP address. Absent for a public address range.
-	- `cidr` - (String) The CIDR block. Present only when the public IP is a public address range.
-	- `crn` - (String) The CRN for this public IP resource.
-	- `deleted` - (List) If present, this property indicates the referenced resource has been deleted.
+	- `address` - (String) The globally unique IP address. This property may expand to support IPv6 addresses in the future.
+	- `crn` - (String) The CRN for this floating IP. Present only when the public IP is a floating IP.
+	- `deleted` - (List) If present, this property indicates the referenced resource has been deleted and provides some supplementary information.
 
 		Nested scheme for `deleted`:
 		- `more_info` - (String) Link to documentation about deleted resources.
-	- `href` - (String) The URL for this public IP resource.
-	- `id` - (String) The unique identifier for this public IP resource.
-	- `name` - (String) The name for this public IP resource.
-	- `resource_type` - (String) The resource type. Value is `public_address_range` for a public address range.
+	- `href` - (String) The URL for this floating IP. Present only when the public IP is a floating IP.
+	- `id` - (String) The unique identifier for this floating IP. Present only when the public IP is a floating IP.
+	- `name` - (String) The name for this floating IP. The name is unique across all floating IPs in the region. Present only when the public IP is a floating IP.
 - `private_ip` - (List) The private IP addresses assigned to this load balancer as reserved IP references. Will be empty if `is_public` is `true`.
 
 	Nested scheme for `private_ip`:

@@ -56,26 +56,14 @@ After your data source is created, you can read values from the following attrib
 	- `id` - (String) The unique identifier for this resource group.
 	- `name` - (String) The name for this resource group.
 - `resource_type` - (String) The resource type.
-- `target` - (List) The target this public address range is bound to. If absent, this public address range is not bound to a target.
+- `target` - (List) The target this public address range is bound to.If absent, this public address range is not bound to a target.
 	
 	Nested schema for `target`:
-	- `load_balancer` - (List) The load balancer this public address range is bound to. Populated when the public address range is bound to a load balancer.
-		
-		Nested schema for `load_balancer`:
-		- `crn` - (String) The CRN for this load balancer.
-		- `deleted` - (List) If present, this property indicates the referenced resource has been deleted, and provides some supplementary information.
-			
-			Nested schema for `deleted`:
-			- `more_info` - (String) Link to documentation about deleted resources.
-		- `href` - (String) The URL for this load balancer.
-		- `id` - (String) The unique identifier for this load balancer.
-		- `name` - (String) The name for this load balancer.
-		- `resource_type` - (String) The resource type.
 	- `vpc` - (List) The VPC this public address range is bound to.
 		
 		Nested schema for `vpc`:
 		- `crn` - (String) The CRN for this VPC.
-		- `deleted` - (List) If present, this property indicates the referenced resource has been deleted, and provides some supplementary information.
+		- `deleted` - (List) If present, this property indicates the referenced resource has been deleted, and providessome supplementary information.
 			
 			Nested schema for `deleted`:
 			- `more_info` - (String) Link to documentation about deleted resources.

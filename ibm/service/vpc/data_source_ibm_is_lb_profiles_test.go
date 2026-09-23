@@ -29,8 +29,6 @@ func TestAccIBMISLBProfilesDatasource_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet("data.ibm_is_lb_profiles.test_profiles", "lb_profiles.0.route_mode_supported"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_lb_profiles.test_profiles", "lb_profiles.0.href"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_lb_profiles.test_profiles", "lb_profiles.0.udp_supported"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_lb_profiles.test_profiles", "lb_profiles.0.ipv6_supported"),
-					resource.TestCheckResourceAttrSet("data.ibm_is_lb_profiles.test_profiles", "lb_profiles.0.ipv6_supported_type"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_lb_profiles.test_profiles", "lb_profiles.0.supported_address_modes.#"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_lb_profiles.test_profiles", "lb_profiles.0.supported_address_modes.0.type"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_lb_profiles.test_profiles", "lb_profiles.0.supported_address_modes.0.values.#"),
@@ -100,28 +98,4 @@ func testDSCheckIBMISLBProfilesFailsafepolicyactionsConfig() string {
 	return fmt.Sprintf(`
 	data "ibm_is_lb_profiles" "test_profiles" {
 	} `)
-}
-
-func testDSCheckIBMISLBProfilesIPv6Config() string {
-	return fmt.Sprintf(`
-	data "ibm_is_lb_profiles" "test_profiles" {
-		name = "dynamic"
-	} `)
-}
-
-func TestAccIBMISLBProfilesDatasource_ipv6(t *testing.T) {
-	resource.Test(t, resource.TestCase{
-		PreCheck:  func() { acc.TestAccPreCheck(t) },
-		Providers: acc.TestAccProviders,
-		Steps: []resource.TestStep{
-			{
-				Config: testDSCheckIBMISLBProfilesIPv6Config(),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("data.ibm_is_lb_profiles.test_profiles", "lb_profiles.0.name", "dynamic"),
-					resource.TestCheckResourceAttr("data.ibm_is_lb_profiles.test_profiles", "lb_profiles.0.ipv6_supported_type", "fixed"),
-					resource.TestCheckResourceAttr("data.ibm_is_lb_profiles.test_profiles", "lb_profiles.0.ipv6_supported", "true"),
-				),
-			},
-		},
-	})
 }

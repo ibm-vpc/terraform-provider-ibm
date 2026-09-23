@@ -59,7 +59,6 @@ func ResourceIBMPublicAddressRange() *schema.Resource {
 			"ipv4_address_count": &schema.Schema{
 				Type:        schema.TypeInt,
 				Required:    true,
-				ForceNew:    true,
 				Description: "The number of IPv4 addresses in this public address range.",
 			},
 			"name": &schema.Schema{
@@ -108,68 +107,14 @@ func ResourceIBMPublicAddressRange() *schema.Resource {
 				Type:        schema.TypeList,
 				MaxItems:    1,
 				Optional:    true,
-				Computed:    true,
-				Description: "The target this public address range is bound to. If absent, this public address range is not bound to a target.",
+				Description: "The target this public address range is bound to.If absent, this pubic address range is not bound to a target.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"load_balancer": &schema.Schema{
-							Type:        schema.TypeList,
-							MaxItems:    1,
-							Optional:    true,
-							Computed:    true,
-							Description: "The load balancer to bind this public address range to.",
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"crn": &schema.Schema{
-										Type:        schema.TypeString,
-										Optional:    true,
-										Computed:    true,
-										Description: "The CRN for this load balancer.",
-									},
-									"deleted": &schema.Schema{
-										Type:        schema.TypeList,
-										Computed:    true,
-										Description: "If present, this property indicates the referenced resource has been deleted, and provides some supplementary information.",
-										Elem: &schema.Resource{
-											Schema: map[string]*schema.Schema{
-												"more_info": &schema.Schema{
-													Type:        schema.TypeString,
-													Computed:    true,
-													Description: "Link to documentation about deleted resources.",
-												},
-											},
-										},
-									},
-									"href": &schema.Schema{
-										Type:        schema.TypeString,
-										Optional:    true,
-										Computed:    true,
-										Description: "The URL for this load balancer.",
-									},
-									"id": &schema.Schema{
-										Type:        schema.TypeString,
-										Optional:    true,
-										Computed:    true,
-										Description: "The unique identifier for this load balancer.",
-									},
-									"name": &schema.Schema{
-										Type:        schema.TypeString,
-										Computed:    true,
-										Description: "The name for this load balancer.",
-									},
-									"resource_type": &schema.Schema{
-										Type:        schema.TypeString,
-										Computed:    true,
-										Description: "The resource type.",
-									},
-								},
-							},
-						},
 						"vpc": &schema.Schema{
 							Type:        schema.TypeList,
+							MinItems:    1,
 							MaxItems:    1,
-							Optional:    true,
-							Computed:    true,
+							Required:    true,
 							Description: "The VPC this public address range is bound to.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -182,7 +127,7 @@ func ResourceIBMPublicAddressRange() *schema.Resource {
 									"deleted": &schema.Schema{
 										Type:        schema.TypeList,
 										Computed:    true,
-										Description: "If present, this property indicates the referenced resource has been deleted, and provides some supplementary information.",
+										Description: "If present, this property indicates the referenced resource has been deleted, and providessome supplementary information.",
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
 												"more_info": &schema.Schema{
@@ -220,9 +165,9 @@ func ResourceIBMPublicAddressRange() *schema.Resource {
 						},
 						"zone": &schema.Schema{
 							Type:        schema.TypeList,
+							MinItems:    1,
 							MaxItems:    1,
-							Optional:    true,
-							Computed:    true,
+							Required:    true,
 							Description: "The zone this public address range resides in.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -338,30 +283,25 @@ func resourceIBMPublicAddressRangeCreate(context context.Context, d *schema.Reso
 		return tfErr.GetDiag()
 	}
 
-	ipv4Count := int64(d.Get("ipv4_address_count").(int))
-	prototype := &vpcv1.PublicAddressRangePrototype{
-		Ipv4AddressCount: &ipv4Count,
-	}
-	if v, ok := d.GetOk("name"); ok {
-		name := v.(string)
-		prototype.Name = &name
+	createPublicAddressRangeOptions := &vpcv1.CreatePublicAddressRangeOptions{}
+
+	createPublicAddressRangeOptions.SetIpv4AddressCount(int64(d.Get("ipv4_address_count").(int)))
+	if _, ok := d.GetOk("name"); ok {
+		createPublicAddressRangeOptions.SetName(d.Get("name").(string))
 	}
 	if _, ok := d.GetOk("resource_group"); ok {
 		resourceGroupModel, err := ResourceIBMPublicAddressRangeMapToResourceGroupIdentity(d.Get("resource_group.0").(map[string]interface{}))
 		if err != nil {
 			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_public_address_range", "create", "parse-resource_group").GetDiag()
 		}
-		prototype.ResourceGroup = resourceGroupModel
+		createPublicAddressRangeOptions.SetResourceGroup(resourceGroupModel)
 	}
 	if _, ok := d.GetOk("target"); ok {
 		targetModel, err := ResourceIBMPublicAddressRangeMapToPublicAddressRangeTargetPrototype(d.Get("target.0").(map[string]interface{}))
 		if err != nil {
 			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_public_address_range", "create", "parse-target").GetDiag()
 		}
-		prototype.Target = targetModel
-	}
-	createPublicAddressRangeOptions := &vpcv1.CreatePublicAddressRangeOptions{
-		PublicAddressRangePrototype: prototype,
+		createPublicAddressRangeOptions.SetTarget(targetModel)
 	}
 
 	publicAddressRange, _, err := vpcClient.CreatePublicAddressRangeWithContext(context, createPublicAddressRangeOptions)
@@ -582,33 +522,12 @@ func resourceIBMPublicAddressRangeUpdate(context context.Context, d *schema.Reso
 		}
 		target, err := ResourceIBMPublicAddressRangeMapToPublicAddressRangeTargetPatch(d.Get("target.0").(map[string]interface{}), d)
 		if err != nil {
-			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("parse-target failed: %s", err.Error()), "ibm_is_public_address_range", "update")
-			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
-			return tfErr.GetDiag()
+			return diag.FromErr(err)
 		}
 		patchVals.Target = target
 		updatePublicAddressRangeOptions.PublicAddressRangePatch, _ = patchVals.AsPatch()
 		if targetRemoved {
 			updatePublicAddressRangeOptions.PublicAddressRangePatch["target"] = nil
-		} else if target != nil && !core.IsNil(target.LoadBalancer) {
-			// The SDK's PublicAddressRangeTargetPatch.asPatch() does not serialize
-			// LoadBalancer (SDK omission — asPatch is unexported and not included).
-			// Inject it manually so the API receives the required load_balancer field.
-			if lbIdentity, ok := target.LoadBalancer.(*vpcv1.LoadBalancerIdentity); ok {
-				lbPatch := map[string]interface{}{}
-				if !core.IsNil(lbIdentity.ID) {
-					lbPatch["id"] = lbIdentity.ID
-				}
-				if !core.IsNil(lbIdentity.CRN) {
-					lbPatch["crn"] = lbIdentity.CRN
-				}
-				if !core.IsNil(lbIdentity.Href) {
-					lbPatch["href"] = lbIdentity.Href
-				}
-				if targetPatch, ok := updatePublicAddressRangeOptions.PublicAddressRangePatch["target"].(map[string]interface{}); ok {
-					targetPatch["load_balancer"] = lbPatch
-				}
-			}
 		}
 		_, _, err = vpcClient.UpdatePublicAddressRangeWithContext(context, updatePublicAddressRangeOptions)
 		if err != nil {
@@ -733,27 +652,16 @@ func ResourceIBMPublicAddressRangeMapToResourceGroupIdentity(modelMap map[string
 
 func ResourceIBMPublicAddressRangeMapToPublicAddressRangeTargetPrototype(modelMap map[string]interface{}) (*vpcv1.PublicAddressRangeTargetPrototype, error) {
 	model := &vpcv1.PublicAddressRangeTargetPrototype{}
-	if v, ok := modelMap["load_balancer"].([]interface{}); ok && len(v) > 0 {
-		LBModel, err := ResourceIBMPublicAddressRangeMapToLoadBalancerIdentity(v[0].(map[string]interface{}))
-		if err != nil {
-			return model, err
-		}
-		model.LoadBalancer = LBModel
+	VPCModel, err := ResourceIBMPublicAddressRangeMapToVPCIdentity(modelMap["vpc"].([]interface{})[0].(map[string]interface{}))
+	if err != nil {
+		return model, err
 	}
-	if v, ok := modelMap["vpc"].([]interface{}); ok && len(v) > 0 {
-		VPCModel, err := ResourceIBMPublicAddressRangeMapToVPCIdentity(v[0].(map[string]interface{}))
-		if err != nil {
-			return model, err
-		}
-		model.VPC = VPCModel
+	model.VPC = VPCModel
+	ZoneModel, err := ResourceIBMPublicAddressRangeMapToZoneIdentity(modelMap["zone"].([]interface{})[0].(map[string]interface{}))
+	if err != nil {
+		return model, err
 	}
-	if v, ok := modelMap["zone"].([]interface{}); ok && len(v) > 0 {
-		ZoneModel, err := ResourceIBMPublicAddressRangeMapToZoneIdentity(v[0].(map[string]interface{}))
-		if err != nil {
-			return model, err
-		}
-		model.Zone = ZoneModel
-	}
+	model.Zone = ZoneModel
 	return model, nil
 }
 
@@ -816,18 +724,6 @@ func ResourceIBMPublicAddressRangeMapToZoneIdentityPatch(modelMap map[string]int
 
 func ResourceIBMPublicAddressRangeMapToPublicAddressRangeTargetPatch(modelMap map[string]interface{}, d *schema.ResourceData) (*vpcv1.PublicAddressRangeTargetPatch, error) {
 	model := &vpcv1.PublicAddressRangeTargetPatch{}
-
-	// The SDK requires LoadBalancer whenever the patch target is of the LB type
-	// (PublicAddressRangeTargetPatch.LoadBalancer is validate:"required").
-	// We must include it if it is currently set in state (even if only vpc/zone changed),
-	// so we populate it whenever the new state has a load_balancer block — not only on change.
-	if modelMap["load_balancer"] != nil && len(modelMap["load_balancer"].([]interface{})) > 0 {
-		LBModel, err := ResourceIBMPublicAddressRangeMapToLoadBalancerIdentity(modelMap["load_balancer"].([]interface{})[0].(map[string]interface{}))
-		if err != nil {
-			return model, err
-		}
-		model.LoadBalancer = LBModel
-	}
 	if d.HasChange("target.0.vpc") && modelMap["vpc"] != nil && len(modelMap["vpc"].([]interface{})) > 0 {
 		VPCModel, err := ResourceIBMPublicAddressRangeMapToVPCIdentityPatch(modelMap["vpc"].([]interface{})[0].(map[string]interface{}), d)
 		if err != nil {
@@ -855,44 +751,16 @@ func ResourceIBMPublicAddressRangeResourceGroupReferenceToMap(model *vpcv1.Resou
 
 func ResourceIBMPublicAddressRangePublicAddressRangeTargetToMap(model *vpcv1.PublicAddressRangeTarget) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
-	if model.LoadBalancer != nil {
-		lbMap, err := ResourceIBMPublicAddressRangeLoadBalancerReferenceToMap(model.LoadBalancer)
-		if err != nil {
-			return modelMap, err
-		}
-		modelMap["load_balancer"] = []map[string]interface{}{lbMap}
+	vpcMap, err := ResourceIBMPublicAddressRangeVPCReferenceToMap(model.VPC)
+	if err != nil {
+		return modelMap, err
 	}
-	if model.VPC != nil {
-		vpcMap, err := ResourceIBMPublicAddressRangeVPCReferenceToMap(model.VPC)
-		if err != nil {
-			return modelMap, err
-		}
-		modelMap["vpc"] = []map[string]interface{}{vpcMap}
+	modelMap["vpc"] = []map[string]interface{}{vpcMap}
+	zoneMap, err := ResourceIBMPublicAddressRangeZoneReferenceToMap(model.Zone)
+	if err != nil {
+		return modelMap, err
 	}
-	if model.Zone != nil {
-		zoneMap, err := ResourceIBMPublicAddressRangeZoneReferenceToMap(model.Zone)
-		if err != nil {
-			return modelMap, err
-		}
-		modelMap["zone"] = []map[string]interface{}{zoneMap}
-	}
-	return modelMap, nil
-}
-
-func ResourceIBMPublicAddressRangeLoadBalancerReferenceToMap(model *vpcv1.LoadBalancerReference) (map[string]interface{}, error) {
-	modelMap := make(map[string]interface{})
-	modelMap["crn"] = *model.CRN
-	if model.Deleted != nil {
-		deletedMap, err := ResourceIBMPublicAddressRangeDeletedToMap(model.Deleted)
-		if err != nil {
-			return modelMap, err
-		}
-		modelMap["deleted"] = []map[string]interface{}{deletedMap}
-	}
-	modelMap["href"] = *model.Href
-	modelMap["id"] = *model.ID
-	modelMap["name"] = *model.Name
-	modelMap["resource_type"] = *model.ResourceType
+	modelMap["zone"] = []map[string]interface{}{zoneMap}
 	return modelMap, nil
 }
 
@@ -924,32 +792,4 @@ func ResourceIBMPublicAddressRangeZoneReferenceToMap(model *vpcv1.ZoneReference)
 	modelMap["href"] = *model.Href
 	modelMap["name"] = *model.Name
 	return modelMap, nil
-}
-
-func ResourceIBMPublicAddressRangeMapToLoadBalancerIdentity(modelMap map[string]interface{}) (vpcv1.LoadBalancerIdentityIntf, error) {
-	model := &vpcv1.LoadBalancerIdentity{}
-	if modelMap["id"] != nil && modelMap["id"].(string) != "" {
-		model.ID = core.StringPtr(modelMap["id"].(string))
-	}
-	if modelMap["crn"] != nil && modelMap["crn"].(string) != "" {
-		model.CRN = core.StringPtr(modelMap["crn"].(string))
-	}
-	if modelMap["href"] != nil && modelMap["href"].(string) != "" {
-		model.Href = core.StringPtr(modelMap["href"].(string))
-	}
-	return model, nil
-}
-
-func ResourceIBMPublicAddressRangeMapToLoadBalancerIdentityPatch(modelMap map[string]interface{}, d *schema.ResourceData) (vpcv1.LoadBalancerIdentityIntf, error) {
-	model := &vpcv1.LoadBalancerIdentity{}
-	if d.HasChange("target.0.load_balancer.0.id") && modelMap["id"] != nil && modelMap["id"].(string) != "" {
-		model.ID = core.StringPtr(modelMap["id"].(string))
-	}
-	if d.HasChange("target.0.load_balancer.0.crn") && modelMap["crn"] != nil && modelMap["crn"].(string) != "" {
-		model.CRN = core.StringPtr(modelMap["crn"].(string))
-	}
-	if d.HasChange("target.0.load_balancer.0.href") && modelMap["href"] != nil && modelMap["href"].(string) != "" {
-		model.Href = core.StringPtr(modelMap["href"].(string))
-	}
-	return model, nil
 }
