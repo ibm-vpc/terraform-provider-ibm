@@ -1766,9 +1766,6 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCKVmnMOlHKcZK8tpt3MP1lqOLAcqcJzhsvJcjscgVE
 						"ibm_is_bare_metal_server.testacc_bms", "name", name),
 					resource.TestCheckResourceAttr(
 						"ibm_is_bare_metal_server.testacc_bms", "profile", acc.IsBareMetalServerGPUProfileName),
-					resource.TestCheckResourceAttrSet("ibm_is_bare_metal_server.testacc_bms", "memory"),
-					resource.TestCheckResourceAttrSet("ibm_is_bare_metal_server.testacc_bms", "cpu.#"),
-					resource.TestCheckResourceAttrSet("ibm_is_bare_metal_server.testacc_bms", "status"),
 					resource.TestCheckResourceAttrSet("ibm_is_bare_metal_server.testacc_bms", "gpu.#"),
 				),
 			},

@@ -169,8 +169,17 @@ func TestAccIBMISBMSProfileDataSource_gpu(t *testing.T) {
 }
 
 func testAccCheckIBMISBMSProfileDataSourceGPUConfig() string {
-	return fmt.Sprintf(`
+	return `
+		data "ibm_is_bare_metal_server_profiles" "all" {}
+
+		locals {
+			gpu_profiles = [
+				for p in data.ibm_is_bare_metal_server_profiles.all.profiles :
+				p if length(p.gpu_count) > 0
+			]
+		}
+
 		data "ibm_is_bare_metal_server_profile" "test1" {
-			name = "%s"
-		}`, acc.IsBareMetalServerGPUProfileName)
+			name = local.gpu_profiles[0].name
+		}`
 }
