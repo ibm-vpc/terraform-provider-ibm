@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
@@ -46,14 +47,24 @@ const (
 	isLBProfile                      = "profile"
 	isLBRouteMode                    = "route_mode"
 	isLBUdpSupported                 = "udp_supported"
+	isLBIpv6Enabled                  = "ipv6_enabled"
 	isLBLogging                      = "logging"
 	isLBSecurityGroups               = "security_groups"
 	isLBSecurityGroupsSupported      = "security_group_supported"
 	isLBAddressMode                  = "address_mode"
 	isLBPublicIPDetail               = "public_ip"
+	isLBPublicIpAddress              = "address"
+	isLBPublicIpCRN                  = "crn"
+	isLBPublicIpHref                 = "href"
+	isLBPublicIpID                   = "id"
+	isLBPublicIpName                 = "name"
+	isLBPublicIpResourceType         = "resource_type"
+	isLBPublicIpCIDR                 = "cidr"
+	isLBPublicIpDeleted              = "deleted"
 
 	isAttachedLoadBalancerPoolMembers = "attached_load_balancer_pool_members"
 	isLBAccessTags                    = "access_tags"
+	isLBMtlsSupported                 = "mtls_supported"
 )
 
 func ResourceIBMISLB() *schema.Resource {
@@ -104,6 +115,17 @@ func ResourceIBMISLB() *schema.Resource {
 				Default:      "public",
 				ValidateFunc: validate.InvokeValidator("ibm_is_lb", isLBType),
 				Description:  "Load Balancer type",
+			},
+			// http bundle
+			"advanced_health_checks_supported": &schema.Schema{
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: "Indicates whether this load balancer supports advanced health checks.",
+			},
+			"fqdn_pool_members_supported": &schema.Schema{
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: "Indicates whether this load balancer supports pool members specified by their fully qualified domain names.",
 			},
 			isAttachedLoadBalancerPoolMembers: {
 				Type:        schema.TypeList,
@@ -205,7 +227,7 @@ func ResourceIBMISLB() *schema.Resource {
 				Optional:    true,
 				Computed:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
-				Description: "The public IP addresses or floating IP IDs to assign to this load balancer. Only applicable when address_mode is 'static'.",
+				Description: "The floating IPs to use for this load balancer's public IP addresses. Requires `is_public` to be `true` and `address_mode` to be `static`. All floating IPs must already exist, be unbound, and be in the same region as the load balancer. Application load balancers require three floating IPs; network load balancers require one. Each floating IP must be in the same zone as the corresponding private IP. If `ipv6_enabled` is `true`, up to three IPv6 public address ranges may also be specified as CRNs or hrefs — each must be in the same zone as the corresponding private IP, and exactly three are required when `address_mode` is `static`.",
 			},
 			isLBPublicIPDetail: {
 				Type:        schema.TypeList,
@@ -213,44 +235,54 @@ func ResourceIBMISLB() *schema.Resource {
 				Description: "The public IP addresses assigned to this load balancer.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"address": {
+						isLBPublicIpAddress: {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: "The globally unique IP address.",
+							Description: "The IP address. For a floating IP this is the floating IP address; absent for a public address range.",
 						},
-						"href": {
+						isLBPublicIpCIDR: {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: "The URL for this floating IP",
+							Description: "The CIDR block for this public address range; present only when the public IP is a public address range.",
 						},
-						"name": {
+						isLBPublicIpCRN: {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Description: "The name for this floating IP. The name is unique across all floating IPs in the region.",
+							Description: "The CRN for this public IP resource.",
 						},
-						"id": {
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: "The unique identifier for this floating IP.",
-						},
-						"crn": {
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: "The CRN for this floating IP.",
-						},
-						"deleted": {
+						isLBPublicIpDeleted: {
 							Type:        schema.TypeList,
 							Computed:    true,
-							Description: "If present, this property indicates the referenced resource has been deleted and provides some supplementary information.",
+							Description: "If present, this property indicates the referenced resource has been deleted.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"more_info": {
 										Type:        schema.TypeString,
 										Computed:    true,
-										Description: "A link to documentation about deleted resources.",
+										Description: "Link to documentation about deleted resources.",
 									},
 								},
 							},
+						},
+						isLBPublicIpHref: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The URL for this public IP resource.",
+						},
+						isLBPublicIpID: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The unique identifier for this public IP resource.",
+						},
+						isLBPublicIpName: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The name for this public IP resource.",
+						},
+						isLBPublicIpResourceType: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The resource type.",
 						},
 					},
 				},
@@ -375,6 +407,24 @@ func ResourceIBMISLB() *schema.Resource {
 				Type:        schema.TypeBool,
 				Computed:    true,
 				Description: "Indicates whether this load balancer supports UDP.",
+			},
+
+			isLBIpv6Enabled: {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Computed:    true,
+				Description: "Indicates whether this load balancer supports public IPv6 addresses.",
+			},
+			"asymmetric_routing_supported": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: "Indicates whether this load balancer supports asymmetric routing.",
+			},
+
+			isLBMtlsSupported: {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: "Indicates whether this load balancer supports mTLS.",
 			},
 
 			isLBHostName: {
@@ -590,15 +640,32 @@ func lbCreate(context context.Context, d *schema.ResourceData, meta interface{},
 		options.AddressMode = &addressModeStr
 	}
 
-	// Handle public_ips
+	// Handle public_ips: each entry is either a floating IP (ID/CRN/href) or a
+	// public address range (ID/CRN/href). PAR detection via lbPublicIPIsPAR uses
+	// ":public-address-range:" in CRNs or "/public_address_ranges/" in hrefs.
+	// Plain UUIDs cannot be auto-detected as PAR so they fall through to floating IP.
 	if publicIpsIntf, ok := d.GetOk(isLBPublicIPs); ok {
 		publicIpsList := publicIpsIntf.([]interface{})
 		if len(publicIpsList) > 0 {
-			publicIps := make([]vpcv1.FloatingIPIdentityLoadBalancerContextIntf, len(publicIpsList))
-			for i, ipIntf := range publicIpsList {
+			publicIps := make([]vpcv1.LoadBalancerPublicIPIdentityIntf, 0, len(publicIpsList))
+			for _, ipIntf := range publicIpsList {
 				ipStr := ipIntf.(string)
-				publicIps[i] = &vpcv1.FloatingIPIdentityLoadBalancerContext{
-					ID: &ipStr,
+				if lbPublicIPIsPAR(ipStr) {
+					if strings.HasPrefix(ipStr, "crn:") {
+						publicIps = append(publicIps, &vpcv1.LoadBalancerPublicIPIdentityPublicAddressRangeIdentityPublicAddressRangeIdentityByCRN{CRN: &ipStr})
+					} else if strings.HasPrefix(ipStr, "https://") {
+						publicIps = append(publicIps, &vpcv1.LoadBalancerPublicIPIdentityPublicAddressRangeIdentityPublicAddressRangeIdentityByHref{Href: &ipStr})
+					} else {
+						publicIps = append(publicIps, &vpcv1.LoadBalancerPublicIPIdentityPublicAddressRangeIdentityPublicAddressRangeIdentityByID{ID: &ipStr})
+					}
+				} else {
+					if strings.HasPrefix(ipStr, "crn:") {
+						publicIps = append(publicIps, &vpcv1.LoadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContextFloatingIPIdentityLoadBalancerContextFloatingIPIdentityByCRN{CRN: &ipStr})
+					} else if strings.HasPrefix(ipStr, "https://") {
+						publicIps = append(publicIps, &vpcv1.LoadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContextFloatingIPIdentityLoadBalancerContextFloatingIPIdentityByHref{Href: &ipStr})
+					} else {
+						publicIps = append(publicIps, &vpcv1.LoadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContextFloatingIPIdentityLoadBalancerContextFloatingIPIdentityByID{ID: &ipStr})
+					}
 				}
 			}
 			options.PublicIps = publicIps
@@ -618,6 +685,11 @@ func lbCreate(context context.Context, d *schema.ResourceData, meta interface{},
 			}
 			options.PrivateIps = privateIps
 		}
+	}
+
+	if ipv6Enabled, ok := d.GetOk(isLBIpv6Enabled); ok {
+		ipv6 := ipv6Enabled.(bool)
+		options.Ipv6Enabled = &ipv6
 	}
 
 	if _, ok := d.GetOk(isLBProfile); ok {
@@ -794,49 +866,39 @@ func lbGet(context context.Context, d *schema.ResourceData, meta interface{}, id
 	publicIpList := make([]string, 0)
 	publicIpDetailList := make([]map[string]interface{}, 0)
 	if loadBalancer.PublicIps != nil {
-		for _, ip := range loadBalancer.PublicIps {
-			var address *string
+		for _, ipIntf := range loadBalancer.PublicIps {
 			currentPubIp := map[string]interface{}{}
-
-			switch ipType := ip.(type) {
-			case *vpcv1.LoadBalancerPublicIPIP:
-				if ipType.Address != nil {
-					address = ipType.Address
-					currentPubIp["address"] = *ipType.Address
+			// The SDK unmarshals all public_ips as *vpcv1.LoadBalancerPublicIP (base struct).
+			// Floating IPs have Address set; public address ranges have CIDR set and
+			// ResourceType == "public_address_range".
+			if ip, ok := ipIntf.(*vpcv1.LoadBalancerPublicIP); ok {
+				if ip.Address != nil {
+					currentPubIp[isLBPublicIpAddress] = *ip.Address
+					publicIpList = append(publicIpList, *ip.Address)
 				}
-			case *vpcv1.LoadBalancerPublicIPFloatingIPReference:
-				if ipType.Address != nil {
-					address = ipType.Address
-					currentPubIp["address"] = *ipType.Address
+				if ip.CIDR != nil {
+					currentPubIp[isLBPublicIpCIDR] = *ip.CIDR
 				}
-				if ipType.CRN != nil {
-					currentPubIp["crn"] = *ipType.CRN
+				if ip.CRN != nil {
+					currentPubIp[isLBPublicIpCRN] = *ip.CRN
 				}
-				if ipType.Href != nil {
-					currentPubIp["href"] = *ipType.Href
+				if ip.Deleted != nil && ip.Deleted.MoreInfo != nil {
+					currentPubIp[isLBPublicIpDeleted] = []map[string]interface{}{{"more_info": *ip.Deleted.MoreInfo}}
 				}
-				if ipType.ID != nil {
-					currentPubIp["id"] = *ipType.ID
+				if ip.Href != nil {
+					currentPubIp[isLBPublicIpHref] = *ip.Href
 				}
-				if ipType.Name != nil {
-					currentPubIp["name"] = *ipType.Name
+				if ip.ID != nil {
+					currentPubIp[isLBPublicIpID] = *ip.ID
 				}
-				if ipType.Deleted != nil {
-					deletedMap := map[string]interface{}{}
-					if ipType.Deleted.MoreInfo != nil {
-						deletedMap["more_info"] = *ipType.Deleted.MoreInfo
-					}
-					currentPubIp["deleted"] = []map[string]interface{}{deletedMap}
+				if ip.Name != nil {
+					currentPubIp[isLBPublicIpName] = *ip.Name
 				}
-
+				if ip.ResourceType != nil {
+					currentPubIp[isLBPublicIpResourceType] = *ip.ResourceType
+				}
 			}
-
-			if address != nil {
-				publicIpList = append(publicIpList, *address)
-			}
-			if len(currentPubIp) > 0 {
-				publicIpDetailList = append(publicIpDetailList, currentPubIp)
-			}
+			publicIpDetailList = append(publicIpDetailList, currentPubIp)
 		}
 	}
 	if err = d.Set(isLBPublicIPs, publicIpList); err != nil {
@@ -949,6 +1011,30 @@ func lbGet(context context.Context, d *schema.ResourceData, meta interface{}, id
 			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_lb", "read", "set-udp_supported").GetDiag()
 		}
 	}
+	if loadBalancer.MtlsSupported != nil {
+		if err = d.Set(isLBMtlsSupported, *loadBalancer.MtlsSupported); err != nil {
+			err = fmt.Errorf("Error setting mtls_supported: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_lb", "read", "set-mtls_supported").GetDiag()
+		}
+	}
+	if err = d.Set(isLBIpv6Enabled, loadBalancer.Ipv6Enabled); err != nil {
+		err = fmt.Errorf("Error setting ipv6_enabled: %s", err)
+		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_lb", "read", "set-ipv6_enabled").GetDiag()
+	}
+	if loadBalancer.AsymmetricRoutingSupported != nil {
+		if err = d.Set("asymmetric_routing_supported", *loadBalancer.AsymmetricRoutingSupported); err != nil {
+			err = fmt.Errorf("Error setting asymmetric_routing_supported: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_lb", "read", "set-asymmetric_routing_supported").GetDiag()
+		}
+	}
+	if err = d.Set("advanced_health_checks_supported", loadBalancer.AdvancedHealthChecksSupported); err != nil {
+		err = fmt.Errorf("Error setting advanced_health_checks_supported: %s", err)
+		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_lb", "read", "set-advanced_health_checks_supported").GetDiag()
+	}
+	if err = d.Set("fqdn_pool_members_supported", loadBalancer.FqdnPoolMembersSupported); err != nil {
+		err = fmt.Errorf("Error setting fqdn_pool_members_supported: %s", err)
+		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_lb", "read", "set-fqdn_pool_members_supported").GetDiag()
+	}
 	tags, err := flex.GetGlobalTagsUsingCRN(meta, *loadBalancer.CRN, "", isUserTagType)
 	if err != nil {
 		log.Printf(
@@ -1020,8 +1106,12 @@ func resourceIBMISLBUpdate(context context.Context, d *schema.ResourceData, meta
 		add = flex.ExpandStringList(nSecurityGroups.Difference(oSecurityGroups).List())
 		hasChangedSecurityGroups = true
 	}
+	hasChangedIpv6 := false
+	if d.HasChange(isLBIpv6Enabled) {
+		hasChangedIpv6 = true
+	}
 
-	err := lbUpdate(context, d, meta, id, name, hasChanged, isLogging, hasChangedLog, hasChangedSecurityGroups, remove, add)
+	err := lbUpdate(context, d, meta, id, name, hasChanged, isLogging, hasChangedLog, hasChangedSecurityGroups, hasChangedIpv6, remove, add)
 	if err != nil {
 		return err
 	}
@@ -1029,7 +1119,7 @@ func resourceIBMISLBUpdate(context context.Context, d *schema.ResourceData, meta
 	return resourceIBMISLBRead(context, d, meta)
 }
 
-func lbUpdate(context context.Context, d *schema.ResourceData, meta interface{}, id, name string, hasChanged bool, isLogging bool, hasChangedLog bool, hasChangedSecurityGroups bool, remove, add []string) diag.Diagnostics {
+func lbUpdate(context context.Context, d *schema.ResourceData, meta interface{}, id, name string, hasChanged bool, isLogging bool, hasChangedLog bool, hasChangedSecurityGroups bool, hasChangedIpv6 bool, remove, add []string) diag.Diagnostics {
 	sess, err := vpcClient(meta)
 	if err != nil {
 		tfErr := flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_lb", "update", "initialize-client")
@@ -1142,16 +1232,30 @@ func lbUpdate(context context.Context, d *schema.ResourceData, meta interface{},
 		if d.HasChange(isLBPublicIPs) {
 			publicIpsIntf := d.Get(isLBPublicIPs).([]interface{})
 			if len(publicIpsIntf) > 0 {
-				publicIps := make([]vpcv1.FloatingIPIdentityLoadBalancerContextIntf, len(publicIpsIntf))
-				for i, ipIntf := range publicIpsIntf {
+				publicIps := make([]vpcv1.LoadBalancerPublicIPIdentityIntf, 0, len(publicIpsIntf))
+				for _, ipIntf := range publicIpsIntf {
 					ipStr := ipIntf.(string)
-					publicIps[i] = &vpcv1.FloatingIPIdentityLoadBalancerContext{
-						ID: &ipStr,
+					if lbPublicIPIsPAR(ipStr) {
+						if strings.HasPrefix(ipStr, "crn:") {
+							publicIps = append(publicIps, &vpcv1.LoadBalancerPublicIPIdentityPublicAddressRangeIdentityPublicAddressRangeIdentityByCRN{CRN: &ipStr})
+						} else if strings.HasPrefix(ipStr, "https://") {
+							publicIps = append(publicIps, &vpcv1.LoadBalancerPublicIPIdentityPublicAddressRangeIdentityPublicAddressRangeIdentityByHref{Href: &ipStr})
+						} else {
+							publicIps = append(publicIps, &vpcv1.LoadBalancerPublicIPIdentityPublicAddressRangeIdentityPublicAddressRangeIdentityByID{ID: &ipStr})
+						}
+					} else {
+						if strings.HasPrefix(ipStr, "crn:") {
+							publicIps = append(publicIps, &vpcv1.LoadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContextFloatingIPIdentityLoadBalancerContextFloatingIPIdentityByCRN{CRN: &ipStr})
+						} else if strings.HasPrefix(ipStr, "https://") {
+							publicIps = append(publicIps, &vpcv1.LoadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContextFloatingIPIdentityLoadBalancerContextFloatingIPIdentityByHref{Href: &ipStr})
+						} else {
+							publicIps = append(publicIps, &vpcv1.LoadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContextFloatingIPIdentityLoadBalancerContextFloatingIPIdentityByID{ID: &ipStr})
+						}
 					}
 				}
 				loadBalancerPatchModel.PublicIps = publicIps
 			} else {
-				loadBalancerPatchModel.PublicIps = []vpcv1.FloatingIPIdentityLoadBalancerContextIntf{}
+				loadBalancerPatchModel.PublicIps = []vpcv1.LoadBalancerPublicIPIdentityIntf{}
 			}
 		}
 
@@ -1295,6 +1399,35 @@ func lbUpdate(context context.Context, d *schema.ResourceData, meta interface{},
 					return tfErr.GetDiag()
 				}
 			}
+		}
+	}
+
+	if hasChangedIpv6 {
+		updateLoadBalancerOptions := &vpcv1.UpdateLoadBalancerOptions{
+			ID: &id,
+		}
+		ipv6Enabled := d.Get(isLBIpv6Enabled).(bool)
+		loadBalancerPatchModel := &vpcv1.LoadBalancerPatch{
+			Ipv6Enabled: &ipv6Enabled,
+		}
+		loadBalancerPatch, err := loadBalancerPatchModel.AsPatch()
+		if err != nil {
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("loadBalancerPatchModel.AsPatch() failed: %s", err.Error()), "ibm_is_lb", "update")
+			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+			return tfErr.GetDiag()
+		}
+		updateLoadBalancerOptions.LoadBalancerPatch = loadBalancerPatch
+		_, _, err = sess.UpdateLoadBalancerWithContext(context, updateLoadBalancerOptions)
+		if err != nil {
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("UpdateLoadBalancerWithContext failed: %s", err.Error()), "ibm_is_lb", "update")
+			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+			return tfErr.GetDiag()
+		}
+		_, err = isWaitForLBAvailable(sess, d.Id(), d.Timeout(schema.TimeoutUpdate))
+		if err != nil {
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("isWaitForLBAvailable failed: %s", err.Error()), "ibm_is_lb", "update")
+			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+			return tfErr.GetDiag()
 		}
 	}
 	return nil
@@ -1449,4 +1582,23 @@ func isLBRefreshFunc(sess *vpcv1.VpcV1, lbId string) resource.StateRefreshFunc {
 
 		return lb, isLBProvisioning, nil
 	}
+}
+
+// lbPublicIPIsPAR returns true when s is recognisably a public address range CRN or href.
+// It cannot detect a PAR by plain UUID — those are indistinguishable from floating IP IDs
+// by form alone, so plain UUIDs are always routed to the floating IP identity path.
+//
+// Detection:
+//   - CRN  — contains ":public-address-range:"
+//     e.g. crn:v1:bluemix:public:is:us-south:a/…::public-address-range:r006-…
+//   - href — contains "/public_address_ranges/"
+//     e.g. https://us-south.iaas.cloud.ibm.com/v1/public_address_ranges/r006-…
+func lbPublicIPIsPAR(s string) bool {
+	if strings.HasPrefix(s, "crn:") {
+		return strings.Contains(s, ":public-address-range:")
+	}
+	if strings.HasPrefix(s, "https://") {
+		return strings.Contains(s, "/public_address_ranges/")
+	}
+	return false
 }
