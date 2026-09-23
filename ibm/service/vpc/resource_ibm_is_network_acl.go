@@ -147,7 +147,7 @@ func ResourceIBMISNetworkACL() *schema.Resource {
 			isNetworkACLRuleUpdateMode: {
 				Type:        schema.TypeBool,
 				Optional:    true,
-				Default:     false,
+				Computed:    true,
 				Description: "When set to true, enables surgical inline rule updates (add, remove, reorder, patch, recreate only changed rules). When false (default), any change to inline rules deletes all existing rules and recreates them from the configuration.",
 			},
 			isNetworkACLRules: {
@@ -680,6 +680,10 @@ func nwaclGet(context context.Context, d *schema.ResourceData, meta interface{},
 	if err = d.Set("crn", nwacl.CRN); err != nil {
 		err = fmt.Errorf("Error setting crn: %s", err)
 		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_network_acl", "read", "set-crn").GetDiag()
+	}
+	if err = d.Set(isNetworkACLRuleUpdateMode, d.Get(isNetworkACLRuleUpdateMode).(bool)); err != nil {
+		err = fmt.Errorf("Error setting incremental_rule_update: %s", err)
+		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_network_acl", "read", "set-incremental_rule_update").GetDiag()
 	}
 	rules := make([]interface{}, 0)
 	if len(nwacl.Rules) > 0 {
