@@ -53,7 +53,7 @@ const (
 )
 
 func ResourceIBMISNetworkACL() *schema.Resource {
-	return &schema.Resource{
+	r := &schema.Resource{
 		CreateContext: resourceIBMISNetworkACLCreate,
 		ReadContext:   resourceIBMISNetworkACLRead,
 		UpdateContext: resourceIBMISNetworkACLUpdate,
@@ -147,7 +147,7 @@ func ResourceIBMISNetworkACL() *schema.Resource {
 			isNetworkACLRuleUpdateMode: {
 				Type:        schema.TypeBool,
 				Optional:    true,
-				Computed:    true,
+				Default:    true,
 				Description: "When set to true, enables surgical inline rule updates (add, remove, reorder, patch, recreate only changed rules). When false (default), any change to inline rules deletes all existing rules and recreates them from the configuration.",
 			},
 			isNetworkACLRules: {
@@ -352,7 +352,53 @@ func ResourceIBMISNetworkACL() *schema.Resource {
 				},
 			},
 		},
+
+		// Bumped to 1 so that resources whose state predates
+		// incremental_rule_update get a concrete value seeded into it before
+		// any plan is computed. See resourceIBMISNetworkACLStateUpgradeV0.
+		SchemaVersion: 1,
 	}
+
+	// The v0 schema is the current one without incremental_rule_update. Building
+	// it from r.Schema here, rather than calling ResourceIBMISNetworkACL again,
+	// keeps this from recursing. Type is only consulted for states still held in
+	// the pre-0.12 flatmap format; JSON states go straight to the upgrade func.
+	v0Schema := make(map[string]*schema.Schema, len(r.Schema))
+	for k, v := range r.Schema {
+		if k != isNetworkACLRuleUpdateMode {
+			v0Schema[k] = v
+		}
+	}
+	r.StateUpgraders = []schema.StateUpgrader{
+		{
+			Version: 0,
+			Type:    (&schema.Resource{Schema: v0Schema}).CoreConfigSchema().ImpliedType(),
+			Upgrade: resourceIBMISNetworkACLStateUpgradeV0,
+		},
+	}
+
+	return r
+}
+
+// resourceIBMISNetworkACLStateUpgradeV0 seeds incremental_rule_update on state
+// written before the attribute existed.
+//
+// Terraform runs this while decoding state, ahead of planning and regardless of
+// whether the run refreshes, which is what makes it the fix for the one case
+// persisting the value on read cannot reach: terraform apply -refresh=false
+// against such a resource whose configuration sets incremental_rule_update to
+// false. There the plan holds false while state still holds null, and the
+// apply-time re-plan collapses to the prior state, turning false back into null
+// ("Provider produced inconsistent final plan", issue #7012). Seeding false
+// leaves nothing for the two plans to disagree about.
+func resourceIBMISNetworkACLStateUpgradeV0(_ context.Context, rawState map[string]interface{}, _ interface{}) (map[string]interface{}, error) {
+	if rawState == nil {
+		return rawState, nil
+	}
+	if v, ok := rawState[isNetworkACLRuleUpdateMode]; !ok || v == nil {
+		rawState[isNetworkACLRuleUpdateMode] = false
+	}
+	return rawState, nil
 }
 
 func suppressNullValues(k, old, new string, d *schema.ResourceData) bool {
