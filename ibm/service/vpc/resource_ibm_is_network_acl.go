@@ -147,7 +147,7 @@ func ResourceIBMISNetworkACL() *schema.Resource {
 			isNetworkACLRuleUpdateMode: {
 				Type:        schema.TypeBool,
 				Optional:    true,
-				Default:     true,
+				Default:     false,
 				Description: "When set to true, enables surgical inline rule updates (add, remove, reorder, patch, recreate only changed rules). When false (default), any change to inline rules deletes all existing rules and recreates them from the configuration.",
 			},
 			isNetworkACLRules: {
