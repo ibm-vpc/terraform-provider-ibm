@@ -56,7 +56,14 @@ In addition to all argument references listed, you can access the following attr
     - `id` - (Required, String) The unique identifier for this resource group.
     - `name` - (Required, String) The user-defined name for this resource group.
 
-- `storage_bucket` - (Required, List) The Cloud Object Storage bucket where the collected flows are logged.
+- `destination` - (List) The destination for the collected flow logs.
+
+	Nested scheme for `destination`:
+    - `type` - (String) The destination type for the collected flow logs.
+    - `storage_bucket` - (List) The Cloud Object Storage bucket where the collected flows are logged.
+        - `name` - (String) The globally unique name of this COS bucket.
+
+- `storage_bucket` - (List) The Cloud Object Storage bucket where the collected flows are logged.
   
 	Nested scheme for `storage_bucket`:
     - `name` - (Required, String) The globally unique name of this Cloud Object Storage bucket.
