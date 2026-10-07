@@ -36,6 +36,7 @@ const (
 	isFlowLogVpc                   = "vpc"
 	isFlowLogTags                  = "tags"
 	isFlowLogAccessTags            = "access_tags"
+	isFlowLogDestination           = "destination"
 )
 
 func ResourceIBMISFlowLog() *schema.Resource {
@@ -76,9 +77,19 @@ func ResourceIBMISFlowLog() *schema.Resource {
 
 			isFlowLogStorageBucket: {
 				Type:        schema.TypeString,
-				Required:    true,
+				Optional:    true,
 				ForceNew:    true,
 				Description: "The Cloud Object Storage bucket name where the collected flows will be logged",
+			},
+
+			isFlowLogDestination: {
+				Type:        schema.TypeMap,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "The destination for the collected flow logs.",
+				Elem: &schema.Schema{
+					Type: schema.TypeString,
+				},
 			},
 
 			isFlowLogTarget: {
@@ -254,10 +265,36 @@ func resourceIBMISFlowLogCreate(ctx context.Context, d *schema.ResourceData, met
 	FlowLogCollectorTargetModel.ID = &target
 	createFlowLogCollectorOptionsModel.Target = FlowLogCollectorTargetModel
 
-	bucketname := d.Get(isFlowLogStorageBucket).(string)
-	cloudObjectStorageBucketIdentityModel := new(vpcv1.LegacyCloudObjectStorageBucketIdentityCloudObjectStorageBucketIdentityByName)
-	cloudObjectStorageBucketIdentityModel.Name = &bucketname
-	createFlowLogCollectorOptionsModel.StorageBucket = cloudObjectStorageBucketIdentityModel
+	if destVal, ok := d.GetOk(isFlowLogDestination); ok {
+		destMap := destVal.(map[string]interface{})
+		destType, _ := destMap["type"].(string)
+		if destType == "cloud_object_storage" {
+			bucketVal, hasBucket := destMap["storage_bucket"]
+			if !hasBucket || bucketVal.(string) == "" {
+				err := fmt.Errorf("destination.storage_bucket is required when destination.type is \"cloud_object_storage\"")
+				tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_is_flow_log", "create")
+				return tfErr.GetDiag()
+			}
+			bucketName := bucketVal.(string)
+			cosDest := &vpcv1.FlowLogCollectorDestinationPrototypeFlowLogCollectorDestinationCloudObjectStoragePrototype{
+				Type: core.StringPtr("cloud_object_storage"),
+				StorageBucket: &vpcv1.LegacyCloudObjectStorageBucketIdentityCloudObjectStorageBucketIdentityByName{
+					Name: &bucketName,
+				},
+			}
+			createFlowLogCollectorOptionsModel.Destination = cosDest
+		} else if destType == "ibm_cloud_logs" {
+			logsDest := &vpcv1.FlowLogCollectorDestinationPrototypeFlowLogCollectorDestinationIBMCloudLogsPrototype{
+				Type: core.StringPtr("ibm_cloud_logs"),
+			}
+			createFlowLogCollectorOptionsModel.Destination = logsDest
+		}
+	} else if bucketname, ok := d.GetOk(isFlowLogStorageBucket); ok {
+		bucketStr := bucketname.(string)
+		cloudObjectStorageBucketIdentityModel := new(vpcv1.LegacyCloudObjectStorageBucketIdentityCloudObjectStorageBucketIdentityByName)
+		cloudObjectStorageBucketIdentityModel.Name = &bucketStr
+		createFlowLogCollectorOptionsModel.StorageBucket = cloudObjectStorageBucketIdentityModel
+	}
 
 	flowlogCollector, _, err := vpcClient.CreateFlowLogCollectorWithContext(ctx, createFlowLogCollectorOptionsModel)
 	if err != nil {
@@ -362,18 +399,51 @@ func resourceIBMISFlowLogRead(context context.Context, d *schema.ResourceData, m
 
 	if flowLogCollector.Target != nil {
 		targetIntf := flowLogCollector.Target
-		target := targetIntf.(*vpcv1.FlowLogCollectorTarget)
-		if err = d.Set(isFlowLogTarget, *target.ID); err != nil {
-			err = fmt.Errorf("Error setting target: %s", err)
-			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_flow_log", "read", "set-target").GetDiag()
+		if target, ok := targetIntf.(*vpcv1.FlowLogCollectorTarget); ok && target.ID != nil {
+			if err = d.Set(isFlowLogTarget, *target.ID); err != nil {
+				err = fmt.Errorf("Error setting target: %s", err)
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_flow_log", "read", "set-target").GetDiag()
+			}
 		}
 	}
 
 	if flowLogCollector.StorageBucket != nil {
 		bucket := flowLogCollector.StorageBucket
-		if err = d.Set(isFlowLogStorageBucket, *bucket.Name); err != nil {
-			err = fmt.Errorf("Error setting storage_bucket: %s", err)
-			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_flow_log", "read", "set-storage_bucket").GetDiag()
+		if bucket.Name != nil {
+			if err = d.Set(isFlowLogStorageBucket, *bucket.Name); err != nil {
+				err = fmt.Errorf("Error setting storage_bucket: %s", err)
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_flow_log", "read", "set-storage_bucket").GetDiag()
+			}
+		}
+	}
+
+	if flowLogCollector.Destination != nil {
+		destMap := make(map[string]interface{})
+		switch dest := flowLogCollector.Destination.(type) {
+		case *vpcv1.FlowLogCollectorDestinationCloudObjectStorage:
+			if dest.Type != nil {
+				destMap["type"] = *dest.Type
+			}
+			if dest.StorageBucket != nil && dest.StorageBucket.Name != nil {
+				destMap["storage_bucket"] = *dest.StorageBucket.Name
+			}
+		case *vpcv1.FlowLogCollectorDestinationIBMCloudLogs:
+			if dest.Type != nil {
+				destMap["type"] = *dest.Type
+			}
+		case *vpcv1.FlowLogCollectorDestination:
+			if dest.Type != nil {
+				destMap["type"] = *dest.Type
+			}
+			if dest.StorageBucket != nil && dest.StorageBucket.Name != nil {
+				destMap["storage_bucket"] = *dest.StorageBucket.Name
+			}
+		}
+		if len(destMap) > 0 {
+			if err = d.Set(isFlowLogDestination, destMap); err != nil {
+				err = fmt.Errorf("Error setting destination: %s", err)
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_flow_log", "read", "set-destination").GetDiag()
+			}
 		}
 	}
 

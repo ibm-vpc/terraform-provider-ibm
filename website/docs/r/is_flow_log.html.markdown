@@ -70,6 +70,33 @@ resource "ibm_is_flow_log" "example" {
 
 ```
 
+### Using the `destination` block (Cloud Object Storage)
+
+```terraform
+resource "ibm_is_flow_log" "example_cos_destination" {
+  name   = "example-cos-destination-flow-log"
+  target = ibm_is_instance.example.id
+  active = true
+  destination = {
+    type           = "cloud_object_storage"
+    storage_bucket = ibm_cos_bucket.example.bucket_name
+  }
+}
+```
+
+### Using the `destination` block (IBM Cloud Logs)
+
+```terraform
+resource "ibm_is_flow_log" "example_cloud_logs_destination" {
+  name   = "example-cloud-logs-flow-log"
+  target = ibm_is_subnet.example.id
+  active = true
+  destination = {
+    type = "ibm_cloud_logs"
+  }
+}
+```
+
 
 ## Argument reference
 Review the argument references that you can specify for your resource. 
@@ -91,7 +118,10 @@ Review the argument references that you can specify for your resource.
   **&#x2022;** If the target is a virtual server instance, flow logs will be collected  for all network attachments or network interfaces on that instance.</br>
   **&#x2022;** If the target is a subnet, flow logs will be collected  for all instance network interfaces and virtual network interfaces  attached to that subnet.</br>
   **&#x2022;** If the target is a VPC, flow logs will be collected for all instance network  interfaces and virtual network interfaces  attached to all subnets within that VPC. If the target is an instance, subnet, or VPC, flow logs will not be collectedfor any instance network attachments or instance network interfaces within the targetthat are themselves the target of a more specific flow log collector.</br>
-- `storage_bucket` - (Required, Forces new resource, String) The name of the IBM Cloud Object Storage bucket where the collected flows will be logged. The bucket must exist and an IAM service authorization must grant IBM Cloud flow logs resources of VPC infrastructure services writer access to the bucket.
+- `storage_bucket` - (Optional, Forces new resource, String) The name of the IBM Cloud Object Storage bucket where the collected flows will be logged. The bucket must exist and an IAM service authorization must grant IBM Cloud flow logs resources of VPC infrastructure services writer access to the bucket. Conflicts with `destination`; use one or the other, not both.
+- `destination` - (Optional, Forces new resource, Map) The destination for the collected flow logs. Conflicts with `storage_bucket`; use one or the other, not both. The map supports the following keys:
+  - `type` - (Required, String) The destination type. Supported values are `cloud_object_storage` and `ibm_cloud_logs`.
+  - `storage_bucket` - (Required when `type` is `cloud_object_storage`, String) The Cloud Object Storage bucket name where the collected flows will be logged. Must not be set when `type` is `ibm_cloud_logs`.
 - `active` - (Optional, String) Indicates whether the collector is active. If **false**, this collector is created in inactive mode. Default value is true.
 - `resource_group` - (Optional, Forces new resource, String) The resource group ID where the flow log is created.
 - `tags` - (Optional, Array of Strings) The tags associated with the flow log.
@@ -103,10 +133,14 @@ In addition to all argument reference list, you can access the following attribu
 - `auto_delete` - (Boolean) Indicates whether this flow log collector will be automatically deleted when target is deleted. At present, this is always true, but may be modifiable in the future.
 - `created_at`-  (String) The date and time that the flow log collector created.
 - `crn` - (String) The CRN of the flow log collector.
+- `destination` - (Map) The destination for the collected flow logs. This is populated from the API even when the resource was created using the legacy `storage_bucket` argument. Map keys:
+  - `type` - (String) The destination type. One of `cloud_object_storage` or `ibm_cloud_logs`.
+  - `storage_bucket` - (String) The Cloud Object Storage bucket name. Present only when `type` is `cloud_object_storage`.
 - `href` - (String) The URL of the flow log collector.
 - `id` - (String) The unique identifier of the flow log collector.
 - `lifecycle_state` - (String) The lifecycle state of the flow log collector.
 - `name`-  (String) The user-defined name of the flow log collector.
+- `storage_bucket` - (String) The Cloud Object Storage bucket name where the collected flows are logged.
 - `vpc` - (String) The VPC of the flow log collector that is associated.
 
 
