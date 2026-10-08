@@ -18,10 +18,11 @@ resource "ibm_en_source" "en_source" {
   name          = "EN Source"
   description   = "API source for Event Notifications destinations"
   enabled       = true
+  store_notifications = true
 }
 ```
 
-Note: The IBM Cloud sources, IBM Cloud Platform sources, and the Periodic Timer source documented in the IBM Cloud Event Notifications/Event Streams documentation cannot be created or managed as Terraform resources.
+Note: The IBM Cloud sources, IBM Cloud Platform sources, and the Periodic Timer source documented in the IBM Cloud Event Notifications documentation cannot be created or managed as Terraform resources.
 Instead, they are read‑only in Terraform and can be accessed only via data sources, not via resource blocks.
 
 This means:
@@ -39,7 +40,8 @@ Review the argument reference that you can specify for your resource.
 
 - `description` - (Optional, String) The Source description.
 
-- `enabled` - (Optional, bool) The enabled flag to enbale the created API source.
+- `enabled` - (Required, bool) The enabled flag to enbale the created API source.
+- `store_notifications` - (Optional, bool) enable to view the payload of incoming events for troubleshooting.
 
 ## Attribute reference
 

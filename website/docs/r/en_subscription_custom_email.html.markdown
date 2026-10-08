@@ -10,46 +10,90 @@ description: |-
 
 Create, update, or delete a Custom Email subscription by using IBM Cloud™ Event Notifications.
 
-## Example usage for Custom Email Subscription Creation
+## Example usage
+
+### Subscription to Production Custom Email Destination
 
 ```terraform
-resource "ibm_en_subscription_custom_email" "custom_domain_email_subscription" {
+resource "ibm_en_subscription_custom_email" "production_email_subscription" {
   instance_guid    = ibm_resource_instance.en_terraform_test_resource.guid
-  name             = "Custom Domain Email Subscription"
-  description      = "Subscription for Certificate expiration alert"
-  destination_id   = ibm_resource_instance.ibm_en_subscription_custom_email.destination_id
+  name             = "Production Email Subscription"
+  description      = "Subscription for production email notifications"
+  destination_id   = ibm_en_destination_custom_email.production_destination.destination_id
   topic_id         = ibm_en_topic.topic1.topic_id
   attributes {
-      add_notification_payload = true
-      reply_to_mail = "en@ibm.com"
-      reply_to_name = "EYS ORG"
-      from_name="ABC ORG"
-			from_mail="Testuser@mailx.com"
-      invited = ["test@gmail.com"]
+    add_notification_payload  = true
+    reply_to_mail             = "support@example.com"
+    reply_to_name             = "Support Team"
+    from_name                 = "Production Alerts"
+    from_email                = "alerts@example.com"
+    invited                   = ["user1@example.com", "user2@example.com"]
   }
 }
 ```
 
-## Example usage for Email Subscription Updation
+### Subscription to Sandbox Custom Email Destination
 
 ```terraform
-resource "ibm_en_subscription_custom_email" "custom_domain_email_subscription" {
+resource "ibm_en_subscription_custom_email" "sandbox_email_subscription" {
   instance_guid    = ibm_resource_instance.en_terraform_test_resource.guid
-  name             = "Custom Domain Email Subscription"
-  description      = "Subscription for Certificate expiration alert"
-  destination_id   = ibm_resource_instance.ibm_en_subscription_custom_email.destination_id
+  name             = "Sandbox Email Subscription"
+  description      = "Subscription for testing email notifications"
+  destination_id   = ibm_en_destination_custom_email.sandbox_destination.destination_id
   topic_id         = ibm_en_topic.topic1.topic_id
   attributes {
-      add_notification_payload = true
-      reply_to_mail            = "en@ibm.com"
-      reply_to_name            = "EYS ORG"
-      from_name                = "ABC ORG"
-			from_mail                = "Testuser@mailx.com"
-      add                      = ["productionuser@ibm.com"]
-      remove                   = ["testuser@gamil.com"]
+    add_notification_payload = true
+    reply_to_mail            = "test@example.com"
+    reply_to_name            = "Test Team"
+    invited                  = ["tester1@example.com", "tester2@example.com"]
+    # Note: from_name and from_email are NOT required for sandbox destinations
   }
 }
 ```
+
+### Updating Email Subscription (Production)
+
+```terraform
+resource "ibm_en_subscription_custom_email" "production_email_subscription" {
+  instance_guid    = ibm_resource_instance.en_terraform_test_resource.guid
+  name             = "Production Email Subscription Updated"
+  description      = "Updated subscription for production email notifications"
+  destination_id   = ibm_en_destination_custom_email.production_destination.destination_id
+  topic_id         = ibm_en_topic.topic1.topic_id
+  attributes {
+    add_notification_payload = true
+    reply_to_mail            = "support@example.com"
+    reply_to_name            = "Support Team"
+    from_name                = "Production Alerts"
+    from_email               = "alerts@example.com"
+    invited                  = ["existinguser@example.com", "newuser@example.com"]
+  }
+}
+```
+
+## Subscription Attributes Based on Destination Type
+
+The subscription attributes vary depending on whether the destination is a **sandbox** or **production** custom email destination:
+
+### Production Destination Subscriptions
+When subscribing to a production custom email destination (`is_sandbox = false`):
+- **Required attributes**: `from_name` and `from_email`
+- These attributes identify the sender of the email
+- `from_email` must belong to the verified custom domain
+
+### Sandbox Destination Subscriptions
+When subscribing to a sandbox custom email destination (`is_sandbox = true`):
+- **Not required**: `from_name` and `from_email`
+- These attributes should be omitted for sandbox subscriptions
+- Sandbox subscriptions are for testing and don't require sender verification
+
+### Common Attributes (Both Types)
+- `reply_to_mail`: Email address for replies
+- `reply_to_name`: Name for reply-to field
+- `invited`: List of recipient email addresses to manage. Add an address by adding it to this list; remove an address by removing it from this list.
+- `add_notification_payload`: Include notification payload in email
+- `template_id_notification`: Template for notifications (optional)
+- `template_id_invitation`: Template for invitations (optional)
 
 ## Argument reference
 
@@ -57,35 +101,41 @@ Review the argument reference that you can specify for your resource.
 
 - `instance_guid` - (Required, Forces new resource, String) Unique identifier for IBM Cloud Event Notifications instance.
 
-- `name` - (Requires, String) Subscription name.
+- `name` - (Required, String) Subscription name.
 
 - `description` - (Optional, String) Subscription description.
 
-- `destination_id` - (Requires, String) Destination ID.
+- `destination_id` - (Required, Forces new resource, String) Destination ID.
 
-- `topic_id` - (Required, String) Topic ID.
+- `topic_id` - (Required, Forces new resource, String) Topic ID.
 
-- `attributes` - (Optional, List) Subscription attributes.
+- `attributes` - (Required, List) Subscription attributes. The required attributes depend on the destination type (sandbox vs production).
 
   Nested scheme for **attributes**:
 
-  - `reply_to_name` - (String) The Email User Name to reply to.
+  - `add_notification_payload` - (Required, Boolean) Whether to include the notification payload in the email. Default is `false`.
 
-  - `reply_to_mail` - (String) The email address to reply to.
+  - `reply_to_name` - (Required, String) The email user name to reply to.
 
-  - `from_name` - (Optional, String) The user name from which email is addressed.
+  - `reply_to_mail` - (Required, String) The email address to reply to.
 
-  - `from_name` - (Optional, String) The email address user from which email is addressed(Should belong to the custom domain).
+  - `from_name` - (Conditional, String) The name of the email address from which email is sourced.
+    - **Required** for production destinations (`is_sandbox = false`)
+    - **Not used** for sandbox destinations (`is_sandbox = true`)
 
-  - `invited`- (List) The Email address to send the email to.
+  - `from_email` - (Conditional, String) The email address from which email is sourced. Must belong to the verified custom domain.
+    - **Required** for production destinations (`is_sandbox = false`)
+    - **Not used** for sandbox destinations (`is_sandbox = true`)
 
-  - `add`- (List) The Email address to add in case of updating the list of email addressses
+  - `template_id_notification` - (Optional, String) The template ID for notification emails.
 
-  - `reomve`- (List) The Email address list to be provided in case of removing the email addresses from subscription
+  - `template_id_invitation` - (Optional, String) The template ID for invitation emails.
 
-  - `template_id_notification` - (Optional, String) The templete id for notification.
+  - `invited` - (Required, List) The email addresses to invite. Add an address by adding it to this list; remove an address by removing it from this list.
 
-  - `template_id_invitation` - (Optional, String) The templete id for invitation.
+  - `subscribed` - (Computed, List) Email addresses that have accepted the invitation and are currently subscribed. Populated by the service; read-only.
+
+  - `unsubscribed` - (Computed, List) Email addresses that have unsubscribed. Populated by the service; read-only.
 
 ## Attribute reference
 
@@ -94,6 +144,12 @@ In addition to all argument references listed, you can access the following attr
 - `id` - (String) The unique identifier of the `custom_domain_email_subscription`.
 
 - `subscription_id` - (String) The unique identifier of the created subscription.
+
+- `destination_type` - (String) The type of Destination.
+
+- `destination_name` - (String) The Destination name.
+
+- `topic_name` - (String) Name of the topic.
 
 - `updated_at` - (String) Last updated time.
 

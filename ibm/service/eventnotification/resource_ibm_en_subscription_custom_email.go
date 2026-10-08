@@ -57,22 +57,22 @@ func ResourceIBMEnCustomEmailSubscription() *schema.Resource {
 			"attributes": {
 				Type:     schema.TypeList,
 				MaxItems: 1,
-				Optional: true,
+				Required: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"add_notification_payload": {
 							Type:        schema.TypeBool,
-							Optional:    true,
+							Required:    true,
 							Description: "Whether to add the notification payload to the email.",
 						},
 						"reply_to_mail": {
 							Type:        schema.TypeString,
-							Optional:    true,
+							Required:    true,
 							Description: "The email address to reply to.",
 						},
 						"reply_to_name": {
 							Type:        schema.TypeString,
-							Optional:    true,
+							Required:    true,
 							Description: "The  name of the email address user to reply to.",
 						},
 						"from_name": {
@@ -97,21 +97,36 @@ func ResourceIBMEnCustomEmailSubscription() *schema.Resource {
 						},
 						"invited": {
 							Type:        schema.TypeList,
-							Optional:    true,
-							Description: "The Email address send the invite to in case of smtp_ibm.",
+							Required:    true,
+							Computed:    true,
+							Description: "The email addresses to invite. Add an address by adding it to this list; remove an address by removing it from this list.",
+							Elem:        &schema.Schema{Type: schema.TypeString},
+						},
+						"subscribed": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "Email addresses that have accepted the invitation and are currently subscribed. Populated by the service; read-only.",
+							Elem:        &schema.Schema{Type: schema.TypeString},
+						},
+						"unsubscribed": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "Email addresses that have unsubscribed. Populated by the service; read-only.",
 							Elem:        &schema.Schema{Type: schema.TypeString},
 						},
 						"add": {
-							Type:        schema.TypeList,
-							Optional:    true,
-							Description: "The Email address which should be added to smtp_ibm.",
-							Elem:        &schema.Schema{Type: schema.TypeString},
+							Type:       schema.TypeList,
+							Optional:   true,
+							Computed:   true,
+							Deprecated: "Use invited to manage email addresses.",
+							Elem:       &schema.Schema{Type: schema.TypeString},
 						},
 						"remove": {
-							Type:        schema.TypeList,
-							Optional:    true,
-							Description: "The email id to be removed in case of smtp_ibm destination type.",
-							Elem:        &schema.Schema{Type: schema.TypeString},
+							Type:       schema.TypeList,
+							Optional:   true,
+							Computed:   true,
+							Deprecated: "Use invited to manage email addresses.",
+							Elem:       &schema.Schema{Type: schema.TypeString},
 						},
 					},
 				},
@@ -161,7 +176,6 @@ func resourceIBMEnCustomEmailSubscriptionCreate(context context.Context, d *sche
 	options := &en.CreateSubscriptionOptions{}
 
 	options.SetInstanceID(d.Get("instance_guid").(string))
-
 	options.SetName(d.Get("name").(string))
 	options.SetTopicID(d.Get("topic_id").(string))
 	options.SetDestinationID(d.Get("destination_id").(string))
@@ -170,11 +184,31 @@ func resourceIBMEnCustomEmailSubscriptionCreate(context context.Context, d *sche
 		options.SetDescription(d.Get("description").(string))
 	}
 
-	attributes := CustomEmailattributesMapToAttributes(d.Get("attributes.0").(map[string]interface{}))
-	options.SetAttributes(&attributes)
+	// Get destination to determine if it's sandbox or production
+	destOptions := &en.GetDestinationOptions{}
+	destOptions.SetInstanceID(d.Get("instance_guid").(string))
+	destOptions.SetID(d.Get("destination_id").(string))
+
+	destination, _, err := enClient.GetDestinationWithContext(context, destOptions)
+	if err != nil {
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("GetDestinationWithContext failed: %s", err.Error()), "ibm_en_subscription_custom_email", "create")
+		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+		return tfErr.GetDiag()
+	}
+
+	isSandbox := destination.Type != nil && *destination.Type == "smtp_custom_sandbox"
+
+	attributes, err := CustomEmailattributesMapToAttributes(d.Get("attributes.0").(map[string]interface{}), isSandbox)
+	if err != nil {
+		log.Printf("[DEBUG] CustomEmailattributesMapToAttributes failed: %s", err.Error())
+		return diag.FromErr(err)
+	}
+
+	options.SetAttributes(attributes)
 
 	result, _, err := enClient.CreateSubscriptionWithContext(context, options)
 	if err != nil {
+
 		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("CreateSubscriptionWithContext failed: %s", err.Error()), "ibm_en_subscription_custom_email", "create")
 		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
 		return tfErr.GetDiag()
@@ -220,7 +254,7 @@ func resourceIBMEnCustomEmailSubscriptionRead(context context.Context, d *schema
 	}
 
 	if err = d.Set("subscription_id", result.ID); err != nil {
-		return diag.FromErr(fmt.Errorf("[ERROR] Error setting instance_guid: %s", err))
+		return diag.FromErr(fmt.Errorf("[ERROR] Error setting subscription_id: %s", err))
 	}
 
 	if err = d.Set("name", result.Name); err != nil {
@@ -267,6 +301,12 @@ func resourceIBMEnCustomEmailSubscriptionRead(context context.Context, d *schema
 		return diag.FromErr(fmt.Errorf("[ERROR] Error setting updated_at: %s", err))
 	}
 
+	if result.Attributes != nil {
+		if err = d.Set("attributes", enCustomEmailSubscriptionResourceFlattenAttributes(result.Attributes, d)); err != nil {
+			return diag.FromErr(fmt.Errorf("[ERROR] Error setting attributes: %s", err))
+		}
+	}
+
 	return nil
 }
 
@@ -296,10 +336,31 @@ func resourceIBMEnCustomEmailSubscriptionUpdate(context context.Context, d *sche
 			options.SetDescription(d.Get("description").(string))
 		}
 
-		attributes := CustomEmailattributesupdateMapToAttributes(d.Get("attributes.0").(map[string]interface{}))
-		options.SetAttributes(&attributes)
+		// Get destination to determine if it's sandbox or production
+		destOptions := &en.GetDestinationOptions{}
+		destOptions.SetInstanceID(parts[0])
+		destOptions.SetID(d.Get("destination_id").(string))
 
-		_, _, err := enClient.UpdateSubscriptionWithContext(context, options)
+		destination, _, err := enClient.GetDestinationWithContext(context, destOptions)
+		if err != nil {
+			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("GetDestinationWithContext failed: %s", err.Error()), "ibm_en_subscription_custom_email", "update")
+			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+			return tfErr.GetDiag()
+		}
+
+		isSandbox := destination.Type != nil && *destination.Type == "smtp_custom_sandbox"
+
+		log.Printf("[DEBUG] Calling CustomEmailattributesupdateMapToAttributes with isSandbox: %v", isSandbox)
+
+		attributes, err := CustomEmailattributesupdateMapToAttributes(d, isSandbox)
+		if err != nil {
+			log.Printf("[DEBUG] CustomEmailattributesupdateMapToAttributes failed: %s", err.Error())
+			return diag.FromErr(err)
+		}
+
+		options.SetAttributes(attributes)
+
+		_, _, err = enClient.UpdateSubscriptionWithContext(context, options)
 		if err != nil {
 			tfErr := flex.TerraformErrorf(err, fmt.Sprintf("UpdateSubscriptionWithContext failed: %s", err.Error()), "ibm_en_subscription_custom_email", "update")
 			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
@@ -347,34 +408,68 @@ func resourceIBMEnCustomEmailSubscriptionDelete(context context.Context, d *sche
 	return nil
 }
 
-func CustomEmailattributesMapToAttributes(attributeMap map[string]interface{}) en.SubscriptionCreateAttributes {
-	attributesCreate := en.SubscriptionCreateAttributes{}
+func CustomEmailattributesMapToAttributes(attributeMap map[string]interface{}, isSandbox bool) (en.SubscriptionCreateAttributesIntf, error) {
+	// Common attributes
+	invited := []string{}
 	if attributeMap["invited"] != nil {
-		invited := []string{}
 		for _, invitedItem := range attributeMap["invited"].([]interface{}) {
 			invited = append(invited, invitedItem.(string))
 		}
-		attributesCreate.Invited = invited
 	}
 
+	addNotificationPayload := false
 	if attributeMap["add_notification_payload"] != nil {
-		attributesCreate.AddNotificationPayload = core.BoolPtr(attributeMap["add_notification_payload"].(bool))
+		addNotificationPayload = attributeMap["add_notification_payload"].(bool)
 	}
 
+	replyToMail := ""
 	if attributeMap["reply_to_mail"] != nil {
-		attributesCreate.ReplyToMail = core.StringPtr(attributeMap["reply_to_mail"].(string))
+		replyToMail = attributeMap["reply_to_mail"].(string)
 	}
 
+	replyToName := ""
 	if attributeMap["reply_to_name"] != nil {
-		attributesCreate.ReplyToName = core.StringPtr(attributeMap["reply_to_name"].(string))
+		replyToName = attributeMap["reply_to_name"].(string)
 	}
 
+	if isSandbox {
+		// Sandbox destination - use SubscriptionCreateAttributesCustomEmailSandboxAttributes
+		attributesCreate := &en.SubscriptionCreateAttributesCustomEmailSandboxAttributes{
+			Invited:                invited,
+			AddNotificationPayload: core.BoolPtr(addNotificationPayload),
+			ReplyToMail:            core.StringPtr(replyToMail),
+			ReplyToName:            core.StringPtr(replyToName),
+		}
+
+		if attributeMap["template_id_notification"] != nil {
+			attributesCreate.TemplateIDNotification = core.StringPtr(attributeMap["template_id_notification"].(string))
+		}
+
+		if attributeMap["template_id_invitation"] != nil {
+			attributesCreate.TemplateIDInvitation = core.StringPtr(attributeMap["template_id_invitation"].(string))
+		}
+
+		return attributesCreate, nil
+	}
+
+	// Production destination - use SubscriptionCreateAttributesCustomEmailAttributes
+	fromName := ""
 	if attributeMap["from_name"] != nil {
-		attributesCreate.FromName = core.StringPtr(attributeMap["from_name"].(string))
+		fromName = attributeMap["from_name"].(string)
 	}
 
+	fromEmail := ""
 	if attributeMap["from_email"] != nil {
-		attributesCreate.FromEmail = core.StringPtr(attributeMap["from_email"].(string))
+		fromEmail = attributeMap["from_email"].(string)
+	}
+
+	attributesCreate := &en.SubscriptionCreateAttributesCustomEmailAttributes{
+		Invited:                invited,
+		AddNotificationPayload: core.BoolPtr(addNotificationPayload),
+		ReplyToMail:            core.StringPtr(replyToMail),
+		ReplyToName:            core.StringPtr(replyToName),
+		FromName:               core.StringPtr(fromName),
+		FromEmail:              core.StringPtr(fromEmail),
 	}
 
 	if attributeMap["template_id_notification"] != nil {
@@ -385,42 +480,85 @@ func CustomEmailattributesMapToAttributes(attributeMap map[string]interface{}) e
 		attributesCreate.TemplateIDInvitation = core.StringPtr(attributeMap["template_id_invitation"].(string))
 	}
 
-	return attributesCreate
+	return attributesCreate, nil
 }
 
-func CustomEmailattributesupdateMapToAttributes(attributeMap map[string]interface{}) en.SubscriptionUpdateAttributesCustomEmailUpdateAttributes {
-	updateattributes := en.SubscriptionUpdateAttributesCustomEmailUpdateAttributes{}
+func CustomEmailattributesupdateMapToAttributes(d *schema.ResourceData, isSandbox bool) (en.SubscriptionUpdateAttributesIntf, error) {
+	attributeMap := d.Get("attributes.0").(map[string]interface{})
 
-	addemail := new(en.UpdateAttributesInvited)
-	if attributeMap["add"] != nil {
-		to := []string{}
-		for _, toItem := range attributeMap["add"].([]interface{}) {
-			to = append(to, toItem.(string))
+	// invited: compute Add/Remove as a pure set-diff between old state and new config,
+	oldInvitedRaw, newInvitedRaw := d.GetChange("attributes.0.invited")
+	oldInvited := oldInvitedRaw.([]interface{})
+	newInvited := newInvitedRaw.([]interface{})
+
+	oldInvitedSet := toStringSet(oldInvited)
+	newInvitedSet := toStringSet(newInvited)
+
+	var invitedAdd, invitedRemove []string
+	for _, v := range newInvited {
+		if _, exists := oldInvitedSet[v.(string)]; !exists {
+			invitedAdd = append(invitedAdd, v.(string))
 		}
-		addemail.Add = to
 	}
-	updateattributes.Invited = addemail
-
-	if attributeMap["remove"] != nil {
-		rmemail := []string{}
-		for _, removeitem := range attributeMap["remove"].([]interface{}) {
-			rmemail = append(rmemail, removeitem.(string))
+	for _, v := range oldInvited {
+		if _, exists := newInvitedSet[v.(string)]; !exists {
+			invitedRemove = append(invitedRemove, v.(string))
 		}
-
-		addemail.Remove = rmemail
 	}
-	updateattributes.Invited = addemail
 
+	addemail := &en.UpdateAttributesInvited{}
+	if len(invitedAdd) > 0 {
+		addemail.Add = invitedAdd
+	}
+	if len(invitedRemove) > 0 {
+		addemail.Remove = invitedRemove
+	}
+
+	addNotificationPayload := false
 	if attributeMap["add_notification_payload"] != nil {
-		updateattributes.AddNotificationPayload = core.BoolPtr(attributeMap["add_notification_payload"].(bool))
+		addNotificationPayload = attributeMap["add_notification_payload"].(bool)
 	}
 
+	replyToMail := ""
 	if attributeMap["reply_to_mail"] != nil {
-		updateattributes.ReplyToMail = core.StringPtr(attributeMap["reply_to_mail"].(string))
+		replyToMail = attributeMap["reply_to_mail"].(string)
 	}
 
+	replyToName := ""
 	if attributeMap["reply_to_name"] != nil {
-		updateattributes.ReplyToName = core.StringPtr(attributeMap["reply_to_name"].(string))
+		replyToName = attributeMap["reply_to_name"].(string)
+	}
+
+	// Only set Invited on the struct when there is actually something to Add or Remove.
+	var invitedPtr *en.UpdateAttributesInvited
+	if len(invitedAdd) > 0 || len(invitedRemove) > 0 {
+		invitedPtr = addemail
+	}
+
+	if isSandbox {
+		updateattributes := &en.SubscriptionUpdateAttributesCustomEmailSandboxUpdateAttributes{
+			Invited:                invitedPtr,
+			AddNotificationPayload: core.BoolPtr(addNotificationPayload),
+			ReplyToMail:            core.StringPtr(replyToMail),
+			ReplyToName:            core.StringPtr(replyToName),
+		}
+
+		if attributeMap["template_id_notification"] != nil {
+			updateattributes.TemplateIDNotification = core.StringPtr(attributeMap["template_id_notification"].(string))
+		}
+
+		if attributeMap["template_id_invitation"] != nil {
+			updateattributes.TemplateIDInvitation = core.StringPtr(attributeMap["template_id_invitation"].(string))
+		}
+
+		return updateattributes, nil
+	}
+
+	updateattributes := &en.SubscriptionUpdateAttributesCustomEmailUpdateAttributes{
+		Invited:                invitedPtr,
+		AddNotificationPayload: core.BoolPtr(addNotificationPayload),
+		ReplyToMail:            core.StringPtr(replyToMail),
+		ReplyToName:            core.StringPtr(replyToName),
 	}
 
 	if attributeMap["from_name"] != nil {
@@ -439,5 +577,121 @@ func CustomEmailattributesupdateMapToAttributes(attributeMap map[string]interfac
 		updateattributes.TemplateIDInvitation = core.StringPtr(attributeMap["template_id_invitation"].(string))
 	}
 
-	return updateattributes
+	return updateattributes, nil
+}
+
+// add and remove are deprecated fields kept for customer-support use only.
+// The service never echoes them back, so we reflect the config value straight
+// into state — this keeps state == config and produces no plan diff as long as
+// the user has not changed the field. No API call is made for these fields.
+func enCustomEmailSubscriptionResourceFlattenAttributes(result en.SubscriptionAttributesIntf, d *schema.ResourceData) []map[string]interface{} {
+	attributes := result.(*en.SubscriptionAttributes)
+
+	// Reflect add/remove config values back into state unchanged so Terraform
+	// sees no diff. Default to empty slice when nothing is set in config.
+	addVal := []string{}
+	if v, ok := d.GetOk("attributes.0.add"); ok {
+		for _, e := range v.([]interface{}) {
+			addVal = append(addVal, e.(string))
+		}
+	}
+	removeVal := []string{}
+	if v, ok := d.GetOk("attributes.0.remove"); ok {
+		for _, e := range v.([]interface{}) {
+			removeVal = append(removeVal, e.(string))
+		}
+	}
+
+	attrMap := map[string]interface{}{
+		"add":    addVal,
+		"remove": removeVal,
+	}
+
+	if attributes.AddNotificationPayload != nil {
+		attrMap["add_notification_payload"] = *attributes.AddNotificationPayload
+	}
+	if attributes.ReplyToMail != nil {
+		attrMap["reply_to_mail"] = *attributes.ReplyToMail
+	}
+	if attributes.ReplyToName != nil {
+		attrMap["reply_to_name"] = *attributes.ReplyToName
+	}
+	if attributes.FromName != nil {
+		attrMap["from_name"] = *attributes.FromName
+	}
+	if attributes.FromEmail != nil {
+		attrMap["from_email"] = *attributes.FromEmail
+	}
+	if attributes.TemplateIDNotification != nil {
+		attrMap["template_id_notification"] = *attributes.TemplateIDNotification
+	}
+	if attributes.TemplateIDInvitation != nil {
+		attrMap["template_id_invitation"] = *attributes.TemplateIDInvitation
+	}
+
+	// Build a set of all emails known on the service side (pending, subscribed, unsubscribed).
+	knownOnService := map[string]struct{}{}
+	for _, item := range attributes.Invited {
+		if item.Email != nil {
+			knownOnService[*item.Email] = struct{}{}
+		}
+	}
+	for _, item := range attributes.Subscribed {
+		if item.Email != nil {
+			knownOnService[*item.Email] = struct{}{}
+		}
+	}
+	for _, item := range attributes.Unsubscribed {
+		if item.Email != nil {
+			knownOnService[*item.Email] = struct{}{}
+		}
+	}
+
+	// Write invited in config order to keep state == config order for TypeList.
+	seen := map[string]struct{}{}
+	invited := []string{}
+
+	if v, ok := d.GetOk("attributes.0.invited"); ok {
+		for _, e := range v.([]interface{}) {
+			email := e.(string)
+			if _, onService := knownOnService[email]; onService {
+				if _, already := seen[email]; !already {
+					seen[email] = struct{}{}
+					invited = append(invited, email)
+				}
+			}
+		}
+	}
+
+	// Append pending-invite emails not in config (e.g. invited outside Terraform).
+	for _, item := range attributes.Invited {
+		if item.Email != nil {
+			if _, already := seen[*item.Email]; !already {
+				seen[*item.Email] = struct{}{}
+				invited = append(invited, *item.Email)
+			}
+		}
+	}
+
+	attrMap["invited"] = invited
+
+	// Populate subscribed — read-only, directly from the API response.
+	subscribed := []string{}
+	for _, item := range attributes.Subscribed {
+		if item.Email != nil {
+			subscribed = append(subscribed, *item.Email)
+		}
+	}
+	attrMap["subscribed"] = subscribed
+
+	// Populate unsubscribed — read-only, directly from the API response.
+	unsubscribed := []string{}
+	for _, item := range attributes.Unsubscribed {
+		if item.Email != nil {
+			unsubscribed = append(unsubscribed, *item.Email)
+		}
+	}
+	attrMap["unsubscribed"] = unsubscribed
+
+	return []map[string]interface{}{attrMap}
 }
