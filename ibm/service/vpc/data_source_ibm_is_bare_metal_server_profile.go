@@ -1055,6 +1055,8 @@ func dataSourceBMSProfileFlattenGpuModel(result vpcv1.BareMetalServerProfileGpuM
 	}
 	finalList = append(finalList, finalMap)
 	return finalList
+}
+
 func dataSourceIBMIsBareMetalServerProfileZoneReferenceToMap(model vpcv1.ZoneReference) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
 	if model.Href != nil {

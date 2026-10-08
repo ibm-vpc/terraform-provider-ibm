@@ -1123,11 +1123,18 @@ func dataSourceIBMISBareMetalServerRead(context context.Context, d *schema.Resou
 	}
 	gpuList := make([]map[string]interface{}, 0)
 	if bareMetalServer.Gpu != nil {
-		currentGpu := map[string]interface{}{
-			isBareMetalServerGpuManufacturer: bareMetalServer.Gpu.Manufacturer,
-			isBareMetalServerGpuModel:        bareMetalServer.Gpu.Model,
-			isBareMetalServerGpuCount:        bareMetalServer.Gpu.Count,
-			isBareMetalServerGpuMemory:       bareMetalServer.Gpu.Memory,
+		currentGpu := map[string]interface{}{}
+		if bareMetalServer.Gpu.Manufacturer != nil {
+			currentGpu[isBareMetalServerGpuManufacturer] = *bareMetalServer.Gpu.Manufacturer
+		}
+		if bareMetalServer.Gpu.Model != nil {
+			currentGpu[isBareMetalServerGpuModel] = *bareMetalServer.Gpu.Model
+		}
+		if bareMetalServer.Gpu.Count != nil {
+			currentGpu[isBareMetalServerGpuCount] = *bareMetalServer.Gpu.Count
+		}
+		if bareMetalServer.Gpu.Memory != nil {
+			currentGpu[isBareMetalServerGpuMemory] = *bareMetalServer.Gpu.Memory
 		}
 		gpuList = append(gpuList, currentGpu)
 	}

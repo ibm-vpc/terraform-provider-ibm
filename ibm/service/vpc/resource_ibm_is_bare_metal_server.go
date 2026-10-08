@@ -2404,11 +2404,18 @@ func bareMetalServerGet(context context.Context, d *schema.ResourceData, meta in
 	}
 	gpuList := make([]map[string]interface{}, 0)
 	if bms.Gpu != nil {
-		currentGpu := map[string]interface{}{
-			isBareMetalServerGpuManufacturer: bms.Gpu.Manufacturer,
-			isBareMetalServerGpuModel:        bms.Gpu.Model,
-			isBareMetalServerGpuCount:        bms.Gpu.Count,
-			isBareMetalServerGpuMemory:       bms.Gpu.Memory,
+		currentGpu := map[string]interface{}{}
+		if bms.Gpu.Manufacturer != nil {
+			currentGpu[isBareMetalServerGpuManufacturer] = *bms.Gpu.Manufacturer
+		}
+		if bms.Gpu.Model != nil {
+			currentGpu[isBareMetalServerGpuModel] = *bms.Gpu.Model
+		}
+		if bms.Gpu.Count != nil {
+			currentGpu[isBareMetalServerGpuCount] = *bms.Gpu.Count
+		}
+		if bms.Gpu.Memory != nil {
+			currentGpu[isBareMetalServerGpuMemory] = *bms.Gpu.Memory
 		}
 		gpuList = append(gpuList, currentGpu)
 	}
