@@ -108,6 +108,7 @@ var (
 	IsBareMetalServerImage          string
 	IsBareMetalServerImage2         string
 	IsBareMetalServerProfileName    string
+	IsBareMetalServerGPUProfileName string
 	IsResourceGroupID               string
 	IsResourceGroupIDUpdate         string
 	JobID                           string
@@ -1100,6 +1101,11 @@ func init() {
 	if IsBareMetalServerProfileName == "" {
 		IsBareMetalServerProfileName = "bx2-metal-96x384" // for next gen infrastructure
 		fmt.Println("[INFO] Set the environment variable IS_BARE_METAL_SERVER_PROFILE for testing ibm_is_bare_metal_server resource else it is set to default value 'bx2-metal-96x384'")
+	}
+
+	IsBareMetalServerGPUProfileName = os.Getenv("IS_BARE_METAL_SERVER_GPU_PROFILE")
+	if IsBareMetalServerGPUProfileName == "" {
+		fmt.Println("[INFO] Set the environment variable IS_BARE_METAL_SERVER_GPU_PROFILE for testing ibm_is_bare_metal_server GPU resource. No default — GPU BMS profile must be explicitly set.")
 	}
 
 	IsBareMetalServerImage = os.Getenv("IS_BARE_METAL_SERVER_IMAGE")
