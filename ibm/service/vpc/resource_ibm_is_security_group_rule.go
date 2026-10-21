@@ -1570,7 +1570,7 @@ func parseIBMISSecurityGroupRuleDictionary(d *schema.ResourceData, tag string, s
 		parsed.protocol = "icmp"
 		sgTemplate.Protocol = &parsed.protocol
 	} else {
-		if parsed.protocol == "icmp" {
+		if parsed.protocol == "icmp" || parsed.protocol == "ipv6_icmp" {
 			haveType := false
 			if value, ok := d.GetOkExists("type"); ok {
 				parsed.icmpType = int64(value.(int))
@@ -1582,20 +1582,6 @@ func parseIBMISSecurityGroupRuleDictionary(d *schema.ResourceData, tag string, s
 				if !haveType {
 					return nil, nil, nil, fmt.Errorf("icmp code requires icmp type")
 				}
-				parsed.icmpCode = int64(value.(int))
-				sgTemplate.Code = &parsed.icmpCode
-				securityGroupRulePatchModel.Code = &parsed.icmpCode
-			}
-		}
-
-		// Handle ipv6_icmp: type and code, mirroring icmp handling
-		if parsed.protocol == "ipv6_icmp" {
-			if value, ok := d.GetOkExists("type"); ok {
-				parsed.icmpType = int64(value.(int))
-				sgTemplate.Type = &parsed.icmpType
-				securityGroupRulePatchModel.Type = &parsed.icmpType
-			}
-			if value, ok := d.GetOkExists("code"); ok {
 				parsed.icmpCode = int64(value.(int))
 				sgTemplate.Code = &parsed.icmpCode
 				securityGroupRulePatchModel.Code = &parsed.icmpCode
@@ -1694,16 +1680,6 @@ func parseIBMISSecurityGroupRuleDictionary(d *schema.ResourceData, tag string, s
 		return nil, nil, nil, fmt.Errorf("[ERROR] Error calling asPatch for SecurityGroupRulePatch: %s", err)
 	}
 	if _, ok := d.GetOk("icmp"); ok {
-		if parsed.icmpType == -1 {
-			securityGroupRulePatch["type"] = nil
-		}
-		if parsed.icmpCode == -1 {
-			securityGroupRulePatch["code"] = nil
-		}
-	}
-	// For ipv6_icmp using flat type/code attributes (not the icmp block), also nil-patch
-	// type and code if they were not provided so the API clears them.
-	if parsed.protocol == "ipv6_icmp" {
 		if parsed.icmpType == -1 {
 			securityGroupRulePatch["type"] = nil
 		}
