@@ -9,6 +9,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/IBM/go-sdk-core/v5/core"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -427,6 +428,59 @@ func DataSourceIBMIsVirtualNetworkInterfaces() *schema.Resource {
 								},
 							},
 						},
+						"public_address_ranges": &schema.Schema{
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "The public address ranges attached to this virtual network interface.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"cidr": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The public IP address block for this public address range, expressed in CIDR format.",
+									},
+									"crn": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The CRN for this public address range.",
+									},
+									"deleted": &schema.Schema{
+										Type:        schema.TypeList,
+										Computed:    true,
+										Description: "If present, this property indicates the referenced resource has been deleted, and provides some supplementary information.",
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"more_info": &schema.Schema{
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "Link to documentation about deleted resources.",
+												},
+											},
+										},
+									},
+									"href": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The URL for this public address range.",
+									},
+									"id": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The unique identifier for this public address range.",
+									},
+									"name": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The name for this public address range. The name is unique across all public address ranges in the region.",
+									},
+									"resource_type": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The resource type.",
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -604,6 +658,18 @@ func dataSourceIBMIsVirtualNetworkInterfacesVirtualNetworkInterfaceToMap(model *
 		}
 	}
 	modelMap["ips"] = ips
+
+	if !core.IsNil(model.PublicAddressRanges) {
+		publicAddressRanges := []map[string]interface{}{}
+		for _, parItem := range model.PublicAddressRanges {
+			parItemMap, err := dataSourceIBMIsVirtualNetworkInterfacePublicAddressRangeReferenceToMap(&parItem)
+			if err != nil {
+				return modelMap, err
+			}
+			publicAddressRanges = append(publicAddressRanges, parItemMap)
+		}
+		modelMap["public_address_ranges"] = publicAddressRanges
+	}
 
 	return modelMap, nil
 }

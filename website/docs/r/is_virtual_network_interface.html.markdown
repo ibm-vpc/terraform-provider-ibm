@@ -113,6 +113,19 @@ After your resource is created, you can read values from the listed arguments an
   - `id` - (String) The unique identifier for this VPC.
   - `name` - (String) The name for this VPC. The name is unique across all VPCs in the region.
   - `resource_type` - (String) The resource type.
+- `public_address_ranges` - (List) The public address ranges attached to this virtual network interface. This list is empty when no IPv6 public address ranges target the VNI.
+
+  Nested schema for **public_address_ranges**:
+  - `cidr` - (String) The public IP address block for this public address range, expressed in CIDR format.
+  - `crn` - (String) The CRN for this public address range.
+  - `deleted` - (List) If present, this property indicates the referenced resource has been deleted, and provides some supplementary information.
+
+    Nested schema for **deleted**:
+    - `more_info` - (String) Link to documentation about deleted resources.
+  - `href` - (String) The URL for this public address range.
+  - `id` - (String) The unique identifier for this public address range.
+  - `name` - (String) The name for this public address range. The name is unique across all public address ranges in the region.
+  - `resource_type` - (String) The resource type.
 - `zone` - (String) The zone name of the zone this virtual network interface resides in.
 
 

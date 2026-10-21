@@ -481,6 +481,80 @@ func securityGroupGet(context context.Context, d *schema.ResourceData, meta inte
 						}
 						rules = append(rules, r)
 					}
+				case "*vpcv1.SecurityGroupRuleProtocolIPv6Icmp":
+					{
+						rule := sgrule.(*vpcv1.SecurityGroupRuleProtocolIPv6Icmp)
+						r := make(map[string]interface{})
+						r[isSgRuleDirection] = *rule.Direction
+						r[isSgRuleIPVersion] = *rule.IPVersion
+						r[isSgRuleName] = rule.Name
+						if rule.Protocol != nil {
+							r[isSgRuleProtocol] = *rule.Protocol
+						}
+						r[isSgRuleID] = *rule.ID
+						if rule.Code != nil {
+							r[isSgRuleCode] = int(*rule.Code)
+						}
+						if rule.Type != nil {
+							r[isSgRuleType] = int(*rule.Type)
+						}
+						remote, ok := rule.Remote.(*vpcv1.SecurityGroupRuleRemote)
+						if ok {
+							if remote != nil && reflect.ValueOf(remote).IsNil() == false {
+								if remote.ID != nil {
+									r[isSgRuleRemote] = remote.ID
+								} else if remote.Address != nil {
+									r[isSgRuleRemote] = remote.Address
+								} else if remote.CIDRBlock != nil {
+									r[isSgRuleRemote] = remote.CIDRBlock
+								}
+							}
+						}
+						local, ok := rule.Local.(*vpcv1.SecurityGroupRuleLocal)
+						if ok {
+							if local != nil && !reflect.ValueOf(local).IsNil() {
+								localList := []map[string]interface{}{}
+								localMap := dataSourceSecurityGroupRuleLocalToMap(local)
+								localList = append(localList, localMap)
+								r["local"] = localList
+							}
+						}
+						rules = append(rules, r)
+					}
+				case "*vpcv1.SecurityGroupRuleProtocolIndividualIPv6":
+					{
+						rule := sgrule.(*vpcv1.SecurityGroupRuleProtocolIndividualIPv6)
+						r := make(map[string]interface{})
+						r[isSgRuleDirection] = *rule.Direction
+						r[isSgRuleIPVersion] = *rule.IPVersion
+						r[isSgRuleName] = rule.Name
+						if rule.Protocol != nil {
+							r[isSgRuleProtocol] = *rule.Protocol
+						}
+						r[isSgRuleID] = *rule.ID
+						remote, ok := rule.Remote.(*vpcv1.SecurityGroupRuleRemote)
+						if ok {
+							if remote != nil && reflect.ValueOf(remote).IsNil() == false {
+								if remote.ID != nil {
+									r[isSgRuleRemote] = remote.ID
+								} else if remote.Address != nil {
+									r[isSgRuleRemote] = remote.Address
+								} else if remote.CIDRBlock != nil {
+									r[isSgRuleRemote] = remote.CIDRBlock
+								}
+							}
+						}
+						local, ok := rule.Local.(*vpcv1.SecurityGroupRuleLocal)
+						if ok {
+							if local != nil && !reflect.ValueOf(local).IsNil() {
+								localList := []map[string]interface{}{}
+								localMap := dataSourceSecurityGroupRuleLocalToMap(local)
+								localList = append(localList, localMap)
+								r["local"] = localList
+							}
+						}
+						rules = append(rules, r)
+					}
 
 				case "*vpcv1.SecurityGroupRuleSecurityGroupRuleProtocolTcpudp":
 					{

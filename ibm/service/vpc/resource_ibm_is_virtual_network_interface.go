@@ -368,6 +368,59 @@ func ResourceIBMIsVirtualNetworkInterface() *schema.Resource {
 				Computed:    true,
 				Description: "The zone name this virtual network interface resides in.",
 			},
+			"public_address_ranges": &schema.Schema{
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "The public address ranges attached to this virtual network interface.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"cidr": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The public IP address block for this public address range, expressed in CIDR format.",
+						},
+						"crn": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The CRN for this public address range.",
+						},
+						"deleted": &schema.Schema{
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "If present, this property indicates the referenced resource has been deleted, and provides some supplementary information.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"more_info": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "Link to documentation about deleted resources.",
+									},
+								},
+							},
+						},
+						"href": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The URL for this public address range.",
+						},
+						"id": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The unique identifier for this public address range.",
+						},
+						"name": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The name for this public address range. The name is unique across all public address ranges in the region.",
+						},
+						"resource_type": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The resource type.",
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -661,6 +714,20 @@ func resourceIBMIsVirtualNetworkInterfaceRead(context context.Context, d *schema
 		if err = d.Set("zone", *virtualNetworkInterface.Zone.Name); err != nil {
 			err = fmt.Errorf("Error setting zone: %s", err)
 			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_virtual_network_interface", "read", "set-zone").GetDiag()
+		}
+	}
+	if !core.IsNil(virtualNetworkInterface.PublicAddressRanges) {
+		publicAddressRanges := []map[string]interface{}{}
+		for _, parItem := range virtualNetworkInterface.PublicAddressRanges {
+			parItemMap, err := resourceIBMIsVirtualNetworkInterfacePublicAddressRangeReferenceToMap(&parItem)
+			if err != nil {
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_virtual_network_interface", "read", "public_address_ranges-to-map").GetDiag()
+			}
+			publicAddressRanges = append(publicAddressRanges, parItemMap)
+		}
+		if err = d.Set("public_address_ranges", publicAddressRanges); err != nil {
+			err = fmt.Errorf("Error setting public_address_ranges: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_virtual_network_interface", "read", "set-public_address_ranges").GetDiag()
 		}
 	}
 
@@ -1091,6 +1158,23 @@ func resourceIBMIsVirtualNetworkInterfaceSecurityGroupReferenceToMap(model *vpcv
 func resourceIBMIsVirtualNetworkInterfaceSecurityGroupReferenceDeletedToMap(model *vpcv1.Deleted) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
 	modelMap["more_info"] = model.MoreInfo
+	return modelMap, nil
+}
+
+func resourceIBMIsVirtualNetworkInterfacePublicAddressRangeReferenceToMap(model *vpcv1.PublicAddressRangeReference) (map[string]interface{}, error) {
+	modelMap := make(map[string]interface{})
+	modelMap["cidr"] = model.CIDR
+	modelMap["crn"] = model.CRN
+	if model.Deleted != nil {
+		deletedMap := map[string]interface{}{
+			"more_info": model.Deleted.MoreInfo,
+		}
+		modelMap["deleted"] = []map[string]interface{}{deletedMap}
+	}
+	modelMap["href"] = model.Href
+	modelMap["id"] = model.ID
+	modelMap["name"] = model.Name
+	modelMap["resource_type"] = model.ResourceType
 	return modelMap, nil
 }
 
