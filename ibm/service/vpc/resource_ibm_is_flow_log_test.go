@@ -52,6 +52,7 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCKVmnMOlHKcZK8tpt3MP1lqOLAcqcJzhsvJcjscgVE
 					resource.TestCheckResourceAttrSet("ibm_is_flow_log.test_flow_log", "auto_delete"),
 					resource.TestCheckResourceAttrSet("ibm_is_flow_log.test_flow_log", "resource_group"),
 					resource.TestCheckResourceAttrSet("ibm_is_flow_log.test_flow_log", "resource_group_name"),
+					resource.TestCheckResourceAttrSet("ibm_is_flow_log.test_flow_log", "destination.type"),
 				),
 			},
 			//update
@@ -64,6 +65,55 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCKVmnMOlHKcZK8tpt3MP1lqOLAcqcJzhsvJcjscgVE
 					resource.TestCheckResourceAttrSet("ibm_is_flow_log.test_flow_log", "auto_delete"),
 					resource.TestCheckResourceAttrSet("ibm_is_flow_log.test_flow_log", "resource_group"),
 					resource.TestCheckResourceAttrSet("ibm_is_flow_log.test_flow_log", "resource_group_name"),
+					resource.TestCheckResourceAttrSet("ibm_is_flow_log.test_flow_log", "destination.type"),
+				),
+			},
+		},
+	},
+	)
+}
+
+func TestAccIBMISFlowLog_destination(t *testing.T) {
+	var instance string
+	vpcname := fmt.Sprintf("flowlog-vpc-%d", acctest.RandIntRange(10, 100))
+	name := fmt.Sprintf("resource-instance-%d", acctest.RandIntRange(10, 100))
+	flowlogname := fmt.Sprintf("flowlog-instance-%d", acctest.RandIntRange(10, 100))
+	newflowlogname := fmt.Sprintf("newflowlog-instance-%d", acctest.RandIntRange(10, 100))
+	subnetname := fmt.Sprintf("flowlog-subnet-%d", acctest.RandIntRange(10, 100))
+	publicKey := strings.TrimSpace(`
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCKVmnMOlHKcZK8tpt3MP1lqOLAcqcJzhsvJcjscgVERRN7/9484SOBJ3HSKxxNG5JN8owAjy5f9yYwcUg+JaUVuytn5Pv3aeYROHGGg+5G346xaq3DAwX6Y5ykr2fvjObgncQBnuU5KHWCECO/4h8uWuwh/kfniXPVjFToc+gnkqA+3RKpAecZhFXwfalQ9mMuYGFxn+fwn8cYEApsJbsEmb0iJwPiZ5hjFC8wREuiTlhPHDgkBLOiycd20op2nXzDbHfCHInquEe/gYxEitALONxm0swBOwJZwlTDOB7C6y2dzlrtxr1L59m7pCkWI4EtTRLvleehBoj3u7jB4usR
+`)
+	sshname := fmt.Sprintf("tf-ssh-%d", acctest.RandIntRange(10, 100))
+
+	serviceName := fmt.Sprintf("terraform_%d", acctest.RandIntRange(10, 100))
+	bucketName := fmt.Sprintf("terraform%d", acctest.RandIntRange(10, 100))
+	bucketRegion := "us-south"
+	bucketClass := "standard"
+	bucketRegionType := "cross_region_location"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acc.TestAccPreCheck(t) },
+		Providers:    acc.TestAccProviders,
+		CheckDestroy: testAccCheckIBMISFlowLogDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckIBMISFlowLogDestinationConfig(vpcname, name, flowlogname, sshname, publicKey, subnetname, serviceName, bucketName, bucketRegionType, bucketRegion, bucketClass, true),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckIBMISFlowLogExists("ibm_is_flow_log.test_flow_log", instance),
+					resource.TestCheckResourceAttr("ibm_is_flow_log.test_flow_log", "name", flowlogname),
+					resource.TestCheckResourceAttr("ibm_is_flow_log.test_flow_log", "destination.type", "cloud_object_storage"),
+					resource.TestCheckResourceAttr("ibm_is_flow_log.test_flow_log", "destination.storage_bucket", bucketName),
+					resource.TestCheckResourceAttrSet("ibm_is_flow_log.test_flow_log", "auto_delete"),
+				),
+			},
+			{
+				Config: testAccCheckIBMISFlowLogDestinationConfig(vpcname, name, newflowlogname, sshname, publicKey, subnetname, serviceName, bucketName, bucketRegionType, bucketRegion, bucketClass, false),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckIBMISFlowLogExists("ibm_is_flow_log.test_flow_log", instance),
+					resource.TestCheckResourceAttr("ibm_is_flow_log.test_flow_log", "name", newflowlogname),
+					resource.TestCheckResourceAttr("ibm_is_flow_log.test_flow_log", "active", "false"),
+					resource.TestCheckResourceAttr("ibm_is_flow_log.test_flow_log", "destination.type", "cloud_object_storage"),
+					resource.TestCheckResourceAttr("ibm_is_flow_log.test_flow_log", "destination.storage_bucket", bucketName),
 				),
 			},
 		},
@@ -158,11 +208,76 @@ func testAccCheckIBMISFlowLogConfig(vpcname, name, flowlogname, sshname, publicK
 		target = ibm_is_instance.testacc_instance.id
 		storage_bucket = ibm_cos_bucket.bucket2.bucket_name
 		active = %v
-	  } 
+	  }
 	  
 	  `, vpcname, subnetname, acc.ISZoneName, acc.ISCIDR, sshname, publicKey, name, acc.IsImage, acc.InstanceProfileName, acc.ISZoneName, serviceName, bucketName, bucketRegion, bucketClass, flowlogname, isActive)
 
 }
+
+func testAccCheckIBMISFlowLogDestinationConfig(vpcname, name, flowlogname, sshname, publicKey, subnetname, serviceName, bucketName, bucketRegionType, bucketRegion, bucketClass string, isActive bool) string {
+	return fmt.Sprintf(`
+	
+	resource "ibm_is_vpc" "testacc_vpc" {
+		name = "%s"
+	}
+	
+	resource "ibm_is_subnet" "testacc_subnet" {
+		name            = "%s"
+		vpc             = ibm_is_vpc.testacc_vpc.id
+		zone            = "%s"
+		ipv4_cidr_block = "%s"
+	}
+
+	resource "ibm_is_ssh_key" "testacc_sshkey" {
+		name       = "%s"
+		public_key = "%s"
+	  }
+	  
+	resource "ibm_is_instance" "testacc_instance" {
+		name    = "%s"
+		image   = "%s"
+		profile = "%s"
+		primary_network_interface {
+		  subnet = ibm_is_subnet.testacc_subnet.id
+		}
+		vpc     = ibm_is_vpc.testacc_vpc.id
+		keys    = [ibm_is_ssh_key.testacc_sshkey.id]
+		zone    = "%s"
+	  }
+
+	data "ibm_resource_group" "cos_group" {
+		is_default=true
+	}
+	  
+	resource "ibm_resource_instance" "instance2" {
+		name              = "%s"
+		resource_group_id = data.ibm_resource_group.cos_group.id
+		service           = "cloud-object-storage"
+		plan              = "standard"
+		location          = "global"
+	  }
+
+	  resource "ibm_cos_bucket" "bucket2" {
+		bucket_name          = "%s"
+		resource_instance_id = ibm_resource_instance.instance2.id
+		region_location      = "%s"
+		storage_class        = "%s"
+	}
+	
+	resource "ibm_is_flow_log" "test_flow_log" {
+		name    = "%s"
+		target = ibm_is_instance.testacc_instance.id
+		destination = {
+			type = "cloud_object_storage"
+			storage_bucket = ibm_cos_bucket.bucket2.bucket_name
+		}
+		active = %v
+	  }
+	  
+	  `, vpcname, subnetname, acc.ISZoneName, acc.ISCIDR, sshname, publicKey, name, acc.IsImage, acc.InstanceProfileName, acc.ISZoneName, serviceName, bucketName, bucketRegion, bucketClass, flowlogname, isActive)
+
+}
+
 func testAccCheckIBMISFlowLogVniConfig(vpcname, vniname, flowlogname, subnetname, bucketName, bucketRegionType, bucketRegion, bucketClass string, isActive bool) string {
 	return fmt.Sprintf(`	  	
 	
@@ -292,4 +407,74 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCKVmnMOlHKcZK8tpt3MP1lqOLAcqcJzhsvJcjscgVE
 			},
 		},
 	})
+}
+
+// TestAccIBMISFlowLog_ibm_cloud_logs verifies that a flow log collector can be
+// created with destination.type = "ibm_cloud_logs" (no COS bucket required).
+// The test also exercises the name-update path to confirm ForceNew semantics are
+// preserved across the two destination types.
+func TestAccIBMISFlowLog_ibm_cloud_logs(t *testing.T) {
+	var instance string
+	vpcname := fmt.Sprintf("flowlog-vpc-%d", acctest.RandIntRange(10, 100))
+	subnetname := fmt.Sprintf("flowlog-subnet-%d", acctest.RandIntRange(10, 100))
+	flowlogname := fmt.Sprintf("flowlog-cloudlogs-%d", acctest.RandIntRange(10, 100))
+	newflowlogname := fmt.Sprintf("newflowlog-cloudlogs-%d", acctest.RandIntRange(10, 100))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acc.TestAccPreCheck(t) },
+		Providers:    acc.TestAccProviders,
+		CheckDestroy: testAccCheckIBMISFlowLogDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckIBMISFlowLogIBMCloudLogsConfig(vpcname, subnetname, flowlogname, true),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckIBMISFlowLogExists("ibm_is_flow_log.test_flow_log", instance),
+					resource.TestCheckResourceAttr("ibm_is_flow_log.test_flow_log", "name", flowlogname),
+					resource.TestCheckResourceAttr("ibm_is_flow_log.test_flow_log", "destination.type", "ibm_cloud_logs"),
+					resource.TestCheckResourceAttrSet("ibm_is_flow_log.test_flow_log", "auto_delete"),
+					resource.TestCheckResourceAttrSet("ibm_is_flow_log.test_flow_log", "lifecycle_state"),
+				),
+			},
+			// Rename to confirm that only name changes; destination.type is ForceNew
+			// so Terraform must destroy + recreate when destination changes, but a
+			// plain rename must not trigger recreation.
+			{
+				Config: testAccCheckIBMISFlowLogIBMCloudLogsConfig(vpcname, subnetname, newflowlogname, false),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckIBMISFlowLogExists("ibm_is_flow_log.test_flow_log", instance),
+					resource.TestCheckResourceAttr("ibm_is_flow_log.test_flow_log", "name", newflowlogname),
+					resource.TestCheckResourceAttr("ibm_is_flow_log.test_flow_log", "active", "false"),
+					resource.TestCheckResourceAttr("ibm_is_flow_log.test_flow_log", "destination.type", "ibm_cloud_logs"),
+				),
+			},
+		},
+	})
+}
+
+// testAccCheckIBMISFlowLogIBMCloudLogsConfig creates the minimal infrastructure
+// needed to test an ibm_cloud_logs destination — a VPC, a subnet, and the flow
+// log collector itself. No COS bucket or IAM auth policy is needed for this
+// destination type.
+func testAccCheckIBMISFlowLogIBMCloudLogsConfig(vpcname, subnetname, flowlogname string, isActive bool) string {
+	return fmt.Sprintf(`
+resource "ibm_is_vpc" "testacc_vpc" {
+  name = "%s"
+}
+
+resource "ibm_is_subnet" "testacc_subnet" {
+  name            = "%s"
+  vpc             = ibm_is_vpc.testacc_vpc.id
+  zone            = "%s"
+  ipv4_cidr_block = "%s"
+}
+
+resource "ibm_is_flow_log" "test_flow_log" {
+  name   = "%s"
+  target = ibm_is_subnet.testacc_subnet.id
+  destination = {
+    type = "ibm_cloud_logs"
+  }
+  active = %v
+}
+`, vpcname, subnetname, acc.ISZoneName, acc.ISCIDR, flowlogname, isActive)
 }

@@ -102,6 +102,34 @@ func DataSourceIBMIsFlowLog() *schema.Resource {
 					},
 				},
 			},
+			"destination": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "The destination for the collected flow logs.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"type": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The destination type for the collected flow logs.",
+						},
+						"storage_bucket": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "The Cloud Object Storage bucket where the collected flows are logged.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"name": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The globally unique name of this COS bucket.",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 			"target": {
 				Type:        schema.TypeList,
 				Computed:    true,
@@ -292,11 +320,17 @@ func dataSourceIBMIsFlowLogRead(context context.Context, d *schema.ResourceData,
 		}
 	}
 
+	if flowLogCollector.Destination != nil {
+		if err = d.Set("destination", dataSourceFlowLogCollectorFlattenDestination(flowLogCollector.Destination)); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting destination: %s", err), "(Data) ibm_is_flow_log", "read", "set-destination").GetDiag()
+		}
+	}
+
 	if flowLogCollector.Target != nil {
-		targetIntf := flowLogCollector.Target
-		target := targetIntf.(*vpcv1.FlowLogCollectorTarget) // type assertion
-		if err = d.Set("target", dataSourceFlowLogCollectorFlattenTarget(*target)); err != nil {
-			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting target: %s", err), "(Data) ibm_is_flow_log", "read", "set-target").GetDiag()
+		if target, ok := flowLogCollector.Target.(*vpcv1.FlowLogCollectorTarget); ok {
+			if err = d.Set("target", dataSourceFlowLogCollectorFlattenTarget(*target)); err != nil {
+				return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting target: %s", err), "(Data) ibm_is_flow_log", "read", "set-target").GetDiag()
+			}
 		}
 	}
 
@@ -359,6 +393,35 @@ func dataSourceFlowLogCollectorStorageBucketToMap(storageBucketItem vpcv1.Legacy
 	}
 
 	return storageBucketMap
+}
+
+func dataSourceFlowLogCollectorFlattenDestination(result vpcv1.FlowLogCollectorDestinationIntf) (finalList []map[string]interface{}) {
+	finalList = []map[string]interface{}{}
+	destMap := map[string]interface{}{}
+
+	// Only handle the two concrete subtypes the API can return.
+	// FlowLogCollectorDestination (the base struct) is the SDK discriminator type
+	// and is never returned directly by the API; handling it here would silently
+	// swallow unrecognised discriminator values, so we intentionally omit it.
+	switch dest := result.(type) {
+	case *vpcv1.FlowLogCollectorDestinationCloudObjectStorage:
+		if dest.Type != nil {
+			destMap["type"] = *dest.Type
+		}
+		if dest.StorageBucket != nil {
+			destMap["storage_bucket"] = dataSourceFlowLogCollectorFlattenStorageBucket(*dest.StorageBucket)
+		}
+	case *vpcv1.FlowLogCollectorDestinationIBMCloudLogs:
+		if dest.Type != nil {
+			destMap["type"] = *dest.Type
+		}
+	}
+
+	if len(destMap) > 0 {
+		finalList = append(finalList, destMap)
+	}
+
+	return finalList
 }
 
 func dataSourceFlowLogCollectorFlattenTarget(result vpcv1.FlowLogCollectorTarget) (finalList []map[string]interface{}) {

@@ -57,17 +57,20 @@ Review the attribute references that you can access after you retrieve your data
 
   Nested scheme for `flow_log_collectors`:
     - `access_tags` - (String) Access management tags associated for flow log.
-	- `active` - (String) Indicates whether the collector is active.
-	- `created_at` - (Timestamp) The date and time the flow log created.
-	- `crn` - (String) The CRN of the flow log collector.
-	- `href` - (String) The URL of the flow log collector.
-	- `id` - (String) The unique identifier of the flow log collector.
-	- `lifecycle_state` - (String) The lifecycle state of the flow log collector.
-	- `name` - (String) The flow log collector name.
-	- `resource_group` - (String) The resource group Id of the flow log.
-	- `storage_bucket` - (String) The IBM Cloud Object Storage bucket name where the flow logs are logged.
-	- `target` - (String) The target ID that the flow log collector collects the flow logs.
-	- `vpc` - (String) The VPC of the flow log collector that are associated.
+ - `active` - (String) Indicates whether the collector is active.
+ - `created_at` - (Timestamp) The date and time the flow log created.
+ - `crn` - (String) The CRN of the flow log collector.
+ - `href` - (String) The URL of the flow log collector.
+ - `id` - (String) The unique identifier of the flow log collector.
+ - `lifecycle_state` - (String) The lifecycle state of the flow log collector.
+ - `name` - (String) The flow log collector name.
+ - `resource_group` - (String) The resource group Id of the flow log.
+ - `destination` - (Map) The destination for the collected flow logs. This is a flat string map with the following keys:
+   - `type` - (String) The destination type. One of `cloud_object_storage` or `ibm_cloud_logs`. Reference as `flow_log_collectors.0.destination.type`.
+   - `storage_bucket` - (String) The Cloud Object Storage bucket name. Present only when `type` is `cloud_object_storage`. Reference as `flow_log_collectors.0.destination.storage_bucket`.
+ - `storage_bucket` - (String) The IBM Cloud Object Storage bucket name where the flow logs are logged. This is the legacy top-level field; prefer reading `destination.storage_bucket` for new configurations.
+ - `target` - (String) The target ID that the flow log collector collects the flow logs.
+ - `vpc` - (String) The VPC of the flow log collector that are associated.
 
 
 
