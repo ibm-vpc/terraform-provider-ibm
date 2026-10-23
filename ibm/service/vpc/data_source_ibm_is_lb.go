@@ -592,7 +592,7 @@ func lbGetByName(context context.Context, d *schema.ResourceData, meta interface
 					currentPubIp := map[string]interface{}{}
 
 					switch ipType := ip.(type) {
-					case *vpcv1.LoadBalancerPublicIPIP:
+					case *vpcv1.LoadBalancerPublicIPAddress:
 						if ipType.Address != nil {
 							address = ipType.Address
 							currentPubIp["address"] = *ipType.Address

@@ -227,7 +227,7 @@ func ResourceIBMISLB() *schema.Resource {
 				Description: "The floating IP IDs to assign to this load balancer. Only applicable when address_mode is 'static' and type is 'public'.",
 			},
 			isLBPublicIPDetail: {
-				Type:        schema.TypeSet,
+				Type:        schema.TypeList,
 				Computed:    true,
 				Description: "The public IP addresses assigned to this load balancer.",
 				Elem: &schema.Resource{
@@ -838,7 +838,6 @@ func lbGet(context context.Context, d *schema.ResourceData, meta interface{}, id
 	}
 	publicIpList := make([]string, 0)
 	publicIpDetailList := make([]map[string]interface{}, 0)
-	publicIPIDList := make([]string, 0)
 	if loadBalancer.PublicIps != nil {
 		for _, ip := range loadBalancer.PublicIps {
 			var address *string
@@ -856,7 +855,6 @@ func lbGet(context context.Context, d *schema.ResourceData, meta interface{}, id
 				}
 				if ipType.ID != nil {
 					currentPubIp["id"] = *ipType.ID
-					publicIPIDList = append(publicIPIDList, *ipType.ID)
 				}
 				if ipType.Name != nil {
 					currentPubIp["name"] = *ipType.Name
@@ -886,6 +884,12 @@ func lbGet(context context.Context, d *schema.ResourceData, meta interface{}, id
 		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_lb", "read", "set-public_ip").GetDiag()
 	}
 	if _, ok := d.GetOk(isLBPublicIPsInput); ok {
+		publicIPIDList := make([]string, 0, len(publicIpDetailList))
+		for _, detail := range publicIpDetailList {
+			if id, ok := detail["id"].(string); ok && id != "" {
+				publicIPIDList = append(publicIPIDList, id)
+			}
+		}
 		if err = d.Set(isLBPublicIPsInput, publicIPIDList); err != nil {
 			err = fmt.Errorf("Error setting public_ip_ids: %s", err)
 			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_lb", "read", "set-public_ip_ids").GetDiag()

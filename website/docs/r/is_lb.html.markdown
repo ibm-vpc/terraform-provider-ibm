@@ -27,13 +27,12 @@ An example to create an application load balancer.
 
 ```terraform
 resource "ibm_is_lb" "example" {
-  name    = "example-load-balancer"
-  subnets = [ibm_is_subnet.example.id, ibm_is_subnet.example1.id]
+  name         = "example-load-balancer"
+  subnets      = [ibm_is_subnet.example.id, ibm_is_subnet.example1.id]
   address_mode = "static"
-  public_ips   = [ibm_is_floating_ip.example.id, ibm_is_floating_ip.example1.id]
-  private_ips  = [ibm_is_subnet_reserved_ip.example.id, ibm_is_subnet_reserved_ip.example1.id]
+  public_ip_ids  = [ibm_is_floating_ip.example.id, ibm_is_floating_ip.example1.id]
+  private_ip_ids = [ibm_is_subnet_reserved_ip.example.id, ibm_is_subnet_reserved_ip.example1.id]
 }
-
 ```
 
 An example to create a network load balancer.
@@ -81,7 +80,7 @@ The `ibm_is_lb` resource provides the following [Timeouts](https://www.terraform
 ## Argument reference
 Review the argument references that you can specify for your resource.
 
-- `address_mode` - (Optional, String) The address mode to use for this load balancer. Supported values are `static` and `dynamic`. If `static`, customer-provided public or private IPs can be specified via `public_ips` and `private_ips`. If unset, defaults to `dynamic`.
+- `address_mode` - (Optional, String) The address mode to use for this load balancer. Supported values are `static` and `dynamic`. If `static`, IPs remain unchanged throughout the life of the load balancer and horizontal scaling is disabled; customer-provided IPs can be specified via `public_ip_ids` and `private_ip_ids`. If `dynamic`, IPs may change during maintenance. If unset, defaults to `dynamic`.
 - `access_tags`  - (Optional, List of Strings) A list of access management tags to attach to the load balancer.
 
   ~> **Note:** 
@@ -114,8 +113,8 @@ Review the argument references that you can specify for your resource.
   ~> **NOTE:** 
   The subnets must be in the same `VPC`. The load balancer's `availability` will depend on the availability of the `zones` the specified subnets reside in. The load balancer must be in the `application` family for `updating subnets`. Load balancers in the `network` family allow only `one subnet` to be specified.
 
-- `private_ips` - (Optional, List of String) The reserved IP IDs to assign as private IP addresses to this load balancer. Only applicable when `address_mode` is `static`.
-- `public_ips` - (Optional, List of String) The floating IP IDs to assign as public IP addresses to this load balancer. Only applicable when `address_mode` is `static`.
+- `private_ip_ids` - (Optional, Set of String) The reserved IP IDs to use for this load balancer's private IP addresses. All reserved IPs must already exist and be unbound, and must be in the same VPC. Load balancers in the `network` family require two IPs; load balancers in the `application` family require three IPs. Only applicable when `address_mode` is `static`.
+- `public_ip_ids` - (Optional, Set of String) The floating IP IDs to use for this load balancer's public IP addresses. All floating IPs must already exist and be unbound, and must be in the same region. Public load balancers in the `network` family require one floating IP; public load balancers in the `application` family require three floating IPs. Only applicable when `address_mode` is `static` and `type` is `public`.
 - `tags` (Optional, Array of Strings) A list of tags that you want to add to your load balancer. Tags can help you find the load balancer more easily later.
 - `type` - (Optional, Forces new resource, String) The type of the load balancer. Default value is `public`. Supported values are `public`, `private` and `private_path`.
 
@@ -144,18 +143,18 @@ In addition to all argument reference list, you can access the following attribu
 - `operating_status` - (String) The operating status of this load balancer.
 - `address_mode` - (String) The address mode for this load balancer. One of `static` (IPs remain unchanged throughout the life of the load balancer, horizontal scaling disabled) or `dynamic` (IPs may change during maintenance).
 - `public_ips` - (List) The public IP addresses assigned to this load balancer. Will be empty if `is_public` is `false`.
-- `public_ip` - (List) The public IP address details assigned to this load balancer. Each entry is either a floating IP reference or a plain IP address.
+- `public_ip` - (List) The public IP address details assigned to this load balancer. Will be empty if `is_public` is `false`.
 
   Nested scheme for `public_ip`:
-  - `address` - (String) The globally unique IP address. This property may expand to support IPv6 addresses in the future.
-  - `crn` - (String) The CRN for this floating IP. Present only when the public IP is a floating IP.
+  - `address` - (String) The IP address. This property may expand to support IPv6 addresses in the future.
+  - `crn` - (String) The CRN for this floating IP.
   - `deleted` - (List) If present, this property indicates the referenced resource has been deleted and provides some supplementary information.
 
     Nested scheme for `deleted`:
     - `more_info` - (String) Link to documentation about deleted resources.
-  - `href` - (String) The URL for this floating IP. Present only when the public IP is a floating IP.
-  - `id` - (String) The unique identifier for this floating IP. Present only when the public IP is a floating IP.
-  - `name` - (String) The name for this floating IP. The name is unique across all floating IPs in the region. Present only when the public IP is a floating IP.
+  - `href` - (String) The URL for this floating IP.
+  - `id` - (String) The unique identifier for this floating IP.
+  - `name` - (String) The name for this floating IP. The name is unique across all floating IPs in the region.
 - `private_ip` - (List) The private IP addresses assigned to this load balancer as reserved IP references.
 
   Nested scheme for `private_ip`:
@@ -163,6 +162,7 @@ In addition to all argument reference list, you can access the following attribu
   - `href` - (String) The URL for this reserved IP.
   - `reserved_ip` - (String) The unique identifier for this reserved IP.
   - `name` - (String) The name for this reserved IP. The name is unique across all reserved IPs in a subnet.
+  - `resource_type` - (String) The resource type.
 
 - `private_ips` - (List) The private IP addresses assigned to this load balancer. Same as `private_ip.[].address`.
 - `status` - (String) The status of the load balancer.

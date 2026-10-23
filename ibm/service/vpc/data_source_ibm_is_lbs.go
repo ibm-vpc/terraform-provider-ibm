@@ -523,7 +523,7 @@ func getLbs(context context.Context, d *schema.ResourceData, meta interface{}) d
 				currentPubIp := map[string]interface{}{}
 
 				switch ipType := ip.(type) {
-				case *vpcv1.LoadBalancerPublicIPIP:
+				case *vpcv1.LoadBalancerPublicIPAddress:
 					if ipType.Address != nil {
 						address = ipType.Address
 						currentPubIp["address"] = *ipType.Address
