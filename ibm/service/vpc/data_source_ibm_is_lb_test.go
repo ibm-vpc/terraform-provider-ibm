@@ -75,7 +75,7 @@ func TestAccIBMISLBDatasource_address_mode(t *testing.T) {
 		Providers: acc.TestAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckIBMISLBStaticAddressModeConfig(vpcname, subnetname, acc.ISZoneName, acc.ISCIDR, name, floatingipname, floatingipname2, floatingipname3, reservedipname, reservedipname2, reservedipname3),
+				Config: testDSCheckIBMISLBAddressModeConfig(vpcname, subnetname, acc.ISZoneName, acc.ISCIDR, name, floatingipname, floatingipname2, floatingipname3, reservedipname, reservedipname2, reservedipname3),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
 						"data.ibm_is_lb.ds_lb", "name", name),
@@ -83,6 +83,7 @@ func TestAccIBMISLBDatasource_address_mode(t *testing.T) {
 					resource.TestCheckResourceAttrSet("data.ibm_is_lb.ds_lb", "public_ips.#"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_lb.ds_lb", "public_ip.#"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_lb.ds_lb", "private_ips.#"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_lb.ds_lb", "private_ip.#"),
 				),
 			},
 		},
@@ -171,6 +172,14 @@ func TestAccIBMISLBDatasource_mTLS(t *testing.T) {
 			},
 		},
 	})
+}
+
+func testDSCheckIBMISLBAddressModeConfig(vpcname, subnetname, zone, cidr, name, fipname, fipname2, fipname3, ripname, ripname2, ripname3 string) string {
+	return testAccCheckIBMISLBStaticAddressModeConfig(vpcname, subnetname, zone, cidr, name, fipname, fipname2, fipname3, ripname, ripname2, ripname3) + `
+data "ibm_is_lb" "ds_lb" {
+	name       = ibm_is_lb.testacc_LB.name
+	depends_on = [ibm_is_lb.testacc_LB]
+}`
 }
 
 func testDSCheckIBMISLBConfig(vpcname, subnetname, zone, cidr, name string) string {

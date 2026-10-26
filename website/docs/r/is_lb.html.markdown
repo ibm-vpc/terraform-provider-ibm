@@ -29,9 +29,6 @@ An example to create an application load balancer.
 resource "ibm_is_lb" "example" {
   name         = "example-load-balancer"
   subnets      = [ibm_is_subnet.example.id, ibm_is_subnet.example1.id]
-  address_mode = "static"
-  public_ip_ids  = [ibm_is_floating_ip.example.id, ibm_is_floating_ip.example1.id]
-  private_ip_ids = [ibm_is_subnet_reserved_ip.example.id, ibm_is_subnet_reserved_ip.example1.id]
 }
 ```
 
@@ -67,6 +64,21 @@ resource "ibm_is_lb" "example" {
   subnets = [ibm_is_subnet.example.id]
   profile = "network-private-path"
   type = "private_path"
+}
+```
+
+## An example to create a static public application load balancer with customer-provided IPs.
+
+A static public ALB requires `address_mode = "static"`, three pre-existing floating IPs, and three pre-existing reserved IPs. The IPs must be unbound before the LB is created.
+
+```terraform
+resource "ibm_is_lb" "example_static" {
+  name           = "example-static-public-lb"
+  subnets        = [ibm_is_subnet.example.id]
+  type           = "public"
+  address_mode   = "static"
+  public_ip_ids  = [ibm_is_floating_ip.fip1.id, ibm_is_floating_ip.fip2.id, ibm_is_floating_ip.fip3.id]
+  private_ip_ids = [ibm_is_subnet_reserved_ip.rip1.reserved_ip, ibm_is_subnet_reserved_ip.rip2.reserved_ip, ibm_is_subnet_reserved_ip.rip3.reserved_ip]
 }
 ```
 
@@ -142,8 +154,8 @@ In addition to all argument reference list, you can access the following attribu
 - `mtls_supported`- (Bool) Indicates whether this load balancer supports mTLS.
 - `operating_status` - (String) The operating status of this load balancer.
 - `address_mode` - (String) The address mode for this load balancer. One of `static` (IPs remain unchanged throughout the life of the load balancer, horizontal scaling disabled) or `dynamic` (IPs may change during maintenance).
-- `public_ips` - (List) The public IP addresses assigned to this load balancer. Will be empty if `is_public` is `false`.
-- `public_ip` - (List) The public IP address details assigned to this load balancer. Will be empty if `is_public` is `false`.
+- `public_ips` - (List) The public IP addresses assigned to this load balancer.
+- `public_ip` - (List) The public IP address details assigned to this load balancer.
 
   Nested scheme for `public_ip`:
   - `address` - (String) The IP address. This property may expand to support IPv6 addresses in the future.

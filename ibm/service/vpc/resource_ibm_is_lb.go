@@ -215,10 +215,9 @@ func ResourceIBMISLB() *schema.Resource {
 			},
 
 			isLBPublicIPs: {
-				Type:        schema.TypeList,
-				Computed:    true,
-				Elem:        &schema.Schema{Type: schema.TypeString},
-				Description: "The public IP addresses or floating IP IDs to assign to this load balancer. Only applicable when address_mode is 'static'.",
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			isLBPublicIPsInput: {
 				Type:        schema.TypeList,
@@ -275,10 +274,9 @@ func ResourceIBMISLB() *schema.Resource {
 				},
 			},
 			isLBPrivateIPs: {
-				Type:        schema.TypeList,
-				Computed:    true,
-				Elem:        &schema.Schema{Type: schema.TypeString},
-				Description: "The private IP addresses or reserved IP IDs to assign to this load balancer. Only applicable when address_mode is 'static'.",
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 			isLBPrivateIPsInput: {
 				Type:        schema.TypeList,
