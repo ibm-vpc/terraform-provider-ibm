@@ -5,6 +5,7 @@ package vpc
 
 import (
 	"context"
+	"encoding/base64"
 	"fmt"
 	"log"
 
@@ -103,7 +104,7 @@ func dataSourceIBMISBareMetalServerStorageAccessRead(context context.Context, d 
 	}
 
 	if storageAccess.EncryptedSecret != nil {
-		if err = d.Set(isBMSStorageAccessEncryptedSecret, *storageAccess.EncryptedSecret); err != nil {
+		if err = d.Set(isBMSStorageAccessEncryptedSecret, base64.StdEncoding.EncodeToString(*storageAccess.EncryptedSecret)); err != nil {
 			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting %s: %s", isBMSStorageAccessEncryptedSecret, err), "(Data) ibm_is_bare_metal_server_storage_access", "read", "set-encrypted_secret").GetDiag()
 		}
 	}

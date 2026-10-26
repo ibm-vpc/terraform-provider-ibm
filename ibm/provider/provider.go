@@ -2169,7 +2169,7 @@ func Validator() validate.ValidatorDict {
 				"ibm_is_backup_policy_plan": vpc.ResourceIBMIsBackupPolicyPlanValidator(),
 
 				// bare_metal_server
-				"ibm_is_bare_metal_server_disk":               vpc.ResourceIBMIsBareMetalServerDiskValidator(),
+				"ibm_is_bare_metal_server_disk":                         vpc.ResourceIBMIsBareMetalServerDiskValidator(),
 				"ibm_is_bare_metal_server_network_attachment":           vpc.ResourceIBMIsBareMetalServerNetworkAttachmentValidator(),
 				"ibm_is_bare_metal_server_network_interface":            vpc.ResourceIBMIsBareMetalServerNetworkInterfaceValidator(),
 				"ibm_is_bare_metal_server":                              vpc.ResourceIBMIsBareMetalServerValidator(),
@@ -2435,10 +2435,10 @@ func Validator() validate.ValidatorDict {
 				"ibm_resource_groups":               resourcemanager.DataSourceIBMResourceGroupsValidator(),
 
 				// bare_metal_server
-				"ibm_is_bare_metal_server":                     vpc.DataSourceIBMIsBareMetalServerValidator(),
-				"ibm_is_bare_metal_server_storage_access":      vpc.DataSourceIBMIsBareMetalServerStorageAccessValidator(),
-				"ibm_is_bare_metal_server_volume_attachment":   vpc.DataSourceIBMIsBareMetalServerVolumeAttachmentValidator(),
-				"ibm_is_bare_metal_server_volume_attachments":  vpc.DataSourceIBMIsBareMetalServerVolumeAttachmentsValidator(),
+				"ibm_is_bare_metal_server":                    vpc.DataSourceIBMIsBareMetalServerValidator(),
+				"ibm_is_bare_metal_server_storage_access":     vpc.DataSourceIBMIsBareMetalServerStorageAccessValidator(),
+				"ibm_is_bare_metal_server_volume_attachment":  vpc.DataSourceIBMIsBareMetalServerVolumeAttachmentValidator(),
+				"ibm_is_bare_metal_server_volume_attachments": vpc.DataSourceIBMIsBareMetalServerVolumeAttachmentsValidator(),
 
 				"ibm_is_vpc":                          vpc.DataSourceIBMISVpcValidator(),
 				"ibm_is_volume":                       vpc.DataSourceIBMISVolumeValidator(),

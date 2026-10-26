@@ -5,6 +5,7 @@ package vpc
 
 import (
 	"context"
+	"encoding/base64"
 	"fmt"
 	"log"
 	"time"
@@ -173,7 +174,7 @@ func resourceIBMISBMSStorageAccessSecretRotateRead(context context.Context, d *s
 		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting %s: %s", isBMSStorageAccessCreatedAt, err), "ibm_is_bare_metal_server_storage_access_secret_rotate", "read", "set-created_at").GetDiag()
 	}
 	if storageAccess.EncryptedSecret != nil {
-		if err = d.Set(isBMSStorageAccessEncryptedSecret, *storageAccess.EncryptedSecret); err != nil {
+		if err = d.Set(isBMSStorageAccessEncryptedSecret, base64.StdEncoding.EncodeToString(*storageAccess.EncryptedSecret)); err != nil {
 			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting %s: %s", isBMSStorageAccessEncryptedSecret, err), "ibm_is_bare_metal_server_storage_access_secret_rotate", "read", "set-encrypted_secret").GetDiag()
 		}
 	}

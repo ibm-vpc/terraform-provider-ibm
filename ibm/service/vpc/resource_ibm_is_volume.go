@@ -290,10 +290,10 @@ func ResourceIBMISVolume() *schema.Resource {
 				Elem:        &schema.Schema{Type: schema.TypeString},
 			},
 			"attachment_mode": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				Description: "The attachment mode of this volume (single or multiple).",
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				Description:  "The attachment mode of this volume (single or multiple).",
 				ValidateFunc: validate.InvokeValidator("ibm_is_volume", "attachment_mode"),
 			},
 			isVolumeHealthReasons: {

@@ -597,8 +597,6 @@ func TestAccIBMISVolume_attachmentMode(t *testing.T) {
 	})
 }
 
-
-
 func testAccCheckIBMISVolumeDestroy(s *terraform.State) error {
 
 	sess, _ := acc.TestAccProvider.Meta().(conns.ClientSession).VpcV1API()
