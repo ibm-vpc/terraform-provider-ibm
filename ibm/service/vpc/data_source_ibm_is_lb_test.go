@@ -66,14 +66,16 @@ func TestAccIBMISLBDatasource_address_mode(t *testing.T) {
 	subnetname := fmt.Sprintf("tflb-subnet-name-%d", acctest.RandIntRange(10, 100))
 	floatingipname := fmt.Sprintf("tflb-fip-%d", acctest.RandIntRange(10, 100))
 	floatingipname2 := fmt.Sprintf("tflb-fip2-%d", acctest.RandIntRange(10, 100))
+	floatingipname3 := fmt.Sprintf("tflb-fip3-%d", acctest.RandIntRange(10, 100))
 	reservedipname := fmt.Sprintf("tflb-rip-%d", acctest.RandIntRange(10, 100))
 	reservedipname2 := fmt.Sprintf("tflb-rip2-%d", acctest.RandIntRange(10, 100))
+	reservedipname3 := fmt.Sprintf("tflb-rip3-%d", acctest.RandIntRange(10, 100))
 	resource.Test(t, resource.TestCase{
 		PreCheck:  func() { acc.TestAccPreCheck(t) },
 		Providers: acc.TestAccProviders,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccCheckIBMISLBAddressModeConfig(vpcname, subnetname, acc.ISZoneName, acc.ISCIDR, name, floatingipname, floatingipname2, reservedipname, reservedipname2),
+				Config: testAccCheckIBMISLBStaticAddressModeConfig(vpcname, subnetname, acc.ISZoneName, acc.ISCIDR, name, floatingipname, floatingipname2, floatingipname3, reservedipname, reservedipname2, reservedipname3),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr(
 						"data.ibm_is_lb.ds_lb", "name", name),

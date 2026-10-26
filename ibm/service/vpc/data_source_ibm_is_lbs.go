@@ -518,48 +518,36 @@ func getLbs(context context.Context, d *schema.ResourceData, meta interface{}) d
 		publicIpList := make([]string, 0)
 		publicIpDetailList := make([]map[string]interface{}, 0)
 		if lb.PublicIps != nil {
-			for _, ip := range lb.PublicIps {
-				var address *string
+			for _, ipIntf := range lb.PublicIps {
+				ip, ok := ipIntf.(*vpcv1.LoadBalancerPublicIP)
+				if !ok {
+					continue
+				}
 				currentPubIp := map[string]interface{}{}
-
-				switch ipType := ip.(type) {
-				case *vpcv1.LoadBalancerPublicIPAddress:
-					if ipType.Address != nil {
-						address = ipType.Address
-						currentPubIp["address"] = *ipType.Address
-					}
-				case *vpcv1.LoadBalancerPublicIPFloatingIPReference:
-					if ipType.Address != nil {
-						address = ipType.Address
-						currentPubIp["address"] = *ipType.Address
-					}
-					if ipType.CRN != nil {
-						currentPubIp["crn"] = *ipType.CRN
-					}
-					if ipType.Href != nil {
-						currentPubIp["href"] = *ipType.Href
-					}
-					if ipType.ID != nil {
-						currentPubIp["id"] = *ipType.ID
-					}
-					if ipType.Name != nil {
-						currentPubIp["name"] = *ipType.Name
-					}
-					if ipType.Deleted != nil {
-						deletedMap := map[string]interface{}{}
-						if ipType.Deleted.MoreInfo != nil {
-							deletedMap["more_info"] = *ipType.Deleted.MoreInfo
-						}
-						currentPubIp["deleted"] = []map[string]interface{}{deletedMap}
-					}
+				if ip.Address != nil {
+					publicIpList = append(publicIpList, *ip.Address)
+					currentPubIp["address"] = *ip.Address
 				}
-
-				if address != nil {
-					publicIpList = append(publicIpList, *address)
+				if ip.CRN != nil {
+					currentPubIp["crn"] = *ip.CRN
 				}
-				if len(currentPubIp) > 0 {
-					publicIpDetailList = append(publicIpDetailList, currentPubIp)
+				if ip.Href != nil {
+					currentPubIp["href"] = *ip.Href
 				}
+				if ip.ID != nil {
+					currentPubIp["id"] = *ip.ID
+				}
+				if ip.Name != nil {
+					currentPubIp["name"] = *ip.Name
+				}
+				if ip.Deleted != nil {
+					deletedMap := map[string]interface{}{}
+					if ip.Deleted.MoreInfo != nil {
+						deletedMap["more_info"] = *ip.Deleted.MoreInfo
+					}
+					currentPubIp["deleted"] = []map[string]interface{}{deletedMap}
+				}
+				publicIpDetailList = append(publicIpDetailList, currentPubIp)
 			}
 		}
 

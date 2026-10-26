@@ -221,7 +221,7 @@ func ResourceIBMISLB() *schema.Resource {
 				Description: "The public IP addresses or floating IP IDs to assign to this load balancer. Only applicable when address_mode is 'static'.",
 			},
 			isLBPublicIPsInput: {
-				Type:        schema.TypeSet,
+				Type:        schema.TypeList,
 				Optional:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Description: "The floating IP IDs to assign to this load balancer. Only applicable when address_mode is 'static' and type is 'public'.",
@@ -281,7 +281,7 @@ func ResourceIBMISLB() *schema.Resource {
 				Description: "The private IP addresses or reserved IP IDs to assign to this load balancer. Only applicable when address_mode is 'static'.",
 			},
 			isLBPrivateIPsInput: {
-				Type:        schema.TypeSet,
+				Type:        schema.TypeList,
 				Optional:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Description: "The reserved IP IDs to assign to this load balancer. Only applicable when address_mode is 'static'.",
@@ -628,10 +628,10 @@ func lbCreate(context context.Context, d *schema.ResourceData, meta interface{},
 
 	// Handle public_ip_ids — user-provided floating IP IDs for this load balancer.
 	if publicIPsIntf, ok := d.GetOk(isLBPublicIPsInput); ok {
-		publicIPsSet := publicIPsIntf.(*schema.Set)
-		if publicIPsSet.Len() > 0 {
-			publicIps := make([]vpcv1.FloatingIPIdentityLoadBalancerContextIntf, 0, publicIPsSet.Len())
-			for _, idIntf := range publicIPsSet.List() {
+		publicIPsList := publicIPsIntf.([]interface{})
+		if len(publicIPsList) > 0 {
+			publicIps := make([]vpcv1.FloatingIPIdentityLoadBalancerContextIntf, 0, len(publicIPsList))
+			for _, idIntf := range publicIPsList {
 				id := idIntf.(string)
 				publicIps = append(publicIps, &vpcv1.FloatingIPIdentityLoadBalancerContext{
 					ID: &id,
@@ -643,10 +643,10 @@ func lbCreate(context context.Context, d *schema.ResourceData, meta interface{},
 
 	// Handle private_ip_ids — user-provided reserved IP IDs for this load balancer.
 	if privateIPsIntf, ok := d.GetOk(isLBPrivateIPsInput); ok {
-		privateIPsSet := privateIPsIntf.(*schema.Set)
-		if privateIPsSet.Len() > 0 {
-			privateIps := make([]vpcv1.ReservedIPIdentityIntf, 0, privateIPsSet.Len())
-			for _, idIntf := range privateIPsSet.List() {
+		privateIPsList := privateIPsIntf.([]interface{})
+		if len(privateIPsList) > 0 {
+			privateIps := make([]vpcv1.ReservedIPIdentityIntf, 0, len(privateIPsList))
+			for _, idIntf := range privateIPsList {
 				id := idIntf.(string)
 				privateIps = append(privateIps, &vpcv1.ReservedIPIdentityByID{
 					ID: &id,
@@ -883,14 +883,8 @@ func lbGet(context context.Context, d *schema.ResourceData, meta interface{}, id
 		err = fmt.Errorf("Error setting public_ip: %s", err)
 		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_lb", "read", "set-public_ip").GetDiag()
 	}
-	if _, ok := d.GetOk(isLBPublicIPsInput); ok {
-		publicIPIDList := make([]string, 0, len(publicIpDetailList))
-		for _, detail := range publicIpDetailList {
-			if id, ok := detail["id"].(string); ok && id != "" {
-				publicIPIDList = append(publicIPIDList, id)
-			}
-		}
-		if err = d.Set(isLBPublicIPsInput, publicIPIDList); err != nil {
+	if configVal, ok := d.GetOk(isLBPublicIPsInput); ok {
+		if err = d.Set(isLBPublicIPsInput, configVal); err != nil {
 			err = fmt.Errorf("Error setting public_ip_ids: %s", err)
 			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_lb", "read", "set-public_ip_ids").GetDiag()
 		}
@@ -931,17 +925,8 @@ func lbGet(context context.Context, d *schema.ResourceData, meta interface{}, id
 		err = fmt.Errorf("Error setting private_ip: %s", err)
 		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_lb", "read", "set-private_ip").GetDiag()
 	}
-	// Reflect the IDs back into the input attribute so state matches config.
-	// Only set when the user has provided private_ip_ids in config; skip for
-	// dynamic-mode LBs where these IPs are LBaaS-managed and not user-supplied.
-	if _, ok := d.GetOk(isLBPrivateIPsInput); ok {
-		privateIPIDList := make([]string, 0, len(privateIpDetailList))
-		for _, detail := range privateIpDetailList {
-			if id, ok := detail[isLBPrivateIpId].(string); ok && id != "" {
-				privateIPIDList = append(privateIPIDList, id)
-			}
-		}
-		if err = d.Set(isLBPrivateIPsInput, privateIPIDList); err != nil {
+	if configVal, ok := d.GetOk(isLBPrivateIPsInput); ok {
+		if err = d.Set(isLBPrivateIPsInput, configVal); err != nil {
 			err = fmt.Errorf("Error setting private_ip_ids: %s", err)
 			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_lb", "read", "set-private_ip_ids").GetDiag()
 		}
@@ -1221,9 +1206,9 @@ func lbUpdate(context context.Context, d *schema.ResourceData, meta interface{},
 			if _, ok := d.GetOk(isLBPublicIPsInput); !ok {
 				publicIpsRemoved = true
 			} else {
-				publicIPsSet := d.Get(isLBPublicIPsInput).(*schema.Set)
-				publicIps := make([]vpcv1.FloatingIPIdentityLoadBalancerContextIntf, 0, publicIPsSet.Len())
-				for _, idIntf := range publicIPsSet.List() {
+				publicIPsList := d.Get(isLBPublicIPsInput).([]interface{})
+				publicIps := make([]vpcv1.FloatingIPIdentityLoadBalancerContextIntf, 0, len(publicIPsList))
+				for _, idIntf := range publicIPsList {
 					id := idIntf.(string)
 					publicIps = append(publicIps, &vpcv1.FloatingIPIdentityLoadBalancerContext{
 						ID: &id,
@@ -1237,9 +1222,9 @@ func lbUpdate(context context.Context, d *schema.ResourceData, meta interface{},
 			if _, ok := d.GetOk(isLBPrivateIPsInput); !ok {
 				privateIpsRemoved = true
 			} else {
-				privateIPsSet := d.Get(isLBPrivateIPsInput).(*schema.Set)
-				privateIps := make([]vpcv1.ReservedIPIdentityIntf, 0, privateIPsSet.Len())
-				for _, idIntf := range privateIPsSet.List() {
+				privateIPsList := d.Get(isLBPrivateIPsInput).([]interface{})
+				privateIps := make([]vpcv1.ReservedIPIdentityIntf, 0, len(privateIPsList))
+				for _, idIntf := range privateIPsList {
 					id := idIntf.(string)
 					privateIps = append(privateIps, &vpcv1.ReservedIPIdentityByID{
 						ID: &id,
