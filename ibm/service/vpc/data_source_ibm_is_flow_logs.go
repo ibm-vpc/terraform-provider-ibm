@@ -106,6 +106,24 @@ func DataSourceIBMISFlowLogs() *schema.Resource {
 							Computed:    true,
 							Description: "The Cloud Object Storage bucket name where the collected flows will be logged",
 						},
+						// destination is intentionally a TypeMap (flat string key→value) here,
+						// unlike ibm_is_flow_log (single) which exposes it as a TypeList with a
+						// nested storage_bucket block. The list data source stores all known
+						// destination fields as top-level string keys in the map:
+						//   destination.type           — always present
+						//   destination.storage_bucket — bucket name (cloud_object_storage only)
+						// This matches the TypeMap used on the ibm_is_flow_log *resource* schema,
+						// letting users reference flow_log_collectors.0.destination.type directly
+						// without an index, which is the conventional pattern for list data sources
+						// that mirror a resource's flat attributes.
+						"destination": {
+							Type:        schema.TypeMap,
+							Computed:    true,
+							Description: "The destination for the collected flow logs. Known keys: \"type\" (always present) and \"storage_bucket\" (present when type is \"cloud_object_storage\").",
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
 						"active": {
 							Type:        schema.TypeBool,
 							Computed:    true,
@@ -202,8 +220,15 @@ func dataSourceIBMISFlowLogsRead(context context.Context, d *schema.ResourceData
 	flowlogsInfo := make([]map[string]interface{}, 0)
 	for _, flowlogCollector := range allrecs {
 
+		// Use a safe type assertion: the Target interface can hold a subtype other
+		// than FlowLogCollectorTarget (e.g. a virtual-network-interface reference).
+		// A bare assertion would panic; skip the entry gracefully on mismatch.
 		targetIntf := flowlogCollector.Target
-		target := targetIntf.(*vpcv1.FlowLogCollectorTarget)
+		target, ok := targetIntf.(*vpcv1.FlowLogCollectorTarget)
+		if !ok || target.ID == nil {
+			log.Printf("[WARN] Skipping flow log collector %s: target is not a FlowLogCollectorTarget or has no ID", *flowlogCollector.ID)
+			continue
+		}
 
 		tags, err := flex.GetGlobalTagsUsingCRN(meta, *flowlogCollector.CRN, "", isUserTagType)
 		if err != nil {
@@ -217,6 +242,36 @@ func dataSourceIBMISFlowLogsRead(context context.Context, d *schema.ResourceData
 				"Error on get of resource VPC Flow Log (%s) access tags: %s", *flowlogCollector.ID, err)
 		}
 
+		// Build the flat destination map stored under the "destination" TypeMap key.
+		// The value for "storage_bucket" is the raw bucket name string — not a nested
+		// list — because TypeMap only supports string values. This is intentionally
+		// different from the ibm_is_flow_log (single) data source, which uses a
+		// TypeList with a nested storage_bucket block.  See schema comment above.
+		destMap := make(map[string]interface{})
+		if flowlogCollector.Destination != nil {
+			// Only handle the two concrete API subtypes; omit the base
+			// FlowLogCollectorDestination case to avoid silently swallowing
+			// unrecognised discriminator values.
+			switch dest := flowlogCollector.Destination.(type) {
+			case *vpcv1.FlowLogCollectorDestinationCloudObjectStorage:
+				if dest.Type != nil {
+					destMap["type"] = *dest.Type
+				}
+				if dest.StorageBucket != nil && dest.StorageBucket.Name != nil {
+					destMap["storage_bucket"] = *dest.StorageBucket.Name
+				}
+			case *vpcv1.FlowLogCollectorDestinationIBMCloudLogs:
+				if dest.Type != nil {
+					destMap["type"] = *dest.Type
+				}
+			}
+		}
+
+		storageBucketName := ""
+		if flowlogCollector.StorageBucket != nil && flowlogCollector.StorageBucket.Name != nil {
+			storageBucketName = *flowlogCollector.StorageBucket.Name
+		}
+
 		l := map[string]interface{}{
 			"id":                *flowlogCollector.ID,
 			"crn":               *flowlogCollector.CRN,
@@ -225,7 +280,8 @@ func dataSourceIBMISFlowLogsRead(context context.Context, d *schema.ResourceData
 			"resource_group":    *flowlogCollector.ResourceGroup.ID,
 			"created_at":        flowlogCollector.CreatedAt.String(),
 			"lifecycle_state":   *flowlogCollector.LifecycleState,
-			"storage_bucket":    *flowlogCollector.StorageBucket.Name,
+			"storage_bucket":    storageBucketName,
+			"destination":       destMap,
 			"active":            *flowlogCollector.Active,
 			"vpc":               *flowlogCollector.VPC.ID,
 			"target":            *target.ID,

@@ -56,6 +56,7 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCKVmnMOlHKcZK8tpt3MP1lqOLAcqcJzhsvJcjscgVE
 					resource.TestCheckResourceAttrSet(resName, "flow_log_collectors.0.crn"),
 					resource.TestCheckResourceAttrSet(resName, "flow_log_collectors.0.href"),
 					resource.TestCheckResourceAttrSet(resName, "flow_log_collectors.0.name"),
+					resource.TestCheckResourceAttrSet(resName, "flow_log_collectors.0.destination.type"),
 				),
 			},
 		},
