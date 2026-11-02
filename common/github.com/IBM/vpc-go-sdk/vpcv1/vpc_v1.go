@@ -97386,6 +97386,9 @@ type PublicAddressRangeAuthorizedCIDR struct {
 	// blocks in the future.
 	CIDR *string `json:"cidr" validate:"required"`
 
+	// The date and time that the public address range authorized CIDR was created.
+	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
+
 	// The CRN for this public address range authorized CIDR.
 	CRN *string `json:"crn" validate:"required"`
 
@@ -97484,6 +97487,11 @@ func UnmarshalPublicAddressRangeAuthorizedCIDR(m map[string]json.RawMessage, res
 	err = core.UnmarshalPrimitive(m, "cidr", &obj.CIDR)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "cidr-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "created_at", &obj.CreatedAt)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "created_at-error", common.GetComponentInfo())
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
@@ -97892,6 +97900,10 @@ type PublicAddressRangeAuthorizedCIDRReference struct {
 
 	// The resource type.
 	ResourceType *string `json:"resource_type" validate:"required"`
+
+	// The zone for this public address range authorized CIDR. Resources allocated from this
+	// authorized CIDR must reside in this zone.
+	Zone *ZoneReference `json:"zone,omitempty"`
 }
 
 // Constants associated with the PublicAddressRangeAuthorizedCIDRReference.ResourceType property.
@@ -97931,6 +97943,11 @@ func UnmarshalPublicAddressRangeAuthorizedCIDRReference(m map[string]json.RawMes
 	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "resource_type-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "zone", &obj.Zone, UnmarshalZoneReference)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "zone-error", common.GetComponentInfo())
 		return
 	}
 	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))

@@ -29,6 +29,8 @@ func TestAccIBMIsPublicAddressRangeAuthorizedCIDRDataSourceBasic(t *testing.T) {
 					resource.TestCheckResourceAttrSet("data.ibm_is_public_address_range_authorized_cidr.is_public_address_range_authorized_cidr_instance", "allocation.#"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_public_address_range_authorized_cidr.is_public_address_range_authorized_cidr_instance", "availability_mode"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_public_address_range_authorized_cidr.is_public_address_range_authorized_cidr_instance", "cidr"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_public_address_range_authorized_cidr.is_public_address_range_authorized_cidr_instance", "created_at"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_public_address_range_authorized_cidr.is_public_address_range_authorized_cidr_instance", "crn"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_public_address_range_authorized_cidr.is_public_address_range_authorized_cidr_instance", "href"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_public_address_range_authorized_cidr.is_public_address_range_authorized_cidr_instance", "ip_version"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_public_address_range_authorized_cidr.is_public_address_range_authorized_cidr_instance", "name"),

@@ -26,6 +26,8 @@ func TestAccIBMIsPublicAddressRangeAuthorizedCidrsDataSourceBasic(t *testing.T) 
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttrSet("data.ibm_is_public_address_range_authorized_cidrs.is_public_address_range_authorized_cidrs_instance", "id"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_public_address_range_authorized_cidrs.is_public_address_range_authorized_cidrs_instance", "authorized_cidrs.#"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_public_address_range_authorized_cidrs.is_public_address_range_authorized_cidrs_instance", "authorized_cidrs.0.created_at"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_public_address_range_authorized_cidrs.is_public_address_range_authorized_cidrs_instance", "authorized_cidrs.0.crn"),
 				),
 			},
 		},

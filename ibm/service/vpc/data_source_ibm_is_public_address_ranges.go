@@ -147,6 +147,25 @@ func DataSourceIBMIsPublicAddressRanges() *schema.Resource {
 										Computed:    true,
 										Description: "The resource type.",
 									},
+									"zone": &schema.Schema{
+										Type:        schema.TypeList,
+										Computed:    true,
+										Description: "The zone for this public address range authorized CIDR. Resources allocated from this authorized CIDR must reside in this zone.",
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"href": &schema.Schema{
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "The URL for this zone.",
+												},
+												"name": &schema.Schema{
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "The globally unique name for this zone.",
+												},
+											},
+										},
+									},
 								},
 							},
 						},
@@ -372,6 +391,13 @@ func DataSourceIBMIsPublicAddressRangesPublicAddressRangeToMap(model *vpcv1.Publ
 		}
 		if model.AuthorizedCIDR.ResourceType != nil {
 			authorizedCIDRMap["resource_type"] = *model.AuthorizedCIDR.ResourceType
+		}
+		if model.AuthorizedCIDR.Zone != nil {
+			zoneMap, err := DataSourceIBMIsPublicAddressRangesZoneReferenceToMap(model.AuthorizedCIDR.Zone)
+			if err != nil {
+				return modelMap, err
+			}
+			authorizedCIDRMap["zone"] = []map[string]interface{}{zoneMap}
 		}
 		modelMap["authorized_cidr"] = []map[string]interface{}{authorizedCIDRMap}
 	}

@@ -39,6 +39,8 @@ Nested schema for **allocation**:
 * `availability_mode` - (String) The availability mode of the public address range authorized CIDR:- `regional`: Resources allocated from the authorized CIDR can reside in any zone in the  region.- `zonal`: Resources allocated from the authorized CIDR must reside in the authorized  CIDR's `zone`.The enumerated values for this property may[expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.
   * Constraints: Allowable values are: `regional`, `zonal`. The value must match regular expression `/^[a-z][a-z0-9]*(_[a-z0-9]+)*$/`.
 * `cidr` - (String) The public IP address block for the public address range authorized CIDR, expressed in CIDR format.This property may [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support IPv6 address blocks in the future.
+* `created_at` - (String) The date and time that the public address range authorized CIDR was created.
+* `crn` - (String) The CRN for this public address range authorized CIDR.
 * `href` - (String) The URL for this public address range authorized CIDR.
   * Constraints: The maximum length is `8000` characters. The minimum length is `10` characters. The value must match regular expression `/^http(s)?:\/\/([^\/?#]*)([^?#]*)(\\?([^#]*))?(#(.*))?$/`.
 * `ip_version` - (String) The IP version for this public address range authorized CIDR:- `ipv4`: An IPv4 public address range authorized CIDR.The enumerated values for this property may[expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.
