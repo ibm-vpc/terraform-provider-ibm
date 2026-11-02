@@ -593,3 +593,150 @@ func testAccCheckIBMISSecurityGroupRuleICMPZeroValues(vpcname, sgname string) st
     }
     `, vpcname, sgname)
 }
+
+// ---------------------------------------------------------------------------
+// IPv6 security group rule tests
+// ---------------------------------------------------------------------------
+
+func TestAccIBMISSecurityGroupRule_IPv6ICMP(t *testing.T) {
+	var securityGroupRule string
+	vpcname := fmt.Sprintf("tfsgrule-vpc-ipv6-%d", acctest.RandIntRange(10, 100))
+	sgname := fmt.Sprintf("tfsgrule-sg-ipv6-%d", acctest.RandIntRange(10, 100))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acc.TestAccPreCheck(t) },
+		Providers:    acc.TestAccProviders,
+		CheckDestroy: testAccCheckIBMISSecurityGroupRuleDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckIBMISSecurityGroupRuleIPv6ICMPConfig(vpcname, sgname),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckIBMISSecurityGroupRuleExists("ibm_is_security_group_rule.testacc_sg_rule_ipv6_icmp", securityGroupRule),
+					resource.TestCheckResourceAttr(
+						"ibm_is_security_group_rule.testacc_sg_rule_ipv6_icmp", "protocol", "ipv6_icmp"),
+					resource.TestCheckResourceAttr(
+						"ibm_is_security_group_rule.testacc_sg_rule_ipv6_icmp", "ip_version", "ipv6"),
+					resource.TestCheckResourceAttr(
+						"ibm_is_security_group_rule.testacc_sg_rule_ipv6_icmp", "type", "128"),
+					resource.TestCheckResourceAttr(
+						"ibm_is_security_group_rule.testacc_sg_rule_ipv6_icmp", "code", "0"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccIBMISSecurityGroupRule_IPv6Individual(t *testing.T) {
+	var securityGroupRule string
+	vpcname := fmt.Sprintf("tfsgrule-vpc-ipv6ind-%d", acctest.RandIntRange(10, 100))
+	sgname := fmt.Sprintf("tfsgrule-sg-ipv6ind-%d", acctest.RandIntRange(10, 100))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acc.TestAccPreCheck(t) },
+		Providers:    acc.TestAccProviders,
+		CheckDestroy: testAccCheckIBMISSecurityGroupRuleDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckIBMISSecurityGroupRuleIPv6IndividualConfig(vpcname, sgname),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckIBMISSecurityGroupRuleExists("ibm_is_security_group_rule.testacc_sg_rule_ipv6_ind", securityGroupRule),
+					resource.TestCheckResourceAttr(
+						"ibm_is_security_group_rule.testacc_sg_rule_ipv6_ind", "protocol", "ipv6_frag"),
+					resource.TestCheckResourceAttr(
+						"ibm_is_security_group_rule.testacc_sg_rule_ipv6_ind", "ip_version", "ipv6"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccIBMISSecurityGroupRule_IPv6TCPIPVersion(t *testing.T) {
+	var securityGroupRule string
+	vpcname := fmt.Sprintf("tfsgrule-vpc-ipver-%d", acctest.RandIntRange(10, 100))
+	sgname := fmt.Sprintf("tfsgrule-sg-ipver-%d", acctest.RandIntRange(10, 100))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acc.TestAccPreCheck(t) },
+		Providers:    acc.TestAccProviders,
+		CheckDestroy: testAccCheckIBMISSecurityGroupRuleDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckIBMISSecurityGroupRuleIPv6TCPConfig(vpcname, sgname),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckIBMISSecurityGroupRuleExists("ibm_is_security_group_rule.testacc_sg_rule_ipv6_tcp", securityGroupRule),
+					resource.TestCheckResourceAttr(
+						"ibm_is_security_group_rule.testacc_sg_rule_ipv6_tcp", "protocol", "tcp"),
+					resource.TestCheckResourceAttr(
+						"ibm_is_security_group_rule.testacc_sg_rule_ipv6_tcp", "ip_version", "ipv6"),
+					resource.TestCheckResourceAttr(
+						"ibm_is_security_group_rule.testacc_sg_rule_ipv6_tcp", "port_min", "443"),
+					resource.TestCheckResourceAttr(
+						"ibm_is_security_group_rule.testacc_sg_rule_ipv6_tcp", "port_max", "443"),
+				),
+			},
+		},
+	})
+}
+
+// --- IPv6 config helpers ---
+
+func testAccCheckIBMISSecurityGroupRuleIPv6ICMPConfig(vpcname, sgname string) string {
+	return fmt.Sprintf(`
+resource "ibm_is_vpc" "testacc_vpc" {
+  name = "%s"
+}
+resource "ibm_is_security_group" "testacc_sg" {
+  name = "%s"
+  vpc  = ibm_is_vpc.testacc_vpc.id
+}
+resource "ibm_is_security_group_rule" "testacc_sg_rule_ipv6_icmp" {
+  group      = ibm_is_security_group.testacc_sg.id
+  direction  = "inbound"
+  remote     = "::/0"
+  ip_version = "ipv6"
+  protocol   = "ipv6_icmp"
+  type       = 128
+  code       = 0
+}
+`, vpcname, sgname)
+}
+
+func testAccCheckIBMISSecurityGroupRuleIPv6IndividualConfig(vpcname, sgname string) string {
+	return fmt.Sprintf(`
+resource "ibm_is_vpc" "testacc_vpc" {
+  name = "%s"
+}
+resource "ibm_is_security_group" "testacc_sg" {
+  name = "%s"
+  vpc  = ibm_is_vpc.testacc_vpc.id
+}
+resource "ibm_is_security_group_rule" "testacc_sg_rule_ipv6_ind" {
+  group      = ibm_is_security_group.testacc_sg.id
+  direction  = "inbound"
+  remote     = "::/0"
+  ip_version = "ipv6"
+  protocol   = "ipv6_frag"
+}
+`, vpcname, sgname)
+}
+
+func testAccCheckIBMISSecurityGroupRuleIPv6TCPConfig(vpcname, sgname string) string {
+	return fmt.Sprintf(`
+resource "ibm_is_vpc" "testacc_vpc" {
+  name = "%s"
+}
+resource "ibm_is_security_group" "testacc_sg" {
+  name = "%s"
+  vpc  = ibm_is_vpc.testacc_vpc.id
+}
+resource "ibm_is_security_group_rule" "testacc_sg_rule_ipv6_tcp" {
+  group      = ibm_is_security_group.testacc_sg.id
+  direction  = "inbound"
+  remote     = "::/0"
+  ip_version = "ipv6"
+  protocol   = "tcp"
+  port_min   = 443
+  port_max   = 443
+}
+`, vpcname, sgname)
+}

@@ -441,11 +441,62 @@ func resourceIBMISSecurityGroupRead(context context.Context, d *schema.ResourceD
 					}
 					rules = append(rules, r)
 				}
-			case "*vpcv1.SecurityGroupRule":
+			case "*vpcv1.SecurityGroupRuleSecurityGroupRuleProtocolTcpudp":
 				{
-					rule := rule.(*vpcv1.SecurityGroupRule)
+					rule := rule.(*vpcv1.SecurityGroupRuleSecurityGroupRuleProtocolTcpudp)
 					r := make(map[string]interface{})
+					if rule.PortMin != nil {
+						r[isSecurityGroupRulePortMin] = int(*rule.PortMin)
+					}
+					if rule.PortMax != nil {
+						r[isSecurityGroupRulePortMax] = int(*rule.PortMax)
+					}
 					r[isSecurityGroupRuleDirection] = *rule.Direction
+					r[isSecurityGroupRuleIPVersion] = *rule.IPVersion
+					if rule.Name != nil {
+						r[isSecurityGroupRuleName] = *rule.Name
+					}
+					if rule.Protocol != nil {
+						r[isSecurityGroupRuleProtocol] = *rule.Protocol
+					}
+					remote, ok := rule.Remote.(*vpcv1.SecurityGroupRuleRemote)
+					if ok {
+						if remote != nil && reflect.ValueOf(remote).IsNil() == false {
+							if remote.ID != nil {
+								r[isSecurityGroupRuleRemote] = remote.ID
+							} else if remote.Address != nil {
+								r[isSecurityGroupRuleRemote] = remote.Address
+							} else if remote.CIDRBlock != nil {
+								r[isSecurityGroupRuleRemote] = remote.CIDRBlock
+							}
+						}
+					}
+					local, ok := rule.Local.(*vpcv1.SecurityGroupRuleLocal)
+					if ok {
+						if local != nil && reflect.ValueOf(local).IsNil() == false {
+							if local.Address != nil {
+								r[isSecurityGroupRuleLocal] = local.Address
+							} else if local.CIDRBlock != nil {
+								r[isSecurityGroupRuleLocal] = local.CIDRBlock
+							}
+						}
+					}
+					rules = append(rules, r)
+				}
+			case "*vpcv1.SecurityGroupRuleProtocolIPv6Icmp":
+				{
+					rule := rule.(*vpcv1.SecurityGroupRuleProtocolIPv6Icmp)
+					r := make(map[string]interface{})
+					if rule.Code != nil {
+						r[isSecurityGroupRuleCode] = int(*rule.Code)
+					}
+					if rule.Type != nil {
+						r[isSecurityGroupRuleType] = int(*rule.Type)
+					}
+					r[isSecurityGroupRuleDirection] = *rule.Direction
+					if rule.Name != nil {
+						r[isSecurityGroupRuleName] = *rule.Name
+					}
 					r[isSecurityGroupRuleIPVersion] = *rule.IPVersion
 					if rule.Protocol != nil {
 						r[isSecurityGroupRuleProtocol] = *rule.Protocol
@@ -474,21 +525,48 @@ func resourceIBMISSecurityGroupRead(context context.Context, d *schema.ResourceD
 					}
 					rules = append(rules, r)
 				}
-			case "*vpcv1.SecurityGroupRuleSecurityGroupRuleProtocolTcpudp":
+			case "*vpcv1.SecurityGroupRuleProtocolIndividualIPv6":
 				{
-					rule := rule.(*vpcv1.SecurityGroupRuleSecurityGroupRuleProtocolTcpudp)
+					rule := rule.(*vpcv1.SecurityGroupRuleProtocolIndividualIPv6)
 					r := make(map[string]interface{})
-					if rule.PortMin != nil {
-						r[isSecurityGroupRulePortMin] = int(*rule.PortMin)
-					}
-					if rule.PortMax != nil {
-						r[isSecurityGroupRulePortMax] = int(*rule.PortMax)
-					}
 					r[isSecurityGroupRuleDirection] = *rule.Direction
 					r[isSecurityGroupRuleIPVersion] = *rule.IPVersion
+					if rule.Protocol != nil {
+						r[isSecurityGroupRuleProtocol] = *rule.Protocol
+					}
 					if rule.Name != nil {
 						r[isSecurityGroupRuleName] = *rule.Name
 					}
+					remote, ok := rule.Remote.(*vpcv1.SecurityGroupRuleRemote)
+					if ok {
+						if remote != nil && reflect.ValueOf(remote).IsNil() == false {
+							if remote.ID != nil {
+								r[isSecurityGroupRuleRemote] = remote.ID
+							} else if remote.Address != nil {
+								r[isSecurityGroupRuleRemote] = remote.Address
+							} else if remote.CIDRBlock != nil {
+								r[isSecurityGroupRuleRemote] = remote.CIDRBlock
+							}
+						}
+					}
+					local, ok := rule.Local.(*vpcv1.SecurityGroupRuleLocal)
+					if ok {
+						if local != nil && reflect.ValueOf(local).IsNil() == false {
+							if local.Address != nil {
+								r[isSecurityGroupRuleLocal] = local.Address
+							} else if local.CIDRBlock != nil {
+								r[isSecurityGroupRuleLocal] = local.CIDRBlock
+							}
+						}
+					}
+					rules = append(rules, r)
+				}
+			case "*vpcv1.SecurityGroupRule":
+				{
+					rule := rule.(*vpcv1.SecurityGroupRule)
+					r := make(map[string]interface{})
+					r[isSecurityGroupRuleDirection] = *rule.Direction
+					r[isSecurityGroupRuleIPVersion] = *rule.IPVersion
 					if rule.Protocol != nil {
 						r[isSecurityGroupRuleProtocol] = *rule.Protocol
 					}

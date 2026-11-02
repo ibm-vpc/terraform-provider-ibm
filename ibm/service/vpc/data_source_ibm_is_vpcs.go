@@ -935,6 +935,60 @@ func dataSourceIBMISVPCListRead(context context.Context, d *schema.ResourceData,
 							}
 							rules = append(rules, r)
 						}
+					case "*vpcv1.SecurityGroupRuleProtocolIPv6Icmp":
+						{
+							rule := sgrule.(*vpcv1.SecurityGroupRuleProtocolIPv6Icmp)
+							r := make(map[string]interface{})
+							r[isVPCSecurityGroupRuleDirection] = *rule.Direction
+							r[isVPCSecurityGroupRuleIPVersion] = *rule.IPVersion
+							if rule.Protocol != nil {
+								r[isVPCSecurityGroupRuleProtocol] = *rule.Protocol
+							}
+							r[isVPCSecurityGroupRuleID] = *rule.ID
+							if rule.Code != nil {
+								r[isVPCSecurityGroupRuleCode] = int(*rule.Code)
+							}
+							if rule.Type != nil {
+								r[isVPCSecurityGroupRuleType] = int(*rule.Type)
+							}
+							remote, ok := rule.Remote.(*vpcv1.SecurityGroupRuleRemote)
+							if ok {
+								if remote != nil && reflect.ValueOf(remote).IsNil() == false {
+									if remote.ID != nil {
+										r[isVPCSecurityGroupRuleRemote] = remote.ID
+									} else if remote.Address != nil {
+										r[isVPCSecurityGroupRuleRemote] = remote.Address
+									} else if remote.CIDRBlock != nil {
+										r[isVPCSecurityGroupRuleRemote] = remote.CIDRBlock
+									}
+								}
+							}
+							rules = append(rules, r)
+						}
+					case "*vpcv1.SecurityGroupRuleProtocolIndividualIPv6":
+						{
+							rule := sgrule.(*vpcv1.SecurityGroupRuleProtocolIndividualIPv6)
+							r := make(map[string]interface{})
+							r[isVPCSecurityGroupRuleDirection] = *rule.Direction
+							r[isVPCSecurityGroupRuleIPVersion] = *rule.IPVersion
+							if rule.Protocol != nil {
+								r[isVPCSecurityGroupRuleProtocol] = *rule.Protocol
+							}
+							r[isVPCSecurityGroupRuleID] = *rule.ID
+							remote, ok := rule.Remote.(*vpcv1.SecurityGroupRuleRemote)
+							if ok {
+								if remote != nil && reflect.ValueOf(remote).IsNil() == false {
+									if remote.ID != nil {
+										r[isVPCSecurityGroupRuleRemote] = remote.ID
+									} else if remote.Address != nil {
+										r[isVPCSecurityGroupRuleRemote] = remote.Address
+									} else if remote.CIDRBlock != nil {
+										r[isVPCSecurityGroupRuleRemote] = remote.CIDRBlock
+									}
+								}
+							}
+							rules = append(rules, r)
+						}
 
 					case "*vpcv1.SecurityGroupRuleSecurityGroupRuleProtocolTcpudp":
 						{

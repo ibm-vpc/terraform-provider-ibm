@@ -266,30 +266,6 @@ func dataSourceIBMIsSecurityGroupRulesRead(context context.Context, d *schema.Re
 				}
 
 			}
-		case "*vpcv1.SecurityGroupRule":
-			{
-				rulex := rule.(*vpcv1.SecurityGroupRule)
-				l["direction"] = *rulex.Direction
-				l["href"] = *rulex.Href
-				l["id"] = *rulex.ID
-				l["ip_version"] = *rulex.IPVersion
-				l["protocol"] = *rulex.Protocol
-				// nested map for remote.
-				if rulex.Remote != nil {
-					remoteList := []map[string]interface{}{}
-					remoteMap := dataSourceSecurityGroupRuleRemoteToMap(rulex.Remote.(*vpcv1.SecurityGroupRuleRemote))
-					remoteList = append(remoteList, remoteMap)
-					l["remote"] = remoteList
-				}
-				// nested map for local.
-				if rulex.Local != nil {
-					localList := []map[string]interface{}{}
-					localMap := dataSourceSecurityGroupRuleLocalToMap(rulex.Local.(*vpcv1.SecurityGroupRuleLocal))
-					localList = append(localList, localMap)
-					l["local"] = localList
-				}
-
-			}
 		case "*vpcv1.SecurityGroupRuleSecurityGroupRuleProtocolIcmp":
 			{
 				rulex := rule.(*vpcv1.SecurityGroupRuleSecurityGroupRuleProtocolIcmp)
@@ -353,6 +329,88 @@ func dataSourceIBMIsSecurityGroupRulesRead(context context.Context, d *schema.Re
 					localList = append(localList, localMap)
 					l["local"] = localList
 				}
+			}
+		case "*vpcv1.SecurityGroupRuleProtocolIPv6Icmp":
+			{
+				rulex := rule.(*vpcv1.SecurityGroupRuleProtocolIPv6Icmp)
+				l["direction"] = *rulex.Direction
+				l["href"] = *rulex.Href
+				l["id"] = *rulex.ID
+				if rulex.Name != nil {
+					l["name"] = rulex.Name
+				}
+				l["ip_version"] = *rulex.IPVersion
+				if rulex.Code != nil {
+					l["code"] = *rulex.Code
+				}
+				l["protocol"] = *rulex.Protocol
+				if rulex.Type != nil {
+					l["type"] = *rulex.Type
+				}
+				// remote
+				if rulex.Remote != nil {
+					remoteList := []map[string]interface{}{}
+					remoteMap := dataSourceSecurityGroupRuleRemoteToMap(rulex.Remote.(*vpcv1.SecurityGroupRuleRemote))
+					remoteList = append(remoteList, remoteMap)
+					l["remote"] = remoteList
+				}
+				// nested map for local.
+				if rulex.Local != nil {
+					localList := []map[string]interface{}{}
+					localMap := dataSourceSecurityGroupRuleLocalToMap(rulex.Local.(*vpcv1.SecurityGroupRuleLocal))
+					localList = append(localList, localMap)
+					l["local"] = localList
+				}
+			}
+		case "*vpcv1.SecurityGroupRuleProtocolIndividualIPv6":
+			{
+				rulex := rule.(*vpcv1.SecurityGroupRuleProtocolIndividualIPv6)
+				l["direction"] = *rulex.Direction
+				l["href"] = *rulex.Href
+				l["id"] = *rulex.ID
+				if rulex.Name != nil {
+					l["name"] = rulex.Name
+				}
+				l["ip_version"] = *rulex.IPVersion
+				l["protocol"] = *rulex.Protocol
+				// nested map for remote.
+				if rulex.Remote != nil {
+					remoteList := []map[string]interface{}{}
+					remoteMap := dataSourceSecurityGroupRuleRemoteToMap(rulex.Remote.(*vpcv1.SecurityGroupRuleRemote))
+					remoteList = append(remoteList, remoteMap)
+					l["remote"] = remoteList
+				}
+				// nested map for local.
+				if rulex.Local != nil {
+					localList := []map[string]interface{}{}
+					localMap := dataSourceSecurityGroupRuleLocalToMap(rulex.Local.(*vpcv1.SecurityGroupRuleLocal))
+					localList = append(localList, localMap)
+					l["local"] = localList
+				}
+			}
+		case "*vpcv1.SecurityGroupRule":
+			{
+				rulex := rule.(*vpcv1.SecurityGroupRule)
+				l["direction"] = *rulex.Direction
+				l["href"] = *rulex.Href
+				l["id"] = *rulex.ID
+				l["ip_version"] = *rulex.IPVersion
+				l["protocol"] = *rulex.Protocol
+				// nested map for remote.
+				if rulex.Remote != nil {
+					remoteList := []map[string]interface{}{}
+					remoteMap := dataSourceSecurityGroupRuleRemoteToMap(rulex.Remote.(*vpcv1.SecurityGroupRuleRemote))
+					remoteList = append(remoteList, remoteMap)
+					l["remote"] = remoteList
+				}
+				// nested map for local.
+				if rulex.Local != nil {
+					localList := []map[string]interface{}{}
+					localMap := dataSourceSecurityGroupRuleLocalToMap(rulex.Local.(*vpcv1.SecurityGroupRuleLocal))
+					localList = append(localList, localMap)
+					l["local"] = localList
+				}
+
 			}
 		}
 		rulesInfo = append(rulesInfo, l)

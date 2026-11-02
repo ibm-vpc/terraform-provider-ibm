@@ -38,7 +38,7 @@ After your data source is created, you can read values from the following attrib
 Nested schema for **allocations**:
 	* `address` - (String) The globally unique IP address.
 	  * Constraints: The maximum length is `15` characters. The minimum length is `7` characters. The value must match regular expression `/^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$/`.
-	* `cidr` - (String) The public IP address block for this public address range, expressed in CIDR format.This property may [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support IPv6 address blocks in the future.
+	* `cidr` - (String) The public IP address block for this public address range, expressed in CIDR format.
 	* `crn` - (String) The CRN for this floating IP.
 	  * Constraints: The maximum length is `512` characters. The minimum length is `17` characters. The value must match regular expression `/^crn:v[0-9]+:[a-z0-9-]+:[a-z0-9-]+:[a-z0-9-]+:[a-z0-9-]*:([a-z]\/[a-z0-9-]+)?:[a-z0-9-]*:[a-z0-9-]*:[a-zA-Z0-9-_\\.\/]*$/`.
 	* `deleted` - (List) If present, this property indicates the referenced resource has been deleted, and providessome supplementary information.
