@@ -134,6 +134,25 @@ func DataSourceIBMIsPublicAddressRange() *schema.Resource {
 							Computed:    true,
 							Description: "The resource type.",
 						},
+						"zone": &schema.Schema{
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "The zone for this public address range authorized CIDR. Resources allocated from this authorized CIDR must reside in this zone.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"href": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The URL for this zone.",
+									},
+									"name": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The globally unique name for this zone.",
+									},
+								},
+							},
+						},
 					},
 				},
 			},
@@ -423,6 +442,13 @@ func dataSourceIBMIsPublicAddressRangeRead(context context.Context, d *schema.Re
 		}
 		if publicAddressRange.AuthorizedCIDR.ResourceType != nil {
 			authorizedCIDRMap["resource_type"] = *publicAddressRange.AuthorizedCIDR.ResourceType
+		}
+		if publicAddressRange.AuthorizedCIDR.Zone != nil {
+			zoneMap, err := DataSourceIBMIsPublicAddressRangeZoneReferenceToMap(publicAddressRange.AuthorizedCIDR.Zone)
+			if err != nil {
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_public_address_range", "read", "set-authorized_cidr_zone").GetDiag()
+			}
+			authorizedCIDRMap["zone"] = []map[string]interface{}{zoneMap}
 		}
 		if err = d.Set("authorized_cidr", []map[string]interface{}{authorizedCIDRMap}); err != nil {
 			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting authorized_cidr: %s", err), "(Data) ibm_public_address_range", "read", "set-authorized_cidr").GetDiag()

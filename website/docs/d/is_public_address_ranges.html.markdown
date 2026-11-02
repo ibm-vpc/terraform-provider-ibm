@@ -52,6 +52,10 @@ After your data source is created, you can read values from the following attrib
 		- `id` - (String) The unique identifier for this authorized CIDR.
 		- `name` - (String) The name for this authorized CIDR.
 		- `resource_type` - (String) The resource type.
+		- `zone` - (List) The zone for this public address range authorized CIDR.
+			Nested schema for `zone`:
+			- `href` - (String) The URL for this zone.
+			- `name` - (String) The globally unique name for this zone.
 	- `cidr` - (String) The public IP address block for this public address range, expressed in CIDR format.
 	- `created_at` - (String) The date and time that the public address range was created.
 	- `crn` - (String) The CRN for this public address range.

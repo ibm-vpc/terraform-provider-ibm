@@ -67,7 +67,7 @@ func TestAccIBMIsPublicAddressRangeProfileDataSourceIPv6(t *testing.T) {
 func testAccCheckIBMIsPublicAddressRangeProfileDataSourceConfigBasic() string {
 	return fmt.Sprintf(`
 		data "ibm_is_public_address_range_profile" "is_public_address_range_profile_instance" {
-			name = "user-ipv4"
+			name = "public-address-range-provider-ipv4"
 		}
 	`)
 }

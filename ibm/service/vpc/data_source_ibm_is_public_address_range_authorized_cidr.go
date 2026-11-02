@@ -59,6 +59,16 @@ func DataSourceIBMIsPublicAddressRangeAuthorizedCIDR() *schema.Resource {
 				Computed:    true,
 				Description: "The public IP address block for the public address range authorized CIDR, expressed in CIDR format.This property may [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support IPv6 address blocks in the future.",
 			},
+			"created_at": &schema.Schema{
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The date and time that the public address range authorized CIDR was created.",
+			},
+			"crn": &schema.Schema{
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The CRN for this public address range authorized CIDR.",
+			},
 			"href": &schema.Schema{
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -197,6 +207,14 @@ func dataSourceIBMIsPublicAddressRangeAuthorizedCIDRRead(context context.Context
 
 	if err = d.Set("cidr", publicAddressRangeAuthorizedCIDR.CIDR); err != nil {
 		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting cidr: %s", err), "(Data) ibm_is_public_address_range_authorized_cidr", "read", "set-cidr").GetDiag()
+	}
+
+	if err = d.Set("created_at", flex.DateTimeToString(publicAddressRangeAuthorizedCIDR.CreatedAt)); err != nil {
+		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting created_at: %s", err), "(Data) ibm_is_public_address_range_authorized_cidr", "read", "set-created_at").GetDiag()
+	}
+
+	if err = d.Set("crn", publicAddressRangeAuthorizedCIDR.CRN); err != nil {
+		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting crn: %s", err), "(Data) ibm_is_public_address_range_authorized_cidr", "read", "set-crn").GetDiag()
 	}
 
 	if err = d.Set("href", publicAddressRangeAuthorizedCIDR.Href); err != nil {

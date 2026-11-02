@@ -32,9 +32,6 @@ func TestAccIBMPublicAddressRangeBasic(t *testing.T) {
 				Check: resource.ComposeAggregateTestCheckFunc(
 					testAccCheckIBMPublicAddressRangeExists("ibm_is_public_address_range.public_address_range_instance", conf),
 					resource.TestCheckResourceAttr("ibm_is_public_address_range.public_address_range_instance", "ipv4_address_count", ipv4AddressCount),
-					resource.TestCheckResourceAttrSet("ibm_is_public_address_range.public_address_range_instance", "ip_version"),
-					resource.TestCheckResourceAttrSet("ibm_is_public_address_range.public_address_range_instance", "network_prefix_length"),
-					resource.TestCheckResourceAttrSet("ibm_is_public_address_range.public_address_range_instance", "profile.#"),
 				),
 			},
 		},
@@ -56,6 +53,39 @@ func TestAccIBMPublicAddressRangeNameValidation(t *testing.T) {
 			},
 		},
 	})
+}
+
+func TestAccIBMPublicAddressRangeByoip(t *testing.T) {
+	var conf vpcv1.PublicAddressRange
+	name := "my-par-byoip"
+	cidr := "46.16.188.26/32"
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acc.TestAccPreCheck(t) },
+		Providers:    acc.TestAccProviders,
+		CheckDestroy: testAccCheckIBMPublicAddressRangeDestroy,
+		Steps: []resource.TestStep{
+			resource.TestStep{
+				Config: testAccCheckIBMPublicAddressRangeConfigByoip(name, cidr),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					testAccCheckIBMPublicAddressRangeExists("ibm_is_public_address_range.from_byoip", conf),
+					resource.TestCheckResourceAttr("ibm_is_public_address_range.from_byoip", "name", name),
+					resource.TestCheckResourceAttr("ibm_is_public_address_range.from_byoip", "cidr", cidr),
+					resource.TestCheckResourceAttrSet("ibm_is_public_address_range.from_byoip", "ip_version"),
+					resource.TestCheckResourceAttrSet("ibm_is_public_address_range.from_byoip", "network_prefix_length"),
+					resource.TestCheckResourceAttrSet("ibm_is_public_address_range.from_byoip", "profile.#"),
+				),
+			},
+		},
+	})
+}
+
+func testAccCheckIBMPublicAddressRangeConfigByoip(name, cidr string) string {
+	return fmt.Sprintf(`
+		resource "ibm_is_public_address_range" "from_byoip" {
+			name = "%s"
+			cidr = "%s"
+		}
+	`, name, cidr)
 }
 
 func testAccCheckIBMPublicAddressRangeConfigBasic(vpcName, name, ipv4AddressCount string) string {

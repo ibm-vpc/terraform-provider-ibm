@@ -71,6 +71,16 @@ func DataSourceIBMIsPublicAddressRangeAuthorizedCidrs() *schema.Resource {
 							Computed:    true,
 							Description: "The public IP address block for the public address range authorized CIDR, expressed in CIDR format.This property may [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support IPv6 address blocks in the future.",
 						},
+						"created_at": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The date and time that the public address range authorized CIDR was created.",
+						},
+						"crn": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The CRN for this public address range authorized CIDR.",
+						},
 						"href": &schema.Schema{
 							Type:        schema.TypeString,
 							Computed:    true,
@@ -244,6 +254,8 @@ func DataSourceIBMIsPublicAddressRangeAuthorizedCidrsPublicAddressRangeAuthorize
 	modelMap["allocation"] = []map[string]interface{}{allocationMap}
 	modelMap["availability_mode"] = *model.AvailabilityMode
 	modelMap["cidr"] = *model.CIDR
+	modelMap["created_at"] = flex.DateTimeToString(model.CreatedAt)
+	modelMap["crn"] = *model.CRN
 	modelMap["href"] = *model.Href
 	modelMap["id"] = *model.ID
 	modelMap["ip_version"] = *model.IPVersion

@@ -318,6 +318,64 @@ func ResourceIBMPublicAddressRange() *schema.Resource {
 				Computed:    true,
 				Description: "The IP version for this public address range.",
 			},
+			"network_prefix_length": &schema.Schema{
+				Type:        schema.TypeInt,
+				Computed:    true,
+				Description: "The network prefix length for this public address range.",
+			},
+			"authorized_cidr": &schema.Schema{
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "The public address range authorized CIDR this public address range is allocated from.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"cidr": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The public IP address block, expressed in CIDR format.",
+						},
+						"href": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The URL for this public address range authorized CIDR.",
+						},
+						"id": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The unique identifier for this public address range authorized CIDR.",
+						},
+						"name": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The name for this public address range authorized CIDR.",
+						},
+						"resource_type": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The resource type.",
+						},
+						"zone": &schema.Schema{
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "The zone for this public address range authorized CIDR. Resources allocated from this authorized CIDR must reside in this zone.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"href": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The URL for this zone.",
+									},
+									"name": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The globally unique name for this zone.",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 			"profile": &schema.Schema{
 				Type:        schema.TypeList,
 				Computed:    true,
@@ -621,7 +679,7 @@ func resourceIBMPublicAddressRangeRead(context context.Context, d *schema.Resour
 	if !core.IsNil(publicAddressRange.AuthorizedCIDR) {
 		authorizedCIDRMap, err := ResourceIBMPublicAddressRangeAuthorizedCIDRReferenceToMap(publicAddressRange.AuthorizedCIDR)
 		if err != nil {
-			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_public_address_range", "read", "authorized_cidr-to-map").GetDiag()
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_public_address_range", "read", "set-authorized_cidr").GetDiag()
 		}
 		if err = d.Set("authorized_cidr", []map[string]interface{}{authorizedCIDRMap}); err != nil {
 			err = fmt.Errorf("Error setting authorized_cidr: %s", err)
@@ -995,6 +1053,13 @@ func ResourceIBMPublicAddressRangeAuthorizedCIDRReferenceToMap(model *vpcv1.Publ
 	modelMap["id"] = *model.ID
 	modelMap["name"] = *model.Name
 	modelMap["resource_type"] = *model.ResourceType
+	if model.Zone != nil {
+		zoneMap, err := ResourceIBMPublicAddressRangeZoneReferenceToMap(model.Zone)
+		if err != nil {
+			return modelMap, err
+		}
+		modelMap["zone"] = []map[string]interface{}{zoneMap}
+	}
 	return modelMap, nil
 }
 
