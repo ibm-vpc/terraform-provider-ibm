@@ -41,6 +41,8 @@ func TestAccIBMPublicAddressRangeAuthorizedCIDRBasic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(
 						"ibm_is_public_address_range_authorized_cidr.testacc_auth_cidr", "cidr"),
 					resource.TestCheckResourceAttrSet(
+						"ibm_is_public_address_range_authorized_cidr.testacc_auth_cidr", "created_at"),
+					resource.TestCheckResourceAttrSet(
 						"ibm_is_public_address_range_authorized_cidr.testacc_auth_cidr", "crn"),
 					resource.TestCheckResourceAttrSet(
 						"ibm_is_public_address_range_authorized_cidr.testacc_auth_cidr", "lifecycle_state"),

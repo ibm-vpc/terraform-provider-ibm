@@ -350,6 +350,10 @@ func resourceIBMIsPublicAddressRangeAuthorizedCIDRRead(context context.Context, 
 		err = fmt.Errorf("Error setting cidr: %s", err)
 		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_public_address_range_authorized_cidr", "read", "set-cidr").GetDiag()
 	}
+	if err = d.Set("created_at", flex.DateTimeToString(authorizedCIDR.CreatedAt)); err != nil {
+		err = fmt.Errorf("Error setting created_at: %s", err)
+		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_public_address_range_authorized_cidr", "read", "set-created_at").GetDiag()
+	}
 	if err = d.Set("crn", authorizedCIDR.CRN); err != nil {
 		err = fmt.Errorf("Error setting crn: %s", err)
 		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_public_address_range_authorized_cidr", "read", "set-crn").GetDiag()
