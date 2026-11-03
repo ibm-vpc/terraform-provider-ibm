@@ -89,6 +89,14 @@ In addition to all argument reference list, you can access the following attribu
 - `href` - (String) The URL for this bare metal server
 - `id` - (String) The unique identifier for this bare metal server
 - `image` - (String) Image used in the bare metal server.
+- `catalog_offering` - (List) The catalog offering or offering version this bare metal server was provisioned from.
+    Nested scheme for `catalog_offering`:
+    - `offering_crn` - (String) Identifies a catalog offering by a unique CRN property.
+    - `version_crn` - (String) Identifies a version of a catalog offering by a unique CRN property.
+    - `plan_crn` - (String) The CRN for this catalog offering version's billing plan.
+    - `deleted` - (List) If present, this property indicates the referenced resource has been deleted and provides some supplementary information.
+        Nested scheme for `deleted`:
+        - `more_info` - (String) Link to documentation about deleted resources.
 - `keys` - (String) Image used in the bare metal server.
 - `memory` - (Integer) The amount of memory, truncated to whole gibibytes
 - `metadata_service` - (List) The metadata service configuration for the bare metal server

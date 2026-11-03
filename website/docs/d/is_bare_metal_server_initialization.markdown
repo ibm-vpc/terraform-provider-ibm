@@ -53,6 +53,13 @@ In addition to the argument reference list, you can access the following attribu
     - `resource_type` - (String) The resource type
 - `image` - (String) The unique identifier for this image
 - `image_name` - (String) The user-defined or system-provided name for this image.
+- `catalog_offering` - (List) The catalog offering or offering version this bare metal server was provisioned from.
+    Nested scheme for `catalog_offering`:
+    - `version_crn` - (String) Identifies a version of a catalog offering by a unique CRN property.
+    - `plan_crn` - (String) The CRN for this catalog offering version's billing plan.
+    - `deleted` - (List) If present, this property indicates the referenced resource has been deleted and provides some supplementary information.
+        Nested scheme for `deleted`:
+        - `more_info` - (String) Link to documentation about deleted resources.
 - `keys` - (Array) List of public SSH keys used at initialization.
 - `user_accounts` - (List) The size of the disk in GB (gigabytes).
   Nested scheme for `user_accounts`:

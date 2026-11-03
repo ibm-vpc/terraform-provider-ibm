@@ -63,6 +63,10 @@ const (
 	isBareMetalServerStatusReasonsMoreInfo               = "more_info"
 	isBareMetalServerDeleteType                          = "delete_type"
 	isBareMetalServerImage                               = "image"
+	isBareMetalServerCatalogOffering                     = "catalog_offering"
+	isBareMetalServerCatalogOfferingOfferingCrn          = "offering_crn"
+	isBareMetalServerCatalogOfferingVersionCrn           = "version_crn"
+	isBareMetalServerCatalogOfferingPlanCrn              = "plan_crn"
 	isBareMetalServerFirmwareUpdateTypeAvailable         = "firmware_update_type_available"
 	isBareMetalServerKeys                                = "keys"
 	isBareMetalServerUserData                            = "user_data"
@@ -1132,10 +1136,61 @@ func ResourceIBMIsBareMetalServer() *schema.Resource {
 			},
 
 			isBareMetalServerImage: {
-				Type:        schema.TypeString,
-				ForceNew:    false,
-				Required:    true,
-				Description: "image id",
+				Type:          schema.TypeString,
+				ForceNew:      false,
+				Optional:      true,
+				Computed:      true,
+				ConflictsWith: []string{"catalog_offering.0.offering_crn", "catalog_offering.0.version_crn"},
+				AtLeastOneOf:  []string{isBareMetalServerImage, "catalog_offering.0.offering_crn", "catalog_offering.0.version_crn"},
+				Description:   "image id",
+			},
+
+			isBareMetalServerCatalogOffering: {
+				Type:        schema.TypeList,
+				MinItems:    0,
+				MaxItems:    1,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "The catalog offering or offering version to use when provisioning this bare metal server. If an offering is specified, the latest version of that offering will be used. The specified offering or offering version may be in a different account in the same enterprise, subject to IAM policies.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						isBareMetalServerCatalogOfferingOfferingCrn: {
+							Type:          schema.TypeString,
+							Optional:      true,
+							ForceNew:      true,
+							ConflictsWith: []string{"catalog_offering.0.version_crn"},
+							Description:   "Identifies a catalog offering by a unique CRN property",
+						},
+						isBareMetalServerCatalogOfferingVersionCrn: {
+							Type:          schema.TypeString,
+							Optional:      true,
+							ForceNew:      true,
+							ConflictsWith: []string{"catalog_offering.0.offering_crn"},
+							Description:   "Identifies a version of a catalog offering by a unique CRN property",
+						},
+						isBareMetalServerCatalogOfferingPlanCrn: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Optional:    true,
+							ForceNew:    true,
+							Description: "The CRN for this catalog offering version's billing plan",
+						},
+						"deleted": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "If present, this property indicates the referenced resource has been deleted and provides some supplementary information.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"more_info": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "Link to documentation about deleted resources.",
+									},
+								},
+							},
+						},
+					},
+				},
 			},
 
 			isBareMetalServerDefaultTrustedProfile: {
@@ -1523,15 +1578,62 @@ func resourceIBMISBareMetalServerCreate(context context.Context, d *schema.Resou
 				ID: &keystr,
 			}
 		}
-		options.Initialization = &vpcv1.BareMetalServerInitializationPrototype{
-			Image: &vpcv1.ImageIdentity{
-				ID: &imageStr,
-			},
+		initializationPrototype := &vpcv1.BareMetalServerInitializationPrototype{
 			Keys: keyobjs,
+		}
+		if imageStr != "" {
+			initializationPrototype.Image = &vpcv1.ImageIdentity{
+				ID: &imageStr,
+			}
+		}
+
+		var catalogOfferingProto vpcv1.BareMetalServerCatalogOfferingPrototypeIntf
+		if catalogOfferingIntf, ok := d.GetOk(isBareMetalServerCatalogOffering); ok {
+			catalogOfferingList := catalogOfferingIntf.([]interface{})
+			if len(catalogOfferingList) > 0 && catalogOfferingList[0] != nil {
+				catalogOfferingMap := catalogOfferingList[0].(map[string]interface{})
+				offeringCrn, _ := catalogOfferingMap[isBareMetalServerCatalogOfferingOfferingCrn].(string)
+				versionCrn, _ := catalogOfferingMap[isBareMetalServerCatalogOfferingVersionCrn].(string)
+				planCrn, _ := catalogOfferingMap[isBareMetalServerCatalogOfferingPlanCrn].(string)
+
+				var planOffering *vpcv1.CatalogOfferingVersionPlanIdentityCatalogOfferingVersionPlanByCRN
+				if planCrn != "" {
+					planOffering = &vpcv1.CatalogOfferingVersionPlanIdentityCatalogOfferingVersionPlanByCRN{
+						CRN: &planCrn,
+					}
+				}
+
+				if offeringCrn != "" {
+					catalogOffering := &vpcv1.CatalogOfferingIdentityCatalogOfferingByCRN{
+						CRN: &offeringCrn,
+					}
+					offeringPrototype := &vpcv1.BareMetalServerCatalogOfferingPrototypeCatalogOfferingByOffering{
+						Offering: catalogOffering,
+					}
+					if planOffering != nil {
+						offeringPrototype.Plan = planOffering
+					}
+					catalogOfferingProto = offeringPrototype
+				} else if versionCrn != "" {
+					versionOffering := &vpcv1.CatalogOfferingVersionIdentityCatalogOfferingVersionByCRN{
+						CRN: &versionCrn,
+					}
+					versionPrototype := &vpcv1.BareMetalServerCatalogOfferingPrototypeCatalogOfferingByVersion{
+						Version: versionOffering,
+					}
+					if planOffering != nil {
+						versionPrototype.Plan = planOffering
+					}
+					catalogOfferingProto = versionPrototype
+				}
+			}
+		}
+		if catalogOfferingProto != nil {
+			initializationPrototype.CatalogOffering = catalogOfferingProto
 		}
 		if userdata, ok := d.GetOk(isBareMetalServerUserData); ok {
 			userdatastr := userdata.(string)
-			options.Initialization.UserData = &userdatastr
+			initializationPrototype.UserData = &userdatastr
 		}
 
 		if defaultTrustedProfile, ok := d.GetOk(isBareMetalServerDefaultTrustedProfile); ok {
@@ -1562,8 +1664,9 @@ func resourceIBMISBareMetalServerCreate(context context.Context, d *schema.Resou
 					}
 				}
 			}
-			options.Initialization.DefaultTrustedProfile = defaultTrustedProfilePrototype
+			initializationPrototype.DefaultTrustedProfile = defaultTrustedProfilePrototype
 		}
+		options.Initialization = initializationPrototype
 	}
 
 	if metadataServiceIntf, ok := d.GetOk(isBareMetalServerMetadataService); ok {
@@ -2386,8 +2489,29 @@ func bareMetalServerGet(context context.Context, d *schema.ResourceData, meta in
 		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
 		return tfErr.GetDiag()
 	}
-	if bmsinitialization != nil && bmsinitialization.Image.ID != nil {
+	if bmsinitialization != nil && bmsinitialization.Image != nil && bmsinitialization.Image.ID != nil {
 		d.Set(isBareMetalServerImage, *bmsinitialization.Image.ID)
+	}
+	if bmsinitialization != nil && bmsinitialization.CatalogOffering != nil {
+		catalogList := make([]map[string]interface{}, 0)
+		catalogMap := map[string]interface{}{}
+		if bmsinitialization.CatalogOffering.Version != nil && bmsinitialization.CatalogOffering.Version.CRN != nil {
+			catalogMap[isBareMetalServerCatalogOfferingVersionCrn] = *bmsinitialization.CatalogOffering.Version.CRN
+		}
+		if bmsinitialization.CatalogOffering.Plan != nil {
+			if bmsinitialization.CatalogOffering.Plan.CRN != nil && *bmsinitialization.CatalogOffering.Plan.CRN != "" {
+				catalogMap[isBareMetalServerCatalogOfferingPlanCrn] = *bmsinitialization.CatalogOffering.Plan.CRN
+			}
+			if bmsinitialization.CatalogOffering.Plan.Deleted != nil {
+				deletedMap := resourceIbmIsBareMetalServerCatalogOfferingVersionPlanReferenceDeletedToMap(*bmsinitialization.CatalogOffering.Plan.Deleted)
+				catalogMap["deleted"] = []map[string]interface{}{deletedMap}
+			}
+		}
+		catalogList = append(catalogList, catalogMap)
+		if err = d.Set(isBareMetalServerCatalogOffering, catalogList); err != nil {
+			err = fmt.Errorf("Error setting catalog_offering: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_bare_metal_server", "read", "set-catalog_offering").GetDiag()
+		}
 	}
 	if bmsinitialization != nil && bmsinitialization.Keys != nil {
 		keyList := []string{}
@@ -2881,15 +3005,14 @@ func bareMetalServerUpdate(context context.Context, d *schema.ResourceData, meta
 	if d.HasChange("image") || d.HasChange("keys") || d.HasChange("user_data") || d.HasChange("default_trusted_profile") {
 		stopServerIfStartingForInitialization := false
 		newImageId := d.Get("image").(string)
-		initializationPatch := &vpcv1.ReplaceBareMetalServerInitializationOptions{
-			ID: &id,
+		replacePrototype := &vpcv1.BareMetalServerInitializationReplacePrototype{
 			Image: &vpcv1.ImageIdentityByID{
 				ID: &newImageId,
 			},
 		}
 		// apply the user data file, if its not updated use the existing
 		newUserData := d.Get("user_data").(string)
-		initializationPatch.UserData = &newUserData
+		replacePrototype.UserData = &newUserData
 		// apply the keys, if its not updated use the existing
 		keySet := d.Get(isBareMetalServerKeys).(*schema.Set)
 		if keySet.Len() != 0 {
@@ -2900,7 +3023,7 @@ func bareMetalServerUpdate(context context.Context, d *schema.ResourceData, meta
 					ID: &keystr,
 				}
 			}
-			initializationPatch.Keys = keyobjs
+			replacePrototype.Keys = keyobjs
 		}
 
 		defaultTrustedProfile := &vpcv1.BareMetalServerInitializationDefaultTrustedProfilePrototype{}
@@ -2924,7 +3047,12 @@ func bareMetalServerUpdate(context context.Context, d *schema.ResourceData, meta
 		}
 
 		if defaultTrustedProfile.AutoLink != nil || defaultTrustedProfile.Target != nil {
-			initializationPatch.DefaultTrustedProfile = defaultTrustedProfile
+			replacePrototype.DefaultTrustedProfile = defaultTrustedProfile
+		}
+
+		initializationPatch := &vpcv1.ReplaceBareMetalServerInitializationOptions{
+			ID: &id,
+			BareMetalServerInitializationReplacePrototype: replacePrototype,
 		}
 
 		stopServerIfStartingForInitialization, err = resourceStopServerIfRunning(id, "hard", d, context, sess, stopServerIfStartingForInitialization)
@@ -5037,6 +5165,12 @@ func resourceIBMIsBareMetalServerReservedIPReferenceDeletedToMap(model *vpcv1.De
 	modelMap := make(map[string]interface{})
 	modelMap["more_info"] = model.MoreInfo
 	return modelMap, nil
+}
+
+func resourceIbmIsBareMetalServerCatalogOfferingVersionPlanReferenceDeletedToMap(catalogOfferingVersionPlanReferenceDeleted vpcv1.Deleted) map[string]interface{} {
+	catalogOfferingVersionPlanReferenceDeletedMap := map[string]interface{}{}
+	catalogOfferingVersionPlanReferenceDeletedMap["more_info"] = catalogOfferingVersionPlanReferenceDeleted.MoreInfo
+	return catalogOfferingVersionPlanReferenceDeletedMap
 }
 
 func resourceIBMIsBareMetalServerMapToBareMetalServerPrimaryNetworkAttachmentPrototype(allowipspoofing, autodelete, enablenat string, d *schema.ResourceData, modelMap map[string]interface{}) (*vpcv1.BareMetalServerPrimaryNetworkAttachmentPrototype, error) {

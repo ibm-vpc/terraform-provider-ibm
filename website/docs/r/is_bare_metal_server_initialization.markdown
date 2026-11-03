@@ -90,3 +90,16 @@ Review the argument references that you can specify for your resource.
 
 
 To reinitialize a bare metal server, the server status must be stopped, or have failed a previous reinitialization. For more information, see Managing Bare Metal Servers for VPC.
+
+## Attribute Reference
+
+In addition to all argument reference list, you can access the following attribute references after your resource is created.
+
+- `catalog_offering` - (List) The catalog offering or offering version this bare metal server was provisioned from.
+    Nested scheme for `catalog_offering`:
+    - `version_crn` - (String) Identifies a version of a catalog offering by a unique CRN property.
+    - `plan_crn` - (String) The CRN for this catalog offering version's billing plan.
+    - `deleted` - (List) If present, this property indicates the referenced resource has been deleted and provides some supplementary information.
+        Nested scheme for `deleted`:
+        - `more_info` - (String) Link to documentation about deleted resources.
+
