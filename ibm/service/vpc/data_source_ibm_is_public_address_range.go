@@ -37,7 +37,7 @@ func DataSourceIBMIsPublicAddressRange() *schema.Resource {
 			"cidr": &schema.Schema{
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: "The public IPv4 range, expressed in CIDR format.",
+				Description: "The public IP address block for this public address range, expressed in CIDR format.",
 			},
 			"created_at": &schema.Schema{
 				Type:        schema.TypeString,

@@ -43,20 +43,6 @@ resource "ibm_is_public_address_range" "public_address_range_instance" {
 }
 ```
 
-An example shows how you can create a public address range bound to an IPv6-enabled load balancer.
-
-```terraform
-resource "ibm_is_public_address_range" "public_address_range_lb" {
-  ipv4_address_count = 1
-  name               = "example-public-address-range-lb"
-  target {
-    load_balancer {
-      id = ibm_is_lb.example.id
-    }
-  }
-}
-```
-
 An example shows how you can create public address range not attached to vpc and zone
 
 ```terraform
@@ -79,15 +65,9 @@ You can specify the following arguments for this resource.
 
   Nested schema for `resource_group`:
   - `id` - (Required, String) The unique identifier for this resource group.
-- `target` - (Optional, List) The target this public address range is bound to. If absent, this public address range is not bound to a target. Specify exactly one of `load_balancer` or `vpc`+`zone`.
+- `target` - (Optional, List) The target this public address range is bound to. If absent, this public address range is not bound to a target.
 
   Nested schema for `target`:
-  - `load_balancer` - (Optional, List) The load balancer to bind this public address range to. The load balancer must have `ipv6_enabled` set to `true`. Specify one of `id`, `crn`, or `href`.
-
-    Nested schema for `load_balancer`:
-    - `id` - (Optional, String) The unique identifier for this load balancer.
-    - `crn` - (Optional, String) The CRN for this load balancer.
-    - `href` - (Optional, String) The URL for this load balancer.
   - `vpc` - (Optional, List) The VPC this public address range is bound to. If present, any of the below values must be specified.
 
     Nested schema for `vpc`:
@@ -104,7 +84,7 @@ You can specify the following arguments for this resource.
 In addition to all argument reference list, you can access the following attribute reference after your resource is created.
 
 - `id` - The unique identifier of the PublicAddressRange.
-- `cidr` - (String) The public IPv4 range, expressed in CIDR format.
+- `cidr` - (String) The public IP address block for this public address range, expressed in CIDR format.
 - `created_at` - (String) The date and time that the public address range was created.
 - `crn` - (String) The CRN for this public address range.
 - `href` - (String) The URL for this public address range.
@@ -119,18 +99,18 @@ In addition to all argument reference list, you can access the following attribu
 - `target` - (List) The target this public address range is bound to. If absent, this public address range is not bound to a target.
 
   Nested schema for `target`:
-  - `load_balancer` - (Optional, List) The load balancer this public address range is bound to. Specify to bind the public address range to an IPv6-enabled load balancer. Populated in read when the public address range is bound to a load balancer.
+  - `load_balancer` - (List) The load balancer this public address range is bound to. A public address range is bound to a load balancer by specifying it in `public_ranges` of the `ibm_is_lb` resource. Populated in read when the public address range is bound to a load balancer.
 
     Nested schema for `load_balancer`:
-    - `id` - (Optional, Computed, String) The unique identifier for this load balancer.
-    - `crn` - (Optional, Computed, String) The CRN for this load balancer.
-    - `href` - (Optional, Computed, String) The URL for this load balancer.
-    - `deleted` - (Computed, List) If present, this property indicates the referenced resource has been deleted, and provides some supplementary information.
+    - `id` - (String) The unique identifier for this load balancer.
+    - `crn` - (String) The CRN for this load balancer.
+    - `href` - (String) The URL for this load balancer.
+    - `deleted` - (List) If present, this property indicates the referenced resource has been deleted, and provides some supplementary information.
 
       Nested schema for `deleted`:
-      - `more_info` - (Computed, String) Link to documentation about deleted resources.
-    - `name` - (Computed, String) The name for this load balancer.
-    - `resource_type` - (Computed, String) The resource type.
+      - `more_info` - (String) Link to documentation about deleted resources.
+    - `name` - (String) The name for this load balancer.
+    - `resource_type` - (String) The resource type.
   - `vpc` - (Computed, List) The VPC this public address range is bound to.
 
     Nested schema for `vpc`:

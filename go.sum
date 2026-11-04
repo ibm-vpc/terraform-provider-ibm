@@ -166,8 +166,6 @@ github.com/IBM/sds-go-sdk v1.0.1 h1:4qIWjEb2D5QB2JPo8srgg8Td+DG7CQ8cuuos/LBXXIg=
 github.com/IBM/sds-go-sdk v1.0.1/go.mod h1:sSOYgrkLrjhf1nyjIwym41y6+2H/aecTxJomj70olxE=
 github.com/IBM/secrets-manager-go-sdk/v2 v2.0.15 h1:ur08GFvkpV3bX5qssSy3pyoMGsXZ/f5JQCWwICTErQs=
 github.com/IBM/secrets-manager-go-sdk/v2 v2.0.15/go.mod h1:QALX1mCf6yedEq7fIe1vlToKKS0sZFq97CIcupmsLHQ=
-github.com/IBM/secrets-manager-management-go-sdk/v2 v2.0.4 h1:/Z/ZuePor24vq00UneC3b4DL6geOTmRf1FsHQSsGQAw=
-github.com/IBM/secrets-manager-management-go-sdk/v2 v2.0.4/go.mod h1:FRQNnuvF7/FlWVCVDkbPw66YP2zjWhsrVKwSWvt8Cz4=
 github.com/IBM/vmware-go-sdk v0.1.5 h1:aQbwcJBceaaauuIoJ0OJn+ttwjb+QTX6XV9JbrdpjCk=
 github.com/IBM/vmware-go-sdk v0.1.5/go.mod h1:OyQKRInGGsBaOyE5LIZCqH7b1DZ01BvIYa8BgGy+wWo=
 github.com/IBM/vpc-beta-go-sdk v0.8.0 h1:cEPpv4iw3Ba5W2d0AWg3TIbKeJ8y1nPuUuibR5Jt9eE=
@@ -321,8 +319,6 @@ github.com/eapache/go-xerial-snappy v0.0.0-20230731223053-c322873962e3 h1:Oy0F4A
 github.com/eapache/go-xerial-snappy v0.0.0-20230731223053-c322873962e3/go.mod h1:YvSRo5mw33fLEx1+DlK6L2VV43tJt5Eyel9n9XBcR+0=
 github.com/eapache/queue v1.1.0 h1:YOEu7KNc61ntiQlcEeUIoDTJ2o8mQznoNvUhiigpIqc=
 github.com/eapache/queue v1.1.0/go.mod h1:6eCeP0CKFpHLu8blIFXhExK/dRa7WDZfr6jVFPTqq+I=
-github.com/ebitengine/purego v0.10.1 h1:dewVBCBT2GaMu1SrNTYxQhgQBethzfhiwvZiLGP/qyY=
-github.com/ebitengine/purego v0.10.1/go.mod h1:iIjxzd6CiRiOG0UyXP+V1+jWqUXVjPKLAI0mRfJZTmQ=
 github.com/elazarl/goproxy v0.0.0-20180725130230-947c36da3153/go.mod h1:/Zj4wYkgs4iZTTu3o/KG3Itv/qCCa8VVMlb3i9OVuzc=
 github.com/elazarl/goproxy v0.0.0-20191011121108-aa519ddbe484/go.mod h1:Ro8st/ElPeALwNFlcTpWmkr6IoMFfkjXAvTHpevnDsM=
 github.com/elazarl/goproxy/ext v0.0.0-20190711103511-473e67f1d7d2/go.mod h1:gNh8nYJoAm43RfaxurUnxr+N1PwuFV3ZMl/efxlIlY8=

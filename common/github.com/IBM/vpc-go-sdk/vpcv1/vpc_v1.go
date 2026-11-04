@@ -47,7 +47,7 @@ type VpcV1 struct {
 	Generation *int64
 
 	// The API version, in format `YYYY-MM-DD`. For the API behavior documented here, specify any date between `2026-09-01`
-	// and `2026-09-15`.
+	// and `2026-11-03`.
 	Version *string
 }
 
@@ -2920,8 +2920,9 @@ func (vpc *VpcV1) GetBareMetalServerNetworkInterfaceFloatingIPWithContext(ctx co
 // is `true`, this replaces any existing association.
 //
 // The existing floating IP must:
-// - not be required by another resource, such as a public gateway
 // - be in the same `zone` as the bare metal server
+// - not be allocated from an `authorized_cidr`
+// - not be required by another resource, such as a public gateway
 //
 // A request body is not required, and if provided, is ignored.
 func (vpc *VpcV1) AddBareMetalServerNetworkInterfaceFloatingIP(addBareMetalServerNetworkInterfaceFloatingIPOptions *AddBareMetalServerNetworkInterfaceFloatingIPOptions) (result *FloatingIP, response *core.DetailedResponse, err error) {
@@ -7833,6 +7834,148 @@ func (vpc *VpcV1) UpdateEndpointGatewayWithContext(ctx context.Context, updateEn
 	return
 }
 
+// ListFloatingIPProfiles : List floating IP profiles
+// This request lists floating IP profiles available in the region. A floating IP profile specifies the characteristics
+// and capabilities for a floating IP.
+func (vpc *VpcV1) ListFloatingIPProfiles(listFloatingIPProfilesOptions *ListFloatingIPProfilesOptions) (result *FloatingIPProfileCollection, response *core.DetailedResponse, err error) {
+	result, response, err = vpc.ListFloatingIPProfilesWithContext(context.Background(), listFloatingIPProfilesOptions)
+	err = core.RepurposeSDKProblem(err, "")
+	return
+}
+
+// ListFloatingIPProfilesWithContext is an alternate form of the ListFloatingIPProfiles method which supports a Context parameter
+func (vpc *VpcV1) ListFloatingIPProfilesWithContext(ctx context.Context, listFloatingIPProfilesOptions *ListFloatingIPProfilesOptions) (result *FloatingIPProfileCollection, response *core.DetailedResponse, err error) {
+	err = core.ValidateStruct(listFloatingIPProfilesOptions, "listFloatingIPProfilesOptions")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "struct-validation-error", common.GetComponentInfo())
+		return
+	}
+
+	builder := core.NewRequestBuilder(core.GET)
+	builder = builder.WithContext(ctx)
+	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
+	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/floating_ip/profiles`, nil)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "url-resolve-error", common.GetComponentInfo())
+		return
+	}
+
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListFloatingIPProfiles")
+	for headerName, headerValue := range sdkHeaders {
+		builder.AddHeader(headerName, headerValue)
+	}
+
+	for headerName, headerValue := range listFloatingIPProfilesOptions.Headers {
+		builder.AddHeader(headerName, headerValue)
+	}
+	builder.AddHeader("Accept", "application/json")
+
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	if listFloatingIPProfilesOptions.Start != nil {
+		builder.AddQuery("start", fmt.Sprint(*listFloatingIPProfilesOptions.Start))
+	}
+	if listFloatingIPProfilesOptions.Limit != nil {
+		builder.AddQuery("limit", fmt.Sprint(*listFloatingIPProfilesOptions.Limit))
+	}
+
+	request, err := builder.Build()
+	if err != nil {
+		err = core.SDKErrorf(err, "", "build-error", common.GetComponentInfo())
+		return
+	}
+
+	var rawResponse map[string]json.RawMessage
+	response, err = vpc.Service.Request(request, &rawResponse)
+	if err != nil {
+		core.EnrichHTTPProblem(err, "list_floating_ip_profiles", getServiceComponentInfo())
+		err = core.SDKErrorf(err, "", "http-request-err", common.GetComponentInfo())
+		return
+	}
+	if rawResponse != nil {
+		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalFloatingIPProfileCollection)
+		if err != nil {
+			err = core.SDKErrorf(err, "", "unmarshal-resp-error", common.GetComponentInfo())
+			return
+		}
+		response.Result = result
+	}
+
+	return
+}
+
+// GetFloatingIPProfile : Retrieve a floating IP profile
+// This request retrieves a single floating IP profile specified by the name in the URL.
+func (vpc *VpcV1) GetFloatingIPProfile(getFloatingIPProfileOptions *GetFloatingIPProfileOptions) (result *FloatingIPProfile, response *core.DetailedResponse, err error) {
+	result, response, err = vpc.GetFloatingIPProfileWithContext(context.Background(), getFloatingIPProfileOptions)
+	err = core.RepurposeSDKProblem(err, "")
+	return
+}
+
+// GetFloatingIPProfileWithContext is an alternate form of the GetFloatingIPProfile method which supports a Context parameter
+func (vpc *VpcV1) GetFloatingIPProfileWithContext(ctx context.Context, getFloatingIPProfileOptions *GetFloatingIPProfileOptions) (result *FloatingIPProfile, response *core.DetailedResponse, err error) {
+	err = core.ValidateNotNil(getFloatingIPProfileOptions, "getFloatingIPProfileOptions cannot be nil")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "unexpected-nil-param", common.GetComponentInfo())
+		return
+	}
+	err = core.ValidateStruct(getFloatingIPProfileOptions, "getFloatingIPProfileOptions")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "struct-validation-error", common.GetComponentInfo())
+		return
+	}
+
+	pathParamsMap := map[string]string{
+		"name": *getFloatingIPProfileOptions.Name,
+	}
+
+	builder := core.NewRequestBuilder(core.GET)
+	builder = builder.WithContext(ctx)
+	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
+	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/floating_ip/profiles/{name}`, pathParamsMap)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "url-resolve-error", common.GetComponentInfo())
+		return
+	}
+
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetFloatingIPProfile")
+	for headerName, headerValue := range sdkHeaders {
+		builder.AddHeader(headerName, headerValue)
+	}
+
+	for headerName, headerValue := range getFloatingIPProfileOptions.Headers {
+		builder.AddHeader(headerName, headerValue)
+	}
+	builder.AddHeader("Accept", "application/json")
+
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+
+	request, err := builder.Build()
+	if err != nil {
+		err = core.SDKErrorf(err, "", "build-error", common.GetComponentInfo())
+		return
+	}
+
+	var rawResponse map[string]json.RawMessage
+	response, err = vpc.Service.Request(request, &rawResponse)
+	if err != nil {
+		core.EnrichHTTPProblem(err, "get_floating_ip_profile", getServiceComponentInfo())
+		err = core.SDKErrorf(err, "", "http-request-err", common.GetComponentInfo())
+		return
+	}
+	if rawResponse != nil {
+		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalFloatingIPProfile)
+		if err != nil {
+			err = core.SDKErrorf(err, "", "unmarshal-resp-error", common.GetComponentInfo())
+			return
+		}
+		response.Result = result
+	}
+
+	return
+}
+
 // ListFloatingIps : List floating IPs
 // This request lists floating IPs in the region. Floating IPs allow inbound and outbound traffic from the Internet to
 // an instance.
@@ -7882,6 +8025,9 @@ func (vpc *VpcV1) ListFloatingIpsWithContext(ctx context.Context, listFloatingIp
 	}
 	if listFloatingIpsOptions.Sort != nil {
 		builder.AddQuery("sort", fmt.Sprint(*listFloatingIpsOptions.Sort))
+	}
+	if listFloatingIpsOptions.ProfileName != nil {
+		builder.AddQuery("profile.name", fmt.Sprint(*listFloatingIpsOptions.ProfileName))
 	}
 	if listFloatingIpsOptions.TargetID != nil {
 		builder.AddQuery("target.id", fmt.Sprint(*listFloatingIpsOptions.TargetID))
@@ -7965,7 +8111,23 @@ func (vpc *VpcV1) CreateFloatingIPWithContext(ctx context.Context, createFloatin
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
 
-	_, err = builder.SetBodyContentJSON(createFloatingIPOptions.FloatingIPPrototype)
+	body := make(map[string]interface{})
+	if createFloatingIPOptions.Address != nil {
+		body["address"] = createFloatingIPOptions.Address
+	}
+	if createFloatingIPOptions.Name != nil {
+		body["name"] = createFloatingIPOptions.Name
+	}
+	if createFloatingIPOptions.ResourceGroup != nil {
+		body["resource_group"] = createFloatingIPOptions.ResourceGroup
+	}
+	if createFloatingIPOptions.Target != nil {
+		body["target"] = createFloatingIPOptions.Target
+	}
+	if createFloatingIPOptions.Zone != nil {
+		body["zone"] = createFloatingIPOptions.Zone
+	}
+	_, err = builder.SetBodyContentJSON(body)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "set-json-body-error", common.GetComponentInfo())
 		return
@@ -14960,8 +15122,9 @@ func (vpc *VpcV1) GetInstanceNetworkInterfaceFloatingIPWithContext(ctx context.C
 // existing association.
 //
 // The existing floating IP must:
-// - not be required by another resource, such as a public gateway
 // - be in the same `zone` as the instance
+// - not be allocated from an `authorized_cidr`
+// - not be required by another resource, such as a public gateway
 //
 // A request body is not required, and if provided, is ignored.
 func (vpc *VpcV1) AddInstanceNetworkInterfaceFloatingIP(addInstanceNetworkInterfaceFloatingIPOptions *AddInstanceNetworkInterfaceFloatingIPOptions) (result *FloatingIP, response *core.DetailedResponse, err error) {
@@ -16481,6 +16644,9 @@ func (vpc *VpcV1) CreateLoadBalancerWithContext(ctx context.Context, createLoadB
 	}
 	if createLoadBalancerOptions.PublicIps != nil {
 		body["public_ips"] = createLoadBalancerOptions.PublicIps
+	}
+	if createLoadBalancerOptions.PublicRanges != nil {
+		body["public_ranges"] = createLoadBalancerOptions.PublicRanges
 	}
 	if createLoadBalancerOptions.ResourceGroup != nil {
 		body["resource_group"] = createLoadBalancerOptions.ResourceGroup
@@ -21288,6 +21454,680 @@ func (vpc *VpcV1) UnpublishPrivatePathServiceGatewayWithContext(ctx context.Cont
 	return
 }
 
+// ListPublicAddressRangeAuthorizedCIDRs : List public address range authorized CIDRs
+// This request lists public address range authorized CIDRs available in the region. An authorized CIDR specifies a
+// contiguous block of public IP addresses authorized for allocating public address ranges from.
+//
+// The authorized CIDRs will be sorted by ascending `cidr` property values.
+func (vpc *VpcV1) ListPublicAddressRangeAuthorizedCIDRs(listPublicAddressRangeAuthorizedCIDRsOptions *ListPublicAddressRangeAuthorizedCIDRsOptions) (result *PublicAddressRangeAuthorizedCIDRCollection, response *core.DetailedResponse, err error) {
+	result, response, err = vpc.ListPublicAddressRangeAuthorizedCIDRsWithContext(context.Background(), listPublicAddressRangeAuthorizedCIDRsOptions)
+	err = core.RepurposeSDKProblem(err, "")
+	return
+}
+
+// ListPublicAddressRangeAuthorizedCIDRsWithContext is an alternate form of the ListPublicAddressRangeAuthorizedCIDRs method which supports a Context parameter
+func (vpc *VpcV1) ListPublicAddressRangeAuthorizedCIDRsWithContext(ctx context.Context, listPublicAddressRangeAuthorizedCIDRsOptions *ListPublicAddressRangeAuthorizedCIDRsOptions) (result *PublicAddressRangeAuthorizedCIDRCollection, response *core.DetailedResponse, err error) {
+	err = core.ValidateStruct(listPublicAddressRangeAuthorizedCIDRsOptions, "listPublicAddressRangeAuthorizedCIDRsOptions")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "struct-validation-error", common.GetComponentInfo())
+		return
+	}
+
+	builder := core.NewRequestBuilder(core.GET)
+	builder = builder.WithContext(ctx)
+	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
+	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/public_address_range/authorized_cidrs`, nil)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "url-resolve-error", common.GetComponentInfo())
+		return
+	}
+
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListPublicAddressRangeAuthorizedCIDRs")
+	for headerName, headerValue := range sdkHeaders {
+		builder.AddHeader(headerName, headerValue)
+	}
+
+	for headerName, headerValue := range listPublicAddressRangeAuthorizedCIDRsOptions.Headers {
+		builder.AddHeader(headerName, headerValue)
+	}
+	builder.AddHeader("Accept", "application/json")
+
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	if listPublicAddressRangeAuthorizedCIDRsOptions.Start != nil {
+		builder.AddQuery("start", fmt.Sprint(*listPublicAddressRangeAuthorizedCIDRsOptions.Start))
+	}
+	if listPublicAddressRangeAuthorizedCIDRsOptions.Limit != nil {
+		builder.AddQuery("limit", fmt.Sprint(*listPublicAddressRangeAuthorizedCIDRsOptions.Limit))
+	}
+	if listPublicAddressRangeAuthorizedCIDRsOptions.AllocationProfileFamily != nil {
+		builder.AddQuery("allocation.profile_family", fmt.Sprint(*listPublicAddressRangeAuthorizedCIDRsOptions.AllocationProfileFamily))
+	}
+	if listPublicAddressRangeAuthorizedCIDRsOptions.AvailabilityMode != nil {
+		builder.AddQuery("availability_mode", fmt.Sprint(*listPublicAddressRangeAuthorizedCIDRsOptions.AvailabilityMode))
+	}
+
+	request, err := builder.Build()
+	if err != nil {
+		err = core.SDKErrorf(err, "", "build-error", common.GetComponentInfo())
+		return
+	}
+
+	var rawResponse map[string]json.RawMessage
+	response, err = vpc.Service.Request(request, &rawResponse)
+	if err != nil {
+		core.EnrichHTTPProblem(err, "list_public_address_range_authorized_cidrs", getServiceComponentInfo())
+		err = core.SDKErrorf(err, "", "http-request-err", common.GetComponentInfo())
+		return
+	}
+	if rawResponse != nil {
+		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalPublicAddressRangeAuthorizedCIDRCollection)
+		if err != nil {
+			err = core.SDKErrorf(err, "", "unmarshal-resp-error", common.GetComponentInfo())
+			return
+		}
+		response.Result = result
+	}
+
+	return
+}
+
+// CreatePublicAddressRangeAuthorizedCIDR : Create a public address range authorized CIDR
+// This request creates a new public address range authorized CIDRs from a public address range authorized CIDR
+// prototype object. The prototype object is structured in the same way as a retrieved public address range authorized
+// CIDR, and contains the information necessary to create the new public address range authorized CIDR.
+func (vpc *VpcV1) CreatePublicAddressRangeAuthorizedCIDR(createPublicAddressRangeAuthorizedCIDROptions *CreatePublicAddressRangeAuthorizedCIDROptions) (result *PublicAddressRangeAuthorizedCIDR, response *core.DetailedResponse, err error) {
+	result, response, err = vpc.CreatePublicAddressRangeAuthorizedCIDRWithContext(context.Background(), createPublicAddressRangeAuthorizedCIDROptions)
+	err = core.RepurposeSDKProblem(err, "")
+	return
+}
+
+// CreatePublicAddressRangeAuthorizedCIDRWithContext is an alternate form of the CreatePublicAddressRangeAuthorizedCIDR method which supports a Context parameter
+func (vpc *VpcV1) CreatePublicAddressRangeAuthorizedCIDRWithContext(ctx context.Context, createPublicAddressRangeAuthorizedCIDROptions *CreatePublicAddressRangeAuthorizedCIDROptions) (result *PublicAddressRangeAuthorizedCIDR, response *core.DetailedResponse, err error) {
+	err = core.ValidateNotNil(createPublicAddressRangeAuthorizedCIDROptions, "createPublicAddressRangeAuthorizedCIDROptions cannot be nil")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "unexpected-nil-param", common.GetComponentInfo())
+		return
+	}
+	err = core.ValidateStruct(createPublicAddressRangeAuthorizedCIDROptions, "createPublicAddressRangeAuthorizedCIDROptions")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "struct-validation-error", common.GetComponentInfo())
+		return
+	}
+
+	builder := core.NewRequestBuilder(core.POST)
+	builder = builder.WithContext(ctx)
+	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
+	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/public_address_range/authorized_cidrs`, nil)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "url-resolve-error", common.GetComponentInfo())
+		return
+	}
+
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreatePublicAddressRangeAuthorizedCIDR")
+	for headerName, headerValue := range sdkHeaders {
+		builder.AddHeader(headerName, headerValue)
+	}
+
+	for headerName, headerValue := range createPublicAddressRangeAuthorizedCIDROptions.Headers {
+		builder.AddHeader(headerName, headerValue)
+	}
+	builder.AddHeader("Accept", "application/json")
+	builder.AddHeader("Content-Type", "application/json")
+
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+
+	_, err = builder.SetBodyContentJSON(createPublicAddressRangeAuthorizedCIDROptions.PublicAddressRangeAuthorizedCIDRPrototype)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "set-json-body-error", common.GetComponentInfo())
+		return
+	}
+
+	request, err := builder.Build()
+	if err != nil {
+		err = core.SDKErrorf(err, "", "build-error", common.GetComponentInfo())
+		return
+	}
+
+	var rawResponse map[string]json.RawMessage
+	response, err = vpc.Service.Request(request, &rawResponse)
+	if err != nil {
+		core.EnrichHTTPProblem(err, "create_public_address_range_authorized_cidr", getServiceComponentInfo())
+		err = core.SDKErrorf(err, "", "http-request-err", common.GetComponentInfo())
+		return
+	}
+	if rawResponse != nil {
+		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalPublicAddressRangeAuthorizedCIDR)
+		if err != nil {
+			err = core.SDKErrorf(err, "", "unmarshal-resp-error", common.GetComponentInfo())
+			return
+		}
+		response.Result = result
+	}
+
+	return
+}
+
+// ListPublicAddressRangeAuthorizedCIDRAllocations : List public address range authorized CIDR allocations
+// This request lists allocations for a public address range authorized CIDR. An allocation specifies a contiguous block
+// of public IP addresses allocated from the public address range authorized CIDR. The allocations do not overlap.
+//
+// The allocations will be sorted by their address offset in the authorized CIDR.
+func (vpc *VpcV1) ListPublicAddressRangeAuthorizedCIDRAllocations(listPublicAddressRangeAuthorizedCIDRAllocationsOptions *ListPublicAddressRangeAuthorizedCIDRAllocationsOptions) (result *PublicAddressRangeAuthorizedCIDRAllocationCollection, response *core.DetailedResponse, err error) {
+	result, response, err = vpc.ListPublicAddressRangeAuthorizedCIDRAllocationsWithContext(context.Background(), listPublicAddressRangeAuthorizedCIDRAllocationsOptions)
+	err = core.RepurposeSDKProblem(err, "")
+	return
+}
+
+// ListPublicAddressRangeAuthorizedCIDRAllocationsWithContext is an alternate form of the ListPublicAddressRangeAuthorizedCIDRAllocations method which supports a Context parameter
+func (vpc *VpcV1) ListPublicAddressRangeAuthorizedCIDRAllocationsWithContext(ctx context.Context, listPublicAddressRangeAuthorizedCIDRAllocationsOptions *ListPublicAddressRangeAuthorizedCIDRAllocationsOptions) (result *PublicAddressRangeAuthorizedCIDRAllocationCollection, response *core.DetailedResponse, err error) {
+	err = core.ValidateNotNil(listPublicAddressRangeAuthorizedCIDRAllocationsOptions, "listPublicAddressRangeAuthorizedCIDRAllocationsOptions cannot be nil")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "unexpected-nil-param", common.GetComponentInfo())
+		return
+	}
+	err = core.ValidateStruct(listPublicAddressRangeAuthorizedCIDRAllocationsOptions, "listPublicAddressRangeAuthorizedCIDRAllocationsOptions")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "struct-validation-error", common.GetComponentInfo())
+		return
+	}
+
+	pathParamsMap := map[string]string{
+		"authorized_cidr_id": *listPublicAddressRangeAuthorizedCIDRAllocationsOptions.AuthorizedCIDRID,
+	}
+
+	builder := core.NewRequestBuilder(core.GET)
+	builder = builder.WithContext(ctx)
+	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
+	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/public_address_range/authorized_cidrs/{authorized_cidr_id}/allocations`, pathParamsMap)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "url-resolve-error", common.GetComponentInfo())
+		return
+	}
+
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListPublicAddressRangeAuthorizedCIDRAllocations")
+	for headerName, headerValue := range sdkHeaders {
+		builder.AddHeader(headerName, headerValue)
+	}
+
+	for headerName, headerValue := range listPublicAddressRangeAuthorizedCIDRAllocationsOptions.Headers {
+		builder.AddHeader(headerName, headerValue)
+	}
+	builder.AddHeader("Accept", "application/json")
+
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	if listPublicAddressRangeAuthorizedCIDRAllocationsOptions.Start != nil {
+		builder.AddQuery("start", fmt.Sprint(*listPublicAddressRangeAuthorizedCIDRAllocationsOptions.Start))
+	}
+	if listPublicAddressRangeAuthorizedCIDRAllocationsOptions.Limit != nil {
+		builder.AddQuery("limit", fmt.Sprint(*listPublicAddressRangeAuthorizedCIDRAllocationsOptions.Limit))
+	}
+	if listPublicAddressRangeAuthorizedCIDRAllocationsOptions.AllocationsResourceType != nil {
+		builder.AddQuery("allocations[].resource_type", fmt.Sprint(*listPublicAddressRangeAuthorizedCIDRAllocationsOptions.AllocationsResourceType))
+	}
+
+	request, err := builder.Build()
+	if err != nil {
+		err = core.SDKErrorf(err, "", "build-error", common.GetComponentInfo())
+		return
+	}
+
+	var rawResponse map[string]json.RawMessage
+	response, err = vpc.Service.Request(request, &rawResponse)
+	if err != nil {
+		core.EnrichHTTPProblem(err, "list_public_address_range_authorized_cidr_allocations", getServiceComponentInfo())
+		err = core.SDKErrorf(err, "", "http-request-err", common.GetComponentInfo())
+		return
+	}
+	if rawResponse != nil {
+		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalPublicAddressRangeAuthorizedCIDRAllocationCollection)
+		if err != nil {
+			err = core.SDKErrorf(err, "", "unmarshal-resp-error", common.GetComponentInfo())
+			return
+		}
+		response.Result = result
+	}
+
+	return
+}
+
+// GetPublicAddressRangeAuthorizedCIDRAllocation : Retrieve a public address range authorized CIDR
+// This request retrieves a single public address range authorized CIDR specified by the name in the URL.
+func (vpc *VpcV1) GetPublicAddressRangeAuthorizedCIDRAllocation(getPublicAddressRangeAuthorizedCIDRAllocationOptions *GetPublicAddressRangeAuthorizedCIDRAllocationOptions) (result PublicAddressRangeAuthorizedCIDRAllocationItemIntf, response *core.DetailedResponse, err error) {
+	result, response, err = vpc.GetPublicAddressRangeAuthorizedCIDRAllocationWithContext(context.Background(), getPublicAddressRangeAuthorizedCIDRAllocationOptions)
+	err = core.RepurposeSDKProblem(err, "")
+	return
+}
+
+// GetPublicAddressRangeAuthorizedCIDRAllocationWithContext is an alternate form of the GetPublicAddressRangeAuthorizedCIDRAllocation method which supports a Context parameter
+func (vpc *VpcV1) GetPublicAddressRangeAuthorizedCIDRAllocationWithContext(ctx context.Context, getPublicAddressRangeAuthorizedCIDRAllocationOptions *GetPublicAddressRangeAuthorizedCIDRAllocationOptions) (result PublicAddressRangeAuthorizedCIDRAllocationItemIntf, response *core.DetailedResponse, err error) {
+	err = core.ValidateNotNil(getPublicAddressRangeAuthorizedCIDRAllocationOptions, "getPublicAddressRangeAuthorizedCIDRAllocationOptions cannot be nil")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "unexpected-nil-param", common.GetComponentInfo())
+		return
+	}
+	err = core.ValidateStruct(getPublicAddressRangeAuthorizedCIDRAllocationOptions, "getPublicAddressRangeAuthorizedCIDRAllocationOptions")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "struct-validation-error", common.GetComponentInfo())
+		return
+	}
+
+	pathParamsMap := map[string]string{
+		"authorized_cidr_id": *getPublicAddressRangeAuthorizedCIDRAllocationOptions.AuthorizedCIDRID,
+		"id":                 *getPublicAddressRangeAuthorizedCIDRAllocationOptions.ID,
+	}
+
+	builder := core.NewRequestBuilder(core.GET)
+	builder = builder.WithContext(ctx)
+	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
+	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/public_address_range/authorized_cidrs/{authorized_cidr_id}/allocations/{id}`, pathParamsMap)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "url-resolve-error", common.GetComponentInfo())
+		return
+	}
+
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetPublicAddressRangeAuthorizedCIDRAllocation")
+	for headerName, headerValue := range sdkHeaders {
+		builder.AddHeader(headerName, headerValue)
+	}
+
+	for headerName, headerValue := range getPublicAddressRangeAuthorizedCIDRAllocationOptions.Headers {
+		builder.AddHeader(headerName, headerValue)
+	}
+	builder.AddHeader("Accept", "application/json")
+
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+
+	request, err := builder.Build()
+	if err != nil {
+		err = core.SDKErrorf(err, "", "build-error", common.GetComponentInfo())
+		return
+	}
+
+	var rawResponse map[string]json.RawMessage
+	response, err = vpc.Service.Request(request, &rawResponse)
+	if err != nil {
+		core.EnrichHTTPProblem(err, "get_public_address_range_authorized_cidr_allocation", getServiceComponentInfo())
+		err = core.SDKErrorf(err, "", "http-request-err", common.GetComponentInfo())
+		return
+	}
+	if rawResponse != nil {
+		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalPublicAddressRangeAuthorizedCIDRAllocationItem)
+		if err != nil {
+			err = core.SDKErrorf(err, "", "unmarshal-resp-error", common.GetComponentInfo())
+			return
+		}
+		response.Result = result
+	}
+
+	return
+}
+
+// DeletePublicAddressRangeAuthorizedCIDR : Delete a public address range authorized CIDR
+// This request deletes a public address range authorized CIDR. This operation cannot be reversed.
+//
+// For this request to succeed, `allocation.count` must be `0`.
+//
+// If its `name` begins with `ibm-`, then the authorized CIDR is managed by the provider and is not allowed to be
+// deleted.
+func (vpc *VpcV1) DeletePublicAddressRangeAuthorizedCIDR(deletePublicAddressRangeAuthorizedCIDROptions *DeletePublicAddressRangeAuthorizedCIDROptions) (response *core.DetailedResponse, err error) {
+	response, err = vpc.DeletePublicAddressRangeAuthorizedCIDRWithContext(context.Background(), deletePublicAddressRangeAuthorizedCIDROptions)
+	err = core.RepurposeSDKProblem(err, "")
+	return
+}
+
+// DeletePublicAddressRangeAuthorizedCIDRWithContext is an alternate form of the DeletePublicAddressRangeAuthorizedCIDR method which supports a Context parameter
+func (vpc *VpcV1) DeletePublicAddressRangeAuthorizedCIDRWithContext(ctx context.Context, deletePublicAddressRangeAuthorizedCIDROptions *DeletePublicAddressRangeAuthorizedCIDROptions) (response *core.DetailedResponse, err error) {
+	err = core.ValidateNotNil(deletePublicAddressRangeAuthorizedCIDROptions, "deletePublicAddressRangeAuthorizedCIDROptions cannot be nil")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "unexpected-nil-param", common.GetComponentInfo())
+		return
+	}
+	err = core.ValidateStruct(deletePublicAddressRangeAuthorizedCIDROptions, "deletePublicAddressRangeAuthorizedCIDROptions")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "struct-validation-error", common.GetComponentInfo())
+		return
+	}
+
+	pathParamsMap := map[string]string{
+		"id": *deletePublicAddressRangeAuthorizedCIDROptions.ID,
+	}
+
+	builder := core.NewRequestBuilder(core.DELETE)
+	builder = builder.WithContext(ctx)
+	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
+	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/public_address_range/authorized_cidrs/{id}`, pathParamsMap)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "url-resolve-error", common.GetComponentInfo())
+		return
+	}
+
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeletePublicAddressRangeAuthorizedCIDR")
+	for headerName, headerValue := range sdkHeaders {
+		builder.AddHeader(headerName, headerValue)
+	}
+
+	for headerName, headerValue := range deletePublicAddressRangeAuthorizedCIDROptions.Headers {
+		builder.AddHeader(headerName, headerValue)
+	}
+
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+
+	request, err := builder.Build()
+	if err != nil {
+		err = core.SDKErrorf(err, "", "build-error", common.GetComponentInfo())
+		return
+	}
+
+	response, err = vpc.Service.Request(request, nil)
+	if err != nil {
+		core.EnrichHTTPProblem(err, "delete_public_address_range_authorized_cidr", getServiceComponentInfo())
+		err = core.SDKErrorf(err, "", "http-request-err", common.GetComponentInfo())
+		return
+	}
+
+	return
+}
+
+// GetPublicAddressRangeAuthorizedCIDR : Retrieve a public address range authorized CIDR
+// This request retrieves a single public address range authorized CIDR specified by the name in the URL.
+func (vpc *VpcV1) GetPublicAddressRangeAuthorizedCIDR(getPublicAddressRangeAuthorizedCIDROptions *GetPublicAddressRangeAuthorizedCIDROptions) (result *PublicAddressRangeAuthorizedCIDR, response *core.DetailedResponse, err error) {
+	result, response, err = vpc.GetPublicAddressRangeAuthorizedCIDRWithContext(context.Background(), getPublicAddressRangeAuthorizedCIDROptions)
+	err = core.RepurposeSDKProblem(err, "")
+	return
+}
+
+// GetPublicAddressRangeAuthorizedCIDRWithContext is an alternate form of the GetPublicAddressRangeAuthorizedCIDR method which supports a Context parameter
+func (vpc *VpcV1) GetPublicAddressRangeAuthorizedCIDRWithContext(ctx context.Context, getPublicAddressRangeAuthorizedCIDROptions *GetPublicAddressRangeAuthorizedCIDROptions) (result *PublicAddressRangeAuthorizedCIDR, response *core.DetailedResponse, err error) {
+	err = core.ValidateNotNil(getPublicAddressRangeAuthorizedCIDROptions, "getPublicAddressRangeAuthorizedCIDROptions cannot be nil")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "unexpected-nil-param", common.GetComponentInfo())
+		return
+	}
+	err = core.ValidateStruct(getPublicAddressRangeAuthorizedCIDROptions, "getPublicAddressRangeAuthorizedCIDROptions")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "struct-validation-error", common.GetComponentInfo())
+		return
+	}
+
+	pathParamsMap := map[string]string{
+		"id": *getPublicAddressRangeAuthorizedCIDROptions.ID,
+	}
+
+	builder := core.NewRequestBuilder(core.GET)
+	builder = builder.WithContext(ctx)
+	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
+	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/public_address_range/authorized_cidrs/{id}`, pathParamsMap)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "url-resolve-error", common.GetComponentInfo())
+		return
+	}
+
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetPublicAddressRangeAuthorizedCIDR")
+	for headerName, headerValue := range sdkHeaders {
+		builder.AddHeader(headerName, headerValue)
+	}
+
+	for headerName, headerValue := range getPublicAddressRangeAuthorizedCIDROptions.Headers {
+		builder.AddHeader(headerName, headerValue)
+	}
+	builder.AddHeader("Accept", "application/json")
+
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+
+	request, err := builder.Build()
+	if err != nil {
+		err = core.SDKErrorf(err, "", "build-error", common.GetComponentInfo())
+		return
+	}
+
+	var rawResponse map[string]json.RawMessage
+	response, err = vpc.Service.Request(request, &rawResponse)
+	if err != nil {
+		core.EnrichHTTPProblem(err, "get_public_address_range_authorized_cidr", getServiceComponentInfo())
+		err = core.SDKErrorf(err, "", "http-request-err", common.GetComponentInfo())
+		return
+	}
+	if rawResponse != nil {
+		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalPublicAddressRangeAuthorizedCIDR)
+		if err != nil {
+			err = core.SDKErrorf(err, "", "unmarshal-resp-error", common.GetComponentInfo())
+			return
+		}
+		response.Result = result
+	}
+
+	return
+}
+
+// UpdatePublicAddressRangeAuthorizedCIDR : Update a public address range authorized CIDR
+// This request updates a public address range authorized CIDR with the information in a provided public address range
+// authorized CIDR patch. The public address range authorized CIDR patch object is structured in the same way as a
+// retrieved public address range authorized CIDR and contains only the information to be updated.
+func (vpc *VpcV1) UpdatePublicAddressRangeAuthorizedCIDR(updatePublicAddressRangeAuthorizedCIDROptions *UpdatePublicAddressRangeAuthorizedCIDROptions) (result *PublicAddressRangeAuthorizedCIDR, response *core.DetailedResponse, err error) {
+	result, response, err = vpc.UpdatePublicAddressRangeAuthorizedCIDRWithContext(context.Background(), updatePublicAddressRangeAuthorizedCIDROptions)
+	err = core.RepurposeSDKProblem(err, "")
+	return
+}
+
+// UpdatePublicAddressRangeAuthorizedCIDRWithContext is an alternate form of the UpdatePublicAddressRangeAuthorizedCIDR method which supports a Context parameter
+func (vpc *VpcV1) UpdatePublicAddressRangeAuthorizedCIDRWithContext(ctx context.Context, updatePublicAddressRangeAuthorizedCIDROptions *UpdatePublicAddressRangeAuthorizedCIDROptions) (result *PublicAddressRangeAuthorizedCIDR, response *core.DetailedResponse, err error) {
+	err = core.ValidateNotNil(updatePublicAddressRangeAuthorizedCIDROptions, "updatePublicAddressRangeAuthorizedCIDROptions cannot be nil")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "unexpected-nil-param", common.GetComponentInfo())
+		return
+	}
+	err = core.ValidateStruct(updatePublicAddressRangeAuthorizedCIDROptions, "updatePublicAddressRangeAuthorizedCIDROptions")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "struct-validation-error", common.GetComponentInfo())
+		return
+	}
+
+	pathParamsMap := map[string]string{
+		"id": *updatePublicAddressRangeAuthorizedCIDROptions.ID,
+	}
+
+	builder := core.NewRequestBuilder(core.PATCH)
+	builder = builder.WithContext(ctx)
+	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
+	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/public_address_range/authorized_cidrs/{id}`, pathParamsMap)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "url-resolve-error", common.GetComponentInfo())
+		return
+	}
+
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdatePublicAddressRangeAuthorizedCIDR")
+	for headerName, headerValue := range sdkHeaders {
+		builder.AddHeader(headerName, headerValue)
+	}
+
+	for headerName, headerValue := range updatePublicAddressRangeAuthorizedCIDROptions.Headers {
+		builder.AddHeader(headerName, headerValue)
+	}
+	builder.AddHeader("Accept", "application/json")
+	builder.AddHeader("Content-Type", "application/merge-patch+json")
+
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+
+	_, err = builder.SetBodyContentJSON(updatePublicAddressRangeAuthorizedCIDROptions.PublicAddressRangeAuthorizedCIDRPatch)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "set-json-body-error", common.GetComponentInfo())
+		return
+	}
+
+	request, err := builder.Build()
+	if err != nil {
+		err = core.SDKErrorf(err, "", "build-error", common.GetComponentInfo())
+		return
+	}
+
+	var rawResponse map[string]json.RawMessage
+	response, err = vpc.Service.Request(request, &rawResponse)
+	if err != nil {
+		core.EnrichHTTPProblem(err, "update_public_address_range_authorized_cidr", getServiceComponentInfo())
+		err = core.SDKErrorf(err, "", "http-request-err", common.GetComponentInfo())
+		return
+	}
+	if rawResponse != nil {
+		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalPublicAddressRangeAuthorizedCIDR)
+		if err != nil {
+			err = core.SDKErrorf(err, "", "unmarshal-resp-error", common.GetComponentInfo())
+			return
+		}
+		response.Result = result
+	}
+
+	return
+}
+
+// ListPublicAddressRangeProfiles : List public address range profiles
+// This request lists public address range profiles available in the region. A public address range profile specifies
+// the characteristics and capabilities for a public address range.
+func (vpc *VpcV1) ListPublicAddressRangeProfiles(listPublicAddressRangeProfilesOptions *ListPublicAddressRangeProfilesOptions) (result *PublicAddressRangeProfileCollection, response *core.DetailedResponse, err error) {
+	result, response, err = vpc.ListPublicAddressRangeProfilesWithContext(context.Background(), listPublicAddressRangeProfilesOptions)
+	err = core.RepurposeSDKProblem(err, "")
+	return
+}
+
+// ListPublicAddressRangeProfilesWithContext is an alternate form of the ListPublicAddressRangeProfiles method which supports a Context parameter
+func (vpc *VpcV1) ListPublicAddressRangeProfilesWithContext(ctx context.Context, listPublicAddressRangeProfilesOptions *ListPublicAddressRangeProfilesOptions) (result *PublicAddressRangeProfileCollection, response *core.DetailedResponse, err error) {
+	err = core.ValidateStruct(listPublicAddressRangeProfilesOptions, "listPublicAddressRangeProfilesOptions")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "struct-validation-error", common.GetComponentInfo())
+		return
+	}
+
+	builder := core.NewRequestBuilder(core.GET)
+	builder = builder.WithContext(ctx)
+	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
+	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/public_address_range/profiles`, nil)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "url-resolve-error", common.GetComponentInfo())
+		return
+	}
+
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListPublicAddressRangeProfiles")
+	for headerName, headerValue := range sdkHeaders {
+		builder.AddHeader(headerName, headerValue)
+	}
+
+	for headerName, headerValue := range listPublicAddressRangeProfilesOptions.Headers {
+		builder.AddHeader(headerName, headerValue)
+	}
+	builder.AddHeader("Accept", "application/json")
+
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	if listPublicAddressRangeProfilesOptions.Start != nil {
+		builder.AddQuery("start", fmt.Sprint(*listPublicAddressRangeProfilesOptions.Start))
+	}
+	if listPublicAddressRangeProfilesOptions.Limit != nil {
+		builder.AddQuery("limit", fmt.Sprint(*listPublicAddressRangeProfilesOptions.Limit))
+	}
+
+	request, err := builder.Build()
+	if err != nil {
+		err = core.SDKErrorf(err, "", "build-error", common.GetComponentInfo())
+		return
+	}
+
+	var rawResponse map[string]json.RawMessage
+	response, err = vpc.Service.Request(request, &rawResponse)
+	if err != nil {
+		core.EnrichHTTPProblem(err, "list_public_address_range_profiles", getServiceComponentInfo())
+		err = core.SDKErrorf(err, "", "http-request-err", common.GetComponentInfo())
+		return
+	}
+	if rawResponse != nil {
+		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalPublicAddressRangeProfileCollection)
+		if err != nil {
+			err = core.SDKErrorf(err, "", "unmarshal-resp-error", common.GetComponentInfo())
+			return
+		}
+		response.Result = result
+	}
+
+	return
+}
+
+// GetPublicAddressRangeProfile : Retrieve a public address range profile
+// This request retrieves a single public address range profile specified by the name in the URL.
+func (vpc *VpcV1) GetPublicAddressRangeProfile(getPublicAddressRangeProfileOptions *GetPublicAddressRangeProfileOptions) (result *PublicAddressRangeProfile, response *core.DetailedResponse, err error) {
+	result, response, err = vpc.GetPublicAddressRangeProfileWithContext(context.Background(), getPublicAddressRangeProfileOptions)
+	err = core.RepurposeSDKProblem(err, "")
+	return
+}
+
+// GetPublicAddressRangeProfileWithContext is an alternate form of the GetPublicAddressRangeProfile method which supports a Context parameter
+func (vpc *VpcV1) GetPublicAddressRangeProfileWithContext(ctx context.Context, getPublicAddressRangeProfileOptions *GetPublicAddressRangeProfileOptions) (result *PublicAddressRangeProfile, response *core.DetailedResponse, err error) {
+	err = core.ValidateNotNil(getPublicAddressRangeProfileOptions, "getPublicAddressRangeProfileOptions cannot be nil")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "unexpected-nil-param", common.GetComponentInfo())
+		return
+	}
+	err = core.ValidateStruct(getPublicAddressRangeProfileOptions, "getPublicAddressRangeProfileOptions")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "struct-validation-error", common.GetComponentInfo())
+		return
+	}
+
+	pathParamsMap := map[string]string{
+		"name": *getPublicAddressRangeProfileOptions.Name,
+	}
+
+	builder := core.NewRequestBuilder(core.GET)
+	builder = builder.WithContext(ctx)
+	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
+	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/public_address_range/profiles/{name}`, pathParamsMap)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "url-resolve-error", common.GetComponentInfo())
+		return
+	}
+
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetPublicAddressRangeProfile")
+	for headerName, headerValue := range sdkHeaders {
+		builder.AddHeader(headerName, headerValue)
+	}
+
+	for headerName, headerValue := range getPublicAddressRangeProfileOptions.Headers {
+		builder.AddHeader(headerName, headerValue)
+	}
+	builder.AddHeader("Accept", "application/json")
+
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+
+	request, err := builder.Build()
+	if err != nil {
+		err = core.SDKErrorf(err, "", "build-error", common.GetComponentInfo())
+		return
+	}
+
+	var rawResponse map[string]json.RawMessage
+	response, err = vpc.Service.Request(request, &rawResponse)
+	if err != nil {
+		core.EnrichHTTPProblem(err, "get_public_address_range_profile", getServiceComponentInfo())
+		err = core.SDKErrorf(err, "", "http-request-err", common.GetComponentInfo())
+		return
+	}
+	if rawResponse != nil {
+		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalPublicAddressRangeProfile)
+		if err != nil {
+			err = core.SDKErrorf(err, "", "unmarshal-resp-error", common.GetComponentInfo())
+			return
+		}
+		response.Result = result
+	}
+
+	return
+}
+
 // ListPublicAddressRanges : List public address ranges
 // This request lists [public address ranges](https://cloud.ibm.com/docs/vpc?topic=vpc-about-par) in the region. A
 // public address range is a contiguous block of public IP addresses that can be bound to a `target` that specifies a
@@ -21340,6 +22180,9 @@ func (vpc *VpcV1) ListPublicAddressRangesWithContext(ctx context.Context, listPu
 	}
 	if listPublicAddressRangesOptions.ResourceGroupID != nil {
 		builder.AddQuery("resource_group.id", fmt.Sprint(*listPublicAddressRangesOptions.ResourceGroupID))
+	}
+	if listPublicAddressRangesOptions.ProfileName != nil {
+		builder.AddQuery("profile.name", fmt.Sprint(*listPublicAddressRangesOptions.ProfileName))
 	}
 
 	request, err := builder.Build()
@@ -35260,6 +36103,238 @@ func (vpc *VpcV1) AddVPNGatewayConnectionsPeerCIDRWithContext(ctx context.Contex
 	return
 }
 
+// ListVPNGatewayMembers : List members of a VPN gateway
+// This request lists members of a VPN gateway.
+func (vpc *VpcV1) ListVPNGatewayMembers(listVPNGatewayMembersOptions *ListVPNGatewayMembersOptions) (result *VPNGatewayMemberCollection, response *core.DetailedResponse, err error) {
+	result, response, err = vpc.ListVPNGatewayMembersWithContext(context.Background(), listVPNGatewayMembersOptions)
+	err = core.RepurposeSDKProblem(err, "")
+	return
+}
+
+// ListVPNGatewayMembersWithContext is an alternate form of the ListVPNGatewayMembers method which supports a Context parameter
+func (vpc *VpcV1) ListVPNGatewayMembersWithContext(ctx context.Context, listVPNGatewayMembersOptions *ListVPNGatewayMembersOptions) (result *VPNGatewayMemberCollection, response *core.DetailedResponse, err error) {
+	err = core.ValidateNotNil(listVPNGatewayMembersOptions, "listVPNGatewayMembersOptions cannot be nil")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "unexpected-nil-param", common.GetComponentInfo())
+		return
+	}
+	err = core.ValidateStruct(listVPNGatewayMembersOptions, "listVPNGatewayMembersOptions")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "struct-validation-error", common.GetComponentInfo())
+		return
+	}
+
+	pathParamsMap := map[string]string{
+		"vpn_gateway_id": *listVPNGatewayMembersOptions.VPNGatewayID,
+	}
+
+	builder := core.NewRequestBuilder(core.GET)
+	builder = builder.WithContext(ctx)
+	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
+	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/vpn_gateways/{vpn_gateway_id}/members`, pathParamsMap)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "url-resolve-error", common.GetComponentInfo())
+		return
+	}
+
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVPNGatewayMembers")
+	for headerName, headerValue := range sdkHeaders {
+		builder.AddHeader(headerName, headerValue)
+	}
+
+	for headerName, headerValue := range listVPNGatewayMembersOptions.Headers {
+		builder.AddHeader(headerName, headerValue)
+	}
+	builder.AddHeader("Accept", "application/json")
+
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+
+	request, err := builder.Build()
+	if err != nil {
+		err = core.SDKErrorf(err, "", "build-error", common.GetComponentInfo())
+		return
+	}
+
+	var rawResponse map[string]json.RawMessage
+	response, err = vpc.Service.Request(request, &rawResponse)
+	if err != nil {
+		core.EnrichHTTPProblem(err, "list_vpn_gateway_members", getServiceComponentInfo())
+		err = core.SDKErrorf(err, "", "http-request-err", common.GetComponentInfo())
+		return
+	}
+	if rawResponse != nil {
+		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalVPNGatewayMemberCollection)
+		if err != nil {
+			err = core.SDKErrorf(err, "", "unmarshal-resp-error", common.GetComponentInfo())
+			return
+		}
+		response.Result = result
+	}
+
+	return
+}
+
+// GetVPNGatewayMember : Retrieve a VPN gateway member
+// This request retrieves a single VPN gateway member specified by the identifier in the URL.
+func (vpc *VpcV1) GetVPNGatewayMember(getVPNGatewayMemberOptions *GetVPNGatewayMemberOptions) (result *VPNGatewayMember, response *core.DetailedResponse, err error) {
+	result, response, err = vpc.GetVPNGatewayMemberWithContext(context.Background(), getVPNGatewayMemberOptions)
+	err = core.RepurposeSDKProblem(err, "")
+	return
+}
+
+// GetVPNGatewayMemberWithContext is an alternate form of the GetVPNGatewayMember method which supports a Context parameter
+func (vpc *VpcV1) GetVPNGatewayMemberWithContext(ctx context.Context, getVPNGatewayMemberOptions *GetVPNGatewayMemberOptions) (result *VPNGatewayMember, response *core.DetailedResponse, err error) {
+	err = core.ValidateNotNil(getVPNGatewayMemberOptions, "getVPNGatewayMemberOptions cannot be nil")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "unexpected-nil-param", common.GetComponentInfo())
+		return
+	}
+	err = core.ValidateStruct(getVPNGatewayMemberOptions, "getVPNGatewayMemberOptions")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "struct-validation-error", common.GetComponentInfo())
+		return
+	}
+
+	pathParamsMap := map[string]string{
+		"vpn_gateway_id": *getVPNGatewayMemberOptions.VPNGatewayID,
+		"id":             *getVPNGatewayMemberOptions.ID,
+	}
+
+	builder := core.NewRequestBuilder(core.GET)
+	builder = builder.WithContext(ctx)
+	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
+	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/vpn_gateways/{vpn_gateway_id}/members/{id}`, pathParamsMap)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "url-resolve-error", common.GetComponentInfo())
+		return
+	}
+
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVPNGatewayMember")
+	for headerName, headerValue := range sdkHeaders {
+		builder.AddHeader(headerName, headerValue)
+	}
+
+	for headerName, headerValue := range getVPNGatewayMemberOptions.Headers {
+		builder.AddHeader(headerName, headerValue)
+	}
+	builder.AddHeader("Accept", "application/json")
+
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+
+	request, err := builder.Build()
+	if err != nil {
+		err = core.SDKErrorf(err, "", "build-error", common.GetComponentInfo())
+		return
+	}
+
+	var rawResponse map[string]json.RawMessage
+	response, err = vpc.Service.Request(request, &rawResponse)
+	if err != nil {
+		core.EnrichHTTPProblem(err, "get_vpn_gateway_member", getServiceComponentInfo())
+		err = core.SDKErrorf(err, "", "http-request-err", common.GetComponentInfo())
+		return
+	}
+	if rawResponse != nil {
+		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalVPNGatewayMember)
+		if err != nil {
+			err = core.SDKErrorf(err, "", "unmarshal-resp-error", common.GetComponentInfo())
+			return
+		}
+		response.Result = result
+	}
+
+	return
+}
+
+// ReplaceVPNGatewayMember : Replace a VPN gateway member
+// This request sets the subnet for a VPN gateway member by moving it to a new subnet.
+//
+// The existing reserved IP for `private_ip` will be unbound and a new reserved IP will be allocated from the provided
+// subnet.
+func (vpc *VpcV1) ReplaceVPNGatewayMember(replaceVPNGatewayMemberOptions *ReplaceVPNGatewayMemberOptions) (result *VPNGatewayMember, response *core.DetailedResponse, err error) {
+	result, response, err = vpc.ReplaceVPNGatewayMemberWithContext(context.Background(), replaceVPNGatewayMemberOptions)
+	err = core.RepurposeSDKProblem(err, "")
+	return
+}
+
+// ReplaceVPNGatewayMemberWithContext is an alternate form of the ReplaceVPNGatewayMember method which supports a Context parameter
+func (vpc *VpcV1) ReplaceVPNGatewayMemberWithContext(ctx context.Context, replaceVPNGatewayMemberOptions *ReplaceVPNGatewayMemberOptions) (result *VPNGatewayMember, response *core.DetailedResponse, err error) {
+	err = core.ValidateNotNil(replaceVPNGatewayMemberOptions, "replaceVPNGatewayMemberOptions cannot be nil")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "unexpected-nil-param", common.GetComponentInfo())
+		return
+	}
+	err = core.ValidateStruct(replaceVPNGatewayMemberOptions, "replaceVPNGatewayMemberOptions")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "struct-validation-error", common.GetComponentInfo())
+		return
+	}
+
+	pathParamsMap := map[string]string{
+		"vpn_gateway_id": *replaceVPNGatewayMemberOptions.VPNGatewayID,
+		"id":             *replaceVPNGatewayMemberOptions.ID,
+	}
+
+	builder := core.NewRequestBuilder(core.PUT)
+	builder = builder.WithContext(ctx)
+	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
+	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/vpn_gateways/{vpn_gateway_id}/members/{id}`, pathParamsMap)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "url-resolve-error", common.GetComponentInfo())
+		return
+	}
+
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ReplaceVPNGatewayMember")
+	for headerName, headerValue := range sdkHeaders {
+		builder.AddHeader(headerName, headerValue)
+	}
+
+	for headerName, headerValue := range replaceVPNGatewayMemberOptions.Headers {
+		builder.AddHeader(headerName, headerValue)
+	}
+	builder.AddHeader("Accept", "application/json")
+	builder.AddHeader("Content-Type", "application/json")
+
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+
+	body := make(map[string]interface{})
+	if replaceVPNGatewayMemberOptions.PrivateIP != nil {
+		body["private_ip"] = replaceVPNGatewayMemberOptions.PrivateIP
+	}
+	_, err = builder.SetBodyContentJSON(body)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "set-json-body-error", common.GetComponentInfo())
+		return
+	}
+
+	request, err := builder.Build()
+	if err != nil {
+		err = core.SDKErrorf(err, "", "build-error", common.GetComponentInfo())
+		return
+	}
+
+	var rawResponse map[string]json.RawMessage
+	response, err = vpc.Service.Request(request, &rawResponse)
+	if err != nil {
+		core.EnrichHTTPProblem(err, "replace_vpn_gateway_member", getServiceComponentInfo())
+		err = core.SDKErrorf(err, "", "http-request-err", common.GetComponentInfo())
+		return
+	}
+	if rawResponse != nil {
+		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalVPNGatewayMember)
+		if err != nil {
+			err = core.SDKErrorf(err, "", "unmarshal-resp-error", common.GetComponentInfo())
+			return
+		}
+		response.Result = result
+	}
+
+	return
+}
+
 // ListVPNGatewayServiceConnections : List VPN gateway service connections
 // This request lists service connections on a VPN gateway. The VPN gateway service connections will be sorted by
 // ascending `created_at` property values. A VPN gateway service connection connects services such as transit gateway to
@@ -47220,23 +48295,96 @@ func (options *CreateEndpointGatewayResourceBindingOptions) SetHeaders(param map
 
 // CreateFloatingIPOptions : The CreateFloatingIP options.
 type CreateFloatingIPOptions struct {
-	// The floating IP prototype object.
-	FloatingIPPrototype FloatingIPPrototypeIntf `json:"FloatingIPPrototype" validate:"required"`
+	// The address for this floating IP. Required if neither `target` nor `zone` is specified.
+	//
+	// The address must be an unallocated address in a public address range authorized CIDR.
+	//
+	// If the authorized CIDR's `availability_mode` is `regional`, then `target` or `zone` is required.
+	//
+	// If the authorized CIDR's `availability_mode` is `zonal`, then the floating IP and its
+	// `target` (if any) must reside in the same zone as the authorized CIDR.
+	//
+	// If unspecified, a random address will be selected from IBM's public IP address pool for the zone.
+	Address *string `json:"address,omitempty"`
+
+	// The name for this floating IP. The name must not be used by another floating IP in the region. If unspecified, the
+	// name will be a hyphenated list of randomly-selected words.
+	Name *string `json:"name,omitempty"`
+
+	// The resource group to use. If unspecified, the account's [default resource
+	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) will be used.
+	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
+
+	// The target resource to bind this floating IP to. Required if neither `address` nor `zone`
+	// is specified.
+	//
+	// The target resource must not already have a floating IP bound to it if the target
+	// resource is:
+	//
+	// - an instance network interface
+	// - a bare metal server network interface with `enable_infrastructure_nat` set to `true`
+	// - a virtual network interface with `enable_infrastructure_nat` set to `true`
+	//
+	// If `address` is specified and the floating IP will be allocated from a public address
+	// range authorized CIDR, the target cannot be:
+	// - an instance network interface
+	// - a bare metal server network interface
+	//
+	// If `address` is specified and the floating IP will be allocated from a public address
+	// range authorized CIDR with an `availability_mode` value of `zonal`, the target must reside
+	// in the same `zone` as the authorized CIDR.
+	Target FloatingIPTargetPrototypeIntf `json:"target,omitempty"`
+
+	// The zone this floating IP will reside in.
+	//
+	// Required if:
+	// - neither `address` nor `target` is specified
+	// - `address` is specified and the floating IP will be allocated from a public address
+	//   range authorized CIDR with an `availability_mode` value of `regional`.
+	//
+	// If `address` is specified and the floating IP will be allocated from a public address
+	// range authorized CIDR with an `availability_mode` value of `zonal`:
+	// - the floating IP will reside in the same `zone` as the authorized CIDR
+	// - if `target` is specified, the target resource must reside in the same `zone` as the
+	//   authorized CIDR.
+	Zone ZoneIdentityIntf `json:"zone,omitempty"`
 
 	// Allows users to set headers on API requests.
 	Headers map[string]string
 }
 
 // NewCreateFloatingIPOptions : Instantiate CreateFloatingIPOptions
-func (*VpcV1) NewCreateFloatingIPOptions(floatingIPPrototype FloatingIPPrototypeIntf) *CreateFloatingIPOptions {
-	return &CreateFloatingIPOptions{
-		FloatingIPPrototype: floatingIPPrototype,
-	}
+func (*VpcV1) NewCreateFloatingIPOptions() *CreateFloatingIPOptions {
+	return &CreateFloatingIPOptions{}
 }
 
-// SetFloatingIPPrototype : Allow user to set FloatingIPPrototype
-func (_options *CreateFloatingIPOptions) SetFloatingIPPrototype(floatingIPPrototype FloatingIPPrototypeIntf) *CreateFloatingIPOptions {
-	_options.FloatingIPPrototype = floatingIPPrototype
+// SetAddress : Allow user to set Address
+func (_options *CreateFloatingIPOptions) SetAddress(address string) *CreateFloatingIPOptions {
+	_options.Address = core.StringPtr(address)
+	return _options
+}
+
+// SetName : Allow user to set Name
+func (_options *CreateFloatingIPOptions) SetName(name string) *CreateFloatingIPOptions {
+	_options.Name = core.StringPtr(name)
+	return _options
+}
+
+// SetResourceGroup : Allow user to set ResourceGroup
+func (_options *CreateFloatingIPOptions) SetResourceGroup(resourceGroup ResourceGroupIdentityIntf) *CreateFloatingIPOptions {
+	_options.ResourceGroup = resourceGroup
+	return _options
+}
+
+// SetTarget : Allow user to set Target
+func (_options *CreateFloatingIPOptions) SetTarget(target FloatingIPTargetPrototypeIntf) *CreateFloatingIPOptions {
+	_options.Target = target
+	return _options
+}
+
+// SetZone : Allow user to set Zone
+func (_options *CreateFloatingIPOptions) SetZone(zone ZoneIdentityIntf) *CreateFloatingIPOptions {
+	_options.Zone = zone
 	return _options
 }
 
@@ -49152,12 +50300,19 @@ type CreateLoadBalancerOptions struct {
 	// Public load balancers in the `network` family require one floating IP.
 	//
 	// Public load balancers in the `application` family require three floating IPs.
+	PublicIps []FloatingIPIdentityLoadBalancerContextIntf `json:"public_ips,omitempty"`
+
+	// The IPv6 public address ranges to use for this load balancer's public IPv6 addresses. Requires `is_public` and
+	// `ipv6_enabled` to be `true`.
 	//
-	// If `ipv6_enabled` is `true`, up to three IPv6 public address ranges may also be specified. Each IPv6 public address
-	// range must be in the same zone as the corresponding private IP. Exactly three IPv6 public address ranges must be
-	// provided if the
-	// `address_mode` is `static`.
-	PublicIps []LoadBalancerPublicIPIdentityIntf `json:"public_ips,omitempty"`
+	// All provided public address ranges must:
+	// - Already exist and be unbound
+	// - Be in the same region as the load balancer
+	// - Match the zones of the `private_ips` for load balancers in the application family.
+	// - Be exactly three if `address_mode` is `static`.
+	//
+	// The load balancer must be in the `application` family.
+	PublicRanges []PublicAddressRangeIdentityIntf `json:"public_ranges,omitempty"`
 
 	// The resource group to use. If unspecified, the account's [default resource
 	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) will be used.
@@ -49269,8 +50424,14 @@ func (_options *CreateLoadBalancerOptions) SetProfile(profile LoadBalancerProfil
 }
 
 // SetPublicIps : Allow user to set PublicIps
-func (_options *CreateLoadBalancerOptions) SetPublicIps(publicIps []LoadBalancerPublicIPIdentityIntf) *CreateLoadBalancerOptions {
+func (_options *CreateLoadBalancerOptions) SetPublicIps(publicIps []FloatingIPIdentityLoadBalancerContextIntf) *CreateLoadBalancerOptions {
 	_options.PublicIps = publicIps
+	return _options
+}
+
+// SetPublicRanges : Allow user to set PublicRanges
+func (_options *CreateLoadBalancerOptions) SetPublicRanges(publicRanges []PublicAddressRangeIdentityIntf) *CreateLoadBalancerOptions {
+	_options.PublicRanges = publicRanges
 	return _options
 }
 
@@ -49899,6 +51060,34 @@ func (_options *CreatePrivatePathServiceGatewayOptions) SetZonalAffinity(zonalAf
 
 // SetHeaders : Allow user to set Headers
 func (options *CreatePrivatePathServiceGatewayOptions) SetHeaders(param map[string]string) *CreatePrivatePathServiceGatewayOptions {
+	options.Headers = param
+	return options
+}
+
+// CreatePublicAddressRangeAuthorizedCIDROptions : The CreatePublicAddressRangeAuthorizedCIDR options.
+type CreatePublicAddressRangeAuthorizedCIDROptions struct {
+	// The public address range authorized CIDR prototype object.
+	PublicAddressRangeAuthorizedCIDRPrototype PublicAddressRangeAuthorizedCIDRPrototypeIntf `json:"PublicAddressRangeAuthorizedCIDRPrototype" validate:"required"`
+
+	// Allows users to set headers on API requests.
+	Headers map[string]string
+}
+
+// NewCreatePublicAddressRangeAuthorizedCIDROptions : Instantiate CreatePublicAddressRangeAuthorizedCIDROptions
+func (*VpcV1) NewCreatePublicAddressRangeAuthorizedCIDROptions(publicAddressRangeAuthorizedCIDRPrototype PublicAddressRangeAuthorizedCIDRPrototypeIntf) *CreatePublicAddressRangeAuthorizedCIDROptions {
+	return &CreatePublicAddressRangeAuthorizedCIDROptions{
+		PublicAddressRangeAuthorizedCIDRPrototype: publicAddressRangeAuthorizedCIDRPrototype,
+	}
+}
+
+// SetPublicAddressRangeAuthorizedCIDRPrototype : Allow user to set PublicAddressRangeAuthorizedCIDRPrototype
+func (_options *CreatePublicAddressRangeAuthorizedCIDROptions) SetPublicAddressRangeAuthorizedCIDRPrototype(publicAddressRangeAuthorizedCIDRPrototype PublicAddressRangeAuthorizedCIDRPrototypeIntf) *CreatePublicAddressRangeAuthorizedCIDROptions {
+	_options.PublicAddressRangeAuthorizedCIDRPrototype = publicAddressRangeAuthorizedCIDRPrototype
+	return _options
+}
+
+// SetHeaders : Allow user to set Headers
+func (options *CreatePublicAddressRangeAuthorizedCIDROptions) SetHeaders(param map[string]string) *CreatePublicAddressRangeAuthorizedCIDROptions {
 	options.Headers = param
 	return options
 }
@@ -55952,6 +57141,34 @@ func (options *DeletePrivatePathServiceGatewayOptions) SetHeaders(param map[stri
 	return options
 }
 
+// DeletePublicAddressRangeAuthorizedCIDROptions : The DeletePublicAddressRangeAuthorizedCIDR options.
+type DeletePublicAddressRangeAuthorizedCIDROptions struct {
+	// The public address range authorized CIDR identifier.
+	ID *string `json:"id" validate:"required,ne="`
+
+	// Allows users to set headers on API requests.
+	Headers map[string]string
+}
+
+// NewDeletePublicAddressRangeAuthorizedCIDROptions : Instantiate DeletePublicAddressRangeAuthorizedCIDROptions
+func (*VpcV1) NewDeletePublicAddressRangeAuthorizedCIDROptions(id string) *DeletePublicAddressRangeAuthorizedCIDROptions {
+	return &DeletePublicAddressRangeAuthorizedCIDROptions{
+		ID: core.StringPtr(id),
+	}
+}
+
+// SetID : Allow user to set ID
+func (_options *DeletePublicAddressRangeAuthorizedCIDROptions) SetID(id string) *DeletePublicAddressRangeAuthorizedCIDROptions {
+	_options.ID = core.StringPtr(id)
+	return _options
+}
+
+// SetHeaders : Allow user to set Headers
+func (options *DeletePublicAddressRangeAuthorizedCIDROptions) SetHeaders(param map[string]string) *DeletePublicAddressRangeAuthorizedCIDROptions {
+	options.Headers = param
+	return options
+}
+
 // DeletePublicAddressRangeOptions : The DeletePublicAddressRange options.
 type DeletePublicAddressRangeOptions struct {
 	// The public address range identifier.
@@ -58431,6 +59648,9 @@ type FloatingIP struct {
 	// The globally unique IP address.
 	Address *string `json:"address" validate:"required"`
 
+	// The public address range authorized CIDR this floating IP is allocated from.
+	AuthorizedCIDR *PublicAddressRangeAuthorizedCIDRReferenceFloatingIPContext `json:"authorized_cidr,omitempty"`
+
 	// The date and time that the floating IP was created.
 	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
 
@@ -58446,8 +59666,14 @@ type FloatingIP struct {
 	// The name for this floating IP. The name is unique across all floating IPs in the region.
 	Name *string `json:"name" validate:"required"`
 
+	// The profile for this floating IP.
+	Profile *FloatingIPProfileReference `json:"profile" validate:"required"`
+
 	// The resource group for this floating IP.
 	ResourceGroup *ResourceGroupReference `json:"resource_group" validate:"required"`
+
+	// The resource type.
+	ResourceType *string `json:"resource_type" validate:"required"`
 
 	// The status of the floating IP.
 	//
@@ -58461,6 +59687,12 @@ type FloatingIP struct {
 	// The zone this floating IP resides in.
 	Zone *ZoneReference `json:"zone" validate:"required"`
 }
+
+// Constants associated with the FloatingIP.ResourceType property.
+// The resource type.
+const (
+	FloatingIPResourceTypeFloatingIPConst = "floating_ip"
+)
 
 // Constants associated with the FloatingIP.Status property.
 // The status of the floating IP.
@@ -58480,6 +59712,11 @@ func UnmarshalFloatingIP(m map[string]json.RawMessage, result interface{}) (err 
 	err = core.UnmarshalPrimitive(m, "address", &obj.Address)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "address-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "authorized_cidr", &obj.AuthorizedCIDR, UnmarshalPublicAddressRangeAuthorizedCIDRReferenceFloatingIPContext)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "authorized_cidr-error", common.GetComponentInfo())
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "created_at", &obj.CreatedAt)
@@ -58507,9 +59744,19 @@ func UnmarshalFloatingIP(m map[string]json.RawMessage, result interface{}) (err 
 		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
 		return
 	}
+	err = core.UnmarshalModel(m, "profile", &obj.Profile, UnmarshalFloatingIPProfileReference)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "profile-error", common.GetComponentInfo())
+		return
+	}
 	err = core.UnmarshalModel(m, "resource_group", &obj.ResourceGroup, UnmarshalResourceGroupReference)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "resource_group-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "resource_type-error", common.GetComponentInfo())
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "status", &obj.Status)
@@ -58663,6 +59910,69 @@ func (resp *FloatingIPCollectionVirtualNetworkInterfaceContext) GetNextStart() (
 	return start, nil
 }
 
+// FloatingIPIdentityLoadBalancerContext : Identifies a floating IP by a unique property.
+// Models which "extend" this model:
+// - FloatingIPIdentityLoadBalancerContextFloatingIPIdentityByID
+// - FloatingIPIdentityLoadBalancerContextFloatingIPIdentityByCRN
+// - FloatingIPIdentityLoadBalancerContextFloatingIPIdentityByHref
+type FloatingIPIdentityLoadBalancerContext struct {
+	// The unique identifier for this floating IP.
+	ID *string `json:"id,omitempty"`
+
+	// The CRN for this floating IP.
+	CRN *string `json:"crn,omitempty"`
+
+	// The URL for this floating IP.
+	Href *string `json:"href,omitempty"`
+}
+
+func (*FloatingIPIdentityLoadBalancerContext) isaFloatingIPIdentityLoadBalancerContext() bool {
+	return true
+}
+
+type FloatingIPIdentityLoadBalancerContextIntf interface {
+	isaFloatingIPIdentityLoadBalancerContext() bool
+	asPatch() map[string]interface{}
+}
+
+// UnmarshalFloatingIPIdentityLoadBalancerContext unmarshals an instance of FloatingIPIdentityLoadBalancerContext from the specified map of raw messages.
+func UnmarshalFloatingIPIdentityLoadBalancerContext(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(FloatingIPIdentityLoadBalancerContext)
+	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "id-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "crn-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "href-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// asPatch returns a generic map representation of the FloatingIPIdentityLoadBalancerContext
+func (floatingIPIdentityLoadBalancerContext *FloatingIPIdentityLoadBalancerContext) asPatch() (_patch map[string]interface{}) {
+	_patch = map[string]interface{}{}
+	if !core.IsNil(floatingIPIdentityLoadBalancerContext.ID) {
+		_patch["id"] = floatingIPIdentityLoadBalancerContext.ID
+	}
+	if !core.IsNil(floatingIPIdentityLoadBalancerContext.CRN) {
+		_patch["crn"] = floatingIPIdentityLoadBalancerContext.CRN
+	}
+	if !core.IsNil(floatingIPIdentityLoadBalancerContext.Href) {
+		_patch["href"] = floatingIPIdentityLoadBalancerContext.Href
+	}
+
+	return
+}
+
 // FloatingIPPatch : FloatingIPPatch struct
 type FloatingIPPatch struct {
 	// The name for this floating IP. The name must not be used by another floating IP in the region.
@@ -58673,10 +59983,13 @@ type FloatingIPPatch struct {
 	//
 	// The target resource must not already have a floating IP bound to it if the target
 	// resource is:
-	//
 	// - an instance network interface
 	// - a bare metal server network interface with `enable_infrastructure_nat` set to `true`
 	// - a virtual network interface with `enable_infrastructure_nat` set to `true`
+	//
+	// If the floating IP is allocated from an `authorized_cidr`, the target resource cannot be:
+	// - an instance network interface
+	// - a bare metal server network interface
 	//
 	// Specify `null` to remove an existing binding.
 	Target FloatingIPTargetPatchIntf `json:"target,omitempty"`
@@ -58712,62 +60025,193 @@ func (floatingIPPatch *FloatingIPPatch) AsPatch() (_patch map[string]interface{}
 	return
 }
 
-// FloatingIPPrototype : FloatingIPPrototype struct
-// Models which "extend" this model:
-// - FloatingIPPrototypeFloatingIPByZone
-// - FloatingIPPrototypeFloatingIPByTarget
-type FloatingIPPrototype struct {
-	// The name for this floating IP. The name must not be used by another floating IP in the region. If unspecified, the
-	// name will be a hyphenated list of randomly-selected words.
-	Name *string `json:"name,omitempty"`
-
-	// The resource group to use. If unspecified, the account's [default resource
-	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) will be used.
-	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
-
-	// The zone this floating IP will reside in.
-	Zone ZoneIdentityIntf `json:"zone,omitempty"`
-
-	// The target resource to bind this floating IP to.
+// FloatingIPProfile : A profile specifying the characteristics of a floating IP.
+type FloatingIPProfile struct {
+	// The product family this floating IP profile belongs to.
+	// - `provider`: The floating IP with this profile is owned by the provider.
+	// - `user`: The floating IP with this profile is owned by the user.
 	//
-	// The target resource must not already have a floating IP bound to it if the target
-	// resource is:
+	// The enumerated values for this property may
+	// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.
+	Family *string `json:"family" validate:"required"`
+
+	// The URL for this floating IP profile.
+	Href *string `json:"href,omitempty"`
+
+	// The IP version for floating IPs with this profile:
+	// - `ipv4`: An IPv4 floating IP.
 	//
-	// - an instance network interface
-	// - a bare metal server network interface with `enable_infrastructure_nat` set to `true`
-	// - a virtual network interface with `enable_infrastructure_nat` set to `true`.
-	Target FloatingIPTargetPrototypeIntf `json:"target,omitempty"`
+	// The enumerated values for this property may
+	// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.
+	IPVersion *string `json:"ip_version" validate:"required"`
+
+	// The globally unique name for this floating IP profile.
+	Name *string `json:"name" validate:"required"`
+
+	// The resource type.
+	ResourceType *string `json:"resource_type" validate:"required"`
 }
 
-func (*FloatingIPPrototype) isaFloatingIPPrototype() bool {
-	return true
-}
+// Constants associated with the FloatingIPProfile.Family property.
+// The product family this floating IP profile belongs to.
+// - `provider`: The floating IP with this profile is owned by the provider.
+// - `user`: The floating IP with this profile is owned by the user.
+//
+// The enumerated values for this property may
+// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.
+const (
+	FloatingIPProfileFamilyProviderConst = "provider"
+	FloatingIPProfileFamilyUserConst     = "user"
+)
 
-type FloatingIPPrototypeIntf interface {
-	isaFloatingIPPrototype() bool
-}
+// Constants associated with the FloatingIPProfile.IPVersion property.
+// The IP version for floating IPs with this profile:
+// - `ipv4`: An IPv4 floating IP.
+//
+// The enumerated values for this property may
+// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.
+const (
+	FloatingIPProfileIPVersionIpv4Const = "ipv4"
+)
 
-// UnmarshalFloatingIPPrototype unmarshals an instance of FloatingIPPrototype from the specified map of raw messages.
-func UnmarshalFloatingIPPrototype(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(FloatingIPPrototype)
+// Constants associated with the FloatingIPProfile.ResourceType property.
+// The resource type.
+const (
+	FloatingIPProfileResourceTypeFloatingIPProfileConst = "floating_ip_profile"
+)
+
+// UnmarshalFloatingIPProfile unmarshals an instance of FloatingIPProfile from the specified map of raw messages.
+func UnmarshalFloatingIPProfile(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(FloatingIPProfile)
+	err = core.UnmarshalPrimitive(m, "family", &obj.Family)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "family-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "href-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "ip_version", &obj.IPVersion)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "ip_version-error", common.GetComponentInfo())
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
 		return
 	}
-	err = core.UnmarshalModel(m, "resource_group", &obj.ResourceGroup, UnmarshalResourceGroupIdentity)
+	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
 	if err != nil {
-		err = core.SDKErrorf(err, "", "resource_group-error", common.GetComponentInfo())
+		err = core.SDKErrorf(err, "", "resource_type-error", common.GetComponentInfo())
 		return
 	}
-	err = core.UnmarshalModel(m, "zone", &obj.Zone, UnmarshalZoneIdentity)
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// FloatingIPProfileCollection : FloatingIPProfileCollection struct
+type FloatingIPProfileCollection struct {
+	// A link to the first page of resources.
+	First *PageLink `json:"first" validate:"required"`
+
+	// The maximum number of resources that can be returned by the request.
+	Limit *int64 `json:"limit" validate:"required"`
+
+	// A link to the next page of resources. This property is present for all pages
+	// except the last page.
+	Next *PageLink `json:"next,omitempty"`
+
+	// A page of floating IP profiles.
+	Profiles []FloatingIPProfile `json:"profiles" validate:"required"`
+
+	// The total number of resources across all pages.
+	TotalCount *int64 `json:"total_count" validate:"required"`
+}
+
+// UnmarshalFloatingIPProfileCollection unmarshals an instance of FloatingIPProfileCollection from the specified map of raw messages.
+func UnmarshalFloatingIPProfileCollection(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(FloatingIPProfileCollection)
+	err = core.UnmarshalModel(m, "first", &obj.First, UnmarshalPageLink)
 	if err != nil {
-		err = core.SDKErrorf(err, "", "zone-error", common.GetComponentInfo())
+		err = core.SDKErrorf(err, "", "first-error", common.GetComponentInfo())
 		return
 	}
-	err = core.UnmarshalModel(m, "target", &obj.Target, UnmarshalFloatingIPTargetPrototype)
+	err = core.UnmarshalPrimitive(m, "limit", &obj.Limit)
 	if err != nil {
-		err = core.SDKErrorf(err, "", "target-error", common.GetComponentInfo())
+		err = core.SDKErrorf(err, "", "limit-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "next", &obj.Next, UnmarshalPageLink)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "next-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "profiles", &obj.Profiles, UnmarshalFloatingIPProfile)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "profiles-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "total_count", &obj.TotalCount)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "total_count-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// Retrieve the value to be passed to a request to access the next page of results
+func (resp *FloatingIPProfileCollection) GetNextStart() (*string, error) {
+	if core.IsNil(resp.Next) {
+		return nil, nil
+	}
+	start, err := core.GetQueryParam(resp.Next.Href, "start")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "read-query-param-error", common.GetComponentInfo())
+		return nil, err
+	} else if start == nil {
+		return nil, nil
+	}
+	return start, nil
+}
+
+// FloatingIPProfileReference : FloatingIPProfileReference struct
+type FloatingIPProfileReference struct {
+	// The URL for this floating IP profile.
+	Href *string `json:"href,omitempty"`
+
+	// The globally unique name for this floating IP profile.
+	Name *string `json:"name" validate:"required"`
+
+	// The resource type.
+	ResourceType *string `json:"resource_type" validate:"required"`
+}
+
+// Constants associated with the FloatingIPProfileReference.ResourceType property.
+// The resource type.
+const (
+	FloatingIPProfileReferenceResourceTypeFloatingIPProfileConst = "floating_ip_profile"
+)
+
+// UnmarshalFloatingIPProfileReference unmarshals an instance of FloatingIPProfileReference from the specified map of raw messages.
+func UnmarshalFloatingIPProfileReference(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(FloatingIPProfileReference)
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "href-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "resource_type-error", common.GetComponentInfo())
 		return
 	}
 	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
@@ -58794,7 +60238,16 @@ type FloatingIPReference struct {
 
 	// The name for this floating IP. The name is unique across all floating IPs in the region.
 	Name *string `json:"name" validate:"required"`
+
+	// The resource type.
+	ResourceType *string `json:"resource_type" validate:"required"`
 }
+
+// Constants associated with the FloatingIPReference.ResourceType property.
+// The resource type.
+const (
+	FloatingIPReferenceResourceTypeFloatingIPConst = "floating_ip"
+)
 
 // UnmarshalFloatingIPReference unmarshals an instance of FloatingIPReference from the specified map of raw messages.
 func UnmarshalFloatingIPReference(m map[string]json.RawMessage, result interface{}) (err error) {
@@ -58827,6 +60280,11 @@ func UnmarshalFloatingIPReference(m map[string]json.RawMessage, result interface
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "resource_type-error", common.GetComponentInfo())
 		return
 	}
 	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
@@ -58940,10 +60398,13 @@ func UnmarshalFloatingIPTarget(m map[string]json.RawMessage, result interface{})
 // by another resource, such as a public gateway.
 //
 // The target resource must not already have a floating IP bound to it if the target resource is:
-//
 // - an instance network interface
 // - a bare metal server network interface with `enable_infrastructure_nat` set to `true`
 // - a virtual network interface with `enable_infrastructure_nat` set to `true`
+//
+// If the floating IP is allocated from an `authorized_cidr`, the target resource cannot be:
+// - an instance network interface
+// - a bare metal server network interface
 //
 // Specify `null` to remove an existing binding.
 // Models which "extend" this model:
@@ -59026,13 +60487,21 @@ func (floatingIPTargetPatch *FloatingIPTargetPatch) asPatch() (_patch map[string
 	return
 }
 
-// FloatingIPTargetPrototype : The target resource to bind this floating IP to.
+// FloatingIPTargetPrototype : The target resource to bind this floating IP to. Required if neither `address` nor `zone` is specified.
 //
 // The target resource must not already have a floating IP bound to it if the target resource is:
 //
 // - an instance network interface
 // - a bare metal server network interface with `enable_infrastructure_nat` set to `true`
-// - a virtual network interface with `enable_infrastructure_nat` set to `true`.
+// - a virtual network interface with `enable_infrastructure_nat` set to `true`
+//
+// If `address` is specified and the floating IP will be allocated from a public address range authorized CIDR, the
+// target cannot be:
+// - an instance network interface
+// - a bare metal server network interface
+//
+// If `address` is specified and the floating IP will be allocated from a public address range authorized CIDR with an
+// `availability_mode` value of `zonal`, the target must reside in the same `zone` as the authorized CIDR.
 // Models which "extend" this model:
 // - FloatingIPTargetPrototypeBareMetalServerNetworkInterfaceIdentity
 // - FloatingIPTargetPrototypeNetworkInterfaceIdentity
@@ -60375,6 +61844,34 @@ func (_options *GetFloatingIPOptions) SetID(id string) *GetFloatingIPOptions {
 
 // SetHeaders : Allow user to set Headers
 func (options *GetFloatingIPOptions) SetHeaders(param map[string]string) *GetFloatingIPOptions {
+	options.Headers = param
+	return options
+}
+
+// GetFloatingIPProfileOptions : The GetFloatingIPProfile options.
+type GetFloatingIPProfileOptions struct {
+	// The floating IP profile name.
+	Name *string `json:"name" validate:"required,ne="`
+
+	// Allows users to set headers on API requests.
+	Headers map[string]string
+}
+
+// NewGetFloatingIPProfileOptions : Instantiate GetFloatingIPProfileOptions
+func (*VpcV1) NewGetFloatingIPProfileOptions(name string) *GetFloatingIPProfileOptions {
+	return &GetFloatingIPProfileOptions{
+		Name: core.StringPtr(name),
+	}
+}
+
+// SetName : Allow user to set Name
+func (_options *GetFloatingIPProfileOptions) SetName(name string) *GetFloatingIPProfileOptions {
+	_options.Name = core.StringPtr(name)
+	return _options
+}
+
+// SetHeaders : Allow user to set Headers
+func (options *GetFloatingIPProfileOptions) SetHeaders(param map[string]string) *GetFloatingIPProfileOptions {
 	options.Headers = param
 	return options
 }
@@ -61771,6 +63268,72 @@ func (options *GetPrivatePathServiceGatewayOptions) SetHeaders(param map[string]
 	return options
 }
 
+// GetPublicAddressRangeAuthorizedCIDRAllocationOptions : The GetPublicAddressRangeAuthorizedCIDRAllocation options.
+type GetPublicAddressRangeAuthorizedCIDRAllocationOptions struct {
+	// The public address range authorized CIDR identifier.
+	AuthorizedCIDRID *string `json:"authorized_cidr_id" validate:"required,ne="`
+
+	// The public address range authorized CIDR identifier.
+	ID *string `json:"id" validate:"required,ne="`
+
+	// Allows users to set headers on API requests.
+	Headers map[string]string
+}
+
+// NewGetPublicAddressRangeAuthorizedCIDRAllocationOptions : Instantiate GetPublicAddressRangeAuthorizedCIDRAllocationOptions
+func (*VpcV1) NewGetPublicAddressRangeAuthorizedCIDRAllocationOptions(authorizedCIDRID string, id string) *GetPublicAddressRangeAuthorizedCIDRAllocationOptions {
+	return &GetPublicAddressRangeAuthorizedCIDRAllocationOptions{
+		AuthorizedCIDRID: core.StringPtr(authorizedCIDRID),
+		ID:               core.StringPtr(id),
+	}
+}
+
+// SetAuthorizedCIDRID : Allow user to set AuthorizedCIDRID
+func (_options *GetPublicAddressRangeAuthorizedCIDRAllocationOptions) SetAuthorizedCIDRID(authorizedCIDRID string) *GetPublicAddressRangeAuthorizedCIDRAllocationOptions {
+	_options.AuthorizedCIDRID = core.StringPtr(authorizedCIDRID)
+	return _options
+}
+
+// SetID : Allow user to set ID
+func (_options *GetPublicAddressRangeAuthorizedCIDRAllocationOptions) SetID(id string) *GetPublicAddressRangeAuthorizedCIDRAllocationOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
+}
+
+// SetHeaders : Allow user to set Headers
+func (options *GetPublicAddressRangeAuthorizedCIDRAllocationOptions) SetHeaders(param map[string]string) *GetPublicAddressRangeAuthorizedCIDRAllocationOptions {
+	options.Headers = param
+	return options
+}
+
+// GetPublicAddressRangeAuthorizedCIDROptions : The GetPublicAddressRangeAuthorizedCIDR options.
+type GetPublicAddressRangeAuthorizedCIDROptions struct {
+	// The public address range authorized CIDR identifier.
+	ID *string `json:"id" validate:"required,ne="`
+
+	// Allows users to set headers on API requests.
+	Headers map[string]string
+}
+
+// NewGetPublicAddressRangeAuthorizedCIDROptions : Instantiate GetPublicAddressRangeAuthorizedCIDROptions
+func (*VpcV1) NewGetPublicAddressRangeAuthorizedCIDROptions(id string) *GetPublicAddressRangeAuthorizedCIDROptions {
+	return &GetPublicAddressRangeAuthorizedCIDROptions{
+		ID: core.StringPtr(id),
+	}
+}
+
+// SetID : Allow user to set ID
+func (_options *GetPublicAddressRangeAuthorizedCIDROptions) SetID(id string) *GetPublicAddressRangeAuthorizedCIDROptions {
+	_options.ID = core.StringPtr(id)
+	return _options
+}
+
+// SetHeaders : Allow user to set Headers
+func (options *GetPublicAddressRangeAuthorizedCIDROptions) SetHeaders(param map[string]string) *GetPublicAddressRangeAuthorizedCIDROptions {
+	options.Headers = param
+	return options
+}
+
 // GetPublicAddressRangeOptions : The GetPublicAddressRange options.
 type GetPublicAddressRangeOptions struct {
 	// The public address range identifier.
@@ -61795,6 +63358,34 @@ func (_options *GetPublicAddressRangeOptions) SetID(id string) *GetPublicAddress
 
 // SetHeaders : Allow user to set Headers
 func (options *GetPublicAddressRangeOptions) SetHeaders(param map[string]string) *GetPublicAddressRangeOptions {
+	options.Headers = param
+	return options
+}
+
+// GetPublicAddressRangeProfileOptions : The GetPublicAddressRangeProfile options.
+type GetPublicAddressRangeProfileOptions struct {
+	// The public address range profile name.
+	Name *string `json:"name" validate:"required,ne="`
+
+	// Allows users to set headers on API requests.
+	Headers map[string]string
+}
+
+// NewGetPublicAddressRangeProfileOptions : Instantiate GetPublicAddressRangeProfileOptions
+func (*VpcV1) NewGetPublicAddressRangeProfileOptions(name string) *GetPublicAddressRangeProfileOptions {
+	return &GetPublicAddressRangeProfileOptions{
+		Name: core.StringPtr(name),
+	}
+}
+
+// SetName : Allow user to set Name
+func (_options *GetPublicAddressRangeProfileOptions) SetName(name string) *GetPublicAddressRangeProfileOptions {
+	_options.Name = core.StringPtr(name)
+	return _options
+}
+
+// SetHeaders : Allow user to set Headers
+func (options *GetPublicAddressRangeProfileOptions) SetHeaders(param map[string]string) *GetPublicAddressRangeProfileOptions {
 	options.Headers = param
 	return options
 }
@@ -63153,6 +64744,44 @@ func (_options *GetVPNGatewayConnectionOptions) SetID(id string) *GetVPNGatewayC
 
 // SetHeaders : Allow user to set Headers
 func (options *GetVPNGatewayConnectionOptions) SetHeaders(param map[string]string) *GetVPNGatewayConnectionOptions {
+	options.Headers = param
+	return options
+}
+
+// GetVPNGatewayMemberOptions : The GetVPNGatewayMember options.
+type GetVPNGatewayMemberOptions struct {
+	// The VPN gateway identifier.
+	VPNGatewayID *string `json:"vpn_gateway_id" validate:"required,ne="`
+
+	// The VPN gateway member identifier.
+	ID *string `json:"id" validate:"required,ne="`
+
+	// Allows users to set headers on API requests.
+	Headers map[string]string
+}
+
+// NewGetVPNGatewayMemberOptions : Instantiate GetVPNGatewayMemberOptions
+func (*VpcV1) NewGetVPNGatewayMemberOptions(vpnGatewayID string, id string) *GetVPNGatewayMemberOptions {
+	return &GetVPNGatewayMemberOptions{
+		VPNGatewayID: core.StringPtr(vpnGatewayID),
+		ID:           core.StringPtr(id),
+	}
+}
+
+// SetVPNGatewayID : Allow user to set VPNGatewayID
+func (_options *GetVPNGatewayMemberOptions) SetVPNGatewayID(vpnGatewayID string) *GetVPNGatewayMemberOptions {
+	_options.VPNGatewayID = core.StringPtr(vpnGatewayID)
+	return _options
+}
+
+// SetID : Allow user to set ID
+func (_options *GetVPNGatewayMemberOptions) SetID(id string) *GetVPNGatewayMemberOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
+}
+
+// SetHeaders : Allow user to set Headers
+func (options *GetVPNGatewayMemberOptions) SetHeaders(param map[string]string) *GetVPNGatewayMemberOptions {
 	options.Headers = param
 	return options
 }
@@ -77934,6 +79563,41 @@ func (options *ListEndpointGatewaysOptions) SetHeaders(param map[string]string) 
 	return options
 }
 
+// ListFloatingIPProfilesOptions : The ListFloatingIPProfiles options.
+type ListFloatingIPProfilesOptions struct {
+	// A server-provided token determining what resource to start the page on.
+	Start *string `json:"start,omitempty"`
+
+	// The number of resources to return on a page.
+	Limit *int64 `json:"limit,omitempty"`
+
+	// Allows users to set headers on API requests.
+	Headers map[string]string
+}
+
+// NewListFloatingIPProfilesOptions : Instantiate ListFloatingIPProfilesOptions
+func (*VpcV1) NewListFloatingIPProfilesOptions() *ListFloatingIPProfilesOptions {
+	return &ListFloatingIPProfilesOptions{}
+}
+
+// SetStart : Allow user to set Start
+func (_options *ListFloatingIPProfilesOptions) SetStart(start string) *ListFloatingIPProfilesOptions {
+	_options.Start = core.StringPtr(start)
+	return _options
+}
+
+// SetLimit : Allow user to set Limit
+func (_options *ListFloatingIPProfilesOptions) SetLimit(limit int64) *ListFloatingIPProfilesOptions {
+	_options.Limit = core.Int64Ptr(limit)
+	return _options
+}
+
+// SetHeaders : Allow user to set Headers
+func (options *ListFloatingIPProfilesOptions) SetHeaders(param map[string]string) *ListFloatingIPProfilesOptions {
+	options.Headers = param
+	return options
+}
+
 // ListFloatingIpsOptions : The ListFloatingIps options.
 type ListFloatingIpsOptions struct {
 	// A server-provided token determining what resource to start the page on.
@@ -77949,6 +79613,9 @@ type ListFloatingIpsOptions struct {
 	// to sort in descending order. For example, the value `-created_at` sorts the collection by the `created_at` property
 	// in descending order, and the value `name` sorts it by the `name` property in ascending order.
 	Sort *string `json:"sort,omitempty"`
+
+	// Filter the collection based on profile name.
+	ProfileName *string `json:"profile.name,omitempty"`
 
 	// Filters the collection to resources with a `target.id` property matching the specified identifier.
 	TargetID *string `json:"target.id,omitempty"`
@@ -78001,6 +79668,12 @@ func (_options *ListFloatingIpsOptions) SetResourceGroupID(resourceGroupID strin
 // SetSort : Allow user to set Sort
 func (_options *ListFloatingIpsOptions) SetSort(sort string) *ListFloatingIpsOptions {
 	_options.Sort = core.StringPtr(sort)
+	return _options
+}
+
+// SetProfileName : Allow user to set ProfileName
+func (_options *ListFloatingIpsOptions) SetProfileName(profileName string) *ListFloatingIpsOptions {
+	_options.ProfileName = core.StringPtr(profileName)
 	return _options
 }
 
@@ -80069,6 +81742,164 @@ func (options *ListPrivatePathServiceGatewaysOptions) SetHeaders(param map[strin
 	return options
 }
 
+// ListPublicAddressRangeAuthorizedCIDRAllocationsOptions : The ListPublicAddressRangeAuthorizedCIDRAllocations options.
+type ListPublicAddressRangeAuthorizedCIDRAllocationsOptions struct {
+	// The public address range authorized CIDR identifier.
+	AuthorizedCIDRID *string `json:"authorized_cidr_id" validate:"required,ne="`
+
+	// A server-provided token determining what resource to start the page on.
+	Start *string `json:"start,omitempty"`
+
+	// The number of resources to return on a page.
+	Limit *int64 `json:"limit,omitempty"`
+
+	// Filters the collection to resources with an item in the `allocations` property with a
+	// `resource_type` property matching the specified value.
+	AllocationsResourceType *string `json:"allocations[].resource_type,omitempty"`
+
+	// Allows users to set headers on API requests.
+	Headers map[string]string
+}
+
+// NewListPublicAddressRangeAuthorizedCIDRAllocationsOptions : Instantiate ListPublicAddressRangeAuthorizedCIDRAllocationsOptions
+func (*VpcV1) NewListPublicAddressRangeAuthorizedCIDRAllocationsOptions(authorizedCIDRID string) *ListPublicAddressRangeAuthorizedCIDRAllocationsOptions {
+	return &ListPublicAddressRangeAuthorizedCIDRAllocationsOptions{
+		AuthorizedCIDRID: core.StringPtr(authorizedCIDRID),
+	}
+}
+
+// SetAuthorizedCIDRID : Allow user to set AuthorizedCIDRID
+func (_options *ListPublicAddressRangeAuthorizedCIDRAllocationsOptions) SetAuthorizedCIDRID(authorizedCIDRID string) *ListPublicAddressRangeAuthorizedCIDRAllocationsOptions {
+	_options.AuthorizedCIDRID = core.StringPtr(authorizedCIDRID)
+	return _options
+}
+
+// SetStart : Allow user to set Start
+func (_options *ListPublicAddressRangeAuthorizedCIDRAllocationsOptions) SetStart(start string) *ListPublicAddressRangeAuthorizedCIDRAllocationsOptions {
+	_options.Start = core.StringPtr(start)
+	return _options
+}
+
+// SetLimit : Allow user to set Limit
+func (_options *ListPublicAddressRangeAuthorizedCIDRAllocationsOptions) SetLimit(limit int64) *ListPublicAddressRangeAuthorizedCIDRAllocationsOptions {
+	_options.Limit = core.Int64Ptr(limit)
+	return _options
+}
+
+// SetAllocationsResourceType : Allow user to set AllocationsResourceType
+func (_options *ListPublicAddressRangeAuthorizedCIDRAllocationsOptions) SetAllocationsResourceType(allocationsResourceType string) *ListPublicAddressRangeAuthorizedCIDRAllocationsOptions {
+	_options.AllocationsResourceType = core.StringPtr(allocationsResourceType)
+	return _options
+}
+
+// SetHeaders : Allow user to set Headers
+func (options *ListPublicAddressRangeAuthorizedCIDRAllocationsOptions) SetHeaders(param map[string]string) *ListPublicAddressRangeAuthorizedCIDRAllocationsOptions {
+	options.Headers = param
+	return options
+}
+
+// ListPublicAddressRangeAuthorizedCIDRsOptions : The ListPublicAddressRangeAuthorizedCIDRs options.
+type ListPublicAddressRangeAuthorizedCIDRsOptions struct {
+	// A server-provided token determining what resource to start the page on.
+	Start *string `json:"start,omitempty"`
+
+	// The number of resources to return on a page.
+	Limit *int64 `json:"limit,omitempty"`
+
+	// Filters the collection to resources with an `allocation.profile_family` property matching the exact specified value.
+	AllocationProfileFamily *string `json:"allocation.profile_family,omitempty"`
+
+	// Filters the collection to resources with an `availability_mode` property matching the exact specified value.
+	AvailabilityMode *string `json:"availability_mode,omitempty"`
+
+	// Allows users to set headers on API requests.
+	Headers map[string]string
+}
+
+// Constants associated with the ListPublicAddressRangeAuthorizedCIDRsOptions.AllocationProfileFamily property.
+// Filters the collection to resources with an `allocation.profile_family` property matching the exact specified value.
+const (
+	ListPublicAddressRangeAuthorizedCIDRsOptionsAllocationProfileFamilyProviderConst = "provider"
+	ListPublicAddressRangeAuthorizedCIDRsOptionsAllocationProfileFamilyUserConst     = "user"
+)
+
+// Constants associated with the ListPublicAddressRangeAuthorizedCIDRsOptions.AvailabilityMode property.
+// Filters the collection to resources with an `availability_mode` property matching the exact specified value.
+const (
+	ListPublicAddressRangeAuthorizedCIDRsOptionsAvailabilityModeRegionalConst = "regional"
+	ListPublicAddressRangeAuthorizedCIDRsOptionsAvailabilityModeZonalConst    = "zonal"
+)
+
+// NewListPublicAddressRangeAuthorizedCIDRsOptions : Instantiate ListPublicAddressRangeAuthorizedCIDRsOptions
+func (*VpcV1) NewListPublicAddressRangeAuthorizedCIDRsOptions() *ListPublicAddressRangeAuthorizedCIDRsOptions {
+	return &ListPublicAddressRangeAuthorizedCIDRsOptions{}
+}
+
+// SetStart : Allow user to set Start
+func (_options *ListPublicAddressRangeAuthorizedCIDRsOptions) SetStart(start string) *ListPublicAddressRangeAuthorizedCIDRsOptions {
+	_options.Start = core.StringPtr(start)
+	return _options
+}
+
+// SetLimit : Allow user to set Limit
+func (_options *ListPublicAddressRangeAuthorizedCIDRsOptions) SetLimit(limit int64) *ListPublicAddressRangeAuthorizedCIDRsOptions {
+	_options.Limit = core.Int64Ptr(limit)
+	return _options
+}
+
+// SetAllocationProfileFamily : Allow user to set AllocationProfileFamily
+func (_options *ListPublicAddressRangeAuthorizedCIDRsOptions) SetAllocationProfileFamily(allocationProfileFamily string) *ListPublicAddressRangeAuthorizedCIDRsOptions {
+	_options.AllocationProfileFamily = core.StringPtr(allocationProfileFamily)
+	return _options
+}
+
+// SetAvailabilityMode : Allow user to set AvailabilityMode
+func (_options *ListPublicAddressRangeAuthorizedCIDRsOptions) SetAvailabilityMode(availabilityMode string) *ListPublicAddressRangeAuthorizedCIDRsOptions {
+	_options.AvailabilityMode = core.StringPtr(availabilityMode)
+	return _options
+}
+
+// SetHeaders : Allow user to set Headers
+func (options *ListPublicAddressRangeAuthorizedCIDRsOptions) SetHeaders(param map[string]string) *ListPublicAddressRangeAuthorizedCIDRsOptions {
+	options.Headers = param
+	return options
+}
+
+// ListPublicAddressRangeProfilesOptions : The ListPublicAddressRangeProfiles options.
+type ListPublicAddressRangeProfilesOptions struct {
+	// A server-provided token determining what resource to start the page on.
+	Start *string `json:"start,omitempty"`
+
+	// The number of resources to return on a page.
+	Limit *int64 `json:"limit,omitempty"`
+
+	// Allows users to set headers on API requests.
+	Headers map[string]string
+}
+
+// NewListPublicAddressRangeProfilesOptions : Instantiate ListPublicAddressRangeProfilesOptions
+func (*VpcV1) NewListPublicAddressRangeProfilesOptions() *ListPublicAddressRangeProfilesOptions {
+	return &ListPublicAddressRangeProfilesOptions{}
+}
+
+// SetStart : Allow user to set Start
+func (_options *ListPublicAddressRangeProfilesOptions) SetStart(start string) *ListPublicAddressRangeProfilesOptions {
+	_options.Start = core.StringPtr(start)
+	return _options
+}
+
+// SetLimit : Allow user to set Limit
+func (_options *ListPublicAddressRangeProfilesOptions) SetLimit(limit int64) *ListPublicAddressRangeProfilesOptions {
+	_options.Limit = core.Int64Ptr(limit)
+	return _options
+}
+
+// SetHeaders : Allow user to set Headers
+func (options *ListPublicAddressRangeProfilesOptions) SetHeaders(param map[string]string) *ListPublicAddressRangeProfilesOptions {
+	options.Headers = param
+	return options
+}
+
 // ListPublicAddressRangesOptions : The ListPublicAddressRanges options.
 type ListPublicAddressRangesOptions struct {
 	// A server-provided token determining what resource to start the page on.
@@ -80079,6 +81910,9 @@ type ListPublicAddressRangesOptions struct {
 
 	// Filters the collection to resources with a `resource_group.id` property matching the specified identifier.
 	ResourceGroupID *string `json:"resource_group.id,omitempty"`
+
+	// Filters the collection to resources with a `profile.name` property matching the specified value.
+	ProfileName *string `json:"profile.name,omitempty"`
 
 	// Allows users to set headers on API requests.
 	Headers map[string]string
@@ -80104,6 +81938,12 @@ func (_options *ListPublicAddressRangesOptions) SetLimit(limit int64) *ListPubli
 // SetResourceGroupID : Allow user to set ResourceGroupID
 func (_options *ListPublicAddressRangesOptions) SetResourceGroupID(resourceGroupID string) *ListPublicAddressRangesOptions {
 	_options.ResourceGroupID = core.StringPtr(resourceGroupID)
+	return _options
+}
+
+// SetProfileName : Allow user to set ProfileName
+func (_options *ListPublicAddressRangesOptions) SetProfileName(profileName string) *ListPublicAddressRangesOptions {
+	_options.ProfileName = core.StringPtr(profileName)
 	return _options
 }
 
@@ -82280,6 +84120,34 @@ func (options *ListVPNGatewayConnectionsPeerCIDRsOptions) SetHeaders(param map[s
 	return options
 }
 
+// ListVPNGatewayMembersOptions : The ListVPNGatewayMembers options.
+type ListVPNGatewayMembersOptions struct {
+	// The VPN gateway identifier.
+	VPNGatewayID *string `json:"vpn_gateway_id" validate:"required,ne="`
+
+	// Allows users to set headers on API requests.
+	Headers map[string]string
+}
+
+// NewListVPNGatewayMembersOptions : Instantiate ListVPNGatewayMembersOptions
+func (*VpcV1) NewListVPNGatewayMembersOptions(vpnGatewayID string) *ListVPNGatewayMembersOptions {
+	return &ListVPNGatewayMembersOptions{
+		VPNGatewayID: core.StringPtr(vpnGatewayID),
+	}
+}
+
+// SetVPNGatewayID : Allow user to set VPNGatewayID
+func (_options *ListVPNGatewayMembersOptions) SetVPNGatewayID(vpnGatewayID string) *ListVPNGatewayMembersOptions {
+	_options.VPNGatewayID = core.StringPtr(vpnGatewayID)
+	return _options
+}
+
+// SetHeaders : Allow user to set Headers
+func (options *ListVPNGatewayMembersOptions) SetHeaders(param map[string]string) *ListVPNGatewayMembersOptions {
+	options.Headers = param
+	return options
+}
+
 // ListVPNGatewayServiceConnectionsOptions : The ListVPNGatewayServiceConnections options.
 type ListVPNGatewayServiceConnectionsOptions struct {
 	// The VPN gateway identifier.
@@ -82738,6 +84606,11 @@ type LoadBalancer struct {
 	// Will be empty if `is_public` is `false`.
 	PublicIps []LoadBalancerPublicIPIntf `json:"public_ips" validate:"required"`
 
+	// The IPv6 public address ranges assigned to this load balancer.
+	//
+	// Will be empty if `is_public` is `false` or `ipv6_enabled` is `false`.
+	PublicRanges []PublicAddressRangeReference `json:"public_ranges" validate:"required"`
+
 	// The resource group for this load balancer.
 	ResourceGroup *ResourceGroupReference `json:"resource_group" validate:"required"`
 
@@ -83007,6 +84880,11 @@ func UnmarshalLoadBalancer(m map[string]json.RawMessage, result interface{}) (er
 	err = core.UnmarshalModel(m, "public_ips", &obj.PublicIps, UnmarshalLoadBalancerPublicIP)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "public_ips-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "public_ranges", &obj.PublicRanges, UnmarshalPublicAddressRangeReference)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "public_ranges-error", common.GetComponentInfo())
 		return
 	}
 	err = core.UnmarshalModel(m, "resource_group", &obj.ResourceGroup, UnmarshalResourceGroupReference)
@@ -85648,12 +87526,25 @@ type LoadBalancerPatch struct {
 	// - `private_ips` must also be set to an empty array.
 	//
 	// The load balancer must be in the `application` family.
+	PublicIps []FloatingIPIdentityLoadBalancerContextIntf `json:"public_ips,omitempty"`
+
+	// The IPv6 public address ranges to associate with this load balancer. When
+	//   specified, this list replaces any existing public address range configuration.
 	//
-	// If `ipv6_enabled` is `true`, up to three IPv6 public address ranges may also be specified. Each IPv6 public address
-	// range must be in the same zone as the corresponding private IP. Exactly three IPv6 public address ranges must be
-	// provided if the
-	// `address_mode` is `static`.
-	PublicIps []LoadBalancerPublicIPIdentityIntf `json:"public_ips,omitempty"`
+	// All provided public address ranges must:
+	//   - Already exist and be unbound
+	//   - Be in the same region as the load balancer
+	//   - Match the zones of the `private_ips` for load balancers in the application family.
+	//   - Be exactly three if `address_mode` is `static`.
+	//
+	// May only be specified if `is_public` and `ipv6_enabled` are both `true`. To remove all public address ranges from
+	// the load balancer, specify an empty array:
+	// - `address_mode` must be set to `dynamic`.
+	// - `public_ips` must also be set to an empty array.
+	// - `private_ips` must also be set to an empty array.
+	//
+	// The load balancer must be in the `application` family.
+	PublicRanges []PublicAddressRangeIdentityIntf `json:"public_ranges,omitempty"`
 
 	// The subnets to provision this load balancer in. The load balancer's availability will depend on the availability of
 	// the zones that the subnets reside in.
@@ -85710,9 +87601,14 @@ func UnmarshalLoadBalancerPatch(m map[string]json.RawMessage, result interface{}
 		err = core.SDKErrorf(err, "", "private_ips-error", common.GetComponentInfo())
 		return
 	}
-	err = core.UnmarshalModel(m, "public_ips", &obj.PublicIps, UnmarshalLoadBalancerPublicIPIdentity)
+	err = core.UnmarshalModel(m, "public_ips", &obj.PublicIps, UnmarshalFloatingIPIdentityLoadBalancerContext)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "public_ips-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "public_ranges", &obj.PublicRanges, UnmarshalPublicAddressRangeIdentity)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "public_ranges-error", common.GetComponentInfo())
 		return
 	}
 	err = core.UnmarshalModel(m, "subnets", &obj.Subnets, UnmarshalSubnetIdentity)
@@ -85755,6 +87651,13 @@ func (loadBalancerPatch *LoadBalancerPatch) AsPatch() (_patch map[string]interfa
 			publicIpsPatches = append(publicIpsPatches, publicIps.asPatch())
 		}
 		_patch["public_ips"] = publicIpsPatches
+	}
+	if !core.IsNil(loadBalancerPatch.PublicRanges) {
+		var publicRangesPatches []map[string]interface{}
+		for _, publicRanges := range loadBalancerPatch.PublicRanges {
+			publicRangesPatches = append(publicRangesPatches, publicRanges.asPatch())
+		}
+		_patch["public_ranges"] = publicRangesPatches
 	}
 	if !core.IsNil(loadBalancerPatch.Subnets) {
 		var subnetsPatches []map[string]interface{}
@@ -89487,17 +91390,17 @@ type LoadBalancerPublicIP struct {
 	// The name for this floating IP. The name is unique across all floating IPs in the region.
 	Name *string `json:"name,omitempty"`
 
-	// The public IP address block for this public address range, expressed in CIDR format.
-	CIDR *string `json:"cidr,omitempty"`
-
 	// The resource type.
 	ResourceType *string `json:"resource_type,omitempty"`
+
+	// The public IP address block for this public address range, expressed in CIDR format.
+	CIDR *string `json:"cidr,omitempty"`
 }
 
 // Constants associated with the LoadBalancerPublicIP.ResourceType property.
 // The resource type.
 const (
-	LoadBalancerPublicIPResourceTypePublicAddressRangeConst = "public_address_range"
+	LoadBalancerPublicIPResourceTypeFloatingIPConst = "floating_ip"
 )
 
 func (*LoadBalancerPublicIP) isaLoadBalancerPublicIP() bool {
@@ -89541,79 +91444,17 @@ func UnmarshalLoadBalancerPublicIP(m map[string]json.RawMessage, result interfac
 		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
 		return
 	}
-	err = core.UnmarshalPrimitive(m, "cidr", &obj.CIDR)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "cidr-error", common.GetComponentInfo())
-		return
-	}
 	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "resource_type-error", common.GetComponentInfo())
 		return
 	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// LoadBalancerPublicIPIdentity : Identifies a public IP for a load balancer by a unique property.
-// Models which "extend" this model:
-// - LoadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContext
-// - LoadBalancerPublicIPIdentityPublicAddressRangeIdentity
-type LoadBalancerPublicIPIdentity struct {
-	// The unique identifier for this floating IP.
-	ID *string `json:"id,omitempty"`
-
-	// The CRN for this floating IP.
-	CRN *string `json:"crn,omitempty"`
-
-	// The URL for this floating IP.
-	Href *string `json:"href,omitempty"`
-}
-
-func (*LoadBalancerPublicIPIdentity) isaLoadBalancerPublicIPIdentity() bool {
-	return true
-}
-
-type LoadBalancerPublicIPIdentityIntf interface {
-	isaLoadBalancerPublicIPIdentity() bool
-	asPatch() map[string]interface{}
-}
-
-// UnmarshalLoadBalancerPublicIPIdentity unmarshals an instance of LoadBalancerPublicIPIdentity from the specified map of raw messages.
-func UnmarshalLoadBalancerPublicIPIdentity(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(LoadBalancerPublicIPIdentity)
-	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	err = core.UnmarshalPrimitive(m, "cidr", &obj.CIDR)
 	if err != nil {
-		err = core.SDKErrorf(err, "", "id-error", common.GetComponentInfo())
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "crn-error", common.GetComponentInfo())
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "href-error", common.GetComponentInfo())
+		err = core.SDKErrorf(err, "", "cidr-error", common.GetComponentInfo())
 		return
 	}
 	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// asPatch returns a generic map representation of the LoadBalancerPublicIPIdentity
-func (loadBalancerPublicIPIdentity *LoadBalancerPublicIPIdentity) asPatch() (_patch map[string]interface{}) {
-	_patch = map[string]interface{}{}
-	if !core.IsNil(loadBalancerPublicIPIdentity.ID) {
-		_patch["id"] = loadBalancerPublicIPIdentity.ID
-	}
-	if !core.IsNil(loadBalancerPublicIPIdentity.CRN) {
-		_patch["crn"] = loadBalancerPublicIPIdentity.CRN
-	}
-	if !core.IsNil(loadBalancerPublicIPIdentity.Href) {
-		_patch["href"] = loadBalancerPublicIPIdentity.Href
-	}
-
 	return
 }
 
@@ -96644,6 +98485,9 @@ func UnmarshalPrivatePathServiceGatewayRemote(m map[string]json.RawMessage, resu
 
 // PublicAddressRange : PublicAddressRange struct
 type PublicAddressRange struct {
+	// The public address range authorized CIDR this public address range is allocated from.
+	AuthorizedCIDR *PublicAddressRangeAuthorizedCIDRReference `json:"authorized_cidr,omitempty"`
+
 	// The public IP address block for this public address range, expressed in CIDR format.
 	CIDR *string `json:"cidr" validate:"required"`
 
@@ -96659,6 +98503,9 @@ type PublicAddressRange struct {
 	// The unique identifier for this public address range.
 	ID *string `json:"id" validate:"required"`
 
+	// The IP version for this public address range.
+	IPVersion *string `json:"ip_version" validate:"required"`
+
 	// The number of IPv4 addresses in this public address range.
 	Ipv4AddressCount *int64 `json:"ipv4_address_count" validate:"required"`
 
@@ -96667,6 +98514,12 @@ type PublicAddressRange struct {
 
 	// The name for this public address range. The name is unique across all public address ranges in the region.
 	Name *string `json:"name" validate:"required"`
+
+	// The network prefix length for this public address range.
+	NetworkPrefixLength *int64 `json:"network_prefix_length" validate:"required"`
+
+	// The profile for this public address range.
+	Profile *PublicAddressRangeProfileReference `json:"profile" validate:"required"`
 
 	// The resource group for this public address range.
 	ResourceGroup *ResourceGroupReference `json:"resource_group" validate:"required"`
@@ -96683,6 +98536,13 @@ type PublicAddressRange struct {
 	// targets may omit the `vpc` property.
 	Target *PublicAddressRangeTarget `json:"target,omitempty"`
 }
+
+// Constants associated with the PublicAddressRange.IPVersion property.
+// The IP version for this public address range.
+const (
+	PublicAddressRangeIPVersionIpv4Const = "ipv4"
+	PublicAddressRangeIPVersionIpv6Const = "ipv6"
+)
 
 // Constants associated with the PublicAddressRange.LifecycleState property.
 // The lifecycle state of the public address range.
@@ -96705,6 +98565,11 @@ const (
 // UnmarshalPublicAddressRange unmarshals an instance of PublicAddressRange from the specified map of raw messages.
 func UnmarshalPublicAddressRange(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(PublicAddressRange)
+	err = core.UnmarshalModel(m, "authorized_cidr", &obj.AuthorizedCIDR, UnmarshalPublicAddressRangeAuthorizedCIDRReference)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "authorized_cidr-error", common.GetComponentInfo())
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "cidr", &obj.CIDR)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "cidr-error", common.GetComponentInfo())
@@ -96730,6 +98595,11 @@ func UnmarshalPublicAddressRange(m map[string]json.RawMessage, result interface{
 		err = core.SDKErrorf(err, "", "id-error", common.GetComponentInfo())
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "ip_version", &obj.IPVersion)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "ip_version-error", common.GetComponentInfo())
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "ipv4_address_count", &obj.Ipv4AddressCount)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "ipv4_address_count-error", common.GetComponentInfo())
@@ -96743,6 +98613,16 @@ func UnmarshalPublicAddressRange(m map[string]json.RawMessage, result interface{
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "network_prefix_length", &obj.NetworkPrefixLength)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "network_prefix_length-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "profile", &obj.Profile, UnmarshalPublicAddressRangeProfileReference)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "profile-error", common.GetComponentInfo())
 		return
 	}
 	err = core.UnmarshalModel(m, "resource_group", &obj.ResourceGroup, UnmarshalResourceGroupReference)
@@ -96762,6 +98642,458 @@ func UnmarshalPublicAddressRange(m map[string]json.RawMessage, result interface{
 	}
 	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
 	return
+}
+
+// PublicAddressRangeAuthorizedCIDR : PublicAddressRangeAuthorizedCIDR struct
+type PublicAddressRangeAuthorizedCIDR struct {
+	Allocation *PublicAddressRangeAuthorizedCIDRAllocation `json:"allocation" validate:"required"`
+
+	// The availability mode of the public address range authorized CIDR:
+	// - `regional`: Resources allocated from the authorized CIDR can reside in any zone in the
+	//   region.
+	// - `zonal`: Resources allocated from the authorized CIDR must reside in the authorized
+	//   CIDR's `zone`.
+	//
+	// The enumerated values for this property may
+	// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.
+	AvailabilityMode *string `json:"availability_mode" validate:"required"`
+
+	// The public IP address block for the public address range authorized CIDR, expressed in CIDR format.
+	CIDR *string `json:"cidr" validate:"required"`
+
+	// The date and time that the public address range authorized CIDR was created.
+	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
+
+	// The CRN for this public address range authorized CIDR.
+	CRN *string `json:"crn" validate:"required"`
+
+	// The URL for this public address range authorized CIDR.
+	Href *string `json:"href" validate:"required"`
+
+	// The unique identifier for this public address range authorized CIDR.
+	ID *string `json:"id" validate:"required"`
+
+	// The IP version for this public address range authorized CIDR:
+	// - `ipv4`: An IPv4 public address range authorized CIDR.
+	// - `ipv6`: An IPv6 public address range authorized CIDR.
+	IPVersion *string `json:"ip_version" validate:"required"`
+
+	// The reasons for the current `lifecycle_state` (if any).
+	LifecycleReasons []PublicAddressRangeAuthorizedCIDRLifecycleReason `json:"lifecycle_reasons" validate:"required"`
+
+	// The lifecycle state of the public address range authorized CIDR.
+	LifecycleState *string `json:"lifecycle_state" validate:"required"`
+
+	// The name for this public address range authorized CIDR. The name is unique across all public address range
+	// authorized CIDRs in the region.
+	Name *string `json:"name" validate:"required"`
+
+	// The network prefix length for this public address range authorized CIDR.
+	NetworkPrefixLength *int64 `json:"network_prefix_length" validate:"required"`
+
+	// The resource_group for this public address range authorized CIDR.
+	ResourceGroup *ResourceGroupReference `json:"resource_group,omitempty"`
+
+	// The resource type.
+	ResourceType *string `json:"resource_type" validate:"required"`
+
+	// The zone for this public address range authorized CIDR. Resources allocated from this
+	// authorized CIDR must reside in this zone.
+	Zone *ZoneReference `json:"zone,omitempty"`
+}
+
+// Constants associated with the PublicAddressRangeAuthorizedCIDR.AvailabilityMode property.
+// The availability mode of the public address range authorized CIDR:
+//   - `regional`: Resources allocated from the authorized CIDR can reside in any zone in the
+//     region.
+//   - `zonal`: Resources allocated from the authorized CIDR must reside in the authorized
+//     CIDR's `zone`.
+//
+// The enumerated values for this property may
+// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.
+const (
+	PublicAddressRangeAuthorizedCIDRAvailabilityModeRegionalConst = "regional"
+	PublicAddressRangeAuthorizedCIDRAvailabilityModeZonalConst    = "zonal"
+)
+
+// Constants associated with the PublicAddressRangeAuthorizedCIDR.IPVersion property.
+// The IP version for this public address range authorized CIDR:
+// - `ipv4`: An IPv4 public address range authorized CIDR.
+// - `ipv6`: An IPv6 public address range authorized CIDR.
+const (
+	PublicAddressRangeAuthorizedCIDRIPVersionIpv4Const = "ipv4"
+	PublicAddressRangeAuthorizedCIDRIPVersionIpv6Const = "ipv6"
+)
+
+// Constants associated with the PublicAddressRangeAuthorizedCIDR.LifecycleState property.
+// The lifecycle state of the public address range authorized CIDR.
+const (
+	PublicAddressRangeAuthorizedCIDRLifecycleStateDeletingConst  = "deleting"
+	PublicAddressRangeAuthorizedCIDRLifecycleStateFailedConst    = "failed"
+	PublicAddressRangeAuthorizedCIDRLifecycleStatePendingConst   = "pending"
+	PublicAddressRangeAuthorizedCIDRLifecycleStateStableConst    = "stable"
+	PublicAddressRangeAuthorizedCIDRLifecycleStateSuspendedConst = "suspended"
+	PublicAddressRangeAuthorizedCIDRLifecycleStateUpdatingConst  = "updating"
+	PublicAddressRangeAuthorizedCIDRLifecycleStateWaitingConst   = "waiting"
+)
+
+// Constants associated with the PublicAddressRangeAuthorizedCIDR.ResourceType property.
+// The resource type.
+const (
+	PublicAddressRangeAuthorizedCIDRResourceTypePublicAddressRangeAuthorizedCIDRConst = "public_address_range_authorized_cidr"
+)
+
+// UnmarshalPublicAddressRangeAuthorizedCIDR unmarshals an instance of PublicAddressRangeAuthorizedCIDR from the specified map of raw messages.
+func UnmarshalPublicAddressRangeAuthorizedCIDR(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(PublicAddressRangeAuthorizedCIDR)
+	err = core.UnmarshalModel(m, "allocation", &obj.Allocation, UnmarshalPublicAddressRangeAuthorizedCIDRAllocation)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "allocation-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "availability_mode", &obj.AvailabilityMode)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "availability_mode-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "cidr", &obj.CIDR)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "cidr-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "created_at", &obj.CreatedAt)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "created_at-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "crn-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "href-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "id-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "ip_version", &obj.IPVersion)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "ip_version-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "lifecycle_reasons", &obj.LifecycleReasons, UnmarshalPublicAddressRangeAuthorizedCIDRLifecycleReason)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "lifecycle_reasons-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "lifecycle_state", &obj.LifecycleState)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "lifecycle_state-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "network_prefix_length", &obj.NetworkPrefixLength)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "network_prefix_length-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "resource_group", &obj.ResourceGroup, UnmarshalResourceGroupReference)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "resource_group-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "resource_type-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "zone", &obj.Zone, UnmarshalZoneReference)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "zone-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// PublicAddressRangeAuthorizedCIDRAllocation : PublicAddressRangeAuthorizedCIDRAllocation struct
+type PublicAddressRangeAuthorizedCIDRAllocation struct {
+	// The number of resources allocated from this public address range authorized CIDR.
+	Count *int64 `json:"count" validate:"required"`
+
+	// The profile `family` for resources allocated from this public address range authorized CIDR.
+	// - `provider`: The resources allocated from this authorized CIDR will have a profile
+	//   with a `family` value of `provider`.
+	// - `user`: The resources allocated from this authorized CIDR will have a profile with
+	//   a `family` value of `user`.
+	//
+	// The enumerated values for this property may
+	// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.
+	ProfileFamily *string `json:"profile_family" validate:"required"`
+}
+
+// Constants associated with the PublicAddressRangeAuthorizedCIDRAllocation.ProfileFamily property.
+// The profile `family` for resources allocated from this public address range authorized CIDR.
+//   - `provider`: The resources allocated from this authorized CIDR will have a profile
+//     with a `family` value of `provider`.
+//   - `user`: The resources allocated from this authorized CIDR will have a profile with
+//     a `family` value of `user`.
+//
+// The enumerated values for this property may
+// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.
+const (
+	PublicAddressRangeAuthorizedCIDRAllocationProfileFamilyProviderConst = "provider"
+	PublicAddressRangeAuthorizedCIDRAllocationProfileFamilyUserConst     = "user"
+)
+
+// UnmarshalPublicAddressRangeAuthorizedCIDRAllocation unmarshals an instance of PublicAddressRangeAuthorizedCIDRAllocation from the specified map of raw messages.
+func UnmarshalPublicAddressRangeAuthorizedCIDRAllocation(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(PublicAddressRangeAuthorizedCIDRAllocation)
+	err = core.UnmarshalPrimitive(m, "count", &obj.Count)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "count-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "profile_family", &obj.ProfileFamily)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "profile_family-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// PublicAddressRangeAuthorizedCIDRAllocationCollection : PublicAddressRangeAuthorizedCIDRAllocationCollection struct
+type PublicAddressRangeAuthorizedCIDRAllocationCollection struct {
+	// The floating IPs and public address ranges allocated from this public address range authorized CIDR.
+	Allocations []PublicAddressRangeAuthorizedCIDRAllocationItemIntf `json:"allocations" validate:"required"`
+
+	// A link to the first page of resources.
+	First *PageLink `json:"first" validate:"required"`
+
+	// The maximum number of resources that can be returned by the request.
+	Limit *int64 `json:"limit" validate:"required"`
+
+	// A link to the next page of resources. This property is present for all pages
+	// except the last page.
+	Next *PageLink `json:"next,omitempty"`
+
+	// The total number of resources across all pages.
+	TotalCount *int64 `json:"total_count" validate:"required"`
+}
+
+// UnmarshalPublicAddressRangeAuthorizedCIDRAllocationCollection unmarshals an instance of PublicAddressRangeAuthorizedCIDRAllocationCollection from the specified map of raw messages.
+func UnmarshalPublicAddressRangeAuthorizedCIDRAllocationCollection(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(PublicAddressRangeAuthorizedCIDRAllocationCollection)
+	err = core.UnmarshalModel(m, "allocations", &obj.Allocations, UnmarshalPublicAddressRangeAuthorizedCIDRAllocationItem)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "allocations-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "first", &obj.First, UnmarshalPageLink)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "first-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "limit", &obj.Limit)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "limit-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "next", &obj.Next, UnmarshalPageLink)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "next-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "total_count", &obj.TotalCount)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "total_count-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// Retrieve the value to be passed to a request to access the next page of results
+func (resp *PublicAddressRangeAuthorizedCIDRAllocationCollection) GetNextStart() (*string, error) {
+	if core.IsNil(resp.Next) {
+		return nil, nil
+	}
+	start, err := core.GetQueryParam(resp.Next.Href, "start")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "read-query-param-error", common.GetComponentInfo())
+		return nil, err
+	} else if start == nil {
+		return nil, nil
+	}
+	return start, nil
+}
+
+// PublicAddressRangeAuthorizedCIDRAllocationItem : PublicAddressRangeAuthorizedCIDRAllocationItem struct
+// Models which "extend" this model:
+// - PublicAddressRangeAuthorizedCIDRAllocationItemFloatingIPReference
+// - PublicAddressRangeAuthorizedCIDRAllocationItemPublicAddressRangeReference
+type PublicAddressRangeAuthorizedCIDRAllocationItem struct {
+	// The globally unique IP address.
+	Address *string `json:"address,omitempty"`
+
+	// The CRN for this floating IP.
+	CRN *string `json:"crn,omitempty"`
+
+	// If present, this property indicates the referenced resource has been deleted, and provides
+	// some supplementary information.
+	Deleted *Deleted `json:"deleted,omitempty"`
+
+	// The URL for this floating IP.
+	Href *string `json:"href,omitempty"`
+
+	// The unique identifier for this floating IP.
+	ID *string `json:"id,omitempty"`
+
+	// The name for this floating IP. The name is unique across all floating IPs in the region.
+	Name *string `json:"name,omitempty"`
+
+	// The resource type.
+	ResourceType *string `json:"resource_type,omitempty"`
+
+	// The public IP address block for this public address range, expressed in CIDR format.
+	CIDR *string `json:"cidr,omitempty"`
+}
+
+// Constants associated with the PublicAddressRangeAuthorizedCIDRAllocationItem.ResourceType property.
+// The resource type.
+const (
+	PublicAddressRangeAuthorizedCIDRAllocationItemResourceTypeFloatingIPConst = "floating_ip"
+)
+
+func (*PublicAddressRangeAuthorizedCIDRAllocationItem) isaPublicAddressRangeAuthorizedCIDRAllocationItem() bool {
+	return true
+}
+
+type PublicAddressRangeAuthorizedCIDRAllocationItemIntf interface {
+	isaPublicAddressRangeAuthorizedCIDRAllocationItem() bool
+}
+
+// UnmarshalPublicAddressRangeAuthorizedCIDRAllocationItem unmarshals an instance of PublicAddressRangeAuthorizedCIDRAllocationItem from the specified map of raw messages.
+func UnmarshalPublicAddressRangeAuthorizedCIDRAllocationItem(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(PublicAddressRangeAuthorizedCIDRAllocationItem)
+	err = core.UnmarshalPrimitive(m, "address", &obj.Address)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "address-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "crn-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "deleted", &obj.Deleted, UnmarshalDeleted)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "deleted-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "href-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "id-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "resource_type-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "cidr", &obj.CIDR)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "cidr-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// PublicAddressRangeAuthorizedCIDRCollection : PublicAddressRangeAuthorizedCIDRCollection struct
+type PublicAddressRangeAuthorizedCIDRCollection struct {
+	// A page of public address range authorized CIDRs.
+	AuthorizedCIDRs []PublicAddressRangeAuthorizedCIDR `json:"authorized_cidrs" validate:"required"`
+
+	// A link to the first page of resources.
+	First *PageLink `json:"first" validate:"required"`
+
+	// The maximum number of resources that can be returned by the request.
+	Limit *int64 `json:"limit" validate:"required"`
+
+	// A link to the next page of resources. This property is present for all pages
+	// except the last page.
+	Next *PageLink `json:"next,omitempty"`
+
+	// The total number of resources across all pages.
+	TotalCount *int64 `json:"total_count" validate:"required"`
+}
+
+// UnmarshalPublicAddressRangeAuthorizedCIDRCollection unmarshals an instance of PublicAddressRangeAuthorizedCIDRCollection from the specified map of raw messages.
+func UnmarshalPublicAddressRangeAuthorizedCIDRCollection(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(PublicAddressRangeAuthorizedCIDRCollection)
+	err = core.UnmarshalModel(m, "authorized_cidrs", &obj.AuthorizedCIDRs, UnmarshalPublicAddressRangeAuthorizedCIDR)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "authorized_cidrs-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "first", &obj.First, UnmarshalPageLink)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "first-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "limit", &obj.Limit)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "limit-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "next", &obj.Next, UnmarshalPageLink)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "next-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "total_count", &obj.TotalCount)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "total_count-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// Retrieve the value to be passed to a request to access the next page of results
+func (resp *PublicAddressRangeAuthorizedCIDRCollection) GetNextStart() (*string, error) {
+	if core.IsNil(resp.Next) {
+		return nil, nil
+	}
+	start, err := core.GetQueryParam(resp.Next.Href, "start")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "read-query-param-error", common.GetComponentInfo())
+		return nil, err
+	} else if start == nil {
+		return nil, nil
+	}
+	return start, nil
 }
 
 // PublicAddressRangeAuthorizedCIDRIdentity : Identifies a public address range authorized CIDR by a unique property.
@@ -96814,6 +99146,322 @@ func UnmarshalPublicAddressRangeAuthorizedCIDRIdentity(m map[string]json.RawMess
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// PublicAddressRangeAuthorizedCIDRLifecycleReason : PublicAddressRangeAuthorizedCIDRLifecycleReason struct
+type PublicAddressRangeAuthorizedCIDRLifecycleReason struct {
+	// A reason code for this lifecycle state:
+	// - `finalizing`: System reconciliation in progress.
+	//
+	// The enumerated values for this property may
+	// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.
+	Code *string `json:"code" validate:"required"`
+
+	// An explanation of the reason for this lifecycle state.
+	Message *string `json:"message" validate:"required"`
+
+	// A link to documentation about the reason for this lifecycle state.
+	MoreInfo *string `json:"more_info,omitempty"`
+}
+
+// Constants associated with the PublicAddressRangeAuthorizedCIDRLifecycleReason.Code property.
+// A reason code for this lifecycle state:
+// - `finalizing`: System reconciliation in progress.
+//
+// The enumerated values for this property may
+// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.
+const (
+	PublicAddressRangeAuthorizedCIDRLifecycleReasonCodeFinalizingConst                  = "finalizing"
+	PublicAddressRangeAuthorizedCIDRLifecycleReasonCodeInternalErrorConst               = "internal_error"
+	PublicAddressRangeAuthorizedCIDRLifecycleReasonCodeResourceSuspendedByProviderConst = "resource_suspended_by_provider"
+)
+
+// UnmarshalPublicAddressRangeAuthorizedCIDRLifecycleReason unmarshals an instance of PublicAddressRangeAuthorizedCIDRLifecycleReason from the specified map of raw messages.
+func UnmarshalPublicAddressRangeAuthorizedCIDRLifecycleReason(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(PublicAddressRangeAuthorizedCIDRLifecycleReason)
+	err = core.UnmarshalPrimitive(m, "code", &obj.Code)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "code-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "message", &obj.Message)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "message-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "more_info", &obj.MoreInfo)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "more_info-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// PublicAddressRangeAuthorizedCIDRPatch : The patch to apply to a public address range authorized CIDR.
+type PublicAddressRangeAuthorizedCIDRPatch struct {
+	// The name for this public address range authorized CIDR. The name must not be used by another public address range
+	// authorized CIDR in the region. Names beginning with
+	// `ibm-` are reserved for provider-managed resources, and are not allowed.
+	//
+	// If the current `name` begins with `ibm-`, then the authorized CIDR is managed by the provider and is not allowed to
+	// be updated.
+	Name *string `json:"name,omitempty"`
+}
+
+// UnmarshalPublicAddressRangeAuthorizedCIDRPatch unmarshals an instance of PublicAddressRangeAuthorizedCIDRPatch from the specified map of raw messages.
+func UnmarshalPublicAddressRangeAuthorizedCIDRPatch(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(PublicAddressRangeAuthorizedCIDRPatch)
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// AsPatch returns a generic map representation of the PublicAddressRangeAuthorizedCIDRPatch
+func (publicAddressRangeAuthorizedCIDRPatch *PublicAddressRangeAuthorizedCIDRPatch) AsPatch() (_patch map[string]interface{}, err error) {
+	_patch = map[string]interface{}{}
+	if !core.IsNil(publicAddressRangeAuthorizedCIDRPatch.Name) {
+		_patch["name"] = publicAddressRangeAuthorizedCIDRPatch.Name
+	}
+
+	return
+}
+
+// PublicAddressRangeAuthorizedCIDRPrototype : The availability mode to use for the public address range authorized CIDR.
+//   - `zonal`: Resources allocated from the authorized CIDR must reside in the authorized
+//     CIDR's `zone`.
+//
+// Models which "extend" this model:
+// - PublicAddressRangeAuthorizedCIDRPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototype
+type PublicAddressRangeAuthorizedCIDRPrototype struct {
+	// The IP version for this public address range authorized CIDR:
+	// - `ipv6`: An IPv6 public address range authorized CIDR.
+	IPVersion *string `json:"ip_version" validate:"required"`
+
+	// The name for this public address range authorized CIDR. The name must not be used by another public address range
+	// authorized CIDR in the region. Names beginning with
+	// `ibm-` are reserved for provider-managed resources, and are not allowed.
+	//
+	// If unspecified, the name will be a hyphenated list of randomly-selected words.
+	Name *string `json:"name,omitempty"`
+
+	// The resource group to use. If unspecified, the account's [default resource
+	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) will be used.
+	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
+
+	// The availability mode of the public address range authorized CIDR:
+	// - `zonal`: Resources allocated from the authorized CIDR must reside in the authorized
+	//   CIDR's `zone`.
+	AvailabilityMode *string `json:"availability_mode,omitempty"`
+
+	// The zone this public address range authorized CIDR will reside in.
+	Zone ZoneIdentityIntf `json:"zone,omitempty"`
+
+	// The network prefix length for this public address range authorized CIDR.
+	NetworkPrefixLength *int64 `json:"network_prefix_length,omitempty"`
+}
+
+// Constants associated with the PublicAddressRangeAuthorizedCIDRPrototype.IPVersion property.
+// The IP version for this public address range authorized CIDR:
+// - `ipv6`: An IPv6 public address range authorized CIDR.
+const (
+	PublicAddressRangeAuthorizedCIDRPrototypeIPVersionIpv6Const = "ipv6"
+)
+
+// Constants associated with the PublicAddressRangeAuthorizedCIDRPrototype.AvailabilityMode property.
+// The availability mode of the public address range authorized CIDR:
+//   - `zonal`: Resources allocated from the authorized CIDR must reside in the authorized
+//     CIDR's `zone`.
+const (
+	PublicAddressRangeAuthorizedCIDRPrototypeAvailabilityModeZonalConst = "zonal"
+)
+
+func (*PublicAddressRangeAuthorizedCIDRPrototype) isaPublicAddressRangeAuthorizedCIDRPrototype() bool {
+	return true
+}
+
+type PublicAddressRangeAuthorizedCIDRPrototypeIntf interface {
+	isaPublicAddressRangeAuthorizedCIDRPrototype() bool
+}
+
+// UnmarshalPublicAddressRangeAuthorizedCIDRPrototype unmarshals an instance of PublicAddressRangeAuthorizedCIDRPrototype from the specified map of raw messages.
+func UnmarshalPublicAddressRangeAuthorizedCIDRPrototype(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(PublicAddressRangeAuthorizedCIDRPrototype)
+	err = core.UnmarshalPrimitive(m, "ip_version", &obj.IPVersion)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "ip_version-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "resource_group", &obj.ResourceGroup, UnmarshalResourceGroupIdentity)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "resource_group-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "availability_mode", &obj.AvailabilityMode)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "availability_mode-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "zone", &obj.Zone, UnmarshalZoneIdentity)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "zone-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "network_prefix_length", &obj.NetworkPrefixLength)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "network_prefix_length-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// PublicAddressRangeAuthorizedCIDRReference : PublicAddressRangeAuthorizedCIDRReference struct
+type PublicAddressRangeAuthorizedCIDRReference struct {
+	// The public IP address block for the public address range authorized CIDR, expressed in CIDR format.
+	CIDR *string `json:"cidr" validate:"required"`
+
+	// The CRN for this public address range authorized CIDR.
+	CRN *string `json:"crn" validate:"required"`
+
+	// The URL for this public address range authorized CIDR.
+	Href *string `json:"href" validate:"required"`
+
+	// The unique identifier for this public address range authorized CIDR.
+	ID *string `json:"id" validate:"required"`
+
+	// The name for this public address range authorized CIDR. The name is unique across all public address range
+	// authorized CIDRs in the region.
+	Name *string `json:"name" validate:"required"`
+
+	// The resource type.
+	ResourceType *string `json:"resource_type" validate:"required"`
+
+	// The zone for this public address range authorized CIDR. Resources allocated from this
+	// authorized CIDR must reside in this zone.
+	Zone *ZoneReference `json:"zone,omitempty"`
+}
+
+// Constants associated with the PublicAddressRangeAuthorizedCIDRReference.ResourceType property.
+// The resource type.
+const (
+	PublicAddressRangeAuthorizedCIDRReferenceResourceTypePublicAddressRangeAuthorizedCIDRConst = "public_address_range_authorized_cidr"
+)
+
+// UnmarshalPublicAddressRangeAuthorizedCIDRReference unmarshals an instance of PublicAddressRangeAuthorizedCIDRReference from the specified map of raw messages.
+func UnmarshalPublicAddressRangeAuthorizedCIDRReference(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(PublicAddressRangeAuthorizedCIDRReference)
+	err = core.UnmarshalPrimitive(m, "cidr", &obj.CIDR)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "cidr-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "crn-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "href-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "id-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "resource_type-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "zone", &obj.Zone, UnmarshalZoneReference)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "zone-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// PublicAddressRangeAuthorizedCIDRReferenceFloatingIPContext : PublicAddressRangeAuthorizedCIDRReferenceFloatingIPContext struct
+type PublicAddressRangeAuthorizedCIDRReferenceFloatingIPContext struct {
+	// The public IPv4 address block for the public address range authorized CIDR, expressed in CIDR format.
+	CIDR *string `json:"cidr" validate:"required"`
+
+	// The CRN for this public address range authorized CIDR.
+	CRN *string `json:"crn" validate:"required"`
+
+	// The URL for this public address range authorized CIDR.
+	Href *string `json:"href" validate:"required"`
+
+	// The unique identifier for this public address range authorized CIDR.
+	ID *string `json:"id" validate:"required"`
+
+	// The name for this public address range authorized CIDR. The name is unique across all public address range
+	// authorized CIDRs in the region.
+	Name *string `json:"name" validate:"required"`
+
+	// The resource type.
+	ResourceType *string `json:"resource_type" validate:"required"`
+}
+
+// Constants associated with the PublicAddressRangeAuthorizedCIDRReferenceFloatingIPContext.ResourceType property.
+// The resource type.
+const (
+	PublicAddressRangeAuthorizedCIDRReferenceFloatingIPContextResourceTypePublicAddressRangeAuthorizedCIDRConst = "public_address_range_authorized_cidr"
+)
+
+// UnmarshalPublicAddressRangeAuthorizedCIDRReferenceFloatingIPContext unmarshals an instance of PublicAddressRangeAuthorizedCIDRReferenceFloatingIPContext from the specified map of raw messages.
+func UnmarshalPublicAddressRangeAuthorizedCIDRReferenceFloatingIPContext(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(PublicAddressRangeAuthorizedCIDRReferenceFloatingIPContext)
+	err = core.UnmarshalPrimitive(m, "cidr", &obj.CIDR)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "cidr-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "crn-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "href-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "id-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "resource_type-error", common.GetComponentInfo())
 		return
 	}
 	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
@@ -96886,6 +99534,69 @@ func (resp *PublicAddressRangeCollection) GetNextStart() (*string, error) {
 	return start, nil
 }
 
+// PublicAddressRangeIdentity : PublicAddressRangeIdentity struct
+// Models which "extend" this model:
+// - PublicAddressRangeIdentityByID
+// - PublicAddressRangeIdentityByCRN
+// - PublicAddressRangeIdentityByHref
+type PublicAddressRangeIdentity struct {
+	// The unique identifier for this public address range.
+	ID *string `json:"id,omitempty"`
+
+	// The CRN for this public address range.
+	CRN *string `json:"crn,omitempty"`
+
+	// The URL for this public address range.
+	Href *string `json:"href,omitempty"`
+}
+
+func (*PublicAddressRangeIdentity) isaPublicAddressRangeIdentity() bool {
+	return true
+}
+
+type PublicAddressRangeIdentityIntf interface {
+	isaPublicAddressRangeIdentity() bool
+	asPatch() map[string]interface{}
+}
+
+// UnmarshalPublicAddressRangeIdentity unmarshals an instance of PublicAddressRangeIdentity from the specified map of raw messages.
+func UnmarshalPublicAddressRangeIdentity(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(PublicAddressRangeIdentity)
+	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "id-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "crn-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "href-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// asPatch returns a generic map representation of the PublicAddressRangeIdentity
+func (publicAddressRangeIdentity *PublicAddressRangeIdentity) asPatch() (_patch map[string]interface{}) {
+	_patch = map[string]interface{}{}
+	if !core.IsNil(publicAddressRangeIdentity.ID) {
+		_patch["id"] = publicAddressRangeIdentity.ID
+	}
+	if !core.IsNil(publicAddressRangeIdentity.CRN) {
+		_patch["crn"] = publicAddressRangeIdentity.CRN
+	}
+	if !core.IsNil(publicAddressRangeIdentity.Href) {
+		_patch["href"] = publicAddressRangeIdentity.Href
+	}
+
+	return
+}
+
 // PublicAddressRangePatch : PublicAddressRangePatch struct
 type PublicAddressRangePatch struct {
 	// The name for this public address range. The name must not be used by another public address range in the region.
@@ -96928,13 +99639,268 @@ func (publicAddressRangePatch *PublicAddressRangePatch) AsPatch() (_patch map[st
 	return
 }
 
+// PublicAddressRangeProfile : A profile specifying the characteristics of a public address range.
+type PublicAddressRangeProfile struct {
+	// The product family this public address range profile belongs to.
+	// - `provider`: The public IP addresses in the public address range with this profile are
+	//    owned by the provider.
+	// - `user`: The public IP addresses in the public address range with this profile are
+	//    owned by the user.
+	//
+	// The enumerated values for this property may
+	// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.
+	Family *string `json:"family" validate:"required"`
+
+	// The URL for this public address range profile.
+	Href *string `json:"href,omitempty"`
+
+	// The IP version for public address ranges with this profile:
+	// - `ipv4`: An IPv4 public address range.
+	// - `ipv6`: An IPv6 public address range.
+	IPVersion *string `json:"ip_version" validate:"required"`
+
+	// The globally unique name for this public address range profile.
+	Name *string `json:"name" validate:"required"`
+
+	// The resource type.
+	ResourceType *string `json:"resource_type" validate:"required"`
+
+	TargetableResourceTypes *PublicAddressRangeProfileTargetableResourceTypes `json:"targetable_resource_types" validate:"required"`
+}
+
+// Constants associated with the PublicAddressRangeProfile.Family property.
+// The product family this public address range profile belongs to.
+//   - `provider`: The public IP addresses in the public address range with this profile are
+//     owned by the provider.
+//   - `user`: The public IP addresses in the public address range with this profile are
+//     owned by the user.
+//
+// The enumerated values for this property may
+// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.
+const (
+	PublicAddressRangeProfileFamilyProviderConst = "provider"
+	PublicAddressRangeProfileFamilyUserConst     = "user"
+)
+
+// Constants associated with the PublicAddressRangeProfile.IPVersion property.
+// The IP version for public address ranges with this profile:
+// - `ipv4`: An IPv4 public address range.
+// - `ipv6`: An IPv6 public address range.
+const (
+	PublicAddressRangeProfileIPVersionIpv4Const = "ipv4"
+	PublicAddressRangeProfileIPVersionIpv6Const = "ipv6"
+)
+
+// Constants associated with the PublicAddressRangeProfile.ResourceType property.
+// The resource type.
+const (
+	PublicAddressRangeProfileResourceTypePublicAddressRangeProfileConst = "public_address_range_profile"
+)
+
+// UnmarshalPublicAddressRangeProfile unmarshals an instance of PublicAddressRangeProfile from the specified map of raw messages.
+func UnmarshalPublicAddressRangeProfile(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(PublicAddressRangeProfile)
+	err = core.UnmarshalPrimitive(m, "family", &obj.Family)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "family-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "href-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "ip_version", &obj.IPVersion)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "ip_version-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "resource_type-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "targetable_resource_types", &obj.TargetableResourceTypes, UnmarshalPublicAddressRangeProfileTargetableResourceTypes)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "targetable_resource_types-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// PublicAddressRangeProfileCollection : PublicAddressRangeProfileCollection struct
+type PublicAddressRangeProfileCollection struct {
+	// A link to the first page of resources.
+	First *PageLink `json:"first" validate:"required"`
+
+	// The maximum number of resources that can be returned by the request.
+	Limit *int64 `json:"limit" validate:"required"`
+
+	// A link to the next page of resources. This property is present for all pages
+	// except the last page.
+	Next *PageLink `json:"next,omitempty"`
+
+	// A page of public address range profiles.
+	Profiles []PublicAddressRangeProfile `json:"profiles" validate:"required"`
+
+	// The total number of resources across all pages.
+	TotalCount *int64 `json:"total_count" validate:"required"`
+}
+
+// UnmarshalPublicAddressRangeProfileCollection unmarshals an instance of PublicAddressRangeProfileCollection from the specified map of raw messages.
+func UnmarshalPublicAddressRangeProfileCollection(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(PublicAddressRangeProfileCollection)
+	err = core.UnmarshalModel(m, "first", &obj.First, UnmarshalPageLink)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "first-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "limit", &obj.Limit)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "limit-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "next", &obj.Next, UnmarshalPageLink)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "next-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "profiles", &obj.Profiles, UnmarshalPublicAddressRangeProfile)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "profiles-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "total_count", &obj.TotalCount)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "total_count-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// Retrieve the value to be passed to a request to access the next page of results
+func (resp *PublicAddressRangeProfileCollection) GetNextStart() (*string, error) {
+	if core.IsNil(resp.Next) {
+		return nil, nil
+	}
+	start, err := core.GetQueryParam(resp.Next.Href, "start")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "read-query-param-error", common.GetComponentInfo())
+		return nil, err
+	} else if start == nil {
+		return nil, nil
+	}
+	return start, nil
+}
+
+// PublicAddressRangeProfileReference : PublicAddressRangeProfileReference struct
+type PublicAddressRangeProfileReference struct {
+	// The URL for this public address range profile.
+	Href *string `json:"href,omitempty"`
+
+	// The globally unique name for this public address range profile.
+	Name *string `json:"name" validate:"required"`
+
+	// The resource type.
+	ResourceType *string `json:"resource_type" validate:"required"`
+}
+
+// Constants associated with the PublicAddressRangeProfileReference.ResourceType property.
+// The resource type.
+const (
+	PublicAddressRangeProfileReferenceResourceTypePublicAddressRangeProfileConst = "public_address_range_profile"
+)
+
+// UnmarshalPublicAddressRangeProfileReference unmarshals an instance of PublicAddressRangeProfileReference from the specified map of raw messages.
+func UnmarshalPublicAddressRangeProfileReference(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(PublicAddressRangeProfileReference)
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "href-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "resource_type-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// PublicAddressRangeProfileTargetableResourceTypes : PublicAddressRangeProfileTargetableResourceTypes struct
+type PublicAddressRangeProfileTargetableResourceTypes struct {
+	// The type for this profile field.
+	Type *string `json:"type" validate:"required"`
+
+	// The resource types that public address ranges with this profile can target.
+	//
+	// If empty, the public address range cannot target a resource. Instead, public address ranges or floating IPs can be
+	// allocated from the public address range with this profile.
+	Values []string `json:"values" validate:"required"`
+}
+
+// Constants associated with the PublicAddressRangeProfileTargetableResourceTypes.Type property.
+// The type for this profile field.
+const (
+	PublicAddressRangeProfileTargetableResourceTypesTypeEnumConst = "enum"
+)
+
+// Constants associated with the PublicAddressRangeProfileTargetableResourceTypes.Values property.
+// A resource type that can be targeted by the public address range:
+//   - `load_balancer`: The public address range will be used as an IPv6 public IP for the
+//     load balancer.
+//   - `virtual_network_interface`: Incoming traffic for IP addresses in the public address
+//     range will be routed to the virtual network interface. Outgoing traffic from the virtual
+//     network interface to the public internet will be allowed (subject to security groups) if
+//     the source IP addresses are in the public address range.
+//   - `vpc`: Incoming traffic for IP addresses in the public address range will be routed to a
+//     zone in the VPC. The `zone` must be specified when specifying the `vpc`. VPC ingress
+//     routing table routes must be configured to forward packets with destination IPs in the
+//     public address range to endpoints in the zone in the VPC. Outgoing traffic from the VPC
+//     to the public internet will be allowed (subject to security groups) if the source IP
+//     addresses are in the public address range.
+const (
+	PublicAddressRangeProfileTargetableResourceTypesValuesLoadBalancerConst            = "load_balancer"
+	PublicAddressRangeProfileTargetableResourceTypesValuesVPCConst                     = "vpc"
+	PublicAddressRangeProfileTargetableResourceTypesValuesVirtualNetworkInterfaceConst = "virtual_network_interface"
+)
+
+// UnmarshalPublicAddressRangeProfileTargetableResourceTypes unmarshals an instance of PublicAddressRangeProfileTargetableResourceTypes from the specified map of raw messages.
+func UnmarshalPublicAddressRangeProfileTargetableResourceTypes(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(PublicAddressRangeProfileTargetableResourceTypes)
+	err = core.UnmarshalPrimitive(m, "type", &obj.Type)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "type-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "values", &obj.Values)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "values-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
 // PublicAddressRangePrototype : PublicAddressRangePrototype struct
 // Models which "extend" this model:
+// - PublicAddressRangePrototypePublicAddressRangeByCIDR
+// - PublicAddressRangePrototypePublicAddressRangeByIPv4AddressCount
 // - PublicAddressRangePrototypePublicAddressRangeByNetworkPrefixLength
 type PublicAddressRangePrototype struct {
-	// The total number of public IPv4 addresses required. Must be a power of 2.
-	Ipv4AddressCount *int64 `json:"ipv4_address_count" validate:"required"`
-
 	// The name for this public address range. The name must not be used by another public address range in the region.
 	// Names starting with `ibm-` are reserved for provider-managed resources, and are not allowed. If unspecified, the
 	// name will be a hyphenated list of randomly-selected words.
@@ -96947,6 +99913,12 @@ type PublicAddressRangePrototype struct {
 	// The target to bind this public address range to. If unspecified, the public address
 	// range will not be bound to a target at creation.
 	Target PublicAddressRangeTargetPrototypeIntf `json:"target,omitempty"`
+
+	// The public IP address block for this public address range, expressed in CIDR format.
+	CIDR *string `json:"cidr,omitempty"`
+
+	// The total number of public IPv4 addresses required. Must be a power of 2.
+	Ipv4AddressCount *int64 `json:"ipv4_address_count,omitempty"`
 
 	// The authorized CIDR to allocate the public address range from. The authorized CIDR must
 	// have:
@@ -96970,11 +99942,6 @@ type PublicAddressRangePrototypeIntf interface {
 // UnmarshalPublicAddressRangePrototype unmarshals an instance of PublicAddressRangePrototype from the specified map of raw messages.
 func UnmarshalPublicAddressRangePrototype(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(PublicAddressRangePrototype)
-	err = core.UnmarshalPrimitive(m, "ipv4_address_count", &obj.Ipv4AddressCount)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "ipv4_address_count-error", common.GetComponentInfo())
-		return
-	}
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
@@ -96988,6 +99955,16 @@ func UnmarshalPublicAddressRangePrototype(m map[string]json.RawMessage, result i
 	err = core.UnmarshalModel(m, "target", &obj.Target, UnmarshalPublicAddressRangeTargetPrototype)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "target-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "cidr", &obj.CIDR)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "cidr-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "ipv4_address_count", &obj.Ipv4AddressCount)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "ipv4_address_count-error", common.GetComponentInfo())
 		return
 	}
 	err = core.UnmarshalModel(m, "authorized_cidr", &obj.AuthorizedCIDR, UnmarshalPublicAddressRangeAuthorizedCIDRIdentity)
@@ -97007,7 +99984,7 @@ func UnmarshalPublicAddressRangePrototype(m map[string]json.RawMessage, result i
 // PublicAddressRangeReference : PublicAddressRangeReference struct
 type PublicAddressRangeReference struct {
 	// The public IP address block for this public address range, expressed in CIDR format.
-	CIDR *string `json:"cidr,omitempty"`
+	CIDR *string `json:"cidr" validate:"required"`
 
 	// The CRN for this public address range.
 	CRN *string `json:"crn" validate:"required"`
@@ -97125,15 +100102,10 @@ func UnmarshalPublicAddressRangeTarget(m map[string]json.RawMessage, result inte
 	return
 }
 
-// PublicAddressRangeTargetPatch : The load balancer to bind this public address range to. Supported by public address range profiles with
-// `load_balancer` included in `targetable_resource_types`.
+// PublicAddressRangeTargetPatch : The target to bind this public address range to.
 //
-// The `ip_version` for this public address range must be `ipv6`, the `network_prefix_length` must be `128`, and the
-// load balancer must have `ipv6_enabled` set to `true`.
+// Specify `null` to unbind the public address range from any existing target.
 type PublicAddressRangeTargetPatch struct {
-	// Identifies a load balancer by a unique property.
-	LoadBalancer LoadBalancerIdentityIntf `json:"load_balancer" validate:"required"`
-
 	// The virtual network interface to bind this public address range to. Supported by
 	// public address range profiles with `virtual_network_interface` included in
 	// `targetable_resource_types`.
@@ -97144,10 +100116,20 @@ type PublicAddressRangeTargetPatch struct {
 	// authorized CIDR.
 	VirtualNetworkInterface VirtualNetworkInterfaceIdentityIntf `json:"virtual_network_interface,omitempty"`
 
-	// The VPC to bind this public address range to, replacing any existing VPC.
+	// The VPC to bind this public address range to, replacing any existing VPC. Supported by
+	// public address range profiles with `vpc` included in `targetable_resource_types`.
+	//
+	// If the public address range is not currently bound to a target, `target.zone` must
+	// also be specified.
 	VPC VPCIdentityIntf `json:"vpc,omitempty"`
 
 	// The zone this public address range will reside in, replacing any existing zone.
+	//
+	// If the public address range is not currently bound to a target, `target.vpc` must
+	// also be specified.
+	//
+	// This property cannot be changed if the public address range was allocated from an
+	// authorized CIDR with an `availability_mode` value of `zonal`.
 	Zone ZoneIdentityIntf `json:"zone,omitempty"`
 }
 
@@ -97195,8 +100177,6 @@ func (publicAddressRangeTargetPatch *PublicAddressRangeTargetPatch) asPatch() (_
 // - PublicAddressRangeTargetPrototypePublicAddressRangeTargetByVirtualNetworkInterface
 // - PublicAddressRangeTargetPrototypePublicAddressRangeTargetByVPCZone
 type PublicAddressRangeTargetPrototype struct {
-	// Identifies a load balancer by a unique property.
-	LoadBalancer LoadBalancerIdentityIntf `json:"load_balancer,omitempty"`
 	// Identifies a virtual network interface by a unique property.
 	VirtualNetworkInterface VirtualNetworkInterfaceIdentityIntf `json:"virtual_network_interface,omitempty"`
 
@@ -97204,6 +100184,9 @@ type PublicAddressRangeTargetPrototype struct {
 	VPC VPCIdentityIntf `json:"vpc,omitempty"`
 
 	// The zone this public address range will reside in.
+	//
+	// Must have the same value as the `zone` for the public address range authorized CIDR
+	// this public address range is allocated from, if set.
 	Zone ZoneIdentityIntf `json:"zone,omitempty"`
 }
 
@@ -97218,11 +100201,6 @@ type PublicAddressRangeTargetPrototypeIntf interface {
 // UnmarshalPublicAddressRangeTargetPrototype unmarshals an instance of PublicAddressRangeTargetPrototype from the specified map of raw messages.
 func UnmarshalPublicAddressRangeTargetPrototype(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(PublicAddressRangeTargetPrototype)
-	err = core.UnmarshalModel(m, "load_balancer", &obj.LoadBalancer, UnmarshalLoadBalancerIdentity)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "load_balancer-error", common.GetComponentInfo())
-		return
-	}
 	err = core.UnmarshalModel(m, "virtual_network_interface", &obj.VirtualNetworkInterface, UnmarshalVirtualNetworkInterfaceIdentity)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "virtual_network_interface-error", common.GetComponentInfo())
@@ -97441,7 +100419,16 @@ type PublicGatewayFloatingIP struct {
 
 	// The name for this floating IP. The name is unique across all floating IPs in the region.
 	Name *string `json:"name" validate:"required"`
+
+	// The resource type.
+	ResourceType *string `json:"resource_type" validate:"required"`
 }
+
+// Constants associated with the PublicGatewayFloatingIP.ResourceType property.
+// The resource type.
+const (
+	PublicGatewayFloatingIPResourceTypeFloatingIPConst = "floating_ip"
+)
 
 // UnmarshalPublicGatewayFloatingIP unmarshals an instance of PublicGatewayFloatingIP from the specified map of raw messages.
 func UnmarshalPublicGatewayFloatingIP(m map[string]json.RawMessage, result interface{}) (err error) {
@@ -97474,6 +100461,11 @@ func UnmarshalPublicGatewayFloatingIP(m map[string]json.RawMessage, result inter
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "resource_type-error", common.GetComponentInfo())
 		return
 	}
 	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
@@ -98407,6 +101399,57 @@ func (_options *ReplaceSubnetRoutingTableOptions) SetRoutingTableIdentity(routin
 
 // SetHeaders : Allow user to set Headers
 func (options *ReplaceSubnetRoutingTableOptions) SetHeaders(param map[string]string) *ReplaceSubnetRoutingTableOptions {
+	options.Headers = param
+	return options
+}
+
+// ReplaceVPNGatewayMemberOptions : The ReplaceVPNGatewayMember options.
+type ReplaceVPNGatewayMemberOptions struct {
+	// The VPN gateway identifier.
+	VPNGatewayID *string `json:"vpn_gateway_id" validate:"required,ne="`
+
+	// The VPN gateway member identifier.
+	ID *string `json:"id" validate:"required,ne="`
+
+	// The identity of the subnet to which the VPN Gateway member will be relocated.
+	//
+	// A reserved IP will be allocated from the specified `subnet` and assigned to the VPN
+	// gateway member.
+	PrivateIP VPNGatewayMemberPrivateIPPrototypeIntf `json:"private_ip" validate:"required"`
+
+	// Allows users to set headers on API requests.
+	Headers map[string]string
+}
+
+// NewReplaceVPNGatewayMemberOptions : Instantiate ReplaceVPNGatewayMemberOptions
+func (*VpcV1) NewReplaceVPNGatewayMemberOptions(vpnGatewayID string, id string, privateIP VPNGatewayMemberPrivateIPPrototypeIntf) *ReplaceVPNGatewayMemberOptions {
+	return &ReplaceVPNGatewayMemberOptions{
+		VPNGatewayID: core.StringPtr(vpnGatewayID),
+		ID:           core.StringPtr(id),
+		PrivateIP:    privateIP,
+	}
+}
+
+// SetVPNGatewayID : Allow user to set VPNGatewayID
+func (_options *ReplaceVPNGatewayMemberOptions) SetVPNGatewayID(vpnGatewayID string) *ReplaceVPNGatewayMemberOptions {
+	_options.VPNGatewayID = core.StringPtr(vpnGatewayID)
+	return _options
+}
+
+// SetID : Allow user to set ID
+func (_options *ReplaceVPNGatewayMemberOptions) SetID(id string) *ReplaceVPNGatewayMemberOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
+}
+
+// SetPrivateIP : Allow user to set PrivateIP
+func (_options *ReplaceVPNGatewayMemberOptions) SetPrivateIP(privateIP VPNGatewayMemberPrivateIPPrototypeIntf) *ReplaceVPNGatewayMemberOptions {
+	_options.PrivateIP = privateIP
+	return _options
+}
+
+// SetHeaders : Allow user to set Headers
+func (options *ReplaceVPNGatewayMemberOptions) SetHeaders(param map[string]string) *ReplaceVPNGatewayMemberOptions {
 	options.Headers = param
 	return options
 }
@@ -99999,6 +103042,83 @@ func UnmarshalReservedIPReference(m map[string]json.RawMessage, result interface
 	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "resource_type-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// ReservedIPReferenceVPNGatewayMemberContext : ReservedIPReferenceVPNGatewayMemberContext struct
+type ReservedIPReferenceVPNGatewayMemberContext struct {
+	// The IP address.
+	//
+	// If the address has not yet been selected, the value will be `0.0.0.0`.
+	//
+	// This property may [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support IPv6 addresses in
+	// the future.
+	Address *string `json:"address" validate:"required"`
+
+	// If present, this property indicates the referenced resource has been deleted, and provides
+	// some supplementary information.
+	Deleted *Deleted `json:"deleted,omitempty"`
+
+	// The URL for this reserved IP.
+	Href *string `json:"href" validate:"required"`
+
+	// The unique identifier for this reserved IP.
+	ID *string `json:"id" validate:"required"`
+
+	// The name for this reserved IP. The name is unique across all reserved IPs in a subnet.
+	Name *string `json:"name" validate:"required"`
+
+	// The resource type.
+	ResourceType *string `json:"resource_type" validate:"required"`
+
+	Subnet *SubnetReference `json:"subnet" validate:"required"`
+}
+
+// Constants associated with the ReservedIPReferenceVPNGatewayMemberContext.ResourceType property.
+// The resource type.
+const (
+	ReservedIPReferenceVPNGatewayMemberContextResourceTypeSubnetReservedIPConst = "subnet_reserved_ip"
+)
+
+// UnmarshalReservedIPReferenceVPNGatewayMemberContext unmarshals an instance of ReservedIPReferenceVPNGatewayMemberContext from the specified map of raw messages.
+func UnmarshalReservedIPReferenceVPNGatewayMemberContext(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(ReservedIPReferenceVPNGatewayMemberContext)
+	err = core.UnmarshalPrimitive(m, "address", &obj.Address)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "address-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "deleted", &obj.Deleted, UnmarshalDeleted)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "deleted-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "href-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "id-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "resource_type-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "subnet", &obj.Subnet, UnmarshalSubnetReference)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "subnet-error", common.GetComponentInfo())
 		return
 	}
 	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
@@ -113355,6 +116475,44 @@ func (options *UpdatePrivatePathServiceGatewayOptions) SetHeaders(param map[stri
 	return options
 }
 
+// UpdatePublicAddressRangeAuthorizedCIDROptions : The UpdatePublicAddressRangeAuthorizedCIDR options.
+type UpdatePublicAddressRangeAuthorizedCIDROptions struct {
+	// The public address range authorized CIDR identifier.
+	ID *string `json:"id" validate:"required,ne="`
+
+	// The public address range authorized CIDR patch.
+	PublicAddressRangeAuthorizedCIDRPatch map[string]interface{} `json:"PublicAddressRangeAuthorizedCIDR_patch" validate:"required"`
+
+	// Allows users to set headers on API requests.
+	Headers map[string]string
+}
+
+// NewUpdatePublicAddressRangeAuthorizedCIDROptions : Instantiate UpdatePublicAddressRangeAuthorizedCIDROptions
+func (*VpcV1) NewUpdatePublicAddressRangeAuthorizedCIDROptions(id string, publicAddressRangeAuthorizedCIDRPatch map[string]interface{}) *UpdatePublicAddressRangeAuthorizedCIDROptions {
+	return &UpdatePublicAddressRangeAuthorizedCIDROptions{
+		ID:                                    core.StringPtr(id),
+		PublicAddressRangeAuthorizedCIDRPatch: publicAddressRangeAuthorizedCIDRPatch,
+	}
+}
+
+// SetID : Allow user to set ID
+func (_options *UpdatePublicAddressRangeAuthorizedCIDROptions) SetID(id string) *UpdatePublicAddressRangeAuthorizedCIDROptions {
+	_options.ID = core.StringPtr(id)
+	return _options
+}
+
+// SetPublicAddressRangeAuthorizedCIDRPatch : Allow user to set PublicAddressRangeAuthorizedCIDRPatch
+func (_options *UpdatePublicAddressRangeAuthorizedCIDROptions) SetPublicAddressRangeAuthorizedCIDRPatch(publicAddressRangeAuthorizedCIDRPatch map[string]interface{}) *UpdatePublicAddressRangeAuthorizedCIDROptions {
+	_options.PublicAddressRangeAuthorizedCIDRPatch = publicAddressRangeAuthorizedCIDRPatch
+	return _options
+}
+
+// SetHeaders : Allow user to set Headers
+func (options *UpdatePublicAddressRangeAuthorizedCIDROptions) SetHeaders(param map[string]string) *UpdatePublicAddressRangeAuthorizedCIDROptions {
+	options.Headers = param
+	return options
+}
+
 // UpdatePublicAddressRangeOptions : The UpdatePublicAddressRange options.
 type UpdatePublicAddressRangeOptions struct {
 	// The public address range identifier.
@@ -116206,8 +119364,8 @@ func UnmarshalVPCRemote(m map[string]json.RawMessage, result interface{}) (err e
 
 // VPNGateway : VPNGateway struct
 // Models which "extend" this model:
-// - VPNGatewayPolicyMode
-// - VPNGatewayRouteMode
+// - VPNGatewayRegionalAvailabilityMode
+// - VPNGatewayZonalAvailabilityMode
 type VPNGateway struct {
 	// The connections for this VPN gateway.
 	Connections []VPNGatewayConnectionReference `json:"connections" validate:"required"`
@@ -116254,13 +119412,15 @@ type VPNGateway struct {
 	// The resource type.
 	ResourceType *string `json:"resource_type" validate:"required"`
 
-	Subnet *SubnetReference `json:"subnet" validate:"required"`
+	Subnet *SubnetReference `json:"subnet,omitempty"`
 
 	// The VPC this VPN gateway resides in.
 	VPC *VPCReference `json:"vpc" validate:"required"`
 
-	// The mode for this VPN gateway.
-	Mode *string `json:"mode,omitempty"`
+	// The availability mode of the VPN gateway:
+	// - `regional`: The VPN gateway is deployed across multiple zones in the region. This mode
+	//   provides zone-level redundancy.
+	AvailabilityMode *string `json:"availability_mode,omitempty"`
 
 	// The static CIDRs advertised through any enabled routing protocol (for example, BGP). The routing protocol will
 	// advertise routes with these CIDRs as route destinations.
@@ -116268,6 +119428,9 @@ type VPNGateway struct {
 
 	// The local autonomous system number (ASN) for this VPN gateway and its connections.
 	LocalAsn *int64 `json:"local_asn,omitempty"`
+
+	// The mode for this VPN gateway.
+	Mode *string `json:"mode,omitempty"`
 }
 
 // Constants associated with the VPNGateway.HealthState property.
@@ -116303,10 +119466,18 @@ const (
 	VPNGatewayResourceTypeVPNGatewayConst = "vpn_gateway"
 )
 
+// Constants associated with the VPNGateway.AvailabilityMode property.
+// The availability mode of the VPN gateway:
+//   - `regional`: The VPN gateway is deployed across multiple zones in the region. This mode
+//     provides zone-level redundancy.
+const (
+	VPNGatewayAvailabilityModeRegionalConst = "regional"
+)
+
 // Constants associated with the VPNGateway.Mode property.
 // The mode for this VPN gateway.
 const (
-	VPNGatewayModePolicyConst = "policy"
+	VPNGatewayModeRouteConst = "route"
 )
 
 func (*VPNGateway) isaVPNGateway() bool {
@@ -116395,9 +119566,9 @@ func UnmarshalVPNGateway(m map[string]json.RawMessage, result interface{}) (err 
 		err = core.SDKErrorf(err, "", "vpc-error", common.GetComponentInfo())
 		return
 	}
-	err = core.UnmarshalPrimitive(m, "mode", &obj.Mode)
+	err = core.UnmarshalPrimitive(m, "availability_mode", &obj.AvailabilityMode)
 	if err != nil {
-		err = core.SDKErrorf(err, "", "mode-error", common.GetComponentInfo())
+		err = core.SDKErrorf(err, "", "availability_mode-error", common.GetComponentInfo())
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "advertised_cidrs", &obj.AdvertisedCIDRs)
@@ -116408,6 +119579,11 @@ func UnmarshalVPNGateway(m map[string]json.RawMessage, result interface{}) (err 
 	err = core.UnmarshalPrimitive(m, "local_asn", &obj.LocalAsn)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "local_asn-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "mode", &obj.Mode)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "mode-error", common.GetComponentInfo())
 		return
 	}
 	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
@@ -116564,8 +119740,13 @@ type VPNGatewayConnection struct {
 	StatusReasons []VPNGatewayConnectionStatusReason `json:"status_reasons" validate:"required"`
 
 	// Indicates whether the traffic is distributed between the `up` tunnels of the VPN gateway connection when the VPC
-	// route's next hop is a VPN connection. If `false`, the traffic is only routed through the `up` tunnel with the lower
-	// `public_ip` address.
+	// route's next hop is a VPN connection.
+	//
+	// For a `zonal` VPN gateway, if `false`, the traffic is only routed through the `up` tunnel with the lower `public_ip`
+	// address.
+	//
+	// For a `regional` VPN gateway, if `true`, traffic is distributed across both VPN members (ECMP mode). If `false`,
+	// only the first member of the VPN gateway handles all the traffic (deterministic mode).
 	DistributeTraffic *bool `json:"distribute_traffic,omitempty"`
 
 	Local *VPNGatewayConnectionStaticRouteModeLocal `json:"local,omitempty"`
@@ -117452,8 +120633,15 @@ type VPNGatewayConnectionPatch struct {
 	DeadPeerDetection *VPNGatewayConnectionDpdPatch `json:"dead_peer_detection,omitempty"`
 
 	// Indicates whether the traffic is distributed between the `up` tunnels of the VPN gateway connection when the VPC
-	// route's next hop is a VPN connection. If `false`, the traffic is only routed through the `up` tunnel with the lower
-	// `public_ip` address. Before enabling it on VPN connections to on-prem private networks, review
+	// route's next hop is a VPN connection.
+	//
+	// For a `zonal` VPN gateway, if `false`, the traffic is only routed through the `up` tunnel with the lower `public_ip`
+	// address.
+	//
+	// For a `regional` VPN gateway, if `true`, traffic is distributed across both VPN members (ECMP mode). If `false`,
+	// only the first member of the VPN gateway handles all the traffic (deterministic mode).
+	//
+	// Before enabling it on VPN connections to on-prem private networks, review
 	// [distributing traffic
 	// restrictions](https://cloud.ibm.com/docs/vpc?topic=vpc-vpn-limitations#distributing-traffic-restrictions).
 	//
@@ -117927,8 +121115,15 @@ type VPNGatewayConnectionPrototype struct {
 	Psk *string `json:"psk" validate:"required"`
 
 	// Indicates whether the traffic is distributed between the `up` tunnels of the VPN gateway connection when the VPC
-	// route's next hop is a VPN connection. If `false`, the traffic is only routed through the `up` tunnel with the lower
-	// `public_ip` address. Before enabling it on VPN connections to on-prem private networks, review
+	// route's next hop is a VPN connection.
+	//
+	// For a `zonal` VPN gateway, if `false`, the traffic is only routed through the `up` tunnel with the lower `public_ip`
+	// address.
+	//
+	// For a `regional` VPN gateway, if `true`, traffic is distributed across both VPN members (ECMP mode). If `false`,
+	// only the first member of the VPN gateway handles all the traffic (deterministic mode).
+	//
+	// Before enabling it on VPN connections to on-prem private networks, review
 	// [distributing traffic
 	// restrictions](https://cloud.ibm.com/docs/vpc?topic=vpc-vpn-limitations#distributing-traffic-restrictions).
 	DistributeTraffic *bool `json:"distribute_traffic,omitempty"`
@@ -118640,6 +121835,12 @@ type VPNGatewayMember struct {
 	//    health state of `inapplicable`. A `pending` resource may also have this state.
 	HealthState *string `json:"health_state" validate:"required"`
 
+	// The URL for this VPN gateway member.
+	Href *string `json:"href,omitempty"`
+
+	// The unique identifier for this VPN gateway member.
+	ID *string `json:"id,omitempty"`
+
 	// The reasons for the current `lifecycle_state` (if any).
 	LifecycleReasons []VPNGatewayMemberLifecycleReason `json:"lifecycle_reasons" validate:"required"`
 
@@ -118649,7 +121850,7 @@ type VPNGatewayMember struct {
 	// The reserved IP address assigned to the VPN gateway member.
 	//
 	// This property will be present only when the VPN gateway status is `available`.
-	PrivateIP *ReservedIPReference `json:"private_ip" validate:"required"`
+	PrivateIP *ReservedIPReferenceVPNGatewayMemberContext `json:"private_ip" validate:"required"`
 
 	// The public IP address assigned to the VPN gateway member.
 	PublicIP *IP `json:"public_ip" validate:"required"`
@@ -118711,6 +121912,16 @@ func UnmarshalVPNGatewayMember(m map[string]json.RawMessage, result interface{})
 		err = core.SDKErrorf(err, "", "health_state-error", common.GetComponentInfo())
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "href-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "id-error", common.GetComponentInfo())
+		return
+	}
 	err = core.UnmarshalModel(m, "lifecycle_reasons", &obj.LifecycleReasons, UnmarshalVPNGatewayMemberLifecycleReason)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "lifecycle_reasons-error", common.GetComponentInfo())
@@ -118721,7 +121932,7 @@ func UnmarshalVPNGatewayMember(m map[string]json.RawMessage, result interface{})
 		err = core.SDKErrorf(err, "", "lifecycle_state-error", common.GetComponentInfo())
 		return
 	}
-	err = core.UnmarshalModel(m, "private_ip", &obj.PrivateIP, UnmarshalReservedIPReference)
+	err = core.UnmarshalModel(m, "private_ip", &obj.PrivateIP, UnmarshalReservedIPReferenceVPNGatewayMemberContext)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "private_ip-error", common.GetComponentInfo())
 		return
@@ -118734,6 +121945,57 @@ func UnmarshalVPNGatewayMember(m map[string]json.RawMessage, result interface{})
 	err = core.UnmarshalPrimitive(m, "role", &obj.Role)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "role-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// VPNGatewayMemberCollection : VPNGatewayMemberCollection struct
+type VPNGatewayMemberCollection struct {
+	// A link to the first page of resources.
+	First *PageLink `json:"first" validate:"required"`
+
+	// The maximum number of resources that can be returned by the request.
+	Limit *int64 `json:"limit" validate:"required"`
+
+	// The members for the VPN gateway.
+	Members []VPNGatewayMember `json:"members" validate:"required"`
+
+	// A link to the next page of resources. This property is present for all pages
+	// except the last page.
+	Next *PageLink `json:"next,omitempty"`
+
+	// The total number of resources across all pages.
+	TotalCount *int64 `json:"total_count" validate:"required"`
+}
+
+// UnmarshalVPNGatewayMemberCollection unmarshals an instance of VPNGatewayMemberCollection from the specified map of raw messages.
+func UnmarshalVPNGatewayMemberCollection(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VPNGatewayMemberCollection)
+	err = core.UnmarshalModel(m, "first", &obj.First, UnmarshalPageLink)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "first-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "limit", &obj.Limit)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "limit-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "members", &obj.Members, UnmarshalVPNGatewayMember)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "members-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "next", &obj.Next, UnmarshalPageLink)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "next-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "total_count", &obj.TotalCount)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "total_count-error", common.GetComponentInfo())
 		return
 	}
 	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
@@ -118846,8 +122108,73 @@ func UnmarshalVPNGatewayMemberLifecycleReason(m map[string]json.RawMessage, resu
 	return
 }
 
+// VPNGatewayMemberPrivateIPPrototype : VPNGatewayMemberPrivateIPPrototype struct
+// Models which "extend" this model:
+// - VPNGatewayMemberPrivateIPPrototypeReservedIPPrototypeVPNGatewayContext
+type VPNGatewayMemberPrivateIPPrototype struct {
+	// Identifies a subnet by a unique property.
+	Subnet SubnetIdentityIntf `json:"subnet,omitempty"`
+}
+
+func (*VPNGatewayMemberPrivateIPPrototype) isaVPNGatewayMemberPrivateIPPrototype() bool {
+	return true
+}
+
+type VPNGatewayMemberPrivateIPPrototypeIntf interface {
+	isaVPNGatewayMemberPrivateIPPrototype() bool
+}
+
+// UnmarshalVPNGatewayMemberPrivateIPPrototype unmarshals an instance of VPNGatewayMemberPrivateIPPrototype from the specified map of raw messages.
+func UnmarshalVPNGatewayMemberPrivateIPPrototype(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VPNGatewayMemberPrivateIPPrototype)
+	err = core.UnmarshalModel(m, "subnet", &obj.Subnet, UnmarshalSubnetIdentity)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "subnet-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// VPNGatewayMemberPrototype : VPNGatewayMemberPrototype struct
+type VPNGatewayMemberPrototype struct {
+	// The identity of the subnet the VPN Gateway member will reside in.
+	//
+	// A reserved IP will be allocated from the specified `subnet` and assigned to the VPN
+	// gateway member.
+	PrivateIP VPNGatewayMemberPrivateIPPrototypeIntf `json:"private_ip" validate:"required"`
+}
+
+// NewVPNGatewayMemberPrototype : Instantiate VPNGatewayMemberPrototype (Generic Model Constructor)
+func (*VpcV1) NewVPNGatewayMemberPrototype(privateIP VPNGatewayMemberPrivateIPPrototypeIntf) (_model *VPNGatewayMemberPrototype, err error) {
+	_model = &VPNGatewayMemberPrototype{
+		PrivateIP: privateIP,
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "model-missing-required", common.GetComponentInfo())
+	}
+	return
+}
+
+// UnmarshalVPNGatewayMemberPrototype unmarshals an instance of VPNGatewayMemberPrototype from the specified map of raw messages.
+func UnmarshalVPNGatewayMemberPrototype(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VPNGatewayMemberPrototype)
+	err = core.UnmarshalModel(m, "private_ip", &obj.PrivateIP, UnmarshalVPNGatewayMemberPrivateIPPrototype)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "private_ip-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
 // VPNGatewayPatch : VPNGatewayPatch struct
 type VPNGatewayPatch struct {
+	// The VPN gateway availability mode. Supported by route mode VPN gateways. Cannot be updated to `zonal`.
+	// - `regional`: The VPN gateway will allow members in multiple zones in the region.
+	AvailabilityMode *string `json:"availability_mode,omitempty"`
+
 	// The local autonomous system number (ASN) for this VPN gateway and its connections. The ASN values in the
 	// [restricted ASN list](
 	// https://cloud.ibm.com/docs/vpc?topic=vpc-planning-considerations-vpn#dynamic-route-based-considerations) are
@@ -118858,9 +122185,21 @@ type VPNGatewayPatch struct {
 	Name *string `json:"name,omitempty"`
 }
 
+// Constants associated with the VPNGatewayPatch.AvailabilityMode property.
+// The VPN gateway availability mode. Supported by route mode VPN gateways. Cannot be updated to `zonal`.
+// - `regional`: The VPN gateway will allow members in multiple zones in the region.
+const (
+	VPNGatewayPatchAvailabilityModeRegionalConst = "regional"
+)
+
 // UnmarshalVPNGatewayPatch unmarshals an instance of VPNGatewayPatch from the specified map of raw messages.
 func UnmarshalVPNGatewayPatch(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(VPNGatewayPatch)
+	err = core.UnmarshalPrimitive(m, "availability_mode", &obj.AvailabilityMode)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "availability_mode-error", common.GetComponentInfo())
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "local_asn", &obj.LocalAsn)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "local_asn-error", common.GetComponentInfo())
@@ -118878,6 +122217,9 @@ func UnmarshalVPNGatewayPatch(m map[string]json.RawMessage, result interface{}) 
 // AsPatch returns a generic map representation of the VPNGatewayPatch
 func (vpnGatewayPatch *VPNGatewayPatch) AsPatch() (_patch map[string]interface{}, err error) {
 	_patch = map[string]interface{}{}
+	if !core.IsNil(vpnGatewayPatch.AvailabilityMode) {
+		_patch["availability_mode"] = vpnGatewayPatch.AvailabilityMode
+	}
 	if !core.IsNil(vpnGatewayPatch.LocalAsn) {
 		_patch["local_asn"] = vpnGatewayPatch.LocalAsn
 	}
@@ -118890,9 +122232,17 @@ func (vpnGatewayPatch *VPNGatewayPatch) AsPatch() (_patch map[string]interface{}
 
 // VPNGatewayPrototype : VPNGatewayPrototype struct
 // Models which "extend" this model:
-// - VPNGatewayPrototypeVPNGatewayRouteModePrototype
-// - VPNGatewayPrototypeVPNGatewayPolicyModePrototype
+// - VPNGatewayPrototypeVPNGatewayRegionalAvailabilityModeByMember
+// - VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeBySubnet
+// - VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeByMember
 type VPNGatewayPrototype struct {
+	// The availability mode of the VPN gateway:
+	// - `zonal`: The VPN gateway is deployed in a single zone in the region. Availability is
+	//   limited to that zone.
+	// - `regional`: The VPN gateway is deployed across multiple zones in the region. This mode
+	//   provides zone-level redundancy.
+	AvailabilityMode *string `json:"availability_mode,omitempty"`
+
 	// The name for this VPN gateway. The name must not be used by another VPN gateway in the VPC. If unspecified, the name
 	// will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
@@ -118901,8 +122251,8 @@ type VPNGatewayPrototype struct {
 	// group](https://cloud.ibm.com/apidocs/resource-manager#introduction) will be used.
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 
-	// Identifies a subnet by a unique property.
-	Subnet SubnetIdentityIntf `json:"subnet" validate:"required"`
+	// The members to use for the VPN gateway.
+	Members []VPNGatewayMemberPrototype `json:"members,omitempty"`
 
 	// The static CIDRs advertised through any enabled routing protocol (for example, BGP). The routing protocol will
 	// advertise routes with these CIDRs as route destinations.
@@ -118916,7 +122266,21 @@ type VPNGatewayPrototype struct {
 
 	// The mode for this VPN gateway.
 	Mode *string `json:"mode,omitempty"`
+
+	// Identifies a subnet by a unique property.
+	Subnet SubnetIdentityIntf `json:"subnet,omitempty"`
 }
+
+// Constants associated with the VPNGatewayPrototype.AvailabilityMode property.
+// The availability mode of the VPN gateway:
+//   - `zonal`: The VPN gateway is deployed in a single zone in the region. Availability is
+//     limited to that zone.
+//   - `regional`: The VPN gateway is deployed across multiple zones in the region. This mode
+//     provides zone-level redundancy.
+const (
+	VPNGatewayPrototypeAvailabilityModeRegionalConst = "regional"
+	VPNGatewayPrototypeAvailabilityModeZonalConst    = "zonal"
+)
 
 // Constants associated with the VPNGatewayPrototype.Mode property.
 // The mode for this VPN gateway.
@@ -118935,6 +122299,11 @@ type VPNGatewayPrototypeIntf interface {
 // UnmarshalVPNGatewayPrototype unmarshals an instance of VPNGatewayPrototype from the specified map of raw messages.
 func UnmarshalVPNGatewayPrototype(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(VPNGatewayPrototype)
+	err = core.UnmarshalPrimitive(m, "availability_mode", &obj.AvailabilityMode)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "availability_mode-error", common.GetComponentInfo())
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
@@ -118945,9 +122314,9 @@ func UnmarshalVPNGatewayPrototype(m map[string]json.RawMessage, result interface
 		err = core.SDKErrorf(err, "", "resource_group-error", common.GetComponentInfo())
 		return
 	}
-	err = core.UnmarshalModel(m, "subnet", &obj.Subnet, UnmarshalSubnetIdentity)
+	err = core.UnmarshalModel(m, "members", &obj.Members, UnmarshalVPNGatewayMemberPrototype)
 	if err != nil {
-		err = core.SDKErrorf(err, "", "subnet-error", common.GetComponentInfo())
+		err = core.SDKErrorf(err, "", "members-error", common.GetComponentInfo())
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "advertised_cidrs", &obj.AdvertisedCIDRs)
@@ -118963,6 +122332,11 @@ func UnmarshalVPNGatewayPrototype(m map[string]json.RawMessage, result interface
 	err = core.UnmarshalPrimitive(m, "mode", &obj.Mode)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "mode-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "subnet", &obj.Subnet, UnmarshalSubnetIdentity)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "subnet-error", common.GetComponentInfo())
 		return
 	}
 	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
@@ -129737,7 +133111,7 @@ type BareMetalServerPrototypeBareMetalServerByNetworkAttachment struct {
 }
 
 // NewBareMetalServerPrototypeBareMetalServerByNetworkAttachment : Instantiate BareMetalServerPrototypeBareMetalServerByNetworkAttachment (Generic Model Constructor)
-func (*VpcV1) NewBareMetalServerPrototypeBareMetalServerByNetworkAttachment(initialization *BareMetalServerInitializationPrototype, profile BareMetalServerProfileIdentityIntf, zone ZoneIdentityIntf, primaryNetworkAttachment BareMetalServerPrimaryNetworkAttachmentPrototypeIntf) (_model *BareMetalServerPrototypeBareMetalServerByNetworkAttachment, err error) {
+func (*VpcV1) NewBareMetalServerPrototypeBareMetalServerByNetworkAttachment(initialization BareMetalServerInitializationPrototypeIntf, profile BareMetalServerProfileIdentityIntf, zone ZoneIdentityIntf, primaryNetworkAttachment BareMetalServerPrimaryNetworkAttachmentPrototypeIntf) (_model *BareMetalServerPrototypeBareMetalServerByNetworkAttachment, err error) {
 	_model = &BareMetalServerPrototypeBareMetalServerByNetworkAttachment{
 		Initialization:           initialization,
 		Profile:                  profile,
@@ -132104,30 +135478,17 @@ func UnmarshalEndpointGatewayTargetProviderInfrastructureServiceReference(m map[
 	return
 }
 
-// FloatingIPPrototypeFloatingIPByTarget : FloatingIPPrototypeFloatingIPByTarget struct
-// This model "extends" FloatingIPPrototype
-type FloatingIPPrototypeFloatingIPByTarget struct {
-	// The name for this floating IP. The name must not be used by another floating IP in the region. If unspecified, the
-	// name will be a hyphenated list of randomly-selected words.
-	Name *string `json:"name,omitempty"`
-
-	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
-
-	// The target resource to bind this floating IP to.
-	//
-	// The target resource must not already have a floating IP bound to it if the target
-	// resource is:
-	//
-	// - an instance network interface
-	// - a bare metal server network interface with `enable_infrastructure_nat` set to `true`
-	// - a virtual network interface with `enable_infrastructure_nat` set to `true`.
-	Target FloatingIPTargetPrototypeIntf `json:"target" validate:"required"`
+// FloatingIPIdentityLoadBalancerContextFloatingIPIdentityByCRN : FloatingIPIdentityLoadBalancerContextFloatingIPIdentityByCRN struct
+// This model "extends" FloatingIPIdentityLoadBalancerContext
+type FloatingIPIdentityLoadBalancerContextFloatingIPIdentityByCRN struct {
+	// The CRN for this floating IP.
+	CRN *string `json:"crn" validate:"required"`
 }
 
-// NewFloatingIPPrototypeFloatingIPByTarget : Instantiate FloatingIPPrototypeFloatingIPByTarget (Generic Model Constructor)
-func (*VpcV1) NewFloatingIPPrototypeFloatingIPByTarget(target FloatingIPTargetPrototypeIntf) (_model *FloatingIPPrototypeFloatingIPByTarget, err error) {
-	_model = &FloatingIPPrototypeFloatingIPByTarget{
-		Target: target,
+// NewFloatingIPIdentityLoadBalancerContextFloatingIPIdentityByCRN : Instantiate FloatingIPIdentityLoadBalancerContextFloatingIPIdentityByCRN (Generic Model Constructor)
+func (*VpcV1) NewFloatingIPIdentityLoadBalancerContextFloatingIPIdentityByCRN(crn string) (_model *FloatingIPIdentityLoadBalancerContextFloatingIPIdentityByCRN, err error) {
+	_model = &FloatingIPIdentityLoadBalancerContextFloatingIPIdentityByCRN{
+		CRN: core.StringPtr(crn),
 	}
 	err = core.ValidateStruct(_model, "required parameters")
 	if err != nil {
@@ -132136,49 +135497,43 @@ func (*VpcV1) NewFloatingIPPrototypeFloatingIPByTarget(target FloatingIPTargetPr
 	return
 }
 
-func (*FloatingIPPrototypeFloatingIPByTarget) isaFloatingIPPrototype() bool {
+func (*FloatingIPIdentityLoadBalancerContextFloatingIPIdentityByCRN) isaFloatingIPIdentityLoadBalancerContext() bool {
 	return true
 }
 
-// UnmarshalFloatingIPPrototypeFloatingIPByTarget unmarshals an instance of FloatingIPPrototypeFloatingIPByTarget from the specified map of raw messages.
-func UnmarshalFloatingIPPrototypeFloatingIPByTarget(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(FloatingIPPrototypeFloatingIPByTarget)
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+// UnmarshalFloatingIPIdentityLoadBalancerContextFloatingIPIdentityByCRN unmarshals an instance of FloatingIPIdentityLoadBalancerContextFloatingIPIdentityByCRN from the specified map of raw messages.
+func UnmarshalFloatingIPIdentityLoadBalancerContextFloatingIPIdentityByCRN(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(FloatingIPIdentityLoadBalancerContextFloatingIPIdentityByCRN)
+	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
 	if err != nil {
-		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
-		return
-	}
-	err = core.UnmarshalModel(m, "resource_group", &obj.ResourceGroup, UnmarshalResourceGroupIdentity)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "resource_group-error", common.GetComponentInfo())
-		return
-	}
-	err = core.UnmarshalModel(m, "target", &obj.Target, UnmarshalFloatingIPTargetPrototype)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "target-error", common.GetComponentInfo())
+		err = core.SDKErrorf(err, "", "crn-error", common.GetComponentInfo())
 		return
 	}
 	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
 	return
 }
 
-// FloatingIPPrototypeFloatingIPByZone : FloatingIPPrototypeFloatingIPByZone struct
-// This model "extends" FloatingIPPrototype
-type FloatingIPPrototypeFloatingIPByZone struct {
-	// The name for this floating IP. The name must not be used by another floating IP in the region. If unspecified, the
-	// name will be a hyphenated list of randomly-selected words.
-	Name *string `json:"name,omitempty"`
+// asPatch returns a generic map representation of the FloatingIPIdentityLoadBalancerContextFloatingIPIdentityByCRN
+func (floatingIPIdentityLoadBalancerContextFloatingIPIdentityByCRN *FloatingIPIdentityLoadBalancerContextFloatingIPIdentityByCRN) asPatch() (_patch map[string]interface{}) {
+	_patch = map[string]interface{}{}
+	if !core.IsNil(floatingIPIdentityLoadBalancerContextFloatingIPIdentityByCRN.CRN) {
+		_patch["crn"] = floatingIPIdentityLoadBalancerContextFloatingIPIdentityByCRN.CRN
+	}
 
-	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
-
-	// The zone this floating IP will reside in.
-	Zone ZoneIdentityIntf `json:"zone" validate:"required"`
+	return
 }
 
-// NewFloatingIPPrototypeFloatingIPByZone : Instantiate FloatingIPPrototypeFloatingIPByZone (Generic Model Constructor)
-func (*VpcV1) NewFloatingIPPrototypeFloatingIPByZone(zone ZoneIdentityIntf) (_model *FloatingIPPrototypeFloatingIPByZone, err error) {
-	_model = &FloatingIPPrototypeFloatingIPByZone{
-		Zone: zone,
+// FloatingIPIdentityLoadBalancerContextFloatingIPIdentityByHref : FloatingIPIdentityLoadBalancerContextFloatingIPIdentityByHref struct
+// This model "extends" FloatingIPIdentityLoadBalancerContext
+type FloatingIPIdentityLoadBalancerContextFloatingIPIdentityByHref struct {
+	// The URL for this floating IP.
+	Href *string `json:"href" validate:"required"`
+}
+
+// NewFloatingIPIdentityLoadBalancerContextFloatingIPIdentityByHref : Instantiate FloatingIPIdentityLoadBalancerContextFloatingIPIdentityByHref (Generic Model Constructor)
+func (*VpcV1) NewFloatingIPIdentityLoadBalancerContextFloatingIPIdentityByHref(href string) (_model *FloatingIPIdentityLoadBalancerContextFloatingIPIdentityByHref, err error) {
+	_model = &FloatingIPIdentityLoadBalancerContextFloatingIPIdentityByHref{
+		Href: core.StringPtr(href),
 	}
 	err = core.ValidateStruct(_model, "required parameters")
 	if err != nil {
@@ -132187,29 +135542,74 @@ func (*VpcV1) NewFloatingIPPrototypeFloatingIPByZone(zone ZoneIdentityIntf) (_mo
 	return
 }
 
-func (*FloatingIPPrototypeFloatingIPByZone) isaFloatingIPPrototype() bool {
+func (*FloatingIPIdentityLoadBalancerContextFloatingIPIdentityByHref) isaFloatingIPIdentityLoadBalancerContext() bool {
 	return true
 }
 
-// UnmarshalFloatingIPPrototypeFloatingIPByZone unmarshals an instance of FloatingIPPrototypeFloatingIPByZone from the specified map of raw messages.
-func UnmarshalFloatingIPPrototypeFloatingIPByZone(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(FloatingIPPrototypeFloatingIPByZone)
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+// UnmarshalFloatingIPIdentityLoadBalancerContextFloatingIPIdentityByHref unmarshals an instance of FloatingIPIdentityLoadBalancerContextFloatingIPIdentityByHref from the specified map of raw messages.
+func UnmarshalFloatingIPIdentityLoadBalancerContextFloatingIPIdentityByHref(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(FloatingIPIdentityLoadBalancerContextFloatingIPIdentityByHref)
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
 	if err != nil {
-		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
-		return
-	}
-	err = core.UnmarshalModel(m, "resource_group", &obj.ResourceGroup, UnmarshalResourceGroupIdentity)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "resource_group-error", common.GetComponentInfo())
-		return
-	}
-	err = core.UnmarshalModel(m, "zone", &obj.Zone, UnmarshalZoneIdentity)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "zone-error", common.GetComponentInfo())
+		err = core.SDKErrorf(err, "", "href-error", common.GetComponentInfo())
 		return
 	}
 	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// asPatch returns a generic map representation of the FloatingIPIdentityLoadBalancerContextFloatingIPIdentityByHref
+func (floatingIPIdentityLoadBalancerContextFloatingIPIdentityByHref *FloatingIPIdentityLoadBalancerContextFloatingIPIdentityByHref) asPatch() (_patch map[string]interface{}) {
+	_patch = map[string]interface{}{}
+	if !core.IsNil(floatingIPIdentityLoadBalancerContextFloatingIPIdentityByHref.Href) {
+		_patch["href"] = floatingIPIdentityLoadBalancerContextFloatingIPIdentityByHref.Href
+	}
+
+	return
+}
+
+// FloatingIPIdentityLoadBalancerContextFloatingIPIdentityByID : FloatingIPIdentityLoadBalancerContextFloatingIPIdentityByID struct
+// This model "extends" FloatingIPIdentityLoadBalancerContext
+type FloatingIPIdentityLoadBalancerContextFloatingIPIdentityByID struct {
+	// The unique identifier for this floating IP.
+	ID *string `json:"id" validate:"required"`
+}
+
+// NewFloatingIPIdentityLoadBalancerContextFloatingIPIdentityByID : Instantiate FloatingIPIdentityLoadBalancerContextFloatingIPIdentityByID (Generic Model Constructor)
+func (*VpcV1) NewFloatingIPIdentityLoadBalancerContextFloatingIPIdentityByID(id string) (_model *FloatingIPIdentityLoadBalancerContextFloatingIPIdentityByID, err error) {
+	_model = &FloatingIPIdentityLoadBalancerContextFloatingIPIdentityByID{
+		ID: core.StringPtr(id),
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "model-missing-required", common.GetComponentInfo())
+	}
+	return
+}
+
+func (*FloatingIPIdentityLoadBalancerContextFloatingIPIdentityByID) isaFloatingIPIdentityLoadBalancerContext() bool {
+	return true
+}
+
+// UnmarshalFloatingIPIdentityLoadBalancerContextFloatingIPIdentityByID unmarshals an instance of FloatingIPIdentityLoadBalancerContextFloatingIPIdentityByID from the specified map of raw messages.
+func UnmarshalFloatingIPIdentityLoadBalancerContextFloatingIPIdentityByID(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(FloatingIPIdentityLoadBalancerContextFloatingIPIdentityByID)
+	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "id-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// asPatch returns a generic map representation of the FloatingIPIdentityLoadBalancerContextFloatingIPIdentityByID
+func (floatingIPIdentityLoadBalancerContextFloatingIPIdentityByID *FloatingIPIdentityLoadBalancerContextFloatingIPIdentityByID) asPatch() (_patch map[string]interface{}) {
+	_patch = map[string]interface{}{}
+	if !core.IsNil(floatingIPIdentityLoadBalancerContextFloatingIPIdentityByID.ID) {
+		_patch["id"] = floatingIPIdentityLoadBalancerContextFloatingIPIdentityByID.ID
+	}
+
 	return
 }
 
@@ -145561,142 +148961,6 @@ func UnmarshalLoadBalancerPublicIPAddress(m map[string]json.RawMessage, result i
 	return
 }
 
-// LoadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContext : Identifies a floating IP by a unique property.
-// Models which "extend" this model:
-// - LoadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContextFloatingIPIdentityLoadBalancerContextFloatingIPIdentityByID
-// - LoadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContextFloatingIPIdentityLoadBalancerContextFloatingIPIdentityByCRN
-// - LoadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContextFloatingIPIdentityLoadBalancerContextFloatingIPIdentityByHref
-// This model "extends" LoadBalancerPublicIPIdentity
-type LoadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContext struct {
-	// The unique identifier for this floating IP.
-	ID *string `json:"id,omitempty"`
-
-	// The CRN for this floating IP.
-	CRN *string `json:"crn,omitempty"`
-
-	// The URL for this floating IP.
-	Href *string `json:"href,omitempty"`
-}
-
-func (*LoadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContext) isaLoadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContext() bool {
-	return true
-}
-
-type LoadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContextIntf interface {
-	LoadBalancerPublicIPIdentityIntf
-	isaLoadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContext() bool
-}
-
-func (*LoadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContext) isaLoadBalancerPublicIPIdentity() bool {
-	return true
-}
-
-// UnmarshalLoadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContext unmarshals an instance of LoadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContext from the specified map of raw messages.
-func UnmarshalLoadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContext(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(LoadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContext)
-	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "id-error", common.GetComponentInfo())
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "crn-error", common.GetComponentInfo())
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "href-error", common.GetComponentInfo())
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// asPatch returns a generic map representation of the LoadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContext
-func (loadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContext *LoadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContext) asPatch() (_patch map[string]interface{}) {
-	_patch = map[string]interface{}{}
-	if !core.IsNil(loadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContext.ID) {
-		_patch["id"] = loadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContext.ID
-	}
-	if !core.IsNil(loadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContext.CRN) {
-		_patch["crn"] = loadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContext.CRN
-	}
-	if !core.IsNil(loadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContext.Href) {
-		_patch["href"] = loadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContext.Href
-	}
-
-	return
-}
-
-// LoadBalancerPublicIPIdentityPublicAddressRangeIdentity : LoadBalancerPublicIPIdentityPublicAddressRangeIdentity struct
-// Models which "extend" this model:
-// - LoadBalancerPublicIPIdentityPublicAddressRangeIdentityPublicAddressRangeIdentityByID
-// - LoadBalancerPublicIPIdentityPublicAddressRangeIdentityPublicAddressRangeIdentityByCRN
-// - LoadBalancerPublicIPIdentityPublicAddressRangeIdentityPublicAddressRangeIdentityByHref
-// This model "extends" LoadBalancerPublicIPIdentity
-type LoadBalancerPublicIPIdentityPublicAddressRangeIdentity struct {
-	// The unique identifier for this public address range.
-	ID *string `json:"id,omitempty"`
-
-	// The CRN for this public address range.
-	CRN *string `json:"crn,omitempty"`
-
-	// The URL for this public address range.
-	Href *string `json:"href,omitempty"`
-}
-
-func (*LoadBalancerPublicIPIdentityPublicAddressRangeIdentity) isaLoadBalancerPublicIPIdentityPublicAddressRangeIdentity() bool {
-	return true
-}
-
-type LoadBalancerPublicIPIdentityPublicAddressRangeIdentityIntf interface {
-	LoadBalancerPublicIPIdentityIntf
-	isaLoadBalancerPublicIPIdentityPublicAddressRangeIdentity() bool
-}
-
-func (*LoadBalancerPublicIPIdentityPublicAddressRangeIdentity) isaLoadBalancerPublicIPIdentity() bool {
-	return true
-}
-
-// UnmarshalLoadBalancerPublicIPIdentityPublicAddressRangeIdentity unmarshals an instance of LoadBalancerPublicIPIdentityPublicAddressRangeIdentity from the specified map of raw messages.
-func UnmarshalLoadBalancerPublicIPIdentityPublicAddressRangeIdentity(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(LoadBalancerPublicIPIdentityPublicAddressRangeIdentity)
-	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "id-error", common.GetComponentInfo())
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "crn-error", common.GetComponentInfo())
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "href-error", common.GetComponentInfo())
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// asPatch returns a generic map representation of the LoadBalancerPublicIPIdentityPublicAddressRangeIdentity
-func (loadBalancerPublicIPIdentityPublicAddressRangeIdentity *LoadBalancerPublicIPIdentityPublicAddressRangeIdentity) asPatch() (_patch map[string]interface{}) {
-	_patch = map[string]interface{}{}
-	if !core.IsNil(loadBalancerPublicIPIdentityPublicAddressRangeIdentity.ID) {
-		_patch["id"] = loadBalancerPublicIPIdentityPublicAddressRangeIdentity.ID
-	}
-	if !core.IsNil(loadBalancerPublicIPIdentityPublicAddressRangeIdentity.CRN) {
-		_patch["crn"] = loadBalancerPublicIPIdentityPublicAddressRangeIdentity.CRN
-	}
-	if !core.IsNil(loadBalancerPublicIPIdentityPublicAddressRangeIdentity.Href) {
-		_patch["href"] = loadBalancerPublicIPIdentityPublicAddressRangeIdentity.Href
-	}
-
-	return
-}
-
 // LoadBalancerPublicIPFloatingIPReference : LoadBalancerPublicIPFloatingIPReference struct
 // This model "extends" LoadBalancerPublicIP
 type LoadBalancerPublicIPFloatingIPReference struct {
@@ -145718,7 +148982,16 @@ type LoadBalancerPublicIPFloatingIPReference struct {
 
 	// The name for this floating IP. The name is unique across all floating IPs in the region.
 	Name *string `json:"name" validate:"required"`
+
+	// The resource type.
+	ResourceType *string `json:"resource_type" validate:"required"`
 }
+
+// Constants associated with the LoadBalancerPublicIPFloatingIPReference.ResourceType property.
+// The resource type.
+const (
+	LoadBalancerPublicIPFloatingIPReferenceResourceTypeFloatingIPConst = "floating_ip"
+)
 
 func (*LoadBalancerPublicIPFloatingIPReference) isaLoadBalancerPublicIP() bool {
 	return true
@@ -145757,6 +149030,11 @@ func UnmarshalLoadBalancerPublicIPFloatingIPReference(m map[string]json.RawMessa
 		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "resource_type-error", common.GetComponentInfo())
+		return
+	}
 	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
 	return
 }
@@ -145765,7 +149043,7 @@ func UnmarshalLoadBalancerPublicIPFloatingIPReference(m map[string]json.RawMessa
 // This model "extends" LoadBalancerPublicIP
 type LoadBalancerPublicIPPublicAddressRangeReference struct {
 	// The public IP address block for this public address range, expressed in CIDR format.
-	CIDR *string `json:"cidr,omitempty"`
+	CIDR *string `json:"cidr" validate:"required"`
 
 	// The CRN for this public address range.
 	CRN *string `json:"crn" validate:"required"`
@@ -151397,6 +154675,162 @@ func UnmarshalOperatingSystemIdentityByName(m map[string]json.RawMessage, result
 	return
 }
 
+// PublicAddressRangeAuthorizedCIDRAllocationItemFloatingIPReference : PublicAddressRangeAuthorizedCIDRAllocationItemFloatingIPReference struct
+// This model "extends" PublicAddressRangeAuthorizedCIDRAllocationItem
+type PublicAddressRangeAuthorizedCIDRAllocationItemFloatingIPReference struct {
+	// The globally unique IP address.
+	Address *string `json:"address" validate:"required"`
+
+	// The CRN for this floating IP.
+	CRN *string `json:"crn" validate:"required"`
+
+	// If present, this property indicates the referenced resource has been deleted, and provides
+	// some supplementary information.
+	Deleted *Deleted `json:"deleted,omitempty"`
+
+	// The URL for this floating IP.
+	Href *string `json:"href" validate:"required"`
+
+	// The unique identifier for this floating IP.
+	ID *string `json:"id" validate:"required"`
+
+	// The name for this floating IP. The name is unique across all floating IPs in the region.
+	Name *string `json:"name" validate:"required"`
+
+	// The resource type.
+	ResourceType *string `json:"resource_type" validate:"required"`
+}
+
+// Constants associated with the PublicAddressRangeAuthorizedCIDRAllocationItemFloatingIPReference.ResourceType property.
+// The resource type.
+const (
+	PublicAddressRangeAuthorizedCIDRAllocationItemFloatingIPReferenceResourceTypeFloatingIPConst = "floating_ip"
+)
+
+func (*PublicAddressRangeAuthorizedCIDRAllocationItemFloatingIPReference) isaPublicAddressRangeAuthorizedCIDRAllocationItem() bool {
+	return true
+}
+
+// UnmarshalPublicAddressRangeAuthorizedCIDRAllocationItemFloatingIPReference unmarshals an instance of PublicAddressRangeAuthorizedCIDRAllocationItemFloatingIPReference from the specified map of raw messages.
+func UnmarshalPublicAddressRangeAuthorizedCIDRAllocationItemFloatingIPReference(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(PublicAddressRangeAuthorizedCIDRAllocationItemFloatingIPReference)
+	err = core.UnmarshalPrimitive(m, "address", &obj.Address)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "address-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "crn-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "deleted", &obj.Deleted, UnmarshalDeleted)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "deleted-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "href-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "id-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "resource_type-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// PublicAddressRangeAuthorizedCIDRAllocationItemPublicAddressRangeReference : PublicAddressRangeAuthorizedCIDRAllocationItemPublicAddressRangeReference struct
+// This model "extends" PublicAddressRangeAuthorizedCIDRAllocationItem
+type PublicAddressRangeAuthorizedCIDRAllocationItemPublicAddressRangeReference struct {
+	// The public IP address block for this public address range, expressed in CIDR format.
+	CIDR *string `json:"cidr" validate:"required"`
+
+	// The CRN for this public address range.
+	CRN *string `json:"crn" validate:"required"`
+
+	// If present, this property indicates the referenced resource has been deleted, and provides
+	// some supplementary information.
+	Deleted *Deleted `json:"deleted,omitempty"`
+
+	// The URL for this public address range.
+	Href *string `json:"href" validate:"required"`
+
+	// The unique identifier for this public address range.
+	ID *string `json:"id" validate:"required"`
+
+	// The name for this public address range. The name is unique across all public address ranges in the region.
+	Name *string `json:"name" validate:"required"`
+
+	// The resource type.
+	ResourceType *string `json:"resource_type" validate:"required"`
+}
+
+// Constants associated with the PublicAddressRangeAuthorizedCIDRAllocationItemPublicAddressRangeReference.ResourceType property.
+// The resource type.
+const (
+	PublicAddressRangeAuthorizedCIDRAllocationItemPublicAddressRangeReferenceResourceTypePublicAddressRangeConst = "public_address_range"
+)
+
+func (*PublicAddressRangeAuthorizedCIDRAllocationItemPublicAddressRangeReference) isaPublicAddressRangeAuthorizedCIDRAllocationItem() bool {
+	return true
+}
+
+// UnmarshalPublicAddressRangeAuthorizedCIDRAllocationItemPublicAddressRangeReference unmarshals an instance of PublicAddressRangeAuthorizedCIDRAllocationItemPublicAddressRangeReference from the specified map of raw messages.
+func UnmarshalPublicAddressRangeAuthorizedCIDRAllocationItemPublicAddressRangeReference(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(PublicAddressRangeAuthorizedCIDRAllocationItemPublicAddressRangeReference)
+	err = core.UnmarshalPrimitive(m, "cidr", &obj.CIDR)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "cidr-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "crn-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "deleted", &obj.Deleted, UnmarshalDeleted)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "deleted-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "href-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "id-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "resource_type-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
 // PublicAddressRangeAuthorizedCIDRIdentityByCRN : PublicAddressRangeAuthorizedCIDRIdentityByCRN struct
 // This model "extends" PublicAddressRangeAuthorizedCIDRIdentity
 type PublicAddressRangeAuthorizedCIDRIdentityByCRN struct {
@@ -151538,13 +154972,359 @@ func UnmarshalPublicAddressRangeAuthorizedCIDRIdentityByName(m map[string]json.R
 	return
 }
 
+// PublicAddressRangeAuthorizedCIDRPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototype : PublicAddressRangeAuthorizedCIDRPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototype struct
+// Models which "extend" this model:
+// - PublicAddressRangeAuthorizedCIDRPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototypePublicAddressRangeAuthorizedCIDRByNetworkPrefixLength
+// This model "extends" PublicAddressRangeAuthorizedCIDRPrototype
+type PublicAddressRangeAuthorizedCIDRPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototype struct {
+	// The IP version for this public address range authorized CIDR:
+	// - `ipv6`: An IPv6 public address range authorized CIDR.
+	IPVersion *string `json:"ip_version" validate:"required"`
+
+	// The name for this public address range authorized CIDR. The name must not be used by another public address range
+	// authorized CIDR in the region. Names beginning with
+	// `ibm-` are reserved for provider-managed resources, and are not allowed.
+	//
+	// If unspecified, the name will be a hyphenated list of randomly-selected words.
+	Name *string `json:"name,omitempty"`
+
+	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
+
+	// The availability mode of the public address range authorized CIDR:
+	// - `zonal`: Resources allocated from the authorized CIDR must reside in the authorized
+	//   CIDR's `zone`.
+	AvailabilityMode *string `json:"availability_mode" validate:"required"`
+
+	// The zone this public address range authorized CIDR will reside in.
+	Zone ZoneIdentityIntf `json:"zone" validate:"required"`
+
+	// The network prefix length for this public address range authorized CIDR.
+	NetworkPrefixLength *int64 `json:"network_prefix_length,omitempty"`
+}
+
+// Constants associated with the PublicAddressRangeAuthorizedCIDRPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototype.IPVersion property.
+// The IP version for this public address range authorized CIDR:
+// - `ipv6`: An IPv6 public address range authorized CIDR.
+const (
+	PublicAddressRangeAuthorizedCIDRPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototypeIPVersionIpv6Const = "ipv6"
+)
+
+// Constants associated with the PublicAddressRangeAuthorizedCIDRPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototype.AvailabilityMode property.
+// The availability mode of the public address range authorized CIDR:
+//   - `zonal`: Resources allocated from the authorized CIDR must reside in the authorized
+//     CIDR's `zone`.
+const (
+	PublicAddressRangeAuthorizedCIDRPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototypeAvailabilityModeZonalConst = "zonal"
+)
+
+func (*PublicAddressRangeAuthorizedCIDRPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototype) isaPublicAddressRangeAuthorizedCIDRPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototype() bool {
+	return true
+}
+
+type PublicAddressRangeAuthorizedCIDRPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototypeIntf interface {
+	PublicAddressRangeAuthorizedCIDRPrototypeIntf
+	isaPublicAddressRangeAuthorizedCIDRPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototype() bool
+}
+
+func (*PublicAddressRangeAuthorizedCIDRPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototype) isaPublicAddressRangeAuthorizedCIDRPrototype() bool {
+	return true
+}
+
+// UnmarshalPublicAddressRangeAuthorizedCIDRPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototype unmarshals an instance of PublicAddressRangeAuthorizedCIDRPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototype from the specified map of raw messages.
+func UnmarshalPublicAddressRangeAuthorizedCIDRPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototype(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(PublicAddressRangeAuthorizedCIDRPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototype)
+	err = core.UnmarshalPrimitive(m, "ip_version", &obj.IPVersion)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "ip_version-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "resource_group", &obj.ResourceGroup, UnmarshalResourceGroupIdentity)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "resource_group-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "availability_mode", &obj.AvailabilityMode)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "availability_mode-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "zone", &obj.Zone, UnmarshalZoneIdentity)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "zone-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "network_prefix_length", &obj.NetworkPrefixLength)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "network_prefix_length-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// PublicAddressRangeIdentityByCRN : PublicAddressRangeIdentityByCRN struct
+// This model "extends" PublicAddressRangeIdentity
+type PublicAddressRangeIdentityByCRN struct {
+	// The CRN for this public address range.
+	CRN *string `json:"crn" validate:"required"`
+}
+
+// NewPublicAddressRangeIdentityByCRN : Instantiate PublicAddressRangeIdentityByCRN (Generic Model Constructor)
+func (*VpcV1) NewPublicAddressRangeIdentityByCRN(crn string) (_model *PublicAddressRangeIdentityByCRN, err error) {
+	_model = &PublicAddressRangeIdentityByCRN{
+		CRN: core.StringPtr(crn),
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "model-missing-required", common.GetComponentInfo())
+	}
+	return
+}
+
+func (*PublicAddressRangeIdentityByCRN) isaPublicAddressRangeIdentity() bool {
+	return true
+}
+
+// UnmarshalPublicAddressRangeIdentityByCRN unmarshals an instance of PublicAddressRangeIdentityByCRN from the specified map of raw messages.
+func UnmarshalPublicAddressRangeIdentityByCRN(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(PublicAddressRangeIdentityByCRN)
+	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "crn-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// asPatch returns a generic map representation of the PublicAddressRangeIdentityByCRN
+func (publicAddressRangeIdentityByCRN *PublicAddressRangeIdentityByCRN) asPatch() (_patch map[string]interface{}) {
+	_patch = map[string]interface{}{}
+	if !core.IsNil(publicAddressRangeIdentityByCRN.CRN) {
+		_patch["crn"] = publicAddressRangeIdentityByCRN.CRN
+	}
+
+	return
+}
+
+// PublicAddressRangeIdentityByHref : PublicAddressRangeIdentityByHref struct
+// This model "extends" PublicAddressRangeIdentity
+type PublicAddressRangeIdentityByHref struct {
+	// The URL for this public address range.
+	Href *string `json:"href" validate:"required"`
+}
+
+// NewPublicAddressRangeIdentityByHref : Instantiate PublicAddressRangeIdentityByHref (Generic Model Constructor)
+func (*VpcV1) NewPublicAddressRangeIdentityByHref(href string) (_model *PublicAddressRangeIdentityByHref, err error) {
+	_model = &PublicAddressRangeIdentityByHref{
+		Href: core.StringPtr(href),
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "model-missing-required", common.GetComponentInfo())
+	}
+	return
+}
+
+func (*PublicAddressRangeIdentityByHref) isaPublicAddressRangeIdentity() bool {
+	return true
+}
+
+// UnmarshalPublicAddressRangeIdentityByHref unmarshals an instance of PublicAddressRangeIdentityByHref from the specified map of raw messages.
+func UnmarshalPublicAddressRangeIdentityByHref(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(PublicAddressRangeIdentityByHref)
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "href-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// asPatch returns a generic map representation of the PublicAddressRangeIdentityByHref
+func (publicAddressRangeIdentityByHref *PublicAddressRangeIdentityByHref) asPatch() (_patch map[string]interface{}) {
+	_patch = map[string]interface{}{}
+	if !core.IsNil(publicAddressRangeIdentityByHref.Href) {
+		_patch["href"] = publicAddressRangeIdentityByHref.Href
+	}
+
+	return
+}
+
+// PublicAddressRangeIdentityByID : PublicAddressRangeIdentityByID struct
+// This model "extends" PublicAddressRangeIdentity
+type PublicAddressRangeIdentityByID struct {
+	// The unique identifier for this public address range.
+	ID *string `json:"id" validate:"required"`
+}
+
+// NewPublicAddressRangeIdentityByID : Instantiate PublicAddressRangeIdentityByID (Generic Model Constructor)
+func (*VpcV1) NewPublicAddressRangeIdentityByID(id string) (_model *PublicAddressRangeIdentityByID, err error) {
+	_model = &PublicAddressRangeIdentityByID{
+		ID: core.StringPtr(id),
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "model-missing-required", common.GetComponentInfo())
+	}
+	return
+}
+
+func (*PublicAddressRangeIdentityByID) isaPublicAddressRangeIdentity() bool {
+	return true
+}
+
+// UnmarshalPublicAddressRangeIdentityByID unmarshals an instance of PublicAddressRangeIdentityByID from the specified map of raw messages.
+func UnmarshalPublicAddressRangeIdentityByID(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(PublicAddressRangeIdentityByID)
+	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "id-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// asPatch returns a generic map representation of the PublicAddressRangeIdentityByID
+func (publicAddressRangeIdentityByID *PublicAddressRangeIdentityByID) asPatch() (_patch map[string]interface{}) {
+	_patch = map[string]interface{}{}
+	if !core.IsNil(publicAddressRangeIdentityByID.ID) {
+		_patch["id"] = publicAddressRangeIdentityByID.ID
+	}
+
+	return
+}
+
+// PublicAddressRangePrototypePublicAddressRangeByCIDR : The public IP range for this public address range, expressed in CIDR format. The host identifier in the CIDR must be
+// zero. The CIDR must be an unallocated range in a public address range authorized CIDR.
+// This model "extends" PublicAddressRangePrototype
+type PublicAddressRangePrototypePublicAddressRangeByCIDR struct {
+	// The name for this public address range. The name must not be used by another public address range in the region.
+	// Names starting with `ibm-` are reserved for provider-managed resources, and are not allowed. If unspecified, the
+	// name will be a hyphenated list of randomly-selected words.
+	Name *string `json:"name,omitempty"`
+
+	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
+
+	Target PublicAddressRangeTargetPrototypeIntf `json:"target,omitempty"`
+
+	// The public IP address block for this public address range, expressed in CIDR format.
+	CIDR *string `json:"cidr" validate:"required"`
+}
+
+// NewPublicAddressRangePrototypePublicAddressRangeByCIDR : Instantiate PublicAddressRangePrototypePublicAddressRangeByCIDR (Generic Model Constructor)
+func (*VpcV1) NewPublicAddressRangePrototypePublicAddressRangeByCIDR(cidr string) (_model *PublicAddressRangePrototypePublicAddressRangeByCIDR, err error) {
+	_model = &PublicAddressRangePrototypePublicAddressRangeByCIDR{
+		CIDR: core.StringPtr(cidr),
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "model-missing-required", common.GetComponentInfo())
+	}
+	return
+}
+
+func (*PublicAddressRangePrototypePublicAddressRangeByCIDR) isaPublicAddressRangePrototype() bool {
+	return true
+}
+
+// UnmarshalPublicAddressRangePrototypePublicAddressRangeByCIDR unmarshals an instance of PublicAddressRangePrototypePublicAddressRangeByCIDR from the specified map of raw messages.
+func UnmarshalPublicAddressRangePrototypePublicAddressRangeByCIDR(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(PublicAddressRangePrototypePublicAddressRangeByCIDR)
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "resource_group", &obj.ResourceGroup, UnmarshalResourceGroupIdentity)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "resource_group-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "target", &obj.Target, UnmarshalPublicAddressRangeTargetPrototype)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "target-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "cidr", &obj.CIDR)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "cidr-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// PublicAddressRangePrototypePublicAddressRangeByIPv4AddressCount : The number of contiguous IPv4 addresses to allocate from IBM's pool of available public addresses for the region.
+// This model "extends" PublicAddressRangePrototype
+type PublicAddressRangePrototypePublicAddressRangeByIPv4AddressCount struct {
+	// The name for this public address range. The name must not be used by another public address range in the region.
+	// Names starting with `ibm-` are reserved for provider-managed resources, and are not allowed. If unspecified, the
+	// name will be a hyphenated list of randomly-selected words.
+	Name *string `json:"name,omitempty"`
+
+	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
+
+	Target PublicAddressRangeTargetPrototypeIntf `json:"target,omitempty"`
+
+	// The total number of public IPv4 addresses required. Must be a power of 2.
+	Ipv4AddressCount *int64 `json:"ipv4_address_count" validate:"required"`
+}
+
+// NewPublicAddressRangePrototypePublicAddressRangeByIPv4AddressCount : Instantiate PublicAddressRangePrototypePublicAddressRangeByIPv4AddressCount (Generic Model Constructor)
+func (*VpcV1) NewPublicAddressRangePrototypePublicAddressRangeByIPv4AddressCount(ipv4AddressCount int64) (_model *PublicAddressRangePrototypePublicAddressRangeByIPv4AddressCount, err error) {
+	_model = &PublicAddressRangePrototypePublicAddressRangeByIPv4AddressCount{
+		Ipv4AddressCount: core.Int64Ptr(ipv4AddressCount),
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "model-missing-required", common.GetComponentInfo())
+	}
+	return
+}
+
+func (*PublicAddressRangePrototypePublicAddressRangeByIPv4AddressCount) isaPublicAddressRangePrototype() bool {
+	return true
+}
+
+// UnmarshalPublicAddressRangePrototypePublicAddressRangeByIPv4AddressCount unmarshals an instance of PublicAddressRangePrototypePublicAddressRangeByIPv4AddressCount from the specified map of raw messages.
+func UnmarshalPublicAddressRangePrototypePublicAddressRangeByIPv4AddressCount(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(PublicAddressRangePrototypePublicAddressRangeByIPv4AddressCount)
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "resource_group", &obj.ResourceGroup, UnmarshalResourceGroupIdentity)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "resource_group-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "target", &obj.Target, UnmarshalPublicAddressRangeTargetPrototype)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "target-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "ipv4_address_count", &obj.Ipv4AddressCount)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "ipv4_address_count-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
 // PublicAddressRangePrototypePublicAddressRangeByNetworkPrefixLength : The network prefix length for this public address range, and the authorized CIDR to allocate the public address range
 // from.
 // This model "extends" PublicAddressRangePrototype
 type PublicAddressRangePrototypePublicAddressRangeByNetworkPrefixLength struct {
-	// The total number of public IPv4 addresses required. Must be a power of 2.
-	Ipv4AddressCount *int64 `json:"ipv4_address_count" validate:"required"`
-
 	// The name for this public address range. The name must not be used by another public address range in the region.
 	// Names starting with `ibm-` are reserved for provider-managed resources, and are not allowed. If unspecified, the
 	// name will be a hyphenated list of randomly-selected words.
@@ -151566,9 +155346,8 @@ type PublicAddressRangePrototypePublicAddressRangeByNetworkPrefixLength struct {
 }
 
 // NewPublicAddressRangePrototypePublicAddressRangeByNetworkPrefixLength : Instantiate PublicAddressRangePrototypePublicAddressRangeByNetworkPrefixLength (Generic Model Constructor)
-func (*VpcV1) NewPublicAddressRangePrototypePublicAddressRangeByNetworkPrefixLength(ipv4AddressCount int64, authorizedCIDR PublicAddressRangeAuthorizedCIDRIdentityIntf, networkPrefixLength int64) (_model *PublicAddressRangePrototypePublicAddressRangeByNetworkPrefixLength, err error) {
+func (*VpcV1) NewPublicAddressRangePrototypePublicAddressRangeByNetworkPrefixLength(authorizedCIDR PublicAddressRangeAuthorizedCIDRIdentityIntf, networkPrefixLength int64) (_model *PublicAddressRangePrototypePublicAddressRangeByNetworkPrefixLength, err error) {
 	_model = &PublicAddressRangePrototypePublicAddressRangeByNetworkPrefixLength{
-		Ipv4AddressCount:    core.Int64Ptr(ipv4AddressCount),
 		AuthorizedCIDR:      authorizedCIDR,
 		NetworkPrefixLength: core.Int64Ptr(networkPrefixLength),
 	}
@@ -151586,11 +155365,6 @@ func (*PublicAddressRangePrototypePublicAddressRangeByNetworkPrefixLength) isaPu
 // UnmarshalPublicAddressRangePrototypePublicAddressRangeByNetworkPrefixLength unmarshals an instance of PublicAddressRangePrototypePublicAddressRangeByNetworkPrefixLength from the specified map of raw messages.
 func UnmarshalPublicAddressRangePrototypePublicAddressRangeByNetworkPrefixLength(m map[string]json.RawMessage, result interface{}) (err error) {
 	obj := new(PublicAddressRangePrototypePublicAddressRangeByNetworkPrefixLength)
-	err = core.UnmarshalPrimitive(m, "ipv4_address_count", &obj.Ipv4AddressCount)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "ipv4_address_count-error", common.GetComponentInfo())
-		return
-	}
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
@@ -151620,45 +155394,6 @@ func UnmarshalPublicAddressRangePrototypePublicAddressRangeByNetworkPrefixLength
 	return
 }
 
-// PublicAddressRangeTargetPrototypePublicAddressRangeTargetByLoadBalancer : The load balancer to bind this public address range to. Supported by public address range profiles with
-// `load_balancer` included in `targetable_resource_types`.
-//
-// The `ip_version` for this public address range must be `ipv6`, the `network_prefix_length` must be `128`, and the
-// load balancer must have `ipv6_enabled` set to `true`.
-// This model "extends" PublicAddressRangeTargetPrototype
-type PublicAddressRangeTargetPrototypePublicAddressRangeTargetByLoadBalancer struct {
-	// Identifies a load balancer by a unique property.
-	LoadBalancer LoadBalancerIdentityIntf `json:"load_balancer" validate:"required"`
-}
-
-// NewPublicAddressRangeTargetPrototypePublicAddressRangeTargetByLoadBalancer : Instantiate PublicAddressRangeTargetPrototypePublicAddressRangeTargetByLoadBalancer (Generic Model Constructor)
-func (*VpcV1) NewPublicAddressRangeTargetPrototypePublicAddressRangeTargetByLoadBalancer(loadBalancer LoadBalancerIdentityIntf) (_model *PublicAddressRangeTargetPrototypePublicAddressRangeTargetByLoadBalancer, err error) {
-	_model = &PublicAddressRangeTargetPrototypePublicAddressRangeTargetByLoadBalancer{
-		LoadBalancer: loadBalancer,
-	}
-	err = core.ValidateStruct(_model, "required parameters")
-	if err != nil {
-		err = core.SDKErrorf(err, "", "model-missing-required", common.GetComponentInfo())
-	}
-	return
-}
-
-func (*PublicAddressRangeTargetPrototypePublicAddressRangeTargetByLoadBalancer) isaPublicAddressRangeTargetPrototype() bool {
-	return true
-}
-
-// UnmarshalPublicAddressRangeTargetPrototypePublicAddressRangeTargetByLoadBalancer unmarshals an instance of PublicAddressRangeTargetPrototypePublicAddressRangeTargetByLoadBalancer from the specified map of raw messages.
-func UnmarshalPublicAddressRangeTargetPrototypePublicAddressRangeTargetByLoadBalancer(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(PublicAddressRangeTargetPrototypePublicAddressRangeTargetByLoadBalancer)
-	err = core.UnmarshalModel(m, "load_balancer", &obj.LoadBalancer, UnmarshalLoadBalancerIdentity)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "load_balancer-error", common.GetComponentInfo())
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
 // PublicAddressRangeTargetPrototypePublicAddressRangeTargetByVPCZone : The VPC and zone to bind this public address range to. Supported by public address range profiles with `vpc` included
 // in `targetable_resource_types`.
 // This model "extends" PublicAddressRangeTargetPrototype
@@ -151667,6 +155402,9 @@ type PublicAddressRangeTargetPrototypePublicAddressRangeTargetByVPCZone struct {
 	VPC VPCIdentityIntf `json:"vpc" validate:"required"`
 
 	// The zone this public address range will reside in.
+	//
+	// Must have the same value as the `zone` for the public address range authorized CIDR
+	// this public address range is allocated from, if set.
 	Zone ZoneIdentityIntf `json:"zone" validate:"required"`
 }
 
@@ -162270,8 +166008,15 @@ type VPNGatewayConnectionPrototypeVPNGatewayConnectionDynamicRouteModePrototype 
 	Psk *string `json:"psk" validate:"required"`
 
 	// Indicates whether the traffic is distributed between the `up` tunnels of the VPN gateway connection when the VPC
-	// route's next hop is a VPN connection. If `false`, the traffic is only routed through the `up` tunnel with the lower
-	// `public_ip` address. Before enabling it on VPN connections to on-prem private networks, review
+	// route's next hop is a VPN connection.
+	//
+	// For a `zonal` VPN gateway, if `false`, the traffic is only routed through the `up` tunnel with the lower `public_ip`
+	// address.
+	//
+	// For a `regional` VPN gateway, if `true`, traffic is distributed across both VPN members (ECMP mode). If `false`,
+	// only the first member of the VPN gateway handles all the traffic (deterministic mode).
+	//
+	// Before enabling it on VPN connections to on-prem private networks, review
 	// [distributing traffic
 	// restrictions](https://cloud.ibm.com/docs/vpc?topic=vpc-vpn-limitations#distributing-traffic-restrictions).
 	DistributeTraffic *bool `json:"distribute_traffic,omitempty"`
@@ -162538,8 +166283,15 @@ type VPNGatewayConnectionPrototypeVPNGatewayConnectionStaticRouteModePrototype s
 	Psk *string `json:"psk" validate:"required"`
 
 	// Indicates whether the traffic is distributed between the `up` tunnels of the VPN gateway connection when the VPC
-	// route's next hop is a VPN connection. If `false`, the traffic is only routed through the `up` tunnel with the lower
-	// `public_ip` address. Before enabling it on VPN connections to on-prem private networks, review
+	// route's next hop is a VPN connection.
+	//
+	// For a `zonal` VPN gateway, if `false`, the traffic is only routed through the `up` tunnel with the lower `public_ip`
+	// address.
+	//
+	// For a `regional` VPN gateway, if `true`, traffic is distributed across both VPN members (ECMP mode). If `false`,
+	// only the first member of the VPN gateway handles all the traffic (deterministic mode).
+	//
+	// Before enabling it on VPN connections to on-prem private networks, review
 	// [distributing traffic
 	// restrictions](https://cloud.ibm.com/docs/vpc?topic=vpc-vpn-limitations#distributing-traffic-restrictions).
 	DistributeTraffic *bool `json:"distribute_traffic,omitempty"`
@@ -162715,8 +166467,13 @@ type VPNGatewayConnectionRouteMode struct {
 	StatusReasons []VPNGatewayConnectionStatusReason `json:"status_reasons" validate:"required"`
 
 	// Indicates whether the traffic is distributed between the `up` tunnels of the VPN gateway connection when the VPC
-	// route's next hop is a VPN connection. If `false`, the traffic is only routed through the `up` tunnel with the lower
-	// `public_ip` address.
+	// route's next hop is a VPN connection.
+	//
+	// For a `zonal` VPN gateway, if `false`, the traffic is only routed through the `up` tunnel with the lower `public_ip`
+	// address.
+	//
+	// For a `regional` VPN gateway, if `true`, traffic is distributed across both VPN members (ECMP mode). If `false`,
+	// only the first member of the VPN gateway handles all the traffic (deterministic mode).
 	DistributeTraffic *bool `json:"distribute_traffic,omitempty"`
 
 	Local *VPNGatewayConnectionStaticRouteModeLocal `json:"local,omitempty"`
@@ -163011,219 +166768,17 @@ func UnmarshalVPNGatewayConnectionStaticRouteModePeerVPNGatewayConnectionPeerByF
 	return
 }
 
-// VPNGatewayPolicyMode : VPNGatewayPolicyMode struct
-// This model "extends" VPNGateway
-type VPNGatewayPolicyMode struct {
-	// The connections for this VPN gateway.
-	Connections []VPNGatewayConnectionReference `json:"connections" validate:"required"`
-
-	// The date and time that this VPN gateway was created.
-	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
-
-	// The CRN for this VPN gateway.
-	CRN *string `json:"crn" validate:"required"`
-
-	// The reasons for the current `health_state` (if any).
-	HealthReasons []VPNGatewayHealthReason `json:"health_reasons" validate:"required"`
-
-	// The health of this resource:
-	// - `ok`: No abnormal behavior detected
-	// - `degraded`: Experiencing compromised performance, capacity, or connectivity
-	// - `faulted`: Completely unreachable, inoperative, or otherwise entirely incapacitated
-	// - `inapplicable`: The health state does not apply because of the current lifecycle
-	//    state. A resource with a lifecycle state of `failed` or `deleting` will have a
-	//    health state of `inapplicable`. A `pending` resource may also have this state.
-	HealthState *string `json:"health_state" validate:"required"`
-
-	// The URL for this VPN gateway.
-	Href *string `json:"href" validate:"required"`
-
-	// The unique identifier for this VPN gateway.
-	ID *string `json:"id" validate:"required"`
-
-	// The reasons for the current `lifecycle_state` (if any).
-	LifecycleReasons []VPNGatewayLifecycleReason `json:"lifecycle_reasons" validate:"required"`
-
-	// The lifecycle state of the VPN gateway.
-	LifecycleState *string `json:"lifecycle_state" validate:"required"`
-
-	// The members for the VPN gateway.
-	Members []VPNGatewayMember `json:"members" validate:"required"`
-
-	// The name for this VPN gateway. The name is unique across all VPN gateways in the VPC.
-	Name *string `json:"name" validate:"required"`
-
-	// The resource group for this VPN gateway.
-	ResourceGroup *ResourceGroupReference `json:"resource_group" validate:"required"`
-
-	// The resource type.
-	ResourceType *string `json:"resource_type" validate:"required"`
-
-	Subnet *SubnetReference `json:"subnet" validate:"required"`
-
-	// The VPC this VPN gateway resides in.
-	VPC *VPCReference `json:"vpc" validate:"required"`
-
-	// The mode for this VPN gateway.
-	Mode *string `json:"mode" validate:"required"`
-}
-
-// Constants associated with the VPNGatewayPolicyMode.HealthState property.
-// The health of this resource:
-//   - `ok`: No abnormal behavior detected
-//   - `degraded`: Experiencing compromised performance, capacity, or connectivity
-//   - `faulted`: Completely unreachable, inoperative, or otherwise entirely incapacitated
-//   - `inapplicable`: The health state does not apply because of the current lifecycle
-//     state. A resource with a lifecycle state of `failed` or `deleting` will have a
-//     health state of `inapplicable`. A `pending` resource may also have this state.
-const (
-	VPNGatewayPolicyModeHealthStateDegradedConst     = "degraded"
-	VPNGatewayPolicyModeHealthStateFaultedConst      = "faulted"
-	VPNGatewayPolicyModeHealthStateInapplicableConst = "inapplicable"
-	VPNGatewayPolicyModeHealthStateOkConst           = "ok"
-)
-
-// Constants associated with the VPNGatewayPolicyMode.LifecycleState property.
-// The lifecycle state of the VPN gateway.
-const (
-	VPNGatewayPolicyModeLifecycleStateDeletingConst  = "deleting"
-	VPNGatewayPolicyModeLifecycleStateFailedConst    = "failed"
-	VPNGatewayPolicyModeLifecycleStatePendingConst   = "pending"
-	VPNGatewayPolicyModeLifecycleStateStableConst    = "stable"
-	VPNGatewayPolicyModeLifecycleStateSuspendedConst = "suspended"
-	VPNGatewayPolicyModeLifecycleStateUpdatingConst  = "updating"
-	VPNGatewayPolicyModeLifecycleStateWaitingConst   = "waiting"
-)
-
-// Constants associated with the VPNGatewayPolicyMode.ResourceType property.
-// The resource type.
-const (
-	VPNGatewayPolicyModeResourceTypeVPNGatewayConst = "vpn_gateway"
-)
-
-// Constants associated with the VPNGatewayPolicyMode.Mode property.
-// The mode for this VPN gateway.
-const (
-	VPNGatewayPolicyModeModePolicyConst = "policy"
-)
-
-func (*VPNGatewayPolicyMode) isaVPNGateway() bool {
-	return true
-}
-
-// UnmarshalVPNGatewayPolicyMode unmarshals an instance of VPNGatewayPolicyMode from the specified map of raw messages.
-func UnmarshalVPNGatewayPolicyMode(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(VPNGatewayPolicyMode)
-	err = core.UnmarshalModel(m, "connections", &obj.Connections, UnmarshalVPNGatewayConnectionReference)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "connections-error", common.GetComponentInfo())
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "created_at", &obj.CreatedAt)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "created_at-error", common.GetComponentInfo())
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "crn-error", common.GetComponentInfo())
-		return
-	}
-	err = core.UnmarshalModel(m, "health_reasons", &obj.HealthReasons, UnmarshalVPNGatewayHealthReason)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "health_reasons-error", common.GetComponentInfo())
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "health_state", &obj.HealthState)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "health_state-error", common.GetComponentInfo())
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "href-error", common.GetComponentInfo())
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "id-error", common.GetComponentInfo())
-		return
-	}
-	err = core.UnmarshalModel(m, "lifecycle_reasons", &obj.LifecycleReasons, UnmarshalVPNGatewayLifecycleReason)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "lifecycle_reasons-error", common.GetComponentInfo())
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "lifecycle_state", &obj.LifecycleState)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "lifecycle_state-error", common.GetComponentInfo())
-		return
-	}
-	err = core.UnmarshalModel(m, "members", &obj.Members, UnmarshalVPNGatewayMember)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "members-error", common.GetComponentInfo())
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
-		return
-	}
-	err = core.UnmarshalModel(m, "resource_group", &obj.ResourceGroup, UnmarshalResourceGroupReference)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "resource_group-error", common.GetComponentInfo())
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "resource_type-error", common.GetComponentInfo())
-		return
-	}
-	err = core.UnmarshalModel(m, "subnet", &obj.Subnet, UnmarshalSubnetReference)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "subnet-error", common.GetComponentInfo())
-		return
-	}
-	err = core.UnmarshalModel(m, "vpc", &obj.VPC, UnmarshalVPCReference)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "vpc-error", common.GetComponentInfo())
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "mode", &obj.Mode)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "mode-error", common.GetComponentInfo())
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// VPNGatewayPrototypeVPNGatewayPolicyModePrototype : VPNGatewayPrototypeVPNGatewayPolicyModePrototype struct
-// This model "extends" VPNGatewayPrototype
-type VPNGatewayPrototypeVPNGatewayPolicyModePrototype struct {
-	// The name for this VPN gateway. The name must not be used by another VPN gateway in the VPC. If unspecified, the name
-	// will be a hyphenated list of randomly-selected words.
-	Name *string `json:"name,omitempty"`
-
-	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
-
+// VPNGatewayMemberPrivateIPPrototypeReservedIPPrototypeVPNGatewayContext : VPNGatewayMemberPrivateIPPrototypeReservedIPPrototypeVPNGatewayContext struct
+// This model "extends" VPNGatewayMemberPrivateIPPrototype
+type VPNGatewayMemberPrivateIPPrototypeReservedIPPrototypeVPNGatewayContext struct {
+	// Identifies a subnet by a unique property.
 	Subnet SubnetIdentityIntf `json:"subnet" validate:"required"`
-
-	// The mode for this VPN gateway.
-	Mode *string `json:"mode" validate:"required"`
 }
 
-// Constants associated with the VPNGatewayPrototypeVPNGatewayPolicyModePrototype.Mode property.
-// The mode for this VPN gateway.
-const (
-	VPNGatewayPrototypeVPNGatewayPolicyModePrototypeModePolicyConst = "policy"
-)
-
-// NewVPNGatewayPrototypeVPNGatewayPolicyModePrototype : Instantiate VPNGatewayPrototypeVPNGatewayPolicyModePrototype (Generic Model Constructor)
-func (*VpcV1) NewVPNGatewayPrototypeVPNGatewayPolicyModePrototype(subnet SubnetIdentityIntf, mode string) (_model *VPNGatewayPrototypeVPNGatewayPolicyModePrototype, err error) {
-	_model = &VPNGatewayPrototypeVPNGatewayPolicyModePrototype{
+// NewVPNGatewayMemberPrivateIPPrototypeReservedIPPrototypeVPNGatewayContext : Instantiate VPNGatewayMemberPrivateIPPrototypeReservedIPPrototypeVPNGatewayContext (Generic Model Constructor)
+func (*VpcV1) NewVPNGatewayMemberPrivateIPPrototypeReservedIPPrototypeVPNGatewayContext(subnet SubnetIdentityIntf) (_model *VPNGatewayMemberPrivateIPPrototypeReservedIPPrototypeVPNGatewayContext, err error) {
+	_model = &VPNGatewayMemberPrivateIPPrototypeReservedIPPrototypeVPNGatewayContext{
 		Subnet: subnet,
-		Mode:   core.StringPtr(mode),
 	}
 	err = core.ValidateStruct(_model, "required parameters")
 	if err != nil {
@@ -163232,13 +166787,85 @@ func (*VpcV1) NewVPNGatewayPrototypeVPNGatewayPolicyModePrototype(subnet SubnetI
 	return
 }
 
-func (*VPNGatewayPrototypeVPNGatewayPolicyModePrototype) isaVPNGatewayPrototype() bool {
+func (*VPNGatewayMemberPrivateIPPrototypeReservedIPPrototypeVPNGatewayContext) isaVPNGatewayMemberPrivateIPPrototype() bool {
 	return true
 }
 
-// UnmarshalVPNGatewayPrototypeVPNGatewayPolicyModePrototype unmarshals an instance of VPNGatewayPrototypeVPNGatewayPolicyModePrototype from the specified map of raw messages.
-func UnmarshalVPNGatewayPrototypeVPNGatewayPolicyModePrototype(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(VPNGatewayPrototypeVPNGatewayPolicyModePrototype)
+// UnmarshalVPNGatewayMemberPrivateIPPrototypeReservedIPPrototypeVPNGatewayContext unmarshals an instance of VPNGatewayMemberPrivateIPPrototypeReservedIPPrototypeVPNGatewayContext from the specified map of raw messages.
+func UnmarshalVPNGatewayMemberPrivateIPPrototypeReservedIPPrototypeVPNGatewayContext(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VPNGatewayMemberPrivateIPPrototypeReservedIPPrototypeVPNGatewayContext)
+	err = core.UnmarshalModel(m, "subnet", &obj.Subnet, UnmarshalSubnetIdentity)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "subnet-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// VPNGatewayPrototypeVPNGatewayRegionalAvailabilityModeByMember : VPNGatewayPrototypeVPNGatewayRegionalAvailabilityModeByMember struct
+// Models which "extend" this model:
+// - VPNGatewayPrototypeVPNGatewayRegionalAvailabilityModeByMemberVPNGatewayRegionalAvailabilityModeByMemberVPNGatewayRouteModePrototype
+// This model "extends" VPNGatewayPrototype
+type VPNGatewayPrototypeVPNGatewayRegionalAvailabilityModeByMember struct {
+	// The name for this VPN gateway. The name must not be used by another VPN gateway in the VPC. If unspecified, the name
+	// will be a hyphenated list of randomly-selected words.
+	Name *string `json:"name,omitempty"`
+
+	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
+
+	// The availability mode of the VPN gateway:
+	// - `regional`: The VPN gateway is deployed across multiple zones in the region. This mode
+	//   provides zone-level redundancy.
+	AvailabilityMode *string `json:"availability_mode" validate:"required"`
+
+	// The members to use for the VPN gateway.
+	Members []VPNGatewayMemberPrototype `json:"members" validate:"required"`
+
+	// The static CIDRs advertised through any enabled routing protocol (for example, BGP). The routing protocol will
+	// advertise routes with these CIDRs as route destinations.
+	AdvertisedCIDRs []string `json:"advertised_cidrs,omitempty"`
+
+	// The local autonomous system number (ASN) for this VPN gateway and its connections. The ASN values in the
+	// [restricted ASN list](
+	// https://cloud.ibm.com/docs/vpc?topic=vpc-planning-considerations-vpn#dynamic-route-based-considerations) are
+	// reserved and unavailable.
+	LocalAsn *int64 `json:"local_asn,omitempty"`
+
+	// The mode for this VPN gateway.
+	Mode *string `json:"mode,omitempty"`
+}
+
+// Constants associated with the VPNGatewayPrototypeVPNGatewayRegionalAvailabilityModeByMember.AvailabilityMode property.
+// The availability mode of the VPN gateway:
+//   - `regional`: The VPN gateway is deployed across multiple zones in the region. This mode
+//     provides zone-level redundancy.
+const (
+	VPNGatewayPrototypeVPNGatewayRegionalAvailabilityModeByMemberAvailabilityModeRegionalConst = "regional"
+)
+
+// Constants associated with the VPNGatewayPrototypeVPNGatewayRegionalAvailabilityModeByMember.Mode property.
+// The mode for this VPN gateway.
+const (
+	VPNGatewayPrototypeVPNGatewayRegionalAvailabilityModeByMemberModeRouteConst = "route"
+)
+
+func (*VPNGatewayPrototypeVPNGatewayRegionalAvailabilityModeByMember) isaVPNGatewayPrototypeVPNGatewayRegionalAvailabilityModeByMember() bool {
+	return true
+}
+
+type VPNGatewayPrototypeVPNGatewayRegionalAvailabilityModeByMemberIntf interface {
+	VPNGatewayPrototypeIntf
+	isaVPNGatewayPrototypeVPNGatewayRegionalAvailabilityModeByMember() bool
+}
+
+func (*VPNGatewayPrototypeVPNGatewayRegionalAvailabilityModeByMember) isaVPNGatewayPrototype() bool {
+	return true
+}
+
+// UnmarshalVPNGatewayPrototypeVPNGatewayRegionalAvailabilityModeByMember unmarshals an instance of VPNGatewayPrototypeVPNGatewayRegionalAvailabilityModeByMember from the specified map of raw messages.
+func UnmarshalVPNGatewayPrototypeVPNGatewayRegionalAvailabilityModeByMember(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VPNGatewayPrototypeVPNGatewayRegionalAvailabilityModeByMember)
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
@@ -163249,9 +166876,24 @@ func UnmarshalVPNGatewayPrototypeVPNGatewayPolicyModePrototype(m map[string]json
 		err = core.SDKErrorf(err, "", "resource_group-error", common.GetComponentInfo())
 		return
 	}
-	err = core.UnmarshalModel(m, "subnet", &obj.Subnet, UnmarshalSubnetIdentity)
+	err = core.UnmarshalPrimitive(m, "availability_mode", &obj.AvailabilityMode)
 	if err != nil {
-		err = core.SDKErrorf(err, "", "subnet-error", common.GetComponentInfo())
+		err = core.SDKErrorf(err, "", "availability_mode-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "members", &obj.Members, UnmarshalVPNGatewayMemberPrototype)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "members-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "advertised_cidrs", &obj.AdvertisedCIDRs)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "advertised_cidrs-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "local_asn", &obj.LocalAsn)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "local_asn-error", common.GetComponentInfo())
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "mode", &obj.Mode)
@@ -163263,15 +166905,127 @@ func UnmarshalVPNGatewayPrototypeVPNGatewayPolicyModePrototype(m map[string]json
 	return
 }
 
-// VPNGatewayPrototypeVPNGatewayRouteModePrototype : VPNGatewayPrototypeVPNGatewayRouteModePrototype struct
+// VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeByMember : VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeByMember struct
+// Models which "extend" this model:
+// - VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeByMemberVPNGatewayZonalAvailabilityModeByMemberVPNGatewayRouteModePrototype
+// - VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeByMemberVPNGatewayZonalAvailabilityModeByMemberVPNGatewayPolicyModePrototype
 // This model "extends" VPNGatewayPrototype
-type VPNGatewayPrototypeVPNGatewayRouteModePrototype struct {
+type VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeByMember struct {
 	// The name for this VPN gateway. The name must not be used by another VPN gateway in the VPC. If unspecified, the name
 	// will be a hyphenated list of randomly-selected words.
 	Name *string `json:"name,omitempty"`
 
 	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
 
+	// The availability mode of the VPN gateway:
+	// - `zonal`: The VPN gateway is deployed in a single zone in the region. Availability is
+	//   limited to that zone.
+	AvailabilityMode *string `json:"availability_mode,omitempty"`
+
+	// The members to use for the VPN gateway. All members must reside in the same subnet.
+	Members []VPNGatewayMemberPrototype `json:"members" validate:"required"`
+
+	// The static CIDRs advertised through any enabled routing protocol (for example, BGP). The routing protocol will
+	// advertise routes with these CIDRs as route destinations.
+	AdvertisedCIDRs []string `json:"advertised_cidrs,omitempty"`
+
+	// The local autonomous system number (ASN) for this VPN gateway and its connections. The ASN values in the
+	// [restricted ASN list](
+	// https://cloud.ibm.com/docs/vpc?topic=vpc-planning-considerations-vpn#dynamic-route-based-considerations) are
+	// reserved and unavailable.
+	LocalAsn *int64 `json:"local_asn,omitempty"`
+
+	// The mode for this VPN gateway.
+	Mode *string `json:"mode,omitempty"`
+}
+
+// Constants associated with the VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeByMember.AvailabilityMode property.
+// The availability mode of the VPN gateway:
+//   - `zonal`: The VPN gateway is deployed in a single zone in the region. Availability is
+//     limited to that zone.
+const (
+	VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeByMemberAvailabilityModeZonalConst = "zonal"
+)
+
+// Constants associated with the VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeByMember.Mode property.
+// The mode for this VPN gateway.
+const (
+	VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeByMemberModeRouteConst = "route"
+)
+
+func (*VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeByMember) isaVPNGatewayPrototypeVPNGatewayZonalAvailabilityModeByMember() bool {
+	return true
+}
+
+type VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeByMemberIntf interface {
+	VPNGatewayPrototypeIntf
+	isaVPNGatewayPrototypeVPNGatewayZonalAvailabilityModeByMember() bool
+}
+
+func (*VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeByMember) isaVPNGatewayPrototype() bool {
+	return true
+}
+
+// UnmarshalVPNGatewayPrototypeVPNGatewayZonalAvailabilityModeByMember unmarshals an instance of VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeByMember from the specified map of raw messages.
+func UnmarshalVPNGatewayPrototypeVPNGatewayZonalAvailabilityModeByMember(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeByMember)
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "resource_group", &obj.ResourceGroup, UnmarshalResourceGroupIdentity)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "resource_group-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "availability_mode", &obj.AvailabilityMode)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "availability_mode-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "members", &obj.Members, UnmarshalVPNGatewayMemberPrototype)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "members-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "advertised_cidrs", &obj.AdvertisedCIDRs)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "advertised_cidrs-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "local_asn", &obj.LocalAsn)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "local_asn-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "mode", &obj.Mode)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "mode-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeBySubnet : VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeBySubnet struct
+// Models which "extend" this model:
+// - VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeBySubnetVPNGatewayZonalAvailabilityModeBySubnetVPNGatewayRouteModePrototype
+// - VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeBySubnetVPNGatewayZonalAvailabilityModeBySubnetVPNGatewayPolicyModePrototype
+// This model "extends" VPNGatewayPrototype
+type VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeBySubnet struct {
+	// The name for this VPN gateway. The name must not be used by another VPN gateway in the VPC. If unspecified, the name
+	// will be a hyphenated list of randomly-selected words.
+	Name *string `json:"name,omitempty"`
+
+	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
+
+	// The availability mode of the VPN gateway:
+	// - `zonal`: The VPN gateway is deployed in a single zone in the region. Availability is
+	//   limited to that zone.
+	AvailabilityMode *string `json:"availability_mode,omitempty"`
+
+	// Identifies a subnet by a unique property.
 	Subnet SubnetIdentityIntf `json:"subnet" validate:"required"`
 
 	// The static CIDRs advertised through any enabled routing protocol (for example, BGP). The routing protocol will
@@ -163288,31 +167042,36 @@ type VPNGatewayPrototypeVPNGatewayRouteModePrototype struct {
 	Mode *string `json:"mode,omitempty"`
 }
 
-// Constants associated with the VPNGatewayPrototypeVPNGatewayRouteModePrototype.Mode property.
-// The mode for this VPN gateway.
+// Constants associated with the VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeBySubnet.AvailabilityMode property.
+// The availability mode of the VPN gateway:
+//   - `zonal`: The VPN gateway is deployed in a single zone in the region. Availability is
+//     limited to that zone.
 const (
-	VPNGatewayPrototypeVPNGatewayRouteModePrototypeModeRouteConst = "route"
+	VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeBySubnetAvailabilityModeZonalConst = "zonal"
 )
 
-// NewVPNGatewayPrototypeVPNGatewayRouteModePrototype : Instantiate VPNGatewayPrototypeVPNGatewayRouteModePrototype (Generic Model Constructor)
-func (*VpcV1) NewVPNGatewayPrototypeVPNGatewayRouteModePrototype(subnet SubnetIdentityIntf) (_model *VPNGatewayPrototypeVPNGatewayRouteModePrototype, err error) {
-	_model = &VPNGatewayPrototypeVPNGatewayRouteModePrototype{
-		Subnet: subnet,
-	}
-	err = core.ValidateStruct(_model, "required parameters")
-	if err != nil {
-		err = core.SDKErrorf(err, "", "model-missing-required", common.GetComponentInfo())
-	}
-	return
-}
+// Constants associated with the VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeBySubnet.Mode property.
+// The mode for this VPN gateway.
+const (
+	VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeBySubnetModeRouteConst = "route"
+)
 
-func (*VPNGatewayPrototypeVPNGatewayRouteModePrototype) isaVPNGatewayPrototype() bool {
+func (*VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeBySubnet) isaVPNGatewayPrototypeVPNGatewayZonalAvailabilityModeBySubnet() bool {
 	return true
 }
 
-// UnmarshalVPNGatewayPrototypeVPNGatewayRouteModePrototype unmarshals an instance of VPNGatewayPrototypeVPNGatewayRouteModePrototype from the specified map of raw messages.
-func UnmarshalVPNGatewayPrototypeVPNGatewayRouteModePrototype(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(VPNGatewayPrototypeVPNGatewayRouteModePrototype)
+type VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeBySubnetIntf interface {
+	VPNGatewayPrototypeIntf
+	isaVPNGatewayPrototypeVPNGatewayZonalAvailabilityModeBySubnet() bool
+}
+
+func (*VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeBySubnet) isaVPNGatewayPrototype() bool {
+	return true
+}
+
+// UnmarshalVPNGatewayPrototypeVPNGatewayZonalAvailabilityModeBySubnet unmarshals an instance of VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeBySubnet from the specified map of raw messages.
+func UnmarshalVPNGatewayPrototypeVPNGatewayZonalAvailabilityModeBySubnet(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeBySubnet)
 	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
@@ -163321,6 +167080,11 @@ func UnmarshalVPNGatewayPrototypeVPNGatewayRouteModePrototype(m map[string]json.
 	err = core.UnmarshalModel(m, "resource_group", &obj.ResourceGroup, UnmarshalResourceGroupIdentity)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "resource_group-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "availability_mode", &obj.AvailabilityMode)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "availability_mode-error", common.GetComponentInfo())
 		return
 	}
 	err = core.UnmarshalModel(m, "subnet", &obj.Subnet, UnmarshalSubnetIdentity)
@@ -163347,9 +167111,11 @@ func UnmarshalVPNGatewayPrototypeVPNGatewayRouteModePrototype(m map[string]json.
 	return
 }
 
-// VPNGatewayRouteMode : VPNGatewayRouteMode struct
+// VPNGatewayRegionalAvailabilityMode : VPNGatewayRegionalAvailabilityMode struct
+// Models which "extend" this model:
+// - VPNGatewayRegionalAvailabilityModeVPNGatewayRouteMode
 // This model "extends" VPNGateway
-type VPNGatewayRouteMode struct {
+type VPNGatewayRegionalAvailabilityMode struct {
 	// The connections for this VPN gateway.
 	Connections []VPNGatewayConnectionReference `json:"connections" validate:"required"`
 
@@ -163395,23 +167161,28 @@ type VPNGatewayRouteMode struct {
 	// The resource type.
 	ResourceType *string `json:"resource_type" validate:"required"`
 
-	Subnet *SubnetReference `json:"subnet" validate:"required"`
+	Subnet *SubnetReference `json:"subnet,omitempty"`
 
 	// The VPC this VPN gateway resides in.
 	VPC *VPCReference `json:"vpc" validate:"required"`
 
+	// The availability mode of the VPN gateway:
+	// - `regional`: The VPN gateway is deployed across multiple zones in the region. This mode
+	//   provides zone-level redundancy.
+	AvailabilityMode *string `json:"availability_mode" validate:"required"`
+
 	// The static CIDRs advertised through any enabled routing protocol (for example, BGP). The routing protocol will
 	// advertise routes with these CIDRs as route destinations.
-	AdvertisedCIDRs []string `json:"advertised_cidrs" validate:"required"`
+	AdvertisedCIDRs []string `json:"advertised_cidrs,omitempty"`
 
 	// The local autonomous system number (ASN) for this VPN gateway and its connections.
-	LocalAsn *int64 `json:"local_asn" validate:"required"`
+	LocalAsn *int64 `json:"local_asn,omitempty"`
 
 	// The mode for this VPN gateway.
-	Mode *string `json:"mode" validate:"required"`
+	Mode *string `json:"mode,omitempty"`
 }
 
-// Constants associated with the VPNGatewayRouteMode.HealthState property.
+// Constants associated with the VPNGatewayRegionalAvailabilityMode.HealthState property.
 // The health of this resource:
 //   - `ok`: No abnormal behavior detected
 //   - `degraded`: Experiencing compromised performance, capacity, or connectivity
@@ -163420,43 +167191,60 @@ type VPNGatewayRouteMode struct {
 //     state. A resource with a lifecycle state of `failed` or `deleting` will have a
 //     health state of `inapplicable`. A `pending` resource may also have this state.
 const (
-	VPNGatewayRouteModeHealthStateDegradedConst     = "degraded"
-	VPNGatewayRouteModeHealthStateFaultedConst      = "faulted"
-	VPNGatewayRouteModeHealthStateInapplicableConst = "inapplicable"
-	VPNGatewayRouteModeHealthStateOkConst           = "ok"
+	VPNGatewayRegionalAvailabilityModeHealthStateDegradedConst     = "degraded"
+	VPNGatewayRegionalAvailabilityModeHealthStateFaultedConst      = "faulted"
+	VPNGatewayRegionalAvailabilityModeHealthStateInapplicableConst = "inapplicable"
+	VPNGatewayRegionalAvailabilityModeHealthStateOkConst           = "ok"
 )
 
-// Constants associated with the VPNGatewayRouteMode.LifecycleState property.
+// Constants associated with the VPNGatewayRegionalAvailabilityMode.LifecycleState property.
 // The lifecycle state of the VPN gateway.
 const (
-	VPNGatewayRouteModeLifecycleStateDeletingConst  = "deleting"
-	VPNGatewayRouteModeLifecycleStateFailedConst    = "failed"
-	VPNGatewayRouteModeLifecycleStatePendingConst   = "pending"
-	VPNGatewayRouteModeLifecycleStateStableConst    = "stable"
-	VPNGatewayRouteModeLifecycleStateSuspendedConst = "suspended"
-	VPNGatewayRouteModeLifecycleStateUpdatingConst  = "updating"
-	VPNGatewayRouteModeLifecycleStateWaitingConst   = "waiting"
+	VPNGatewayRegionalAvailabilityModeLifecycleStateDeletingConst  = "deleting"
+	VPNGatewayRegionalAvailabilityModeLifecycleStateFailedConst    = "failed"
+	VPNGatewayRegionalAvailabilityModeLifecycleStatePendingConst   = "pending"
+	VPNGatewayRegionalAvailabilityModeLifecycleStateStableConst    = "stable"
+	VPNGatewayRegionalAvailabilityModeLifecycleStateSuspendedConst = "suspended"
+	VPNGatewayRegionalAvailabilityModeLifecycleStateUpdatingConst  = "updating"
+	VPNGatewayRegionalAvailabilityModeLifecycleStateWaitingConst   = "waiting"
 )
 
-// Constants associated with the VPNGatewayRouteMode.ResourceType property.
+// Constants associated with the VPNGatewayRegionalAvailabilityMode.ResourceType property.
 // The resource type.
 const (
-	VPNGatewayRouteModeResourceTypeVPNGatewayConst = "vpn_gateway"
+	VPNGatewayRegionalAvailabilityModeResourceTypeVPNGatewayConst = "vpn_gateway"
 )
 
-// Constants associated with the VPNGatewayRouteMode.Mode property.
+// Constants associated with the VPNGatewayRegionalAvailabilityMode.AvailabilityMode property.
+// The availability mode of the VPN gateway:
+//   - `regional`: The VPN gateway is deployed across multiple zones in the region. This mode
+//     provides zone-level redundancy.
+const (
+	VPNGatewayRegionalAvailabilityModeAvailabilityModeRegionalConst = "regional"
+)
+
+// Constants associated with the VPNGatewayRegionalAvailabilityMode.Mode property.
 // The mode for this VPN gateway.
 const (
-	VPNGatewayRouteModeModeRouteConst = "route"
+	VPNGatewayRegionalAvailabilityModeModeRouteConst = "route"
 )
 
-func (*VPNGatewayRouteMode) isaVPNGateway() bool {
+func (*VPNGatewayRegionalAvailabilityMode) isaVPNGatewayRegionalAvailabilityMode() bool {
 	return true
 }
 
-// UnmarshalVPNGatewayRouteMode unmarshals an instance of VPNGatewayRouteMode from the specified map of raw messages.
-func UnmarshalVPNGatewayRouteMode(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(VPNGatewayRouteMode)
+type VPNGatewayRegionalAvailabilityModeIntf interface {
+	VPNGatewayIntf
+	isaVPNGatewayRegionalAvailabilityMode() bool
+}
+
+func (*VPNGatewayRegionalAvailabilityMode) isaVPNGateway() bool {
+	return true
+}
+
+// UnmarshalVPNGatewayRegionalAvailabilityMode unmarshals an instance of VPNGatewayRegionalAvailabilityMode from the specified map of raw messages.
+func UnmarshalVPNGatewayRegionalAvailabilityMode(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VPNGatewayRegionalAvailabilityMode)
 	err = core.UnmarshalModel(m, "connections", &obj.Connections, UnmarshalVPNGatewayConnectionReference)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "connections-error", common.GetComponentInfo())
@@ -163530,6 +167318,11 @@ func UnmarshalVPNGatewayRouteMode(m map[string]json.RawMessage, result interface
 	err = core.UnmarshalModel(m, "vpc", &obj.VPC, UnmarshalVPCReference)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "vpc-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "availability_mode", &obj.AvailabilityMode)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "availability_mode-error", common.GetComponentInfo())
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "advertised_cidrs", &obj.AdvertisedCIDRs)
@@ -163590,6 +167383,240 @@ func UnmarshalVPNGatewayServiceConnectionCreatorTransitGatewayReference(m map[st
 	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "resource_type-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// VPNGatewayZonalAvailabilityMode : VPNGatewayZonalAvailabilityMode struct
+// Models which "extend" this model:
+// - VPNGatewayZonalAvailabilityModeVPNGatewayPolicyMode
+// - VPNGatewayZonalAvailabilityModeVPNGatewayRouteMode
+// This model "extends" VPNGateway
+type VPNGatewayZonalAvailabilityMode struct {
+	// The connections for this VPN gateway.
+	Connections []VPNGatewayConnectionReference `json:"connections" validate:"required"`
+
+	// The date and time that this VPN gateway was created.
+	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
+
+	// The CRN for this VPN gateway.
+	CRN *string `json:"crn" validate:"required"`
+
+	// The reasons for the current `health_state` (if any).
+	HealthReasons []VPNGatewayHealthReason `json:"health_reasons" validate:"required"`
+
+	// The health of this resource:
+	// - `ok`: No abnormal behavior detected
+	// - `degraded`: Experiencing compromised performance, capacity, or connectivity
+	// - `faulted`: Completely unreachable, inoperative, or otherwise entirely incapacitated
+	// - `inapplicable`: The health state does not apply because of the current lifecycle
+	//    state. A resource with a lifecycle state of `failed` or `deleting` will have a
+	//    health state of `inapplicable`. A `pending` resource may also have this state.
+	HealthState *string `json:"health_state" validate:"required"`
+
+	// The URL for this VPN gateway.
+	Href *string `json:"href" validate:"required"`
+
+	// The unique identifier for this VPN gateway.
+	ID *string `json:"id" validate:"required"`
+
+	// The reasons for the current `lifecycle_state` (if any).
+	LifecycleReasons []VPNGatewayLifecycleReason `json:"lifecycle_reasons" validate:"required"`
+
+	// The lifecycle state of the VPN gateway.
+	LifecycleState *string `json:"lifecycle_state" validate:"required"`
+
+	// The members for the VPN gateway.
+	Members []VPNGatewayMember `json:"members" validate:"required"`
+
+	// The name for this VPN gateway. The name is unique across all VPN gateways in the VPC.
+	Name *string `json:"name" validate:"required"`
+
+	// The resource group for this VPN gateway.
+	ResourceGroup *ResourceGroupReference `json:"resource_group" validate:"required"`
+
+	// The resource type.
+	ResourceType *string `json:"resource_type" validate:"required"`
+
+	// The VPC this VPN gateway resides in.
+	VPC *VPCReference `json:"vpc" validate:"required"`
+
+	// The availability mode of the VPN gateway:
+	// - `zonal`: The VPN gateway is deployed in a single zone in the region. Availability is
+	//   limited to that zone.
+	AvailabilityMode *string `json:"availability_mode" validate:"required"`
+
+	Subnet *SubnetReference `json:"subnet" validate:"required"`
+
+	// The mode for this VPN gateway.
+	Mode *string `json:"mode,omitempty"`
+
+	// The static CIDRs advertised through any enabled routing protocol (for example, BGP). The routing protocol will
+	// advertise routes with these CIDRs as route destinations.
+	AdvertisedCIDRs []string `json:"advertised_cidrs,omitempty"`
+
+	// The local autonomous system number (ASN) for this VPN gateway and its connections.
+	LocalAsn *int64 `json:"local_asn,omitempty"`
+}
+
+// Constants associated with the VPNGatewayZonalAvailabilityMode.HealthState property.
+// The health of this resource:
+//   - `ok`: No abnormal behavior detected
+//   - `degraded`: Experiencing compromised performance, capacity, or connectivity
+//   - `faulted`: Completely unreachable, inoperative, or otherwise entirely incapacitated
+//   - `inapplicable`: The health state does not apply because of the current lifecycle
+//     state. A resource with a lifecycle state of `failed` or `deleting` will have a
+//     health state of `inapplicable`. A `pending` resource may also have this state.
+const (
+	VPNGatewayZonalAvailabilityModeHealthStateDegradedConst     = "degraded"
+	VPNGatewayZonalAvailabilityModeHealthStateFaultedConst      = "faulted"
+	VPNGatewayZonalAvailabilityModeHealthStateInapplicableConst = "inapplicable"
+	VPNGatewayZonalAvailabilityModeHealthStateOkConst           = "ok"
+)
+
+// Constants associated with the VPNGatewayZonalAvailabilityMode.LifecycleState property.
+// The lifecycle state of the VPN gateway.
+const (
+	VPNGatewayZonalAvailabilityModeLifecycleStateDeletingConst  = "deleting"
+	VPNGatewayZonalAvailabilityModeLifecycleStateFailedConst    = "failed"
+	VPNGatewayZonalAvailabilityModeLifecycleStatePendingConst   = "pending"
+	VPNGatewayZonalAvailabilityModeLifecycleStateStableConst    = "stable"
+	VPNGatewayZonalAvailabilityModeLifecycleStateSuspendedConst = "suspended"
+	VPNGatewayZonalAvailabilityModeLifecycleStateUpdatingConst  = "updating"
+	VPNGatewayZonalAvailabilityModeLifecycleStateWaitingConst   = "waiting"
+)
+
+// Constants associated with the VPNGatewayZonalAvailabilityMode.ResourceType property.
+// The resource type.
+const (
+	VPNGatewayZonalAvailabilityModeResourceTypeVPNGatewayConst = "vpn_gateway"
+)
+
+// Constants associated with the VPNGatewayZonalAvailabilityMode.AvailabilityMode property.
+// The availability mode of the VPN gateway:
+//   - `zonal`: The VPN gateway is deployed in a single zone in the region. Availability is
+//     limited to that zone.
+const (
+	VPNGatewayZonalAvailabilityModeAvailabilityModeZonalConst = "zonal"
+)
+
+// Constants associated with the VPNGatewayZonalAvailabilityMode.Mode property.
+// The mode for this VPN gateway.
+const (
+	VPNGatewayZonalAvailabilityModeModePolicyConst = "policy"
+)
+
+func (*VPNGatewayZonalAvailabilityMode) isaVPNGatewayZonalAvailabilityMode() bool {
+	return true
+}
+
+type VPNGatewayZonalAvailabilityModeIntf interface {
+	VPNGatewayIntf
+	isaVPNGatewayZonalAvailabilityMode() bool
+}
+
+func (*VPNGatewayZonalAvailabilityMode) isaVPNGateway() bool {
+	return true
+}
+
+// UnmarshalVPNGatewayZonalAvailabilityMode unmarshals an instance of VPNGatewayZonalAvailabilityMode from the specified map of raw messages.
+func UnmarshalVPNGatewayZonalAvailabilityMode(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VPNGatewayZonalAvailabilityMode)
+	err = core.UnmarshalModel(m, "connections", &obj.Connections, UnmarshalVPNGatewayConnectionReference)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "connections-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "created_at", &obj.CreatedAt)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "created_at-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "crn-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "health_reasons", &obj.HealthReasons, UnmarshalVPNGatewayHealthReason)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "health_reasons-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "health_state", &obj.HealthState)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "health_state-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "href-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "id-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "lifecycle_reasons", &obj.LifecycleReasons, UnmarshalVPNGatewayLifecycleReason)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "lifecycle_reasons-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "lifecycle_state", &obj.LifecycleState)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "lifecycle_state-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "members", &obj.Members, UnmarshalVPNGatewayMember)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "members-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "resource_group", &obj.ResourceGroup, UnmarshalResourceGroupReference)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "resource_group-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "resource_type-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "vpc", &obj.VPC, UnmarshalVPCReference)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "vpc-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "availability_mode", &obj.AvailabilityMode)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "availability_mode-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "subnet", &obj.Subnet, UnmarshalSubnetReference)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "subnet-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "mode", &obj.Mode)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "mode-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "advertised_cidrs", &obj.AdvertisedCIDRs)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "advertised_cidrs-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "local_asn", &obj.LocalAsn)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "local_asn-error", common.GetComponentInfo())
 		return
 	}
 	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
@@ -175761,300 +179788,6 @@ func (loadBalancerPoolMemberTargetPrototypeReservedIPIdentityByID *LoadBalancerP
 	return
 }
 
-// LoadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContextFloatingIPIdentityLoadBalancerContextFloatingIPIdentityByCRN : LoadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContextFloatingIPIdentityLoadBalancerContextFloatingIPIdentityByCRN struct
-// This model "extends" LoadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContext
-type LoadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContextFloatingIPIdentityLoadBalancerContextFloatingIPIdentityByCRN struct {
-	// The CRN for this floating IP.
-	CRN *string `json:"crn" validate:"required"`
-}
-
-// NewLoadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContextFloatingIPIdentityLoadBalancerContextFloatingIPIdentityByCRN : Instantiate LoadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContextFloatingIPIdentityLoadBalancerContextFloatingIPIdentityByCRN (Generic Model Constructor)
-func (*VpcV1) NewLoadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContextFloatingIPIdentityLoadBalancerContextFloatingIPIdentityByCRN(crn string) (_model *LoadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContextFloatingIPIdentityLoadBalancerContextFloatingIPIdentityByCRN, err error) {
-	_model = &LoadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContextFloatingIPIdentityLoadBalancerContextFloatingIPIdentityByCRN{
-		CRN: core.StringPtr(crn),
-	}
-	err = core.ValidateStruct(_model, "required parameters")
-	if err != nil {
-		err = core.SDKErrorf(err, "", "model-missing-required", common.GetComponentInfo())
-	}
-	return
-}
-
-func (*LoadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContextFloatingIPIdentityLoadBalancerContextFloatingIPIdentityByCRN) isaLoadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContext() bool {
-	return true
-}
-
-func (*LoadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContextFloatingIPIdentityLoadBalancerContextFloatingIPIdentityByCRN) isaLoadBalancerPublicIPIdentity() bool {
-	return true
-}
-
-// UnmarshalLoadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContextFloatingIPIdentityLoadBalancerContextFloatingIPIdentityByCRN unmarshals an instance of LoadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContextFloatingIPIdentityLoadBalancerContextFloatingIPIdentityByCRN from the specified map of raw messages.
-func UnmarshalLoadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContextFloatingIPIdentityLoadBalancerContextFloatingIPIdentityByCRN(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(LoadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContextFloatingIPIdentityLoadBalancerContextFloatingIPIdentityByCRN)
-	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "crn-error", common.GetComponentInfo())
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// asPatch returns a generic map representation of the LoadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContextFloatingIPIdentityLoadBalancerContextFloatingIPIdentityByCRN
-func (loadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContextFloatingIPIdentityLoadBalancerContextFloatingIPIdentityByCRN *LoadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContextFloatingIPIdentityLoadBalancerContextFloatingIPIdentityByCRN) asPatch() (_patch map[string]interface{}) {
-	_patch = map[string]interface{}{}
-	if !core.IsNil(loadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContextFloatingIPIdentityLoadBalancerContextFloatingIPIdentityByCRN.CRN) {
-		_patch["crn"] = loadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContextFloatingIPIdentityLoadBalancerContextFloatingIPIdentityByCRN.CRN
-	}
-
-	return
-}
-
-// LoadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContextFloatingIPIdentityLoadBalancerContextFloatingIPIdentityByHref : LoadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContextFloatingIPIdentityLoadBalancerContextFloatingIPIdentityByHref struct
-// This model "extends" LoadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContext
-type LoadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContextFloatingIPIdentityLoadBalancerContextFloatingIPIdentityByHref struct {
-	// The URL for this floating IP.
-	Href *string `json:"href" validate:"required"`
-}
-
-// NewLoadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContextFloatingIPIdentityLoadBalancerContextFloatingIPIdentityByHref : Instantiate LoadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContextFloatingIPIdentityLoadBalancerContextFloatingIPIdentityByHref (Generic Model Constructor)
-func (*VpcV1) NewLoadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContextFloatingIPIdentityLoadBalancerContextFloatingIPIdentityByHref(href string) (_model *LoadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContextFloatingIPIdentityLoadBalancerContextFloatingIPIdentityByHref, err error) {
-	_model = &LoadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContextFloatingIPIdentityLoadBalancerContextFloatingIPIdentityByHref{
-		Href: core.StringPtr(href),
-	}
-	err = core.ValidateStruct(_model, "required parameters")
-	if err != nil {
-		err = core.SDKErrorf(err, "", "model-missing-required", common.GetComponentInfo())
-	}
-	return
-}
-
-func (*LoadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContextFloatingIPIdentityLoadBalancerContextFloatingIPIdentityByHref) isaLoadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContext() bool {
-	return true
-}
-
-func (*LoadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContextFloatingIPIdentityLoadBalancerContextFloatingIPIdentityByHref) isaLoadBalancerPublicIPIdentity() bool {
-	return true
-}
-
-// UnmarshalLoadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContextFloatingIPIdentityLoadBalancerContextFloatingIPIdentityByHref unmarshals an instance of LoadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContextFloatingIPIdentityLoadBalancerContextFloatingIPIdentityByHref from the specified map of raw messages.
-func UnmarshalLoadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContextFloatingIPIdentityLoadBalancerContextFloatingIPIdentityByHref(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(LoadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContextFloatingIPIdentityLoadBalancerContextFloatingIPIdentityByHref)
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "href-error", common.GetComponentInfo())
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// asPatch returns a generic map representation of the LoadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContextFloatingIPIdentityLoadBalancerContextFloatingIPIdentityByHref
-func (loadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContextFloatingIPIdentityLoadBalancerContextFloatingIPIdentityByHref *LoadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContextFloatingIPIdentityLoadBalancerContextFloatingIPIdentityByHref) asPatch() (_patch map[string]interface{}) {
-	_patch = map[string]interface{}{}
-	if !core.IsNil(loadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContextFloatingIPIdentityLoadBalancerContextFloatingIPIdentityByHref.Href) {
-		_patch["href"] = loadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContextFloatingIPIdentityLoadBalancerContextFloatingIPIdentityByHref.Href
-	}
-
-	return
-}
-
-// LoadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContextFloatingIPIdentityLoadBalancerContextFloatingIPIdentityByID : LoadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContextFloatingIPIdentityLoadBalancerContextFloatingIPIdentityByID struct
-// This model "extends" LoadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContext
-type LoadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContextFloatingIPIdentityLoadBalancerContextFloatingIPIdentityByID struct {
-	// The unique identifier for this floating IP.
-	ID *string `json:"id" validate:"required"`
-}
-
-// NewLoadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContextFloatingIPIdentityLoadBalancerContextFloatingIPIdentityByID : Instantiate LoadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContextFloatingIPIdentityLoadBalancerContextFloatingIPIdentityByID (Generic Model Constructor)
-func (*VpcV1) NewLoadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContextFloatingIPIdentityLoadBalancerContextFloatingIPIdentityByID(id string) (_model *LoadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContextFloatingIPIdentityLoadBalancerContextFloatingIPIdentityByID, err error) {
-	_model = &LoadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContextFloatingIPIdentityLoadBalancerContextFloatingIPIdentityByID{
-		ID: core.StringPtr(id),
-	}
-	err = core.ValidateStruct(_model, "required parameters")
-	if err != nil {
-		err = core.SDKErrorf(err, "", "model-missing-required", common.GetComponentInfo())
-	}
-	return
-}
-
-func (*LoadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContextFloatingIPIdentityLoadBalancerContextFloatingIPIdentityByID) isaLoadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContext() bool {
-	return true
-}
-
-func (*LoadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContextFloatingIPIdentityLoadBalancerContextFloatingIPIdentityByID) isaLoadBalancerPublicIPIdentity() bool {
-	return true
-}
-
-// UnmarshalLoadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContextFloatingIPIdentityLoadBalancerContextFloatingIPIdentityByID unmarshals an instance of LoadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContextFloatingIPIdentityLoadBalancerContextFloatingIPIdentityByID from the specified map of raw messages.
-func UnmarshalLoadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContextFloatingIPIdentityLoadBalancerContextFloatingIPIdentityByID(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(LoadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContextFloatingIPIdentityLoadBalancerContextFloatingIPIdentityByID)
-	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "id-error", common.GetComponentInfo())
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// asPatch returns a generic map representation of the LoadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContextFloatingIPIdentityLoadBalancerContextFloatingIPIdentityByID
-func (loadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContextFloatingIPIdentityLoadBalancerContextFloatingIPIdentityByID *LoadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContextFloatingIPIdentityLoadBalancerContextFloatingIPIdentityByID) asPatch() (_patch map[string]interface{}) {
-	_patch = map[string]interface{}{}
-	if !core.IsNil(loadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContextFloatingIPIdentityLoadBalancerContextFloatingIPIdentityByID.ID) {
-		_patch["id"] = loadBalancerPublicIPIdentityFloatingIPIdentityLoadBalancerContextFloatingIPIdentityLoadBalancerContextFloatingIPIdentityByID.ID
-	}
-
-	return
-}
-
-// LoadBalancerPublicIPIdentityPublicAddressRangeIdentityPublicAddressRangeIdentityByCRN : LoadBalancerPublicIPIdentityPublicAddressRangeIdentityPublicAddressRangeIdentityByCRN struct
-// This model "extends" LoadBalancerPublicIPIdentityPublicAddressRangeIdentity
-type LoadBalancerPublicIPIdentityPublicAddressRangeIdentityPublicAddressRangeIdentityByCRN struct {
-	// The CRN for this public address range.
-	CRN *string `json:"crn" validate:"required"`
-}
-
-// NewLoadBalancerPublicIPIdentityPublicAddressRangeIdentityPublicAddressRangeIdentityByCRN : Instantiate LoadBalancerPublicIPIdentityPublicAddressRangeIdentityPublicAddressRangeIdentityByCRN (Generic Model Constructor)
-func (*VpcV1) NewLoadBalancerPublicIPIdentityPublicAddressRangeIdentityPublicAddressRangeIdentityByCRN(crn string) (_model *LoadBalancerPublicIPIdentityPublicAddressRangeIdentityPublicAddressRangeIdentityByCRN, err error) {
-	_model = &LoadBalancerPublicIPIdentityPublicAddressRangeIdentityPublicAddressRangeIdentityByCRN{
-		CRN: core.StringPtr(crn),
-	}
-	err = core.ValidateStruct(_model, "required parameters")
-	if err != nil {
-		err = core.SDKErrorf(err, "", "model-missing-required", common.GetComponentInfo())
-	}
-	return
-}
-
-func (*LoadBalancerPublicIPIdentityPublicAddressRangeIdentityPublicAddressRangeIdentityByCRN) isaLoadBalancerPublicIPIdentityPublicAddressRangeIdentity() bool {
-	return true
-}
-
-func (*LoadBalancerPublicIPIdentityPublicAddressRangeIdentityPublicAddressRangeIdentityByCRN) isaLoadBalancerPublicIPIdentity() bool {
-	return true
-}
-
-// UnmarshalLoadBalancerPublicIPIdentityPublicAddressRangeIdentityPublicAddressRangeIdentityByCRN unmarshals an instance of LoadBalancerPublicIPIdentityPublicAddressRangeIdentityPublicAddressRangeIdentityByCRN from the specified map of raw messages.
-func UnmarshalLoadBalancerPublicIPIdentityPublicAddressRangeIdentityPublicAddressRangeIdentityByCRN(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(LoadBalancerPublicIPIdentityPublicAddressRangeIdentityPublicAddressRangeIdentityByCRN)
-	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "crn-error", common.GetComponentInfo())
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// asPatch returns a generic map representation of the LoadBalancerPublicIPIdentityPublicAddressRangeIdentityPublicAddressRangeIdentityByCRN
-func (loadBalancerPublicIPIdentityPublicAddressRangeIdentityPublicAddressRangeIdentityByCRN *LoadBalancerPublicIPIdentityPublicAddressRangeIdentityPublicAddressRangeIdentityByCRN) asPatch() (_patch map[string]interface{}) {
-	_patch = map[string]interface{}{}
-	if !core.IsNil(loadBalancerPublicIPIdentityPublicAddressRangeIdentityPublicAddressRangeIdentityByCRN.CRN) {
-		_patch["crn"] = loadBalancerPublicIPIdentityPublicAddressRangeIdentityPublicAddressRangeIdentityByCRN.CRN
-	}
-
-	return
-}
-
-// LoadBalancerPublicIPIdentityPublicAddressRangeIdentityPublicAddressRangeIdentityByHref : LoadBalancerPublicIPIdentityPublicAddressRangeIdentityPublicAddressRangeIdentityByHref struct
-// This model "extends" LoadBalancerPublicIPIdentityPublicAddressRangeIdentity
-type LoadBalancerPublicIPIdentityPublicAddressRangeIdentityPublicAddressRangeIdentityByHref struct {
-	// The URL for this public address range.
-	Href *string `json:"href" validate:"required"`
-}
-
-// NewLoadBalancerPublicIPIdentityPublicAddressRangeIdentityPublicAddressRangeIdentityByHref : Instantiate LoadBalancerPublicIPIdentityPublicAddressRangeIdentityPublicAddressRangeIdentityByHref (Generic Model Constructor)
-func (*VpcV1) NewLoadBalancerPublicIPIdentityPublicAddressRangeIdentityPublicAddressRangeIdentityByHref(href string) (_model *LoadBalancerPublicIPIdentityPublicAddressRangeIdentityPublicAddressRangeIdentityByHref, err error) {
-	_model = &LoadBalancerPublicIPIdentityPublicAddressRangeIdentityPublicAddressRangeIdentityByHref{
-		Href: core.StringPtr(href),
-	}
-	err = core.ValidateStruct(_model, "required parameters")
-	if err != nil {
-		err = core.SDKErrorf(err, "", "model-missing-required", common.GetComponentInfo())
-	}
-	return
-}
-
-func (*LoadBalancerPublicIPIdentityPublicAddressRangeIdentityPublicAddressRangeIdentityByHref) isaLoadBalancerPublicIPIdentityPublicAddressRangeIdentity() bool {
-	return true
-}
-
-func (*LoadBalancerPublicIPIdentityPublicAddressRangeIdentityPublicAddressRangeIdentityByHref) isaLoadBalancerPublicIPIdentity() bool {
-	return true
-}
-
-// UnmarshalLoadBalancerPublicIPIdentityPublicAddressRangeIdentityPublicAddressRangeIdentityByHref unmarshals an instance of LoadBalancerPublicIPIdentityPublicAddressRangeIdentityPublicAddressRangeIdentityByHref from the specified map of raw messages.
-func UnmarshalLoadBalancerPublicIPIdentityPublicAddressRangeIdentityPublicAddressRangeIdentityByHref(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(LoadBalancerPublicIPIdentityPublicAddressRangeIdentityPublicAddressRangeIdentityByHref)
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "href-error", common.GetComponentInfo())
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// asPatch returns a generic map representation of the LoadBalancerPublicIPIdentityPublicAddressRangeIdentityPublicAddressRangeIdentityByHref
-func (loadBalancerPublicIPIdentityPublicAddressRangeIdentityPublicAddressRangeIdentityByHref *LoadBalancerPublicIPIdentityPublicAddressRangeIdentityPublicAddressRangeIdentityByHref) asPatch() (_patch map[string]interface{}) {
-	_patch = map[string]interface{}{}
-	if !core.IsNil(loadBalancerPublicIPIdentityPublicAddressRangeIdentityPublicAddressRangeIdentityByHref.Href) {
-		_patch["href"] = loadBalancerPublicIPIdentityPublicAddressRangeIdentityPublicAddressRangeIdentityByHref.Href
-	}
-
-	return
-}
-
-// LoadBalancerPublicIPIdentityPublicAddressRangeIdentityPublicAddressRangeIdentityByID : LoadBalancerPublicIPIdentityPublicAddressRangeIdentityPublicAddressRangeIdentityByID struct
-// This model "extends" LoadBalancerPublicIPIdentityPublicAddressRangeIdentity
-type LoadBalancerPublicIPIdentityPublicAddressRangeIdentityPublicAddressRangeIdentityByID struct {
-	// The unique identifier for this public address range.
-	ID *string `json:"id" validate:"required"`
-}
-
-// NewLoadBalancerPublicIPIdentityPublicAddressRangeIdentityPublicAddressRangeIdentityByID : Instantiate LoadBalancerPublicIPIdentityPublicAddressRangeIdentityPublicAddressRangeIdentityByID (Generic Model Constructor)
-func (*VpcV1) NewLoadBalancerPublicIPIdentityPublicAddressRangeIdentityPublicAddressRangeIdentityByID(id string) (_model *LoadBalancerPublicIPIdentityPublicAddressRangeIdentityPublicAddressRangeIdentityByID, err error) {
-	_model = &LoadBalancerPublicIPIdentityPublicAddressRangeIdentityPublicAddressRangeIdentityByID{
-		ID: core.StringPtr(id),
-	}
-	err = core.ValidateStruct(_model, "required parameters")
-	if err != nil {
-		err = core.SDKErrorf(err, "", "model-missing-required", common.GetComponentInfo())
-	}
-	return
-}
-
-func (*LoadBalancerPublicIPIdentityPublicAddressRangeIdentityPublicAddressRangeIdentityByID) isaLoadBalancerPublicIPIdentityPublicAddressRangeIdentity() bool {
-	return true
-}
-
-func (*LoadBalancerPublicIPIdentityPublicAddressRangeIdentityPublicAddressRangeIdentityByID) isaLoadBalancerPublicIPIdentity() bool {
-	return true
-}
-
-// UnmarshalLoadBalancerPublicIPIdentityPublicAddressRangeIdentityPublicAddressRangeIdentityByID unmarshals an instance of LoadBalancerPublicIPIdentityPublicAddressRangeIdentityPublicAddressRangeIdentityByID from the specified map of raw messages.
-func UnmarshalLoadBalancerPublicIPIdentityPublicAddressRangeIdentityPublicAddressRangeIdentityByID(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(LoadBalancerPublicIPIdentityPublicAddressRangeIdentityPublicAddressRangeIdentityByID)
-	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "id-error", common.GetComponentInfo())
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// asPatch returns a generic map representation of the LoadBalancerPublicIPIdentityPublicAddressRangeIdentityPublicAddressRangeIdentityByID
-func (loadBalancerPublicIPIdentityPublicAddressRangeIdentityPublicAddressRangeIdentityByID *LoadBalancerPublicIPIdentityPublicAddressRangeIdentityPublicAddressRangeIdentityByID) asPatch() (_patch map[string]interface{}) {
-	_patch = map[string]interface{}{}
-	if !core.IsNil(loadBalancerPublicIPIdentityPublicAddressRangeIdentityPublicAddressRangeIdentityByID.ID) {
-		_patch["id"] = loadBalancerPublicIPIdentityPublicAddressRangeIdentityPublicAddressRangeIdentityByID.ID
-	}
-
-	return
-}
-
 // NetworkInterfaceIPPrototypeReservedIPIdentityByHref : NetworkInterfaceIPPrototypeReservedIPIdentityByHref struct
 // This model "extends" NetworkInterfaceIPPrototypeReservedIPIdentity
 type NetworkInterfaceIPPrototypeReservedIPIdentityByHref struct {
@@ -176127,6 +179860,109 @@ func UnmarshalNetworkInterfaceIPPrototypeReservedIPIdentityByID(m map[string]jso
 	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "id-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// PublicAddressRangeAuthorizedCIDRPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototypePublicAddressRangeAuthorizedCIDRByNetworkPrefixLength : PublicAddressRangeAuthorizedCIDRPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototypePublicAddressRangeAuthorizedCIDRByNetworkPrefixLength struct
+// This model "extends" PublicAddressRangeAuthorizedCIDRPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototype
+type PublicAddressRangeAuthorizedCIDRPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototypePublicAddressRangeAuthorizedCIDRByNetworkPrefixLength struct {
+	// The IP version for this public address range authorized CIDR:
+	// - `ipv6`: An IPv6 public address range authorized CIDR.
+	IPVersion *string `json:"ip_version" validate:"required"`
+
+	// The name for this public address range authorized CIDR. The name must not be used by another public address range
+	// authorized CIDR in the region. Names beginning with
+	// `ibm-` are reserved for provider-managed resources, and are not allowed.
+	//
+	// If unspecified, the name will be a hyphenated list of randomly-selected words.
+	Name *string `json:"name,omitempty"`
+
+	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
+
+	// The availability mode of the public address range authorized CIDR:
+	// - `zonal`: Resources allocated from the authorized CIDR must reside in the authorized
+	//   CIDR's `zone`.
+	AvailabilityMode *string `json:"availability_mode" validate:"required"`
+
+	// The zone this public address range authorized CIDR will reside in.
+	Zone ZoneIdentityIntf `json:"zone" validate:"required"`
+
+	// The network prefix length for this public address range authorized CIDR.
+	NetworkPrefixLength *int64 `json:"network_prefix_length" validate:"required"`
+}
+
+// Constants associated with the PublicAddressRangeAuthorizedCIDRPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototypePublicAddressRangeAuthorizedCIDRByNetworkPrefixLength.IPVersion property.
+// The IP version for this public address range authorized CIDR:
+// - `ipv6`: An IPv6 public address range authorized CIDR.
+const (
+	PublicAddressRangeAuthorizedCIDRPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototypePublicAddressRangeAuthorizedCIDRByNetworkPrefixLengthIPVersionIpv6Const = "ipv6"
+)
+
+// Constants associated with the PublicAddressRangeAuthorizedCIDRPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototypePublicAddressRangeAuthorizedCIDRByNetworkPrefixLength.AvailabilityMode property.
+// The availability mode of the public address range authorized CIDR:
+//   - `zonal`: Resources allocated from the authorized CIDR must reside in the authorized
+//     CIDR's `zone`.
+const (
+	PublicAddressRangeAuthorizedCIDRPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototypePublicAddressRangeAuthorizedCIDRByNetworkPrefixLengthAvailabilityModeZonalConst = "zonal"
+)
+
+// NewPublicAddressRangeAuthorizedCIDRPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototypePublicAddressRangeAuthorizedCIDRByNetworkPrefixLength : Instantiate PublicAddressRangeAuthorizedCIDRPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototypePublicAddressRangeAuthorizedCIDRByNetworkPrefixLength (Generic Model Constructor)
+func (*VpcV1) NewPublicAddressRangeAuthorizedCIDRPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototypePublicAddressRangeAuthorizedCIDRByNetworkPrefixLength(ipVersion string, availabilityMode string, zone ZoneIdentityIntf, networkPrefixLength int64) (_model *PublicAddressRangeAuthorizedCIDRPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototypePublicAddressRangeAuthorizedCIDRByNetworkPrefixLength, err error) {
+	_model = &PublicAddressRangeAuthorizedCIDRPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototypePublicAddressRangeAuthorizedCIDRByNetworkPrefixLength{
+		IPVersion:           core.StringPtr(ipVersion),
+		AvailabilityMode:    core.StringPtr(availabilityMode),
+		Zone:                zone,
+		NetworkPrefixLength: core.Int64Ptr(networkPrefixLength),
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "model-missing-required", common.GetComponentInfo())
+	}
+	return
+}
+
+func (*PublicAddressRangeAuthorizedCIDRPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototypePublicAddressRangeAuthorizedCIDRByNetworkPrefixLength) isaPublicAddressRangeAuthorizedCIDRPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototype() bool {
+	return true
+}
+
+func (*PublicAddressRangeAuthorizedCIDRPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototypePublicAddressRangeAuthorizedCIDRByNetworkPrefixLength) isaPublicAddressRangeAuthorizedCIDRPrototype() bool {
+	return true
+}
+
+// UnmarshalPublicAddressRangeAuthorizedCIDRPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototypePublicAddressRangeAuthorizedCIDRByNetworkPrefixLength unmarshals an instance of PublicAddressRangeAuthorizedCIDRPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototypePublicAddressRangeAuthorizedCIDRByNetworkPrefixLength from the specified map of raw messages.
+func UnmarshalPublicAddressRangeAuthorizedCIDRPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototypePublicAddressRangeAuthorizedCIDRByNetworkPrefixLength(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(PublicAddressRangeAuthorizedCIDRPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototypePublicAddressRangeAuthorizedCIDRAvailabilityModeZonalPrototypePublicAddressRangeAuthorizedCIDRByNetworkPrefixLength)
+	err = core.UnmarshalPrimitive(m, "ip_version", &obj.IPVersion)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "ip_version-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "resource_group", &obj.ResourceGroup, UnmarshalResourceGroupIdentity)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "resource_group-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "availability_mode", &obj.AvailabilityMode)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "availability_mode-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "zone", &obj.Zone, UnmarshalZoneIdentity)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "zone-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "network_prefix_length", &obj.NetworkPrefixLength)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "network_prefix_length-error", common.GetComponentInfo())
 		return
 	}
 	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
@@ -177679,8 +181515,13 @@ type VPNGatewayConnectionRouteModeVPNGatewayConnectionDynamicRouteMode struct {
 	StatusReasons []VPNGatewayConnectionStatusReason `json:"status_reasons" validate:"required"`
 
 	// Indicates whether the traffic is distributed between the `up` tunnels of the VPN gateway connection when the VPC
-	// route's next hop is a VPN connection. If `false`, the traffic is only routed through the `up` tunnel with the lower
-	// `public_ip` address.
+	// route's next hop is a VPN connection.
+	//
+	// For a `zonal` VPN gateway, if `false`, the traffic is only routed through the `up` tunnel with the lower `public_ip`
+	// address.
+	//
+	// For a `regional` VPN gateway, if `true`, traffic is distributed across both VPN members (ECMP mode). If `false`,
+	// only the first member of the VPN gateway handles all the traffic (deterministic mode).
 	DistributeTraffic *bool `json:"distribute_traffic" validate:"required"`
 
 	Local *VPNGatewayConnectionDynamicRouteModeLocal `json:"local" validate:"required"`
@@ -177922,8 +181763,13 @@ type VPNGatewayConnectionRouteModeVPNGatewayConnectionStaticRouteMode struct {
 	StatusReasons []VPNGatewayConnectionStatusReason `json:"status_reasons" validate:"required"`
 
 	// Indicates whether the traffic is distributed between the `up` tunnels of the VPN gateway connection when the VPC
-	// route's next hop is a VPN connection. If `false`, the traffic is only routed through the `up` tunnel with the lower
-	// `public_ip` address.
+	// route's next hop is a VPN connection.
+	//
+	// For a `zonal` VPN gateway, if `false`, the traffic is only routed through the `up` tunnel with the lower `public_ip`
+	// address.
+	//
+	// For a `regional` VPN gateway, if `true`, traffic is distributed across both VPN members (ECMP mode). If `false`,
+	// only the first member of the VPN gateway handles all the traffic (deterministic mode).
 	DistributeTraffic *bool `json:"distribute_traffic" validate:"required"`
 
 	Local *VPNGatewayConnectionStaticRouteModeLocal `json:"local" validate:"required"`
@@ -178097,6 +181943,1163 @@ func UnmarshalVPNGatewayConnectionRouteModeVPNGatewayConnectionStaticRouteMode(m
 	err = core.UnmarshalModel(m, "tunnels", &obj.Tunnels, UnmarshalVPNGatewayConnectionStaticRouteModeTunnel)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "tunnels-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// VPNGatewayPrototypeVPNGatewayRegionalAvailabilityModeByMemberVPNGatewayRegionalAvailabilityModeByMemberVPNGatewayRouteModePrototype : VPNGatewayPrototypeVPNGatewayRegionalAvailabilityModeByMemberVPNGatewayRegionalAvailabilityModeByMemberVPNGatewayRouteModePrototype struct
+// This model "extends" VPNGatewayPrototypeVPNGatewayRegionalAvailabilityModeByMember
+type VPNGatewayPrototypeVPNGatewayRegionalAvailabilityModeByMemberVPNGatewayRegionalAvailabilityModeByMemberVPNGatewayRouteModePrototype struct {
+	// The name for this VPN gateway. The name must not be used by another VPN gateway in the VPC. If unspecified, the name
+	// will be a hyphenated list of randomly-selected words.
+	Name *string `json:"name,omitempty"`
+
+	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
+
+	// The availability mode of the VPN gateway:
+	// - `regional`: The VPN gateway is deployed across multiple zones in the region. This mode
+	//   provides zone-level redundancy.
+	AvailabilityMode *string `json:"availability_mode" validate:"required"`
+
+	// The members to use for the VPN gateway.
+	Members []VPNGatewayMemberPrototype `json:"members" validate:"required"`
+
+	// The static CIDRs advertised through any enabled routing protocol (for example, BGP). The routing protocol will
+	// advertise routes with these CIDRs as route destinations.
+	AdvertisedCIDRs []string `json:"advertised_cidrs,omitempty"`
+
+	// The local autonomous system number (ASN) for this VPN gateway and its connections. The ASN values in the
+	// [restricted ASN list](
+	// https://cloud.ibm.com/docs/vpc?topic=vpc-planning-considerations-vpn#dynamic-route-based-considerations) are
+	// reserved and unavailable.
+	LocalAsn *int64 `json:"local_asn,omitempty"`
+
+	// The mode for this VPN gateway.
+	Mode *string `json:"mode,omitempty"`
+}
+
+// Constants associated with the VPNGatewayPrototypeVPNGatewayRegionalAvailabilityModeByMemberVPNGatewayRegionalAvailabilityModeByMemberVPNGatewayRouteModePrototype.AvailabilityMode property.
+// The availability mode of the VPN gateway:
+//   - `regional`: The VPN gateway is deployed across multiple zones in the region. This mode
+//     provides zone-level redundancy.
+const (
+	VPNGatewayPrototypeVPNGatewayRegionalAvailabilityModeByMemberVPNGatewayRegionalAvailabilityModeByMemberVPNGatewayRouteModePrototypeAvailabilityModeRegionalConst = "regional"
+)
+
+// Constants associated with the VPNGatewayPrototypeVPNGatewayRegionalAvailabilityModeByMemberVPNGatewayRegionalAvailabilityModeByMemberVPNGatewayRouteModePrototype.Mode property.
+// The mode for this VPN gateway.
+const (
+	VPNGatewayPrototypeVPNGatewayRegionalAvailabilityModeByMemberVPNGatewayRegionalAvailabilityModeByMemberVPNGatewayRouteModePrototypeModeRouteConst = "route"
+)
+
+// NewVPNGatewayPrototypeVPNGatewayRegionalAvailabilityModeByMemberVPNGatewayRegionalAvailabilityModeByMemberVPNGatewayRouteModePrototype : Instantiate VPNGatewayPrototypeVPNGatewayRegionalAvailabilityModeByMemberVPNGatewayRegionalAvailabilityModeByMemberVPNGatewayRouteModePrototype (Generic Model Constructor)
+func (*VpcV1) NewVPNGatewayPrototypeVPNGatewayRegionalAvailabilityModeByMemberVPNGatewayRegionalAvailabilityModeByMemberVPNGatewayRouteModePrototype(availabilityMode string, members []VPNGatewayMemberPrototype) (_model *VPNGatewayPrototypeVPNGatewayRegionalAvailabilityModeByMemberVPNGatewayRegionalAvailabilityModeByMemberVPNGatewayRouteModePrototype, err error) {
+	_model = &VPNGatewayPrototypeVPNGatewayRegionalAvailabilityModeByMemberVPNGatewayRegionalAvailabilityModeByMemberVPNGatewayRouteModePrototype{
+		AvailabilityMode: core.StringPtr(availabilityMode),
+		Members:          members,
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "model-missing-required", common.GetComponentInfo())
+	}
+	return
+}
+
+func (*VPNGatewayPrototypeVPNGatewayRegionalAvailabilityModeByMemberVPNGatewayRegionalAvailabilityModeByMemberVPNGatewayRouteModePrototype) isaVPNGatewayPrototypeVPNGatewayRegionalAvailabilityModeByMember() bool {
+	return true
+}
+
+func (*VPNGatewayPrototypeVPNGatewayRegionalAvailabilityModeByMemberVPNGatewayRegionalAvailabilityModeByMemberVPNGatewayRouteModePrototype) isaVPNGatewayPrototype() bool {
+	return true
+}
+
+// UnmarshalVPNGatewayPrototypeVPNGatewayRegionalAvailabilityModeByMemberVPNGatewayRegionalAvailabilityModeByMemberVPNGatewayRouteModePrototype unmarshals an instance of VPNGatewayPrototypeVPNGatewayRegionalAvailabilityModeByMemberVPNGatewayRegionalAvailabilityModeByMemberVPNGatewayRouteModePrototype from the specified map of raw messages.
+func UnmarshalVPNGatewayPrototypeVPNGatewayRegionalAvailabilityModeByMemberVPNGatewayRegionalAvailabilityModeByMemberVPNGatewayRouteModePrototype(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VPNGatewayPrototypeVPNGatewayRegionalAvailabilityModeByMemberVPNGatewayRegionalAvailabilityModeByMemberVPNGatewayRouteModePrototype)
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "resource_group", &obj.ResourceGroup, UnmarshalResourceGroupIdentity)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "resource_group-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "availability_mode", &obj.AvailabilityMode)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "availability_mode-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "members", &obj.Members, UnmarshalVPNGatewayMemberPrototype)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "members-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "advertised_cidrs", &obj.AdvertisedCIDRs)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "advertised_cidrs-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "local_asn", &obj.LocalAsn)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "local_asn-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "mode", &obj.Mode)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "mode-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeByMemberVPNGatewayZonalAvailabilityModeByMemberVPNGatewayPolicyModePrototype : VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeByMemberVPNGatewayZonalAvailabilityModeByMemberVPNGatewayPolicyModePrototype struct
+// This model "extends" VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeByMember
+type VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeByMemberVPNGatewayZonalAvailabilityModeByMemberVPNGatewayPolicyModePrototype struct {
+	// The name for this VPN gateway. The name must not be used by another VPN gateway in the VPC. If unspecified, the name
+	// will be a hyphenated list of randomly-selected words.
+	Name *string `json:"name,omitempty"`
+
+	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
+
+	// The availability mode of the VPN gateway:
+	// - `zonal`: The VPN gateway is deployed in a single zone in the region. Availability is
+	//   limited to that zone.
+	AvailabilityMode *string `json:"availability_mode,omitempty"`
+
+	// The members to use for the VPN gateway. All members must reside in the same subnet.
+	Members []VPNGatewayMemberPrototype `json:"members" validate:"required"`
+
+	// The mode for this VPN gateway.
+	Mode *string `json:"mode" validate:"required"`
+}
+
+// Constants associated with the VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeByMemberVPNGatewayZonalAvailabilityModeByMemberVPNGatewayPolicyModePrototype.AvailabilityMode property.
+// The availability mode of the VPN gateway:
+//   - `zonal`: The VPN gateway is deployed in a single zone in the region. Availability is
+//     limited to that zone.
+const (
+	VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeByMemberVPNGatewayZonalAvailabilityModeByMemberVPNGatewayPolicyModePrototypeAvailabilityModeZonalConst = "zonal"
+)
+
+// Constants associated with the VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeByMemberVPNGatewayZonalAvailabilityModeByMemberVPNGatewayPolicyModePrototype.Mode property.
+// The mode for this VPN gateway.
+const (
+	VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeByMemberVPNGatewayZonalAvailabilityModeByMemberVPNGatewayPolicyModePrototypeModePolicyConst = "policy"
+)
+
+// NewVPNGatewayPrototypeVPNGatewayZonalAvailabilityModeByMemberVPNGatewayZonalAvailabilityModeByMemberVPNGatewayPolicyModePrototype : Instantiate VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeByMemberVPNGatewayZonalAvailabilityModeByMemberVPNGatewayPolicyModePrototype (Generic Model Constructor)
+func (*VpcV1) NewVPNGatewayPrototypeVPNGatewayZonalAvailabilityModeByMemberVPNGatewayZonalAvailabilityModeByMemberVPNGatewayPolicyModePrototype(members []VPNGatewayMemberPrototype, mode string) (_model *VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeByMemberVPNGatewayZonalAvailabilityModeByMemberVPNGatewayPolicyModePrototype, err error) {
+	_model = &VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeByMemberVPNGatewayZonalAvailabilityModeByMemberVPNGatewayPolicyModePrototype{
+		Members: members,
+		Mode:    core.StringPtr(mode),
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "model-missing-required", common.GetComponentInfo())
+	}
+	return
+}
+
+func (*VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeByMemberVPNGatewayZonalAvailabilityModeByMemberVPNGatewayPolicyModePrototype) isaVPNGatewayPrototypeVPNGatewayZonalAvailabilityModeByMember() bool {
+	return true
+}
+
+func (*VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeByMemberVPNGatewayZonalAvailabilityModeByMemberVPNGatewayPolicyModePrototype) isaVPNGatewayPrototype() bool {
+	return true
+}
+
+// UnmarshalVPNGatewayPrototypeVPNGatewayZonalAvailabilityModeByMemberVPNGatewayZonalAvailabilityModeByMemberVPNGatewayPolicyModePrototype unmarshals an instance of VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeByMemberVPNGatewayZonalAvailabilityModeByMemberVPNGatewayPolicyModePrototype from the specified map of raw messages.
+func UnmarshalVPNGatewayPrototypeVPNGatewayZonalAvailabilityModeByMemberVPNGatewayZonalAvailabilityModeByMemberVPNGatewayPolicyModePrototype(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeByMemberVPNGatewayZonalAvailabilityModeByMemberVPNGatewayPolicyModePrototype)
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "resource_group", &obj.ResourceGroup, UnmarshalResourceGroupIdentity)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "resource_group-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "availability_mode", &obj.AvailabilityMode)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "availability_mode-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "members", &obj.Members, UnmarshalVPNGatewayMemberPrototype)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "members-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "mode", &obj.Mode)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "mode-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeByMemberVPNGatewayZonalAvailabilityModeByMemberVPNGatewayRouteModePrototype : VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeByMemberVPNGatewayZonalAvailabilityModeByMemberVPNGatewayRouteModePrototype struct
+// This model "extends" VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeByMember
+type VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeByMemberVPNGatewayZonalAvailabilityModeByMemberVPNGatewayRouteModePrototype struct {
+	// The name for this VPN gateway. The name must not be used by another VPN gateway in the VPC. If unspecified, the name
+	// will be a hyphenated list of randomly-selected words.
+	Name *string `json:"name,omitempty"`
+
+	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
+
+	// The availability mode of the VPN gateway:
+	// - `zonal`: The VPN gateway is deployed in a single zone in the region. Availability is
+	//   limited to that zone.
+	AvailabilityMode *string `json:"availability_mode,omitempty"`
+
+	// The members to use for the VPN gateway. All members must reside in the same subnet.
+	Members []VPNGatewayMemberPrototype `json:"members" validate:"required"`
+
+	// The static CIDRs advertised through any enabled routing protocol (for example, BGP). The routing protocol will
+	// advertise routes with these CIDRs as route destinations.
+	AdvertisedCIDRs []string `json:"advertised_cidrs,omitempty"`
+
+	// The local autonomous system number (ASN) for this VPN gateway and its connections. The ASN values in the
+	// [restricted ASN list](
+	// https://cloud.ibm.com/docs/vpc?topic=vpc-planning-considerations-vpn#dynamic-route-based-considerations) are
+	// reserved and unavailable.
+	LocalAsn *int64 `json:"local_asn,omitempty"`
+
+	// The mode for this VPN gateway.
+	Mode *string `json:"mode,omitempty"`
+}
+
+// Constants associated with the VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeByMemberVPNGatewayZonalAvailabilityModeByMemberVPNGatewayRouteModePrototype.AvailabilityMode property.
+// The availability mode of the VPN gateway:
+//   - `zonal`: The VPN gateway is deployed in a single zone in the region. Availability is
+//     limited to that zone.
+const (
+	VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeByMemberVPNGatewayZonalAvailabilityModeByMemberVPNGatewayRouteModePrototypeAvailabilityModeZonalConst = "zonal"
+)
+
+// Constants associated with the VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeByMemberVPNGatewayZonalAvailabilityModeByMemberVPNGatewayRouteModePrototype.Mode property.
+// The mode for this VPN gateway.
+const (
+	VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeByMemberVPNGatewayZonalAvailabilityModeByMemberVPNGatewayRouteModePrototypeModeRouteConst = "route"
+)
+
+// NewVPNGatewayPrototypeVPNGatewayZonalAvailabilityModeByMemberVPNGatewayZonalAvailabilityModeByMemberVPNGatewayRouteModePrototype : Instantiate VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeByMemberVPNGatewayZonalAvailabilityModeByMemberVPNGatewayRouteModePrototype (Generic Model Constructor)
+func (*VpcV1) NewVPNGatewayPrototypeVPNGatewayZonalAvailabilityModeByMemberVPNGatewayZonalAvailabilityModeByMemberVPNGatewayRouteModePrototype(members []VPNGatewayMemberPrototype) (_model *VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeByMemberVPNGatewayZonalAvailabilityModeByMemberVPNGatewayRouteModePrototype, err error) {
+	_model = &VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeByMemberVPNGatewayZonalAvailabilityModeByMemberVPNGatewayRouteModePrototype{
+		Members: members,
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "model-missing-required", common.GetComponentInfo())
+	}
+	return
+}
+
+func (*VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeByMemberVPNGatewayZonalAvailabilityModeByMemberVPNGatewayRouteModePrototype) isaVPNGatewayPrototypeVPNGatewayZonalAvailabilityModeByMember() bool {
+	return true
+}
+
+func (*VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeByMemberVPNGatewayZonalAvailabilityModeByMemberVPNGatewayRouteModePrototype) isaVPNGatewayPrototype() bool {
+	return true
+}
+
+// UnmarshalVPNGatewayPrototypeVPNGatewayZonalAvailabilityModeByMemberVPNGatewayZonalAvailabilityModeByMemberVPNGatewayRouteModePrototype unmarshals an instance of VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeByMemberVPNGatewayZonalAvailabilityModeByMemberVPNGatewayRouteModePrototype from the specified map of raw messages.
+func UnmarshalVPNGatewayPrototypeVPNGatewayZonalAvailabilityModeByMemberVPNGatewayZonalAvailabilityModeByMemberVPNGatewayRouteModePrototype(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeByMemberVPNGatewayZonalAvailabilityModeByMemberVPNGatewayRouteModePrototype)
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "resource_group", &obj.ResourceGroup, UnmarshalResourceGroupIdentity)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "resource_group-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "availability_mode", &obj.AvailabilityMode)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "availability_mode-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "members", &obj.Members, UnmarshalVPNGatewayMemberPrototype)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "members-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "advertised_cidrs", &obj.AdvertisedCIDRs)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "advertised_cidrs-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "local_asn", &obj.LocalAsn)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "local_asn-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "mode", &obj.Mode)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "mode-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeBySubnetVPNGatewayZonalAvailabilityModeBySubnetVPNGatewayPolicyModePrototype : VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeBySubnetVPNGatewayZonalAvailabilityModeBySubnetVPNGatewayPolicyModePrototype struct
+// This model "extends" VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeBySubnet
+type VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeBySubnetVPNGatewayZonalAvailabilityModeBySubnetVPNGatewayPolicyModePrototype struct {
+	// The name for this VPN gateway. The name must not be used by another VPN gateway in the VPC. If unspecified, the name
+	// will be a hyphenated list of randomly-selected words.
+	Name *string `json:"name,omitempty"`
+
+	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
+
+	// The availability mode of the VPN gateway:
+	// - `zonal`: The VPN gateway is deployed in a single zone in the region. Availability is
+	//   limited to that zone.
+	AvailabilityMode *string `json:"availability_mode,omitempty"`
+
+	Subnet SubnetIdentityIntf `json:"subnet" validate:"required"`
+
+	// The mode for this VPN gateway.
+	Mode *string `json:"mode" validate:"required"`
+}
+
+// Constants associated with the VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeBySubnetVPNGatewayZonalAvailabilityModeBySubnetVPNGatewayPolicyModePrototype.AvailabilityMode property.
+// The availability mode of the VPN gateway:
+//   - `zonal`: The VPN gateway is deployed in a single zone in the region. Availability is
+//     limited to that zone.
+const (
+	VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeBySubnetVPNGatewayZonalAvailabilityModeBySubnetVPNGatewayPolicyModePrototypeAvailabilityModeZonalConst = "zonal"
+)
+
+// Constants associated with the VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeBySubnetVPNGatewayZonalAvailabilityModeBySubnetVPNGatewayPolicyModePrototype.Mode property.
+// The mode for this VPN gateway.
+const (
+	VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeBySubnetVPNGatewayZonalAvailabilityModeBySubnetVPNGatewayPolicyModePrototypeModePolicyConst = "policy"
+)
+
+// NewVPNGatewayPrototypeVPNGatewayZonalAvailabilityModeBySubnetVPNGatewayZonalAvailabilityModeBySubnetVPNGatewayPolicyModePrototype : Instantiate VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeBySubnetVPNGatewayZonalAvailabilityModeBySubnetVPNGatewayPolicyModePrototype (Generic Model Constructor)
+func (*VpcV1) NewVPNGatewayPrototypeVPNGatewayZonalAvailabilityModeBySubnetVPNGatewayZonalAvailabilityModeBySubnetVPNGatewayPolicyModePrototype(subnet SubnetIdentityIntf, mode string) (_model *VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeBySubnetVPNGatewayZonalAvailabilityModeBySubnetVPNGatewayPolicyModePrototype, err error) {
+	_model = &VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeBySubnetVPNGatewayZonalAvailabilityModeBySubnetVPNGatewayPolicyModePrototype{
+		Subnet: subnet,
+		Mode:   core.StringPtr(mode),
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "model-missing-required", common.GetComponentInfo())
+	}
+	return
+}
+
+func (*VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeBySubnetVPNGatewayZonalAvailabilityModeBySubnetVPNGatewayPolicyModePrototype) isaVPNGatewayPrototypeVPNGatewayZonalAvailabilityModeBySubnet() bool {
+	return true
+}
+
+func (*VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeBySubnetVPNGatewayZonalAvailabilityModeBySubnetVPNGatewayPolicyModePrototype) isaVPNGatewayPrototype() bool {
+	return true
+}
+
+// UnmarshalVPNGatewayPrototypeVPNGatewayZonalAvailabilityModeBySubnetVPNGatewayZonalAvailabilityModeBySubnetVPNGatewayPolicyModePrototype unmarshals an instance of VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeBySubnetVPNGatewayZonalAvailabilityModeBySubnetVPNGatewayPolicyModePrototype from the specified map of raw messages.
+func UnmarshalVPNGatewayPrototypeVPNGatewayZonalAvailabilityModeBySubnetVPNGatewayZonalAvailabilityModeBySubnetVPNGatewayPolicyModePrototype(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeBySubnetVPNGatewayZonalAvailabilityModeBySubnetVPNGatewayPolicyModePrototype)
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "resource_group", &obj.ResourceGroup, UnmarshalResourceGroupIdentity)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "resource_group-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "availability_mode", &obj.AvailabilityMode)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "availability_mode-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "subnet", &obj.Subnet, UnmarshalSubnetIdentity)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "subnet-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "mode", &obj.Mode)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "mode-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeBySubnetVPNGatewayZonalAvailabilityModeBySubnetVPNGatewayRouteModePrototype : VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeBySubnetVPNGatewayZonalAvailabilityModeBySubnetVPNGatewayRouteModePrototype struct
+// This model "extends" VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeBySubnet
+type VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeBySubnetVPNGatewayZonalAvailabilityModeBySubnetVPNGatewayRouteModePrototype struct {
+	// The name for this VPN gateway. The name must not be used by another VPN gateway in the VPC. If unspecified, the name
+	// will be a hyphenated list of randomly-selected words.
+	Name *string `json:"name,omitempty"`
+
+	ResourceGroup ResourceGroupIdentityIntf `json:"resource_group,omitempty"`
+
+	// The availability mode of the VPN gateway:
+	// - `zonal`: The VPN gateway is deployed in a single zone in the region. Availability is
+	//   limited to that zone.
+	AvailabilityMode *string `json:"availability_mode,omitempty"`
+
+	Subnet SubnetIdentityIntf `json:"subnet" validate:"required"`
+
+	// The static CIDRs advertised through any enabled routing protocol (for example, BGP). The routing protocol will
+	// advertise routes with these CIDRs as route destinations.
+	AdvertisedCIDRs []string `json:"advertised_cidrs,omitempty"`
+
+	// The local autonomous system number (ASN) for this VPN gateway and its connections. The ASN values in the
+	// [restricted ASN list](
+	// https://cloud.ibm.com/docs/vpc?topic=vpc-planning-considerations-vpn#dynamic-route-based-considerations) are
+	// reserved and unavailable.
+	LocalAsn *int64 `json:"local_asn,omitempty"`
+
+	// The mode for this VPN gateway.
+	Mode *string `json:"mode,omitempty"`
+}
+
+// Constants associated with the VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeBySubnetVPNGatewayZonalAvailabilityModeBySubnetVPNGatewayRouteModePrototype.AvailabilityMode property.
+// The availability mode of the VPN gateway:
+//   - `zonal`: The VPN gateway is deployed in a single zone in the region. Availability is
+//     limited to that zone.
+const (
+	VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeBySubnetVPNGatewayZonalAvailabilityModeBySubnetVPNGatewayRouteModePrototypeAvailabilityModeZonalConst = "zonal"
+)
+
+// Constants associated with the VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeBySubnetVPNGatewayZonalAvailabilityModeBySubnetVPNGatewayRouteModePrototype.Mode property.
+// The mode for this VPN gateway.
+const (
+	VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeBySubnetVPNGatewayZonalAvailabilityModeBySubnetVPNGatewayRouteModePrototypeModeRouteConst = "route"
+)
+
+// NewVPNGatewayPrototypeVPNGatewayZonalAvailabilityModeBySubnetVPNGatewayZonalAvailabilityModeBySubnetVPNGatewayRouteModePrototype : Instantiate VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeBySubnetVPNGatewayZonalAvailabilityModeBySubnetVPNGatewayRouteModePrototype (Generic Model Constructor)
+func (*VpcV1) NewVPNGatewayPrototypeVPNGatewayZonalAvailabilityModeBySubnetVPNGatewayZonalAvailabilityModeBySubnetVPNGatewayRouteModePrototype(subnet SubnetIdentityIntf) (_model *VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeBySubnetVPNGatewayZonalAvailabilityModeBySubnetVPNGatewayRouteModePrototype, err error) {
+	_model = &VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeBySubnetVPNGatewayZonalAvailabilityModeBySubnetVPNGatewayRouteModePrototype{
+		Subnet: subnet,
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "model-missing-required", common.GetComponentInfo())
+	}
+	return
+}
+
+func (*VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeBySubnetVPNGatewayZonalAvailabilityModeBySubnetVPNGatewayRouteModePrototype) isaVPNGatewayPrototypeVPNGatewayZonalAvailabilityModeBySubnet() bool {
+	return true
+}
+
+func (*VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeBySubnetVPNGatewayZonalAvailabilityModeBySubnetVPNGatewayRouteModePrototype) isaVPNGatewayPrototype() bool {
+	return true
+}
+
+// UnmarshalVPNGatewayPrototypeVPNGatewayZonalAvailabilityModeBySubnetVPNGatewayZonalAvailabilityModeBySubnetVPNGatewayRouteModePrototype unmarshals an instance of VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeBySubnetVPNGatewayZonalAvailabilityModeBySubnetVPNGatewayRouteModePrototype from the specified map of raw messages.
+func UnmarshalVPNGatewayPrototypeVPNGatewayZonalAvailabilityModeBySubnetVPNGatewayZonalAvailabilityModeBySubnetVPNGatewayRouteModePrototype(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VPNGatewayPrototypeVPNGatewayZonalAvailabilityModeBySubnetVPNGatewayZonalAvailabilityModeBySubnetVPNGatewayRouteModePrototype)
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "resource_group", &obj.ResourceGroup, UnmarshalResourceGroupIdentity)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "resource_group-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "availability_mode", &obj.AvailabilityMode)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "availability_mode-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "subnet", &obj.Subnet, UnmarshalSubnetIdentity)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "subnet-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "advertised_cidrs", &obj.AdvertisedCIDRs)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "advertised_cidrs-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "local_asn", &obj.LocalAsn)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "local_asn-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "mode", &obj.Mode)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "mode-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// VPNGatewayRegionalAvailabilityModeVPNGatewayRouteMode : VPNGatewayRegionalAvailabilityModeVPNGatewayRouteMode struct
+// This model "extends" VPNGatewayRegionalAvailabilityMode
+type VPNGatewayRegionalAvailabilityModeVPNGatewayRouteMode struct {
+	// The connections for this VPN gateway.
+	Connections []VPNGatewayConnectionReference `json:"connections" validate:"required"`
+
+	// The date and time that this VPN gateway was created.
+	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
+
+	// The CRN for this VPN gateway.
+	CRN *string `json:"crn" validate:"required"`
+
+	// The reasons for the current `health_state` (if any).
+	HealthReasons []VPNGatewayHealthReason `json:"health_reasons" validate:"required"`
+
+	// The health of this resource:
+	// - `ok`: No abnormal behavior detected
+	// - `degraded`: Experiencing compromised performance, capacity, or connectivity
+	// - `faulted`: Completely unreachable, inoperative, or otherwise entirely incapacitated
+	// - `inapplicable`: The health state does not apply because of the current lifecycle
+	//    state. A resource with a lifecycle state of `failed` or `deleting` will have a
+	//    health state of `inapplicable`. A `pending` resource may also have this state.
+	HealthState *string `json:"health_state" validate:"required"`
+
+	// The URL for this VPN gateway.
+	Href *string `json:"href" validate:"required"`
+
+	// The unique identifier for this VPN gateway.
+	ID *string `json:"id" validate:"required"`
+
+	// The reasons for the current `lifecycle_state` (if any).
+	LifecycleReasons []VPNGatewayLifecycleReason `json:"lifecycle_reasons" validate:"required"`
+
+	// The lifecycle state of the VPN gateway.
+	LifecycleState *string `json:"lifecycle_state" validate:"required"`
+
+	// The members for the VPN gateway.
+	Members []VPNGatewayMember `json:"members" validate:"required"`
+
+	// The name for this VPN gateway. The name is unique across all VPN gateways in the VPC.
+	Name *string `json:"name" validate:"required"`
+
+	// The resource group for this VPN gateway.
+	ResourceGroup *ResourceGroupReference `json:"resource_group" validate:"required"`
+
+	// The resource type.
+	ResourceType *string `json:"resource_type" validate:"required"`
+
+	Subnet *SubnetReference `json:"subnet,omitempty"`
+
+	// The VPC this VPN gateway resides in.
+	VPC *VPCReference `json:"vpc" validate:"required"`
+
+	// The availability mode of the VPN gateway:
+	// - `regional`: The VPN gateway is deployed across multiple zones in the region. This mode
+	//   provides zone-level redundancy.
+	AvailabilityMode *string `json:"availability_mode" validate:"required"`
+
+	// The static CIDRs advertised through any enabled routing protocol (for example, BGP). The routing protocol will
+	// advertise routes with these CIDRs as route destinations.
+	AdvertisedCIDRs []string `json:"advertised_cidrs" validate:"required"`
+
+	// The local autonomous system number (ASN) for this VPN gateway and its connections.
+	LocalAsn *int64 `json:"local_asn" validate:"required"`
+
+	// The mode for this VPN gateway.
+	Mode *string `json:"mode" validate:"required"`
+}
+
+// Constants associated with the VPNGatewayRegionalAvailabilityModeVPNGatewayRouteMode.HealthState property.
+// The health of this resource:
+//   - `ok`: No abnormal behavior detected
+//   - `degraded`: Experiencing compromised performance, capacity, or connectivity
+//   - `faulted`: Completely unreachable, inoperative, or otherwise entirely incapacitated
+//   - `inapplicable`: The health state does not apply because of the current lifecycle
+//     state. A resource with a lifecycle state of `failed` or `deleting` will have a
+//     health state of `inapplicable`. A `pending` resource may also have this state.
+const (
+	VPNGatewayRegionalAvailabilityModeVPNGatewayRouteModeHealthStateDegradedConst     = "degraded"
+	VPNGatewayRegionalAvailabilityModeVPNGatewayRouteModeHealthStateFaultedConst      = "faulted"
+	VPNGatewayRegionalAvailabilityModeVPNGatewayRouteModeHealthStateInapplicableConst = "inapplicable"
+	VPNGatewayRegionalAvailabilityModeVPNGatewayRouteModeHealthStateOkConst           = "ok"
+)
+
+// Constants associated with the VPNGatewayRegionalAvailabilityModeVPNGatewayRouteMode.LifecycleState property.
+// The lifecycle state of the VPN gateway.
+const (
+	VPNGatewayRegionalAvailabilityModeVPNGatewayRouteModeLifecycleStateDeletingConst  = "deleting"
+	VPNGatewayRegionalAvailabilityModeVPNGatewayRouteModeLifecycleStateFailedConst    = "failed"
+	VPNGatewayRegionalAvailabilityModeVPNGatewayRouteModeLifecycleStatePendingConst   = "pending"
+	VPNGatewayRegionalAvailabilityModeVPNGatewayRouteModeLifecycleStateStableConst    = "stable"
+	VPNGatewayRegionalAvailabilityModeVPNGatewayRouteModeLifecycleStateSuspendedConst = "suspended"
+	VPNGatewayRegionalAvailabilityModeVPNGatewayRouteModeLifecycleStateUpdatingConst  = "updating"
+	VPNGatewayRegionalAvailabilityModeVPNGatewayRouteModeLifecycleStateWaitingConst   = "waiting"
+)
+
+// Constants associated with the VPNGatewayRegionalAvailabilityModeVPNGatewayRouteMode.ResourceType property.
+// The resource type.
+const (
+	VPNGatewayRegionalAvailabilityModeVPNGatewayRouteModeResourceTypeVPNGatewayConst = "vpn_gateway"
+)
+
+// Constants associated with the VPNGatewayRegionalAvailabilityModeVPNGatewayRouteMode.AvailabilityMode property.
+// The availability mode of the VPN gateway:
+//   - `regional`: The VPN gateway is deployed across multiple zones in the region. This mode
+//     provides zone-level redundancy.
+const (
+	VPNGatewayRegionalAvailabilityModeVPNGatewayRouteModeAvailabilityModeRegionalConst = "regional"
+)
+
+// Constants associated with the VPNGatewayRegionalAvailabilityModeVPNGatewayRouteMode.Mode property.
+// The mode for this VPN gateway.
+const (
+	VPNGatewayRegionalAvailabilityModeVPNGatewayRouteModeModeRouteConst = "route"
+)
+
+func (*VPNGatewayRegionalAvailabilityModeVPNGatewayRouteMode) isaVPNGatewayRegionalAvailabilityMode() bool {
+	return true
+}
+
+func (*VPNGatewayRegionalAvailabilityModeVPNGatewayRouteMode) isaVPNGateway() bool {
+	return true
+}
+
+// UnmarshalVPNGatewayRegionalAvailabilityModeVPNGatewayRouteMode unmarshals an instance of VPNGatewayRegionalAvailabilityModeVPNGatewayRouteMode from the specified map of raw messages.
+func UnmarshalVPNGatewayRegionalAvailabilityModeVPNGatewayRouteMode(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VPNGatewayRegionalAvailabilityModeVPNGatewayRouteMode)
+	err = core.UnmarshalModel(m, "connections", &obj.Connections, UnmarshalVPNGatewayConnectionReference)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "connections-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "created_at", &obj.CreatedAt)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "created_at-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "crn-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "health_reasons", &obj.HealthReasons, UnmarshalVPNGatewayHealthReason)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "health_reasons-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "health_state", &obj.HealthState)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "health_state-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "href-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "id-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "lifecycle_reasons", &obj.LifecycleReasons, UnmarshalVPNGatewayLifecycleReason)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "lifecycle_reasons-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "lifecycle_state", &obj.LifecycleState)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "lifecycle_state-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "members", &obj.Members, UnmarshalVPNGatewayMember)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "members-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "resource_group", &obj.ResourceGroup, UnmarshalResourceGroupReference)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "resource_group-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "resource_type-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "subnet", &obj.Subnet, UnmarshalSubnetReference)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "subnet-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "vpc", &obj.VPC, UnmarshalVPCReference)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "vpc-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "availability_mode", &obj.AvailabilityMode)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "availability_mode-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "advertised_cidrs", &obj.AdvertisedCIDRs)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "advertised_cidrs-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "local_asn", &obj.LocalAsn)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "local_asn-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "mode", &obj.Mode)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "mode-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// VPNGatewayZonalAvailabilityModeVPNGatewayPolicyMode : VPNGatewayZonalAvailabilityModeVPNGatewayPolicyMode struct
+// This model "extends" VPNGatewayZonalAvailabilityMode
+type VPNGatewayZonalAvailabilityModeVPNGatewayPolicyMode struct {
+	// The connections for this VPN gateway.
+	Connections []VPNGatewayConnectionReference `json:"connections" validate:"required"`
+
+	// The date and time that this VPN gateway was created.
+	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
+
+	// The CRN for this VPN gateway.
+	CRN *string `json:"crn" validate:"required"`
+
+	// The reasons for the current `health_state` (if any).
+	HealthReasons []VPNGatewayHealthReason `json:"health_reasons" validate:"required"`
+
+	// The health of this resource:
+	// - `ok`: No abnormal behavior detected
+	// - `degraded`: Experiencing compromised performance, capacity, or connectivity
+	// - `faulted`: Completely unreachable, inoperative, or otherwise entirely incapacitated
+	// - `inapplicable`: The health state does not apply because of the current lifecycle
+	//    state. A resource with a lifecycle state of `failed` or `deleting` will have a
+	//    health state of `inapplicable`. A `pending` resource may also have this state.
+	HealthState *string `json:"health_state" validate:"required"`
+
+	// The URL for this VPN gateway.
+	Href *string `json:"href" validate:"required"`
+
+	// The unique identifier for this VPN gateway.
+	ID *string `json:"id" validate:"required"`
+
+	// The reasons for the current `lifecycle_state` (if any).
+	LifecycleReasons []VPNGatewayLifecycleReason `json:"lifecycle_reasons" validate:"required"`
+
+	// The lifecycle state of the VPN gateway.
+	LifecycleState *string `json:"lifecycle_state" validate:"required"`
+
+	// The members for the VPN gateway.
+	Members []VPNGatewayMember `json:"members" validate:"required"`
+
+	// The name for this VPN gateway. The name is unique across all VPN gateways in the VPC.
+	Name *string `json:"name" validate:"required"`
+
+	// The resource group for this VPN gateway.
+	ResourceGroup *ResourceGroupReference `json:"resource_group" validate:"required"`
+
+	// The resource type.
+	ResourceType *string `json:"resource_type" validate:"required"`
+
+	// The VPC this VPN gateway resides in.
+	VPC *VPCReference `json:"vpc" validate:"required"`
+
+	// The availability mode of the VPN gateway:
+	// - `zonal`: The VPN gateway is deployed in a single zone in the region. Availability is
+	//   limited to that zone.
+	AvailabilityMode *string `json:"availability_mode" validate:"required"`
+
+	Subnet *SubnetReference `json:"subnet" validate:"required"`
+
+	// The mode for this VPN gateway.
+	Mode *string `json:"mode" validate:"required"`
+}
+
+// Constants associated with the VPNGatewayZonalAvailabilityModeVPNGatewayPolicyMode.HealthState property.
+// The health of this resource:
+//   - `ok`: No abnormal behavior detected
+//   - `degraded`: Experiencing compromised performance, capacity, or connectivity
+//   - `faulted`: Completely unreachable, inoperative, or otherwise entirely incapacitated
+//   - `inapplicable`: The health state does not apply because of the current lifecycle
+//     state. A resource with a lifecycle state of `failed` or `deleting` will have a
+//     health state of `inapplicable`. A `pending` resource may also have this state.
+const (
+	VPNGatewayZonalAvailabilityModeVPNGatewayPolicyModeHealthStateDegradedConst     = "degraded"
+	VPNGatewayZonalAvailabilityModeVPNGatewayPolicyModeHealthStateFaultedConst      = "faulted"
+	VPNGatewayZonalAvailabilityModeVPNGatewayPolicyModeHealthStateInapplicableConst = "inapplicable"
+	VPNGatewayZonalAvailabilityModeVPNGatewayPolicyModeHealthStateOkConst           = "ok"
+)
+
+// Constants associated with the VPNGatewayZonalAvailabilityModeVPNGatewayPolicyMode.LifecycleState property.
+// The lifecycle state of the VPN gateway.
+const (
+	VPNGatewayZonalAvailabilityModeVPNGatewayPolicyModeLifecycleStateDeletingConst  = "deleting"
+	VPNGatewayZonalAvailabilityModeVPNGatewayPolicyModeLifecycleStateFailedConst    = "failed"
+	VPNGatewayZonalAvailabilityModeVPNGatewayPolicyModeLifecycleStatePendingConst   = "pending"
+	VPNGatewayZonalAvailabilityModeVPNGatewayPolicyModeLifecycleStateStableConst    = "stable"
+	VPNGatewayZonalAvailabilityModeVPNGatewayPolicyModeLifecycleStateSuspendedConst = "suspended"
+	VPNGatewayZonalAvailabilityModeVPNGatewayPolicyModeLifecycleStateUpdatingConst  = "updating"
+	VPNGatewayZonalAvailabilityModeVPNGatewayPolicyModeLifecycleStateWaitingConst   = "waiting"
+)
+
+// Constants associated with the VPNGatewayZonalAvailabilityModeVPNGatewayPolicyMode.ResourceType property.
+// The resource type.
+const (
+	VPNGatewayZonalAvailabilityModeVPNGatewayPolicyModeResourceTypeVPNGatewayConst = "vpn_gateway"
+)
+
+// Constants associated with the VPNGatewayZonalAvailabilityModeVPNGatewayPolicyMode.AvailabilityMode property.
+// The availability mode of the VPN gateway:
+//   - `zonal`: The VPN gateway is deployed in a single zone in the region. Availability is
+//     limited to that zone.
+const (
+	VPNGatewayZonalAvailabilityModeVPNGatewayPolicyModeAvailabilityModeZonalConst = "zonal"
+)
+
+// Constants associated with the VPNGatewayZonalAvailabilityModeVPNGatewayPolicyMode.Mode property.
+// The mode for this VPN gateway.
+const (
+	VPNGatewayZonalAvailabilityModeVPNGatewayPolicyModeModePolicyConst = "policy"
+)
+
+func (*VPNGatewayZonalAvailabilityModeVPNGatewayPolicyMode) isaVPNGatewayZonalAvailabilityMode() bool {
+	return true
+}
+
+func (*VPNGatewayZonalAvailabilityModeVPNGatewayPolicyMode) isaVPNGateway() bool {
+	return true
+}
+
+// UnmarshalVPNGatewayZonalAvailabilityModeVPNGatewayPolicyMode unmarshals an instance of VPNGatewayZonalAvailabilityModeVPNGatewayPolicyMode from the specified map of raw messages.
+func UnmarshalVPNGatewayZonalAvailabilityModeVPNGatewayPolicyMode(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VPNGatewayZonalAvailabilityModeVPNGatewayPolicyMode)
+	err = core.UnmarshalModel(m, "connections", &obj.Connections, UnmarshalVPNGatewayConnectionReference)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "connections-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "created_at", &obj.CreatedAt)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "created_at-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "crn-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "health_reasons", &obj.HealthReasons, UnmarshalVPNGatewayHealthReason)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "health_reasons-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "health_state", &obj.HealthState)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "health_state-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "href-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "id-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "lifecycle_reasons", &obj.LifecycleReasons, UnmarshalVPNGatewayLifecycleReason)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "lifecycle_reasons-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "lifecycle_state", &obj.LifecycleState)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "lifecycle_state-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "members", &obj.Members, UnmarshalVPNGatewayMember)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "members-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "resource_group", &obj.ResourceGroup, UnmarshalResourceGroupReference)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "resource_group-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "resource_type-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "vpc", &obj.VPC, UnmarshalVPCReference)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "vpc-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "availability_mode", &obj.AvailabilityMode)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "availability_mode-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "subnet", &obj.Subnet, UnmarshalSubnetReference)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "subnet-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "mode", &obj.Mode)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "mode-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// VPNGatewayZonalAvailabilityModeVPNGatewayRouteMode : VPNGatewayZonalAvailabilityModeVPNGatewayRouteMode struct
+// This model "extends" VPNGatewayZonalAvailabilityMode
+type VPNGatewayZonalAvailabilityModeVPNGatewayRouteMode struct {
+	// The connections for this VPN gateway.
+	Connections []VPNGatewayConnectionReference `json:"connections" validate:"required"`
+
+	// The date and time that this VPN gateway was created.
+	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
+
+	// The CRN for this VPN gateway.
+	CRN *string `json:"crn" validate:"required"`
+
+	// The reasons for the current `health_state` (if any).
+	HealthReasons []VPNGatewayHealthReason `json:"health_reasons" validate:"required"`
+
+	// The health of this resource:
+	// - `ok`: No abnormal behavior detected
+	// - `degraded`: Experiencing compromised performance, capacity, or connectivity
+	// - `faulted`: Completely unreachable, inoperative, or otherwise entirely incapacitated
+	// - `inapplicable`: The health state does not apply because of the current lifecycle
+	//    state. A resource with a lifecycle state of `failed` or `deleting` will have a
+	//    health state of `inapplicable`. A `pending` resource may also have this state.
+	HealthState *string `json:"health_state" validate:"required"`
+
+	// The URL for this VPN gateway.
+	Href *string `json:"href" validate:"required"`
+
+	// The unique identifier for this VPN gateway.
+	ID *string `json:"id" validate:"required"`
+
+	// The reasons for the current `lifecycle_state` (if any).
+	LifecycleReasons []VPNGatewayLifecycleReason `json:"lifecycle_reasons" validate:"required"`
+
+	// The lifecycle state of the VPN gateway.
+	LifecycleState *string `json:"lifecycle_state" validate:"required"`
+
+	// The members for the VPN gateway.
+	Members []VPNGatewayMember `json:"members" validate:"required"`
+
+	// The name for this VPN gateway. The name is unique across all VPN gateways in the VPC.
+	Name *string `json:"name" validate:"required"`
+
+	// The resource group for this VPN gateway.
+	ResourceGroup *ResourceGroupReference `json:"resource_group" validate:"required"`
+
+	// The resource type.
+	ResourceType *string `json:"resource_type" validate:"required"`
+
+	// The VPC this VPN gateway resides in.
+	VPC *VPCReference `json:"vpc" validate:"required"`
+
+	// The availability mode of the VPN gateway:
+	// - `zonal`: The VPN gateway is deployed in a single zone in the region. Availability is
+	//   limited to that zone.
+	AvailabilityMode *string `json:"availability_mode" validate:"required"`
+
+	Subnet *SubnetReference `json:"subnet" validate:"required"`
+
+	// The static CIDRs advertised through any enabled routing protocol (for example, BGP). The routing protocol will
+	// advertise routes with these CIDRs as route destinations.
+	AdvertisedCIDRs []string `json:"advertised_cidrs" validate:"required"`
+
+	// The local autonomous system number (ASN) for this VPN gateway and its connections.
+	LocalAsn *int64 `json:"local_asn" validate:"required"`
+
+	// The mode for this VPN gateway.
+	Mode *string `json:"mode" validate:"required"`
+}
+
+// Constants associated with the VPNGatewayZonalAvailabilityModeVPNGatewayRouteMode.HealthState property.
+// The health of this resource:
+//   - `ok`: No abnormal behavior detected
+//   - `degraded`: Experiencing compromised performance, capacity, or connectivity
+//   - `faulted`: Completely unreachable, inoperative, or otherwise entirely incapacitated
+//   - `inapplicable`: The health state does not apply because of the current lifecycle
+//     state. A resource with a lifecycle state of `failed` or `deleting` will have a
+//     health state of `inapplicable`. A `pending` resource may also have this state.
+const (
+	VPNGatewayZonalAvailabilityModeVPNGatewayRouteModeHealthStateDegradedConst     = "degraded"
+	VPNGatewayZonalAvailabilityModeVPNGatewayRouteModeHealthStateFaultedConst      = "faulted"
+	VPNGatewayZonalAvailabilityModeVPNGatewayRouteModeHealthStateInapplicableConst = "inapplicable"
+	VPNGatewayZonalAvailabilityModeVPNGatewayRouteModeHealthStateOkConst           = "ok"
+)
+
+// Constants associated with the VPNGatewayZonalAvailabilityModeVPNGatewayRouteMode.LifecycleState property.
+// The lifecycle state of the VPN gateway.
+const (
+	VPNGatewayZonalAvailabilityModeVPNGatewayRouteModeLifecycleStateDeletingConst  = "deleting"
+	VPNGatewayZonalAvailabilityModeVPNGatewayRouteModeLifecycleStateFailedConst    = "failed"
+	VPNGatewayZonalAvailabilityModeVPNGatewayRouteModeLifecycleStatePendingConst   = "pending"
+	VPNGatewayZonalAvailabilityModeVPNGatewayRouteModeLifecycleStateStableConst    = "stable"
+	VPNGatewayZonalAvailabilityModeVPNGatewayRouteModeLifecycleStateSuspendedConst = "suspended"
+	VPNGatewayZonalAvailabilityModeVPNGatewayRouteModeLifecycleStateUpdatingConst  = "updating"
+	VPNGatewayZonalAvailabilityModeVPNGatewayRouteModeLifecycleStateWaitingConst   = "waiting"
+)
+
+// Constants associated with the VPNGatewayZonalAvailabilityModeVPNGatewayRouteMode.ResourceType property.
+// The resource type.
+const (
+	VPNGatewayZonalAvailabilityModeVPNGatewayRouteModeResourceTypeVPNGatewayConst = "vpn_gateway"
+)
+
+// Constants associated with the VPNGatewayZonalAvailabilityModeVPNGatewayRouteMode.AvailabilityMode property.
+// The availability mode of the VPN gateway:
+//   - `zonal`: The VPN gateway is deployed in a single zone in the region. Availability is
+//     limited to that zone.
+const (
+	VPNGatewayZonalAvailabilityModeVPNGatewayRouteModeAvailabilityModeZonalConst = "zonal"
+)
+
+// Constants associated with the VPNGatewayZonalAvailabilityModeVPNGatewayRouteMode.Mode property.
+// The mode for this VPN gateway.
+const (
+	VPNGatewayZonalAvailabilityModeVPNGatewayRouteModeModeRouteConst = "route"
+)
+
+func (*VPNGatewayZonalAvailabilityModeVPNGatewayRouteMode) isaVPNGatewayZonalAvailabilityMode() bool {
+	return true
+}
+
+func (*VPNGatewayZonalAvailabilityModeVPNGatewayRouteMode) isaVPNGateway() bool {
+	return true
+}
+
+// UnmarshalVPNGatewayZonalAvailabilityModeVPNGatewayRouteMode unmarshals an instance of VPNGatewayZonalAvailabilityModeVPNGatewayRouteMode from the specified map of raw messages.
+func UnmarshalVPNGatewayZonalAvailabilityModeVPNGatewayRouteMode(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(VPNGatewayZonalAvailabilityModeVPNGatewayRouteMode)
+	err = core.UnmarshalModel(m, "connections", &obj.Connections, UnmarshalVPNGatewayConnectionReference)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "connections-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "created_at", &obj.CreatedAt)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "created_at-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "crn-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "health_reasons", &obj.HealthReasons, UnmarshalVPNGatewayHealthReason)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "health_reasons-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "health_state", &obj.HealthState)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "health_state-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "href-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "id-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "lifecycle_reasons", &obj.LifecycleReasons, UnmarshalVPNGatewayLifecycleReason)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "lifecycle_reasons-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "lifecycle_state", &obj.LifecycleState)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "lifecycle_state-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "members", &obj.Members, UnmarshalVPNGatewayMember)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "members-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "resource_group", &obj.ResourceGroup, UnmarshalResourceGroupReference)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "resource_group-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "resource_type-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "vpc", &obj.VPC, UnmarshalVPCReference)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "vpc-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "availability_mode", &obj.AvailabilityMode)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "availability_mode-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "subnet", &obj.Subnet, UnmarshalSubnetReference)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "subnet-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "advertised_cidrs", &obj.AdvertisedCIDRs)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "advertised_cidrs-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "local_asn", &obj.LocalAsn)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "local_asn-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "mode", &obj.Mode)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "mode-error", common.GetComponentInfo())
 		return
 	}
 	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
@@ -180278,6 +185281,98 @@ func (pager *EndpointGatewayResourceBindingsPager) GetNext() (page []EndpointGat
 
 // GetAll invokes GetAllWithContext() using context.Background() as the Context parameter.
 func (pager *EndpointGatewayResourceBindingsPager) GetAll() (allItems []EndpointGatewayResourceBinding, err error) {
+	allItems, err = pager.GetAllWithContext(context.Background())
+	err = core.RepurposeSDKProblem(err, "")
+	return
+}
+
+// FloatingIPProfilesPager can be used to simplify the use of the "ListFloatingIPProfiles" method.
+type FloatingIPProfilesPager struct {
+	hasNext     bool
+	options     *ListFloatingIPProfilesOptions
+	client      *VpcV1
+	pageContext struct {
+		next *string
+	}
+}
+
+// NewFloatingIPProfilesPager returns a new FloatingIPProfilesPager instance.
+func (vpc *VpcV1) NewFloatingIPProfilesPager(options *ListFloatingIPProfilesOptions) (pager *FloatingIPProfilesPager, err error) {
+	if options.Start != nil && *options.Start != "" {
+		err = core.SDKErrorf(nil, "the 'options.Start' field should not be set", "no-query-setting", common.GetComponentInfo())
+		return
+	}
+
+	optionsCopy := *options
+	pager = &FloatingIPProfilesPager{
+		hasNext: true,
+		options: &optionsCopy,
+		client:  vpc,
+	}
+	return
+}
+
+// HasNext returns true if there are potentially more results to be retrieved.
+func (pager *FloatingIPProfilesPager) HasNext() bool {
+	return pager.hasNext
+}
+
+// GetNextWithContext returns the next page of results using the specified Context.
+func (pager *FloatingIPProfilesPager) GetNextWithContext(ctx context.Context) (page []FloatingIPProfile, err error) {
+	if !pager.HasNext() {
+		return nil, fmt.Errorf("no more results available")
+	}
+
+	pager.options.Start = pager.pageContext.next
+
+	result, _, err := pager.client.ListFloatingIPProfilesWithContext(ctx, pager.options)
+	if err != nil {
+		err = core.RepurposeSDKProblem(err, "error-getting-next-page")
+		return
+	}
+
+	var next *string
+	if result.Next != nil {
+		var start *string
+		start, err = core.GetQueryParam(result.Next.Href, "start")
+		if err != nil {
+			errMsg := fmt.Sprintf("error retrieving 'start' query parameter from URL '%s': %s", *result.Next.Href, err.Error())
+			err = core.SDKErrorf(err, errMsg, "get-query-error", common.GetComponentInfo())
+			return
+		}
+		next = start
+	}
+	pager.pageContext.next = next
+	pager.hasNext = (pager.pageContext.next != nil)
+	page = result.Profiles
+
+	return
+}
+
+// GetAllWithContext returns all results by invoking GetNextWithContext() repeatedly
+// until all pages of results have been retrieved.
+func (pager *FloatingIPProfilesPager) GetAllWithContext(ctx context.Context) (allItems []FloatingIPProfile, err error) {
+	for pager.HasNext() {
+		var nextPage []FloatingIPProfile
+		nextPage, err = pager.GetNextWithContext(ctx)
+		if err != nil {
+			err = core.RepurposeSDKProblem(err, "error-getting-next-page")
+			return
+		}
+		allItems = append(allItems, nextPage...)
+	}
+	return
+}
+
+// GetNext invokes GetNextWithContext() using context.Background() as the Context parameter.
+func (pager *FloatingIPProfilesPager) GetNext() (page []FloatingIPProfile, err error) {
+	page, err = pager.GetNextWithContext(context.Background())
+	err = core.RepurposeSDKProblem(err, "")
+	return
+}
+
+// GetAll invokes GetAllWithContext() using context.Background() as the Context parameter.
+func (pager *FloatingIPProfilesPager) GetAll() (allItems []FloatingIPProfile, err error) {
 	allItems, err = pager.GetAllWithContext(context.Background())
 	err = core.RepurposeSDKProblem(err, "")
 	return
@@ -182486,6 +187581,282 @@ func (pager *PrivatePathServiceGatewayEndpointGatewayBindingsPager) GetNext() (p
 
 // GetAll invokes GetAllWithContext() using context.Background() as the Context parameter.
 func (pager *PrivatePathServiceGatewayEndpointGatewayBindingsPager) GetAll() (allItems []PrivatePathServiceGatewayEndpointGatewayBinding, err error) {
+	allItems, err = pager.GetAllWithContext(context.Background())
+	err = core.RepurposeSDKProblem(err, "")
+	return
+}
+
+// PublicAddressRangeAuthorizedCIDRsPager can be used to simplify the use of the "ListPublicAddressRangeAuthorizedCIDRs" method.
+type PublicAddressRangeAuthorizedCIDRsPager struct {
+	hasNext     bool
+	options     *ListPublicAddressRangeAuthorizedCIDRsOptions
+	client      *VpcV1
+	pageContext struct {
+		next *string
+	}
+}
+
+// NewPublicAddressRangeAuthorizedCIDRsPager returns a new PublicAddressRangeAuthorizedCIDRsPager instance.
+func (vpc *VpcV1) NewPublicAddressRangeAuthorizedCIDRsPager(options *ListPublicAddressRangeAuthorizedCIDRsOptions) (pager *PublicAddressRangeAuthorizedCIDRsPager, err error) {
+	if options.Start != nil && *options.Start != "" {
+		err = core.SDKErrorf(nil, "the 'options.Start' field should not be set", "no-query-setting", common.GetComponentInfo())
+		return
+	}
+
+	optionsCopy := *options
+	pager = &PublicAddressRangeAuthorizedCIDRsPager{
+		hasNext: true,
+		options: &optionsCopy,
+		client:  vpc,
+	}
+	return
+}
+
+// HasNext returns true if there are potentially more results to be retrieved.
+func (pager *PublicAddressRangeAuthorizedCIDRsPager) HasNext() bool {
+	return pager.hasNext
+}
+
+// GetNextWithContext returns the next page of results using the specified Context.
+func (pager *PublicAddressRangeAuthorizedCIDRsPager) GetNextWithContext(ctx context.Context) (page []PublicAddressRangeAuthorizedCIDR, err error) {
+	if !pager.HasNext() {
+		return nil, fmt.Errorf("no more results available")
+	}
+
+	pager.options.Start = pager.pageContext.next
+
+	result, _, err := pager.client.ListPublicAddressRangeAuthorizedCIDRsWithContext(ctx, pager.options)
+	if err != nil {
+		err = core.RepurposeSDKProblem(err, "error-getting-next-page")
+		return
+	}
+
+	var next *string
+	if result.Next != nil {
+		var start *string
+		start, err = core.GetQueryParam(result.Next.Href, "start")
+		if err != nil {
+			errMsg := fmt.Sprintf("error retrieving 'start' query parameter from URL '%s': %s", *result.Next.Href, err.Error())
+			err = core.SDKErrorf(err, errMsg, "get-query-error", common.GetComponentInfo())
+			return
+		}
+		next = start
+	}
+	pager.pageContext.next = next
+	pager.hasNext = (pager.pageContext.next != nil)
+	page = result.AuthorizedCIDRs
+
+	return
+}
+
+// GetAllWithContext returns all results by invoking GetNextWithContext() repeatedly
+// until all pages of results have been retrieved.
+func (pager *PublicAddressRangeAuthorizedCIDRsPager) GetAllWithContext(ctx context.Context) (allItems []PublicAddressRangeAuthorizedCIDR, err error) {
+	for pager.HasNext() {
+		var nextPage []PublicAddressRangeAuthorizedCIDR
+		nextPage, err = pager.GetNextWithContext(ctx)
+		if err != nil {
+			err = core.RepurposeSDKProblem(err, "error-getting-next-page")
+			return
+		}
+		allItems = append(allItems, nextPage...)
+	}
+	return
+}
+
+// GetNext invokes GetNextWithContext() using context.Background() as the Context parameter.
+func (pager *PublicAddressRangeAuthorizedCIDRsPager) GetNext() (page []PublicAddressRangeAuthorizedCIDR, err error) {
+	page, err = pager.GetNextWithContext(context.Background())
+	err = core.RepurposeSDKProblem(err, "")
+	return
+}
+
+// GetAll invokes GetAllWithContext() using context.Background() as the Context parameter.
+func (pager *PublicAddressRangeAuthorizedCIDRsPager) GetAll() (allItems []PublicAddressRangeAuthorizedCIDR, err error) {
+	allItems, err = pager.GetAllWithContext(context.Background())
+	err = core.RepurposeSDKProblem(err, "")
+	return
+}
+
+// PublicAddressRangeAuthorizedCIDRAllocationsPager can be used to simplify the use of the "ListPublicAddressRangeAuthorizedCIDRAllocations" method.
+type PublicAddressRangeAuthorizedCIDRAllocationsPager struct {
+	hasNext     bool
+	options     *ListPublicAddressRangeAuthorizedCIDRAllocationsOptions
+	client      *VpcV1
+	pageContext struct {
+		next *string
+	}
+}
+
+// NewPublicAddressRangeAuthorizedCIDRAllocationsPager returns a new PublicAddressRangeAuthorizedCIDRAllocationsPager instance.
+func (vpc *VpcV1) NewPublicAddressRangeAuthorizedCIDRAllocationsPager(options *ListPublicAddressRangeAuthorizedCIDRAllocationsOptions) (pager *PublicAddressRangeAuthorizedCIDRAllocationsPager, err error) {
+	if options.Start != nil && *options.Start != "" {
+		err = core.SDKErrorf(nil, "the 'options.Start' field should not be set", "no-query-setting", common.GetComponentInfo())
+		return
+	}
+
+	optionsCopy := *options
+	pager = &PublicAddressRangeAuthorizedCIDRAllocationsPager{
+		hasNext: true,
+		options: &optionsCopy,
+		client:  vpc,
+	}
+	return
+}
+
+// HasNext returns true if there are potentially more results to be retrieved.
+func (pager *PublicAddressRangeAuthorizedCIDRAllocationsPager) HasNext() bool {
+	return pager.hasNext
+}
+
+// GetNextWithContext returns the next page of results using the specified Context.
+func (pager *PublicAddressRangeAuthorizedCIDRAllocationsPager) GetNextWithContext(ctx context.Context) (page []PublicAddressRangeAuthorizedCIDRAllocationItemIntf, err error) {
+	if !pager.HasNext() {
+		return nil, fmt.Errorf("no more results available")
+	}
+
+	pager.options.Start = pager.pageContext.next
+
+	result, _, err := pager.client.ListPublicAddressRangeAuthorizedCIDRAllocationsWithContext(ctx, pager.options)
+	if err != nil {
+		err = core.RepurposeSDKProblem(err, "error-getting-next-page")
+		return
+	}
+
+	var next *string
+	if result.Next != nil {
+		var start *string
+		start, err = core.GetQueryParam(result.Next.Href, "start")
+		if err != nil {
+			errMsg := fmt.Sprintf("error retrieving 'start' query parameter from URL '%s': %s", *result.Next.Href, err.Error())
+			err = core.SDKErrorf(err, errMsg, "get-query-error", common.GetComponentInfo())
+			return
+		}
+		next = start
+	}
+	pager.pageContext.next = next
+	pager.hasNext = (pager.pageContext.next != nil)
+	page = result.Allocations
+
+	return
+}
+
+// GetAllWithContext returns all results by invoking GetNextWithContext() repeatedly
+// until all pages of results have been retrieved.
+func (pager *PublicAddressRangeAuthorizedCIDRAllocationsPager) GetAllWithContext(ctx context.Context) (allItems []PublicAddressRangeAuthorizedCIDRAllocationItemIntf, err error) {
+	for pager.HasNext() {
+		var nextPage []PublicAddressRangeAuthorizedCIDRAllocationItemIntf
+		nextPage, err = pager.GetNextWithContext(ctx)
+		if err != nil {
+			err = core.RepurposeSDKProblem(err, "error-getting-next-page")
+			return
+		}
+		allItems = append(allItems, nextPage...)
+	}
+	return
+}
+
+// GetNext invokes GetNextWithContext() using context.Background() as the Context parameter.
+func (pager *PublicAddressRangeAuthorizedCIDRAllocationsPager) GetNext() (page []PublicAddressRangeAuthorizedCIDRAllocationItemIntf, err error) {
+	page, err = pager.GetNextWithContext(context.Background())
+	err = core.RepurposeSDKProblem(err, "")
+	return
+}
+
+// GetAll invokes GetAllWithContext() using context.Background() as the Context parameter.
+func (pager *PublicAddressRangeAuthorizedCIDRAllocationsPager) GetAll() (allItems []PublicAddressRangeAuthorizedCIDRAllocationItemIntf, err error) {
+	allItems, err = pager.GetAllWithContext(context.Background())
+	err = core.RepurposeSDKProblem(err, "")
+	return
+}
+
+// PublicAddressRangeProfilesPager can be used to simplify the use of the "ListPublicAddressRangeProfiles" method.
+type PublicAddressRangeProfilesPager struct {
+	hasNext     bool
+	options     *ListPublicAddressRangeProfilesOptions
+	client      *VpcV1
+	pageContext struct {
+		next *string
+	}
+}
+
+// NewPublicAddressRangeProfilesPager returns a new PublicAddressRangeProfilesPager instance.
+func (vpc *VpcV1) NewPublicAddressRangeProfilesPager(options *ListPublicAddressRangeProfilesOptions) (pager *PublicAddressRangeProfilesPager, err error) {
+	if options.Start != nil && *options.Start != "" {
+		err = core.SDKErrorf(nil, "the 'options.Start' field should not be set", "no-query-setting", common.GetComponentInfo())
+		return
+	}
+
+	optionsCopy := *options
+	pager = &PublicAddressRangeProfilesPager{
+		hasNext: true,
+		options: &optionsCopy,
+		client:  vpc,
+	}
+	return
+}
+
+// HasNext returns true if there are potentially more results to be retrieved.
+func (pager *PublicAddressRangeProfilesPager) HasNext() bool {
+	return pager.hasNext
+}
+
+// GetNextWithContext returns the next page of results using the specified Context.
+func (pager *PublicAddressRangeProfilesPager) GetNextWithContext(ctx context.Context) (page []PublicAddressRangeProfile, err error) {
+	if !pager.HasNext() {
+		return nil, fmt.Errorf("no more results available")
+	}
+
+	pager.options.Start = pager.pageContext.next
+
+	result, _, err := pager.client.ListPublicAddressRangeProfilesWithContext(ctx, pager.options)
+	if err != nil {
+		err = core.RepurposeSDKProblem(err, "error-getting-next-page")
+		return
+	}
+
+	var next *string
+	if result.Next != nil {
+		var start *string
+		start, err = core.GetQueryParam(result.Next.Href, "start")
+		if err != nil {
+			errMsg := fmt.Sprintf("error retrieving 'start' query parameter from URL '%s': %s", *result.Next.Href, err.Error())
+			err = core.SDKErrorf(err, errMsg, "get-query-error", common.GetComponentInfo())
+			return
+		}
+		next = start
+	}
+	pager.pageContext.next = next
+	pager.hasNext = (pager.pageContext.next != nil)
+	page = result.Profiles
+
+	return
+}
+
+// GetAllWithContext returns all results by invoking GetNextWithContext() repeatedly
+// until all pages of results have been retrieved.
+func (pager *PublicAddressRangeProfilesPager) GetAllWithContext(ctx context.Context) (allItems []PublicAddressRangeProfile, err error) {
+	for pager.HasNext() {
+		var nextPage []PublicAddressRangeProfile
+		nextPage, err = pager.GetNextWithContext(ctx)
+		if err != nil {
+			err = core.RepurposeSDKProblem(err, "error-getting-next-page")
+			return
+		}
+		allItems = append(allItems, nextPage...)
+	}
+	return
+}
+
+// GetNext invokes GetNextWithContext() using context.Background() as the Context parameter.
+func (pager *PublicAddressRangeProfilesPager) GetNext() (page []PublicAddressRangeProfile, err error) {
+	page, err = pager.GetNextWithContext(context.Background())
+	err = core.RepurposeSDKProblem(err, "")
+	return
+}
+
+// GetAll invokes GetAllWithContext() using context.Background() as the Context parameter.
+func (pager *PublicAddressRangeProfilesPager) GetAll() (allItems []PublicAddressRangeProfile, err error) {
 	allItems, err = pager.GetAllWithContext(context.Background())
 	err = core.RepurposeSDKProblem(err, "")
 	return

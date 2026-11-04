@@ -199,23 +199,23 @@ func DataSourceIBMISLBS() *schema.Resource {
 						isLBPublicIPDetail: {
 							Type:        schema.TypeList,
 							Computed:    true,
-							Description: "The public IP addresses assigned to this load balancer.",
+							Description: "The public IPs assigned to this load balancer: floating IPs, or public address ranges.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									isLBPublicIpAddress: {
 										Type:        schema.TypeString,
 										Computed:    true,
-										Description: "The IP address.",
+										Description: "The floating IP address. Absent for a public address range.",
 									},
 									isLBPublicIpCIDR: {
 										Type:        schema.TypeString,
 										Computed:    true,
-										Description: "The CIDR block for this public address range; present only when the public IP is a public address range.",
+										Description: "The public IP address block for this public address range, expressed in CIDR format. Present only when the public IP is a public address range.",
 									},
 									isLBPublicIpCRN: {
 										Type:        schema.TypeString,
 										Computed:    true,
-										Description: "The CRN for this public IP resource.",
+										Description: "The CRN for this floating IP.",
 									},
 									isLBPublicIpDeleted: {
 										Type:        schema.TypeList,
@@ -234,17 +234,76 @@ func DataSourceIBMISLBS() *schema.Resource {
 									isLBPublicIpHref: {
 										Type:        schema.TypeString,
 										Computed:    true,
-										Description: "The URL for this public IP resource.",
+										Description: "The URL for this floating IP.",
 									},
 									isLBPublicIpID: {
 										Type:        schema.TypeString,
 										Computed:    true,
-										Description: "The unique identifier for this public IP resource.",
+										Description: "The unique identifier for this floating IP.",
 									},
 									isLBPublicIpName: {
 										Type:        schema.TypeString,
 										Computed:    true,
-										Description: "The name for this public IP resource.",
+										Description: "The name for this floating IP.",
+									},
+									isLBPublicIpResourceType: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The resource type.",
+									},
+								},
+							},
+						},
+						isLBPublicRanges: {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+							Description: "The CRNs of the IPv6 public address ranges assigned to this load balancer. Will be empty if `is_public` is `false` or `ipv6_enabled` is `false`.",
+						},
+						isLBPublicRangeDetail: {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "The IPv6 public address ranges assigned to this load balancer. Will be empty if `is_public` is `false` or `ipv6_enabled` is `false`.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									isLBPublicIpCIDR: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The public IP address block for this public address range, expressed in CIDR format.",
+									},
+									isLBPublicIpCRN: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The CRN for this public address range.",
+									},
+									isLBPublicIpDeleted: {
+										Type:        schema.TypeList,
+										Computed:    true,
+										Description: "If present, this property indicates the referenced resource has been deleted.",
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"more_info": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "Link to documentation about deleted resources.",
+												},
+											},
+										},
+									},
+									isLBPublicIpHref: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The URL for this public address range.",
+									},
+									isLBPublicIpID: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The unique identifier for this public address range.",
+									},
+									isLBPublicIpName: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The name for this public address range.",
 									},
 									isLBPublicIpResourceType: {
 										Type:        schema.TypeString,
@@ -536,9 +595,6 @@ func getLbs(context context.Context, d *schema.ResourceData, meta interface{}) d
 		if lb.PublicIps != nil {
 			for _, ipIntf := range lb.PublicIps {
 				currentPubIp := map[string]interface{}{}
-				// The SDK unmarshals all public_ips as *vpcv1.LoadBalancerPublicIP (base struct).
-				// Floating IPs have Address set; public address ranges have CIDR set and
-				// ResourceType == "public_address_range".
 				if ip, ok := ipIntf.(*vpcv1.LoadBalancerPublicIP); ok {
 					if ip.Address != nil {
 						currentPubIp[isLBPublicIpAddress] = *ip.Address
@@ -572,6 +628,9 @@ func getLbs(context context.Context, d *schema.ResourceData, meta interface{}) d
 
 		lbInfo[isLBPublicIPs] = publicIpList
 		lbInfo[isLBPublicIPDetail] = publicIpDetailList
+		publicRangeList, publicRangeDetailList := lbFlattenPublicRanges(lb.PublicRanges)
+		lbInfo[isLBPublicRanges] = publicRangeList
+		lbInfo[isLBPublicRangeDetail] = publicRangeDetailList
 		privateIpList := make([]string, 0)
 		privateIpDetailList := make([]map[string]interface{}, 0)
 		if lb.PrivateIps != nil {

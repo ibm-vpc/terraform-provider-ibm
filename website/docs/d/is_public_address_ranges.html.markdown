@@ -43,7 +43,7 @@ After your data source is created, you can read values from the following attrib
 - `public_address_ranges` - (List) Collection of public address ranges.
 	
 	Nested schema for `public_address_ranges`:
-	- `cidr` - (String) The public IPv4 range, expressed in CIDR format.
+	- `cidr` - (String) The public IP address block for this public address range, expressed in CIDR format.
 	- `created_at` - (String) The date and time that the public address range was created.
 	- `crn` - (String) The CRN for this public address range.
 	- `href` - (String) The URL for this public address range.
@@ -61,7 +61,7 @@ After your data source is created, you can read values from the following attrib
 	- `target` - (List) The target this public address range is bound to. If absent, this public address range is not bound to a target.
 		
 		Nested schema for `target`:
-		- `load_balancer` - (List) The load balancer this public address range is bound to. Populated when the public address range is bound to a load balancer.
+		- `load_balancer` - (List) The load balancer this public address range is bound to. A public address range is bound to a load balancer by specifying it in `public_ranges` of the `ibm_is_lb` resource. Populated when the public address range is bound to a load balancer.
 			
 			Nested schema for `load_balancer`:
 			- `crn` - (String) The CRN for this load balancer.

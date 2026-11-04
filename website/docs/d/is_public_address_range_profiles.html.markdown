@@ -41,4 +41,7 @@ Nested schema for **profiles**:
 	    * Constraints: Allowable values are: `enum`.
 	  * `values` - (List) The resource types that public address ranges with this profile can target. If empty, the public address range cannot target a resource.
       * Constraints: Allowable values are: `load_balancer`,`virtual_network_interface`, `vpc`.
+        * `load_balancer`: The public address range will be used as an IPv6 public IP for the load balancer.
+        * `virtual_network_interface`: Incoming traffic for IP addresses in the public address range will be routed to the virtual network interface. Outgoing traffic from the virtual network interface to the public internet will be allowed (subject to security groups) if the source IP addresses are in the public address range.
+        * `vpc`: Incoming traffic for IP addresses in the public address range will be routed to a zone in the VPC. The zone must be specified when specifying the vpc. VPC ingress routing table routes must be configured to forward packets with destination IPs in the public address range to endpoints in the zone in the VPC. Outgoing traffic from the VPC to the public internet will be allowed (subject to security groups) if the source IP addresses are in the public address range.
       

@@ -78,6 +78,8 @@ func TestAccIBMISLBDatasource_address_mode(t *testing.T) {
 					resource.TestCheckResourceAttrSet("data.ibm_is_lb.ds_lb", "address_mode"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_lb.ds_lb", "public_ips.#"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_lb.ds_lb", "public_ip.#"),
+					resource.TestCheckResourceAttr("data.ibm_is_lb.ds_lb", "public_range.#", "0"),
+					resource.TestCheckResourceAttr("data.ibm_is_lb.ds_lb", "public_ranges.#", "0"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_lb.ds_lb", "private_ips.#"),
 				),
 			},
@@ -191,6 +193,8 @@ func TestAccIBMISLBDatasource_ipv6(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("data.ibm_is_lb.ds_lb", "name", name),
 					resource.TestCheckResourceAttr("data.ibm_is_lb.ds_lb", "ipv6_enabled", "true"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_lb.ds_lb", "public_ranges.#"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_lb.ds_lb", "public_range.#"),
 				),
 			},
 		},

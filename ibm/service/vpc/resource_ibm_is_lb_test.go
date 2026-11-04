@@ -109,6 +109,8 @@ func TestAccIBMISLB_address_mode(t *testing.T) {
 						"ibm_is_lb.testacc_LB", "public_ip.#"),
 					resource.TestCheckResourceAttrSet(
 						"ibm_is_lb.testacc_LB", "public_ip.0.address"),
+					resource.TestCheckResourceAttr(
+						"ibm_is_lb.testacc_LB", "public_range.#", "0"),
 					resource.TestCheckResourceAttrSet(
 						"ibm_is_lb.testacc_LB", "private_ips.#"),
 				),
@@ -993,7 +995,7 @@ func testAccCheckIBMISLBIPv6WithPARConfig(vpcname, subnetname, zone, cidr, parNa
 		address_mode = "static"
 		ipv6_enabled = true
 		subnets      = [ibm_is_subnet.testacc_subnet.id]
-		public_ips   = [ibm_is_public_address_range.testacc_par.crn]
+		public_ranges = [ibm_is_public_address_range.testacc_par.crn]
 		private_ips  = [ibm_is_subnet_reserved_ip.testacc_rip1.reserved_ip]
 	}`, vpcname, subnetname, zone, cidr, parName, zone, lbName)
 }
@@ -1017,10 +1019,11 @@ func TestAccIBMISLB_ipv6_with_par(t *testing.T) {
 					resource.TestCheckResourceAttr("ibm_is_lb.testacc_LB", "name", lbName),
 					resource.TestCheckResourceAttr("ibm_is_lb.testacc_LB", "ipv6_enabled", "true"),
 					resource.TestCheckResourceAttr("ibm_is_lb.testacc_LB", "address_mode", "static"),
-					resource.TestCheckResourceAttrSet("ibm_is_lb.testacc_LB", "public_ip.#"),
-					resource.TestCheckResourceAttrSet("ibm_is_lb.testacc_LB", "public_ip.0.cidr"),
-					resource.TestCheckResourceAttrSet("ibm_is_lb.testacc_LB", "public_ip.0.crn"),
-					resource.TestCheckResourceAttr("ibm_is_lb.testacc_LB", "public_ip.0.resource_type", "public_address_range"),
+					resource.TestCheckResourceAttr("ibm_is_lb.testacc_LB", "public_ranges.#", "1"),
+					resource.TestCheckResourceAttr("ibm_is_lb.testacc_LB", "public_range.#", "1"),
+					resource.TestCheckResourceAttrSet("ibm_is_lb.testacc_LB", "public_range.0.cidr"),
+					resource.TestCheckResourceAttrSet("ibm_is_lb.testacc_LB", "public_range.0.crn"),
+					resource.TestCheckResourceAttr("ibm_is_lb.testacc_LB", "public_range.0.resource_type", "public_address_range"),
 				),
 			},
 		},
