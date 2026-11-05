@@ -39,10 +39,44 @@ ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCKVmnMOlHKcZK8tpt3MP1lqOLAcqcJzhsvJcjscgVE
 	})
 }
 
+func TestAccIBMISBareMetalServerInitializationDataSource_catalogOffering(t *testing.T) {
+	resName := "data.ibm_is_bare_metal_server_initialization.test1"
+	var server string
+	vpcname := fmt.Sprintf("tf-vpc-%d", acctest.RandIntRange(10, 100))
+	name := fmt.Sprintf("tf-server-%d", acctest.RandIntRange(10, 100))
+	subnetname := fmt.Sprintf("tfip-subnet-%d", acctest.RandIntRange(10, 100))
+	publicKey := strings.TrimSpace(`
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCKVmnMOlHKcZK8tpt3MP1lqOLAcqcJzhsvJcjscgVERRN7/9484SOBJ3HSKxxNG5JN8owAjy5f9yYwcUg+JaUVuytn5Pv3aeYROHGGg+5G346xaq3DAwX6Y5ykr2fvjObgncQBnuU5KHWCECO/4h8uWuwh/kfniXPVjFToc+gnkqA+3RKpAecZhFXwfalQ9mMuYGFxn+fwn8cYEApsJbsEmb0iJwPiZ5hjFC8wREuiTlhPHDgkBLOiycd20op2nXzDbHfCHInquEe/gYxEitALONxm0swBOwJZwlTDOB7C6y2dzlrtxr1L59m7pCkWI4EtTRLvleehBoj3u7jB4usR
+`)
+	sshname := fmt.Sprintf("tf-sshname-%d", acctest.RandIntRange(10, 100))
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { acc.TestAccPreCheck(t) },
+		Providers: acc.TestAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckIBMISBareMetalServerInitializationDataSourceCatalogOfferingConfig(vpcname, subnetname, sshname, publicKey, name, acc.ISCatalogImageName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckIBMISBareMetalServerExists("ibm_is_bare_metal_server.testacc_bms", server),
+					resource.TestCheckResourceAttrSet(resName, "catalog_offering.#"),
+					resource.TestCheckResourceAttrSet(resName, "catalog_offering.0.version_crn"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckIBMISBareMetalServerInitializationDataSourceConfig(vpcname, subnetname, sshname, publicKey, name string) string {
 	// status filter defaults to empty
 	userdata1 := "a"
 	return testAccCheckIBMISBareMetalServerInitializationConfig(vpcname, subnetname, sshname, publicKey, name, acc.IsBareMetalServerImage, userdata1, true, "https", true) +
+		fmt.Sprintf(`
+      data "ibm_is_bare_metal_server_initialization" "test1" {
+		  bare_metal_server = ibm_is_bare_metal_server.testacc_bms.id
+      }`)
+}
+
+func testAccCheckIBMISBareMetalServerInitializationDataSourceCatalogOfferingConfig(vpcname, subnetname, sshname, publicKey, name, catalogImageName string) string {
+	return testAccCheckIBMISBareMetalServerCatalogOfferingConfig(vpcname, subnetname, sshname, publicKey, name, catalogImageName) +
 		fmt.Sprintf(`
       data "ibm_is_bare_metal_server_initialization" "test1" {
 		  bare_metal_server = ibm_is_bare_metal_server.testacc_bms.id

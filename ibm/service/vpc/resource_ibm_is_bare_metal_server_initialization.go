@@ -86,6 +86,39 @@ func ResourceIBMIsBareMetalServerInitialization() *schema.Resource {
 				ForceNew:    true,
 				Description: "The image to be used when provisioning the bare metal server.",
 			},
+			isBareMetalServerCatalogOffering: {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "The catalog offering or offering version this bare metal server was provisioned from.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						isBareMetalServerCatalogOfferingVersionCrn: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Identifies a version of a catalog offering by a unique CRN property",
+						},
+						isBareMetalServerCatalogOfferingPlanCrn: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The CRN for this catalog offering version's billing plan",
+						},
+						"deleted": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "If present, this property indicates the referenced resource has been deleted and provides some supplementary information.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"more_info": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "Link to documentation about deleted resources.",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 			isBareMetalServerKeys: {
 				Type:        schema.TypeSet,
 				Required:    true,
@@ -141,8 +174,7 @@ func resourceIBMISBareMetalServerInitializationCreate(context context.Context, d
 	}
 	d.SetId(bareMetalServerId)
 
-	initializationReplaceOptions := &vpcv1.ReplaceBareMetalServerInitializationOptions{
-		ID: &bareMetalServerId,
+	replacePrototype := &vpcv1.BareMetalServerInitializationReplacePrototype{
 		Image: &vpcv1.ImageIdentityByID{
 			ID: &image,
 		},
@@ -157,7 +189,7 @@ func resourceIBMISBareMetalServerInitializationCreate(context context.Context, d
 				ID: &keystr,
 			}
 		}
-		initializationReplaceOptions.Keys = keyobjs
+		replacePrototype.Keys = keyobjs
 	}
 	if defaultTrustedProfile, ok := d.GetOk(isBareMetalServerDefaultTrustedProfile); ok {
 		defaultTrustedProfilePrototype := &vpcv1.BareMetalServerInitializationDefaultTrustedProfilePrototype{}
@@ -187,7 +219,12 @@ func resourceIBMISBareMetalServerInitializationCreate(context context.Context, d
 				}
 			}
 		}
-		initializationReplaceOptions.DefaultTrustedProfile = defaultTrustedProfilePrototype
+		replacePrototype.DefaultTrustedProfile = defaultTrustedProfilePrototype
+	}
+
+	initializationReplaceOptions := &vpcv1.ReplaceBareMetalServerInitializationOptions{
+		ID: &bareMetalServerId,
+		BareMetalServerInitializationReplacePrototype: replacePrototype,
 	}
 
 	initInitializationReplace, _, err := sess.ReplaceBareMetalServerInitializationWithContext(context, initializationReplaceOptions)
@@ -235,6 +272,26 @@ func BareMetalServerInitializationGet(context context.Context, d *schema.Resourc
 	}
 
 	d.Set(isBareMetalServerID, bareMetalServerId)
+
+	if init.CatalogOffering != nil {
+		catalogMap := map[string]interface{}{}
+		if init.CatalogOffering.Version != nil && init.CatalogOffering.Version.CRN != nil {
+			catalogMap[isBareMetalServerCatalogOfferingVersionCrn] = *init.CatalogOffering.Version.CRN
+		}
+		if init.CatalogOffering.Plan != nil {
+			if init.CatalogOffering.Plan.CRN != nil && *init.CatalogOffering.Plan.CRN != "" {
+				catalogMap[isBareMetalServerCatalogOfferingPlanCrn] = *init.CatalogOffering.Plan.CRN
+			}
+			if init.CatalogOffering.Plan.Deleted != nil {
+				deletedMap := resourceIbmIsBareMetalServerCatalogOfferingVersionPlanReferenceDeletedToMap(*init.CatalogOffering.Plan.Deleted)
+				catalogMap["deleted"] = []map[string]interface{}{deletedMap}
+			}
+		}
+		if err = d.Set(isBareMetalServerCatalogOffering, []map[string]interface{}{catalogMap}); err != nil {
+			err = fmt.Errorf("Error setting catalog_offering: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_bare_metal_server_initialization", "read", "set-catalog_offering").GetDiag()
+		}
+	}
 	return nil
 }
 
