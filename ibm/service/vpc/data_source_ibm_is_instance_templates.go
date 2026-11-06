@@ -241,6 +241,11 @@ func DataSourceIBMISInstanceTemplates() *schema.Resource {
 							Computed:    true,
 							Description: "Indicates whether secure boot is enabled for this virtual server instance.If unspecified, the default secure boot mode from the profile will be used.",
 						},
+						"boot_firmware_selection_mode": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The boot firmware selection mode to use for this virtual server instance. If unspecified, the default boot firmware selection mode from the profile will be used.",
+						},
 						isInstanceAvailablePolicyHostFailure: {
 							Type:        schema.TypeString,
 							Computed:    true,
@@ -1197,6 +1202,7 @@ func dataSourceIBMISInstanceTemplatesRead(context context.Context, d *schema.Res
 					template["cluster_network_attachments"] = clusterNetworkAttachments
 				}
 				template["enable_secure_boot"] = instance.EnableSecureBoot
+				template["boot_firmware_selection_mode"] = instance.BootFirmwareSelectionMode
 
 				if instance.MetadataService != nil {
 					template[isInstanceTemplateMetadataServiceEnabled] = *instance.MetadataService.Enabled
@@ -1574,6 +1580,7 @@ func dataSourceIBMISInstanceTemplatesRead(context context.Context, d *schema.Res
 					template["cluster_network_attachments"] = clusterNetworkAttachments
 				}
 				template["enable_secure_boot"] = instance.EnableSecureBoot
+				template["boot_firmware_selection_mode"] = instance.BootFirmwareSelectionMode
 
 				if instance.MetadataService != nil {
 					template[isInstanceTemplateMetadataServiceEnabled] = *instance.MetadataService.Enabled

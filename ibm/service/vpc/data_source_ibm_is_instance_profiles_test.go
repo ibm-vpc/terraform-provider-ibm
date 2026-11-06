@@ -232,3 +232,23 @@ func testAccCheckIBMISInstanceProfilesDataSourceConfig() string {
       data "ibm_is_instance_profiles" "test1" {
       }`)
 }
+
+func TestAccIBMISInstanceProfilesDataSource_SupportedBootFirmware(t *testing.T) {
+	resName := "data.ibm_is_instance_profiles.test1"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { acc.TestAccPreCheck(t) },
+		Providers: acc.TestAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckIBMISInstanceProfilesDataSourceConfig(),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(resName, "profiles.0.name"),
+					resource.TestCheckResourceAttrSet(resName, "profiles.0.supported_boot_firmware.#"),
+					resource.TestCheckResourceAttrSet(resName, "profiles.0.supported_boot_firmware.0.type"),
+					resource.TestCheckResourceAttrSet(resName, "profiles.0.supported_boot_firmware.0.values.#"),
+				),
+			},
+		},
+	})
+}

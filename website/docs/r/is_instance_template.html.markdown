@@ -377,6 +377,8 @@ Review the argument references that you can specify for your resource.
 - `default_trusted_profile_target` - (Optional, Forces new resource, String) The unique identifier or CRN of the default IAM trusted profile to use for this virtual server instance.
 - `boot_firmware_selection_mode` - (Optional, Forces new resource, String) The boot firmware selection mode to use for this virtual server instance template. Possible values are: `bios` - Basic Input/Output System (BIOS) boot firmware, `detect` - Automatically detect the appropriate boot firmware, `uefi` - Unified Extensible Firmware Interface (UEFI) boot firmware. If unspecified, the default boot firmware selection mode from the profile will be used. **Constraints: Allowable values are: `bios`, `detect`, `uefi`**
 
+  ~>**Note:** For this property to be set to `bios`, `enable_secure_boot` must be `false` and `confidential_compute_mode` must be disabled.
+
 - `enable_secure_boot` - (Optional, Boolean) Indicates whether secure boot is enabled for this virtual server instance. If unspecified, the default secure boot mode from the profile will be used. {Select Availability}
 
   ~>**Note:** The enable_secure_boot is `Select Availability` feature.

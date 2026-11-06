@@ -163,11 +163,6 @@ func DataSourceIBMISInstanceProfile() *schema.Resource {
 				Description: "The supported boot firmware for this profile.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"default": &schema.Schema{
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: "The default boot firmware for this profile.",
-						},
 						"type": &schema.Schema{
 							Type:        schema.TypeString,
 							Computed:    true,

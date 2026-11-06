@@ -270,3 +270,23 @@ func TestAccIBMISInstanceProfileDataSource_AvailabilityClass(t *testing.T) {
 		},
 	})
 }
+
+func TestAccIBMISInstanceProfileDataSource_SupportedBootFirmware(t *testing.T) {
+	resName := "data.ibm_is_instance_profile.test1"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { acc.TestAccPreCheck(t) },
+		Providers: acc.TestAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckIBMISInstanceProfileDataSourceConfig(),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resName, "name", acc.InstanceProfileName),
+					resource.TestCheckResourceAttrSet(resName, "supported_boot_firmware.#"),
+					resource.TestCheckResourceAttrSet(resName, "supported_boot_firmware.0.type"),
+					resource.TestCheckResourceAttrSet(resName, "supported_boot_firmware.0.values.#"),
+				),
+			},
+		},
+	})
+}

@@ -78,7 +78,6 @@ You can access the following attribute references after your data source is crea
   - `supported_boot_firmware` - (List) The supported boot firmware for this profile.
 
       Nested schema for **supported_boot_firmware**:
-      - `default` - (String) The default boot firmware for this profile.
       - `type` - (String) The type for this profile field.
       - `values` - (List) The supported boot firmware values for this profile.
 
