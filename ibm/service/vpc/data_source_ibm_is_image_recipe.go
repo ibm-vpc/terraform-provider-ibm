@@ -3,7 +3,7 @@
 
 /*
  * IBM OpenAPI Terraform Generator Version: 3.117.0-7f07c563-20260915-094553
-*/
+ */
 
 package vpc
 
@@ -26,10 +26,18 @@ func DataSourceIBMIsImageRecipe() *schema.Resource {
 		ReadContext: dataSourceIBMIsImageRecipeRead,
 
 		Schema: map[string]*schema.Schema{
-			"is_image_recipe_id": &schema.Schema{
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: "The image recipe identifier.",
+			"image_recipe": &schema.Schema{
+				Type:         schema.TypeString,
+				Optional:     true,
+				ExactlyOneOf: []string{"image_recipe", "name"},
+				Description:  "The image recipe identifier.",
+			},
+			"name": &schema.Schema{
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ExactlyOneOf: []string{"image_recipe", "name"},
+				Description:  "The unique name for this image recipe.",
 			},
 			"base_image": &schema.Schema{
 				Type:        schema.TypeList,
@@ -194,11 +202,6 @@ func DataSourceIBMIsImageRecipe() *schema.Resource {
 					},
 				},
 			},
-			"name": &schema.Schema{
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: "The unique name for this image recipe.",
-			},
 			"obsolescence_at": &schema.Schema{
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -296,7 +299,36 @@ func dataSourceIBMIsImageRecipeRead(context context.Context, d *schema.ResourceD
 
 	getImageRecipeOptions := &vpcv1.GetImageRecipeOptions{}
 
-	getImageRecipeOptions.SetID(d.Get("is_image_recipe_id").(string))
+	imageRecipeID := d.Get("image_recipe").(string)
+	name := d.Get("name").(string)
+
+	if imageRecipeID != "" {
+		getImageRecipeOptions.SetID(imageRecipeID)
+	} else {
+		listImageRecipesOptions := &vpcv1.ListImageRecipesOptions{
+			Name: &name,
+		}
+		pager, pagerErr := vpcClient.NewImageRecipesPager(listImageRecipesOptions)
+		if pagerErr != nil {
+			tfErr := flex.TerraformErrorf(pagerErr, pagerErr.Error(), "(Data) ibm_is_image_recipe", "read")
+			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+			return tfErr.GetDiag()
+		}
+		allItems, pagerErr := pager.GetAll()
+		if pagerErr != nil {
+			tfErr := flex.TerraformErrorf(pagerErr, fmt.Sprintf("ImageRecipesPager.GetAll() failed: %s", pagerErr), "(Data) ibm_is_image_recipe", "read")
+			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+			return tfErr.GetDiag()
+		}
+		if len(allItems) == 0 {
+			tfErr := flex.TerraformErrorf(fmt.Errorf("no image recipe found with name: %s", name), fmt.Sprintf("no image recipe found with name: %s", name), "(Data) ibm_is_image_recipe", "read")
+			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+			return tfErr.GetDiag()
+		}
+		recipeByName := allItems[0]
+		d.SetId(*recipeByName.ID)
+		getImageRecipeOptions.SetID(d.Id())
+	}
 
 	imageRecipe, _, err := vpcClient.GetImageRecipeWithContext(context, getImageRecipeOptions)
 	if err != nil {
@@ -305,7 +337,7 @@ func dataSourceIBMIsImageRecipeRead(context context.Context, d *schema.ResourceD
 		return tfErr.GetDiag()
 	}
 
-	d.SetId(*getImageRecipeOptions.ID)
+	d.SetId(*imageRecipe.ID)
 
 	baseImage := []map[string]interface{}{}
 	baseImageMap, err := DataSourceIBMIsImageRecipeImageReferenceToMap(imageRecipe.BaseImage)

@@ -17,10 +17,12 @@ import (
 )
 
 const (
-	isImages                = "images"
-	isImagesResourceGroupID = "resource_group"
-	isImageCatalogManaged   = "catalog_managed"
-	isImageRemoteAccountId  = "remote_account_id"
+	isImages                        = "images"
+	isImagesResourceGroupID         = "resource_group"
+	isImageCatalogManaged           = "catalog_managed"
+	isImageRemoteAccountId          = "remote_account_id"
+	isImageSourceImageRecipeID      = "source_image_recipe_id"
+	isImageSourceImageRecipeVersion = "source_image_recipe_version"
 )
 
 func DataSourceIBMISImages() *schema.Resource {
@@ -66,6 +68,16 @@ func DataSourceIBMISImages() *schema.Resource {
 				Set:         schema.HashString,
 				Optional:    true,
 				Description: "Filters the collection to images with a user_data_format property matching one of the specified comma-separated values.",
+			},
+			isImageSourceImageRecipeID: {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Filters the collection to images with a source_image_recipe.id property matching the specified recipe identifier. Also supports the values `null` and `not:null`.",
+			},
+			isImageSourceImageRecipeVersion: {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Filters the collection to images with a source_image_recipe.version property matching the specified value.",
 			},
 
 			isImages: {
@@ -263,6 +275,102 @@ func DataSourceIBMISImages() *schema.Resource {
 							Computed:    true,
 							Description: "Source volume id of the image",
 						},
+						"source_image_recipe": &schema.Schema{
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "The image recipe used to build this image. This property will be present for an image created from an image recipe when the image status is not pending.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"crn": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The CRN for this image recipe.",
+									},
+									"deleted": &schema.Schema{
+										Type:        schema.TypeList,
+										Computed:    true,
+										Description: "If present, this property indicates the referenced resource has been deleted, and provides some supplementary information.",
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"more_info": &schema.Schema{
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "Link to documentation about deleted resources.",
+												},
+											},
+										},
+									},
+									"href": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The URL for this image recipe.",
+									},
+									"id": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The unique identifier for this image recipe.",
+									},
+									"name": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The unique name for this image recipe.",
+									},
+									"resource_type": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The resource type.",
+									},
+									"version": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "A generated content fingerprint for this version of the image recipe. The value changes whenever the image recipe is updated.",
+									},
+								},
+							},
+						},
+						"build_job": &schema.Schema{
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "The job that created this image. This property will be present for images created by an image job.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"deleted": &schema.Schema{
+										Type:        schema.TypeList,
+										Computed:    true,
+										Description: "If present, this property indicates the referenced resource has been deleted, and provides some supplementary information.",
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"more_info": &schema.Schema{
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "Link to documentation about deleted resources.",
+												},
+											},
+										},
+									},
+									"href": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The URL for this image job.",
+									},
+									"id": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The unique identifier for this image job.",
+									},
+									"name": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The name for this image job. The name is unique across all image jobs in the region.",
+									},
+									"resource_type": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The resource type.",
+									},
+								},
+							},
+						},
 						isImageCatalogOffering: {
 							Type:     schema.TypeList,
 							Computed: true,
@@ -452,6 +560,14 @@ func imageList(context context.Context, d *schema.ResourceData, meta interface{}
 		listImagesOptions.SetVisibility(visibility)
 	}
 
+	if v, ok := d.GetOk(isImageSourceImageRecipeID); ok {
+		listImagesOptions.SetSourceImageRecipeID(v.(string))
+	}
+
+	if v, ok := d.GetOk(isImageSourceImageRecipeVersion); ok {
+		listImagesOptions.SetSourceImageRecipeVersion(v.(string))
+	}
+
 	if userDataFormat, ok := d.GetOk(isImageUserDataFormat); ok {
 		userDataFormats := userDataFormat.(*schema.Set)
 		if userDataFormats.Len() != 0 {
@@ -541,6 +657,20 @@ func imageList(context context.Context, d *schema.ResourceData, meta interface{}
 		}
 		if image.SourceVolume != nil {
 			l["source_volume"] = *image.SourceVolume.ID
+		}
+		if image.SourceImageRecipe != nil {
+			sourceImageRecipeMap, err := DataSourceIBMIsImageImageRecipeReferenceHistoryContextToMap(image.SourceImageRecipe)
+			if err != nil {
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_images", "read", "source_image_recipe-to-map").GetDiag()
+			}
+			l["source_image_recipe"] = []map[string]interface{}{sourceImageRecipeMap}
+		}
+		if image.BuildJob != nil {
+			buildJobMap, err := DataSourceIBMIsImageImageJobReferenceToMap(image.BuildJob)
+			if err != nil {
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_images", "read", "build_job-to-map").GetDiag()
+			}
+			l["build_job"] = []map[string]interface{}{buildJobMap}
 		}
 		if image.CatalogOffering != nil {
 			catalogOfferingList := []map[string]interface{}{}

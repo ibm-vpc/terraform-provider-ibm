@@ -3,7 +3,7 @@
 
 /*
  * IBM OpenAPI Terraform Generator Version: 3.117.0-7f07c563-20260915-094553
-*/
+ */
 
 package vpc
 
@@ -31,7 +31,7 @@ func DataSourceIBMIsImageRecipeVersion() *schema.Resource {
 				Required:    true,
 				Description: "Filters the collection to image recipes with a `version` property matching the specified value.",
 			},
-			"is_image_recipe_version_id": &schema.Schema{
+			"image_recipe_id": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "The image recipe identifier.",
@@ -297,7 +297,7 @@ func dataSourceIBMIsImageRecipeVersionRead(context context.Context, d *schema.Re
 	getImageRecipeVersionOptions := &vpcv1.GetImageRecipeVersionOptions{}
 
 	getImageRecipeVersionOptions.SetVersion(d.Get("version").(string))
-	getImageRecipeVersionOptions.SetID(d.Get("is_image_recipe_version_id").(string))
+	getImageRecipeVersionOptions.SetID(d.Get("image_recipe_id").(string))
 
 	imageRecipeHistory, _, err := vpcClient.GetImageRecipeVersionWithContext(context, getImageRecipeVersionOptions)
 	if err != nil {

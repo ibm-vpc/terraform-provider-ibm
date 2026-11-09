@@ -203,6 +203,26 @@ In addition to all argument reference list, you can access the following attribu
   **&#x2022;** `esxi_kickstart`: user_data will be interpreted as a VMware ESXi installation script.</br>
   **&#x2022;**  `ipxe`: user_data will be interpreted as a single URL to an iPXE script or as the text of an iPXE script.</br>
   
+- `source_image_recipe` - (List) The image recipe used to build this image. This property will be present for an image created from an image recipe when the image status is not `pending`.
+    Nested schema for **source_image_recipe**:
+    - `crn` - (String) The CRN for this image recipe.
+    - `deleted` - (List) If present, this property indicates the referenced resource has been deleted, and provides some supplementary information.
+        Nested schema for **deleted**:
+        - `more_info` - (String) Link to documentation about deleted resources.
+    - `href` - (String) The URL for this image recipe.
+    - `id` - (String) The unique identifier for this image recipe.
+    - `name` - (String) The unique name for this image recipe.
+    - `resource_type` - (String) The resource type.
+    - `version` - (String) A generated content fingerprint for this version of the image recipe. The value changes whenever the image recipe is updated.
+- `build_job` - (List) The job that created this image. This property will be present for images created by an image job.
+    Nested schema for **build_job**:
+    - `deleted` - (List) If present, this property indicates the referenced resource has been deleted, and provides some supplementary information.
+        Nested schema for **deleted**:
+        - `more_info` - (String) Link to documentation about deleted resources.
+    - `href` - (String) The URL for this image job.
+    - `id` - (String) The unique identifier for this image job.
+    - `name` - (String) The name for this image job. The name is unique across all image jobs in the region.
+    - `resource_type` - (String) The resource type.
 - `visibility` - (String) The access scope of an image such as `private` or `public`.
 - `zones` - (List) The zones in which this image is available for use.If the image has a status of `available` or `deprecated`, this will include all zones in the region.If the image has a status of `partially_available`, this will include one or more zones in the region. If the image has a status of `failed`, `obsolete`, `pending`, or `unusable`, this will be empty.
     Nested schema for **zones**:

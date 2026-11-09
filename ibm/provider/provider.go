@@ -525,7 +525,8 @@ func Provider() *schema.Provider {
 			"ibm_is_image_export_jobs":                vpc.DataSourceIBMIsImageExports(),
 			"ibm_is_image_component":                  vpc.DataSourceIBMIsImageComponent(),
 			"ibm_is_image_components":                 vpc.DataSourceIBMIsImageComponents(),
-			"ibm_is_image_inventory":                  vpc.DataSourceIBMIsImageInventory(),
+			"ibm_is_image_compatible_components":      vpc.DataSourceIBMIsImageCompatibleComponents(),
+			"ibm_is_image_packages":                   vpc.DataSourceIBMIsImagePackages(),
 			"ibm_is_image_job":                        vpc.DataSourceIBMIsImageJob(),
 			"ibm_is_image_jobs":                       vpc.DataSourceIBMIsImageJobs(),
 			"ibm_is_image_recipe":                     vpc.DataSourceIBMIsImageRecipe(),
@@ -1495,6 +1496,8 @@ func Provider() *schema.Provider {
 			"ibm_is_image_obsolete":                        vpc.ResourceIBMISImageObsolete(),
 			"ibm_is_image_job":                             vpc.ResourceIBMIsImageJob(),
 			"ibm_is_image_recipe":                          vpc.ResourceIBMIsImageRecipe(),
+			"ibm_is_image_recipe_deprecate":                vpc.ResourceIBMIsImageRecipeDeprecate(),
+			"ibm_is_image_recipe_obsolete":                 vpc.ResourceIBMIsImageRecipeObsolete(),
 
 			"ibm_lb":                                       classicinfrastructure.ResourceIBMLb(),
 			"ibm_lbaas":                                    classicinfrastructure.ResourceIBMLbaas(),

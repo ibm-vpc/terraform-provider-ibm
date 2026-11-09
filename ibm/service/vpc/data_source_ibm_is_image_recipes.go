@@ -3,7 +3,7 @@
 
 /*
  * IBM OpenAPI Terraform Generator Version: 3.117.0-7f07c563-20260915-094553
-*/
+ */
 
 package vpc
 
@@ -321,8 +321,7 @@ func dataSourceIBMIsImageRecipesRead(context context.Context, d *schema.Resource
 	listImageRecipesOptions := &vpcv1.ListImageRecipesOptions{}
 
 	if v, ok := d.GetOk("name"); ok {
-		nameStr := v.(string)
-		listImageRecipesOptions.SetName(&vpcv1.ImageRecipeByName{Name: &nameStr})
+		listImageRecipesOptions.SetName(v.(string))
 	}
 	if _, ok := d.GetOk("status"); ok {
 		listImageRecipesOptions.SetStatus(d.Get("status").(string))

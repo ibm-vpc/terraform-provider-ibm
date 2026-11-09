@@ -54,6 +54,8 @@ Review the argument references that you can specify for your data source.
     - `esxi_kickstart`: user_data will be interpreted as a VMware ESXi installation script.
     - `ipxe`: user_data will be interpreted as a single URL to an iPXE script or as the text of an iPXE script.
 
+- `source_image_recipe_id` - (Optional, String) Filters the collection to images with a source image recipe ID matching the specified value. Also accepts `null` (images with no source image recipe) and `not:null` (images with any source image recipe).
+- `source_image_recipe_version` - (Optional, String) Filters the collection to images with a source image recipe version matching the specified value.
 - `visibility` - (Optional, String) Visibility of the image. Accepted values: **private**, **public**
 - `remote_account_id` - (Optional, String) Filters the collection to images with a remote account id matching the specified value. Accepted values are `provider`, `user`, or a valid account ID.
 
@@ -141,6 +143,30 @@ You can access the following attribute references after your data source is crea
     - `name` - (String) The user-defined name for this resource group.
 
   - `source_volume` - (String) The source volume id of the image.
+  - `source_image_recipe` - (List) The image recipe used to build this image. This property will be present for an image created from an image recipe when the image status is not `pending`.
+
+    Nested scheme for `source_image_recipe`:
+    - `crn` - (String) The CRN for this image recipe.
+    - `deleted` - (List) If present, this property indicates the referenced resource has been deleted, and provides some supplementary information.
+
+        Nested scheme for `deleted`:
+        - `more_info` - (String) Link to documentation about deleted resources.
+    - `href` - (String) The URL for this image recipe.
+    - `id` - (String) The unique identifier for this image recipe.
+    - `name` - (String) The unique name for this image recipe.
+    - `resource_type` - (String) The resource type.
+    - `version` - (String) A generated content fingerprint for this version of the image recipe. The value changes whenever the image recipe is updated.
+  - `build_job` - (List) The job that created this image. This property will be present for images created by an image job.
+
+    Nested scheme for `build_job`:
+    - `deleted` - (List) If present, this property indicates the referenced resource has been deleted, and provides some supplementary information.
+
+        Nested scheme for `deleted`:
+        - `more_info` - (String) Link to documentation about deleted resources.
+    - `href` - (String) The URL for this image job.
+    - `id` - (String) The unique identifier for this image job.
+    - `name` - (String) The name for this image job. The name is unique across all image jobs in the region.
+    - `resource_type` - (String) The resource type.
   - `status` - (String) The status of this image.
   - `status_reasons` - (List) The reasons for the current status (if any).
 

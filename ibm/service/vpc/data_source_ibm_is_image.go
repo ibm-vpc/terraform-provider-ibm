@@ -230,6 +230,102 @@ func DataSourceIBMISImage() *schema.Resource {
 				Computed:    true,
 				Description: "Source volume id of the image",
 			},
+			"source_image_recipe": &schema.Schema{
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "The image recipe used to build this image. This property will be present for an image created from an image recipe when the image status is not pending.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"crn": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The CRN for this image recipe.",
+						},
+						"deleted": &schema.Schema{
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "If present, this property indicates the referenced resource has been deleted, and provides some supplementary information.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"more_info": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "Link to documentation about deleted resources.",
+									},
+								},
+							},
+						},
+						"href": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The URL for this image recipe.",
+						},
+						"id": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The unique identifier for this image recipe.",
+						},
+						"name": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The unique name for this image recipe.",
+						},
+						"resource_type": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The resource type.",
+						},
+						"version": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "A generated content fingerprint for this version of the image recipe. The value changes whenever the image recipe is updated.",
+						},
+					},
+				},
+			},
+			"build_job": &schema.Schema{
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "The job that created this image. This property will be present for images created by an image job.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"deleted": &schema.Schema{
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "If present, this property indicates the referenced resource has been deleted, and provides some supplementary information.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"more_info": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "Link to documentation about deleted resources.",
+									},
+								},
+							},
+						},
+						"href": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The URL for this image job.",
+						},
+						"id": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The unique identifier for this image job.",
+						},
+						"name": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The name for this image job. The name is unique across all image jobs in the region.",
+						},
+						"resource_type": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The resource type.",
+						},
+					},
+				},
+			},
 			isImageCreatedAt: {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -480,6 +576,24 @@ func imageGetByName(context context.Context, d *schema.ResourceData, meta interf
 			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting source_volume: %s", err), "(Data) ibm_is_image", "read", "set-source_volume").GetDiag()
 		}
 	}
+	if image.SourceImageRecipe != nil {
+		sourceImageRecipeMap, err := DataSourceIBMIsImageImageRecipeReferenceHistoryContextToMap(image.SourceImageRecipe)
+		if err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_image", "read", "source_image_recipe-to-map").GetDiag()
+		}
+		if err = d.Set("source_image_recipe", []map[string]interface{}{sourceImageRecipeMap}); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting source_image_recipe: %s", err), "(Data) ibm_is_image", "read", "set-source_image_recipe").GetDiag()
+		}
+	}
+	if image.BuildJob != nil {
+		buildJobMap, err := DataSourceIBMIsImageImageJobReferenceToMap(image.BuildJob)
+		if err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_image", "read", "build_job-to-map").GetDiag()
+		}
+		if err = d.Set("build_job", []map[string]interface{}{buildJobMap}); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting build_job: %s", err), "(Data) ibm_is_image", "read", "set-build_job").GetDiag()
+		}
+	}
 	if err = d.Set("created_at", flex.DateTimeToString(image.CreatedAt)); err != nil {
 		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting created_at: %s", err), "(Data) ibm_is_image", "read", "set-created_at").GetDiag()
 	}
@@ -625,6 +739,24 @@ func imageGetById(context context.Context, d *schema.ResourceData, meta interfac
 	if image.SourceVolume != nil {
 		if err = d.Set("source_volume", *image.SourceVolume.ID); err != nil {
 			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting source_volume: %s", err), "(Data) ibm_is_image", "read", "set-source_volume").GetDiag()
+		}
+	}
+	if image.SourceImageRecipe != nil {
+		sourceImageRecipeMap, err := DataSourceIBMIsImageImageRecipeReferenceHistoryContextToMap(image.SourceImageRecipe)
+		if err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_image", "read", "source_image_recipe-to-map").GetDiag()
+		}
+		if err = d.Set("source_image_recipe", []map[string]interface{}{sourceImageRecipeMap}); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting source_image_recipe: %s", err), "(Data) ibm_is_image", "read", "set-source_image_recipe").GetDiag()
+		}
+	}
+	if image.BuildJob != nil {
+		buildJobMap, err := DataSourceIBMIsImageImageJobReferenceToMap(image.BuildJob)
+		if err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_image", "read", "build_job-to-map").GetDiag()
+		}
+		if err = d.Set("build_job", []map[string]interface{}{buildJobMap}); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting build_job: %s", err), "(Data) ibm_is_image", "read", "set-build_job").GetDiag()
 		}
 	}
 	if image.CatalogOffering != nil {
@@ -792,6 +924,46 @@ func DataSourceIBMIsImageAllowedUseToMap(model *vpcv1.ImageAllowedUse) (map[stri
 	}
 	return modelMap, nil
 }
+func DataSourceIBMIsImageImageRecipeReferenceHistoryContextToMap(model *vpcv1.ImageRecipeReferenceHistoryContext) (map[string]interface{}, error) {
+	modelMap := make(map[string]interface{})
+	modelMap["crn"] = *model.CRN
+	if model.Deleted != nil {
+		deletedMap, err := DataSourceIBMIsImageDeletedToMap(model.Deleted)
+		if err != nil {
+			return modelMap, err
+		}
+		modelMap["deleted"] = []map[string]interface{}{deletedMap}
+	}
+	modelMap["href"] = *model.Href
+	modelMap["id"] = *model.ID
+	modelMap["name"] = *model.Name
+	modelMap["resource_type"] = *model.ResourceType
+	modelMap["version"] = *model.Version
+	return modelMap, nil
+}
+
+func DataSourceIBMIsImageImageJobReferenceToMap(model *vpcv1.ImageJobReference) (map[string]interface{}, error) {
+	modelMap := make(map[string]interface{})
+	if model.Deleted != nil {
+		deletedMap, err := DataSourceIBMIsImageDeletedToMap(model.Deleted)
+		if err != nil {
+			return modelMap, err
+		}
+		modelMap["deleted"] = []map[string]interface{}{deletedMap}
+	}
+	modelMap["href"] = *model.Href
+	modelMap["id"] = *model.ID
+	modelMap["name"] = *model.Name
+	modelMap["resource_type"] = *model.ResourceType
+	return modelMap, nil
+}
+
+func DataSourceIBMIsImageDeletedToMap(model *vpcv1.Deleted) (map[string]interface{}, error) {
+	modelMap := make(map[string]interface{})
+	modelMap["more_info"] = *model.MoreInfo
+	return modelMap, nil
+}
+
 func DataSourceIBMIsImageZoneReferenceToMap(model *vpcv1.ZoneReference) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
 	modelMap["href"] = *model.Href

@@ -296,6 +296,102 @@ func ResourceIBMISImage() *schema.Resource {
 					},
 				},
 			},
+			"source_image_recipe": &schema.Schema{
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "The image recipe used to build this image. This property will be present for an image created from an image recipe when the image status is not pending.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"crn": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The CRN for this image recipe.",
+						},
+						"deleted": &schema.Schema{
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "If present, this property indicates the referenced resource has been deleted, and provides some supplementary information.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"more_info": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "Link to documentation about deleted resources.",
+									},
+								},
+							},
+						},
+						"href": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The URL for this image recipe.",
+						},
+						"id": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The unique identifier for this image recipe.",
+						},
+						"name": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The unique name for this image recipe.",
+						},
+						"resource_type": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The resource type.",
+						},
+						"version": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "A generated content fingerprint for this version of the image recipe. The value changes whenever the image recipe is updated.",
+						},
+					},
+				},
+			},
+			"build_job": &schema.Schema{
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "The job that created this image. This property will be present for images created by an image job.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"deleted": &schema.Schema{
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "If present, this property indicates the referenced resource has been deleted, and provides some supplementary information.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"more_info": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "Link to documentation about deleted resources.",
+									},
+								},
+							},
+						},
+						"href": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The URL for this image job.",
+						},
+						"id": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The unique identifier for this image job.",
+						},
+						"name": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The name for this image job. The name is unique across all image jobs in the region.",
+						},
+						"resource_type": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The resource type.",
+						},
+					},
+				},
+			},
 			"zones": &schema.Schema{
 				Type:        schema.TypeList,
 				Computed:    true,
@@ -937,6 +1033,26 @@ func imgGet(context context.Context, d *schema.ResourceData, meta interface{}, i
 		if err = d.Set("source_volume", *image.SourceVolume.ID); err != nil {
 			err = fmt.Errorf("Error setting source_volume: %s", err)
 			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_image", "read", "set-source_volume").GetDiag()
+		}
+	}
+	if image.SourceImageRecipe != nil {
+		sourceImageRecipeMap, err := DataSourceIBMIsImageImageRecipeReferenceHistoryContextToMap(image.SourceImageRecipe)
+		if err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_image", "read", "source_image_recipe-to-map").GetDiag()
+		}
+		if err = d.Set("source_image_recipe", []map[string]interface{}{sourceImageRecipeMap}); err != nil {
+			err = fmt.Errorf("Error setting source_image_recipe: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_image", "read", "set-source_image_recipe").GetDiag()
+		}
+	}
+	if image.BuildJob != nil {
+		buildJobMap, err := DataSourceIBMIsImageImageJobReferenceToMap(image.BuildJob)
+		if err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_image", "read", "build_job-to-map").GetDiag()
+		}
+		if err = d.Set("build_job", []map[string]interface{}{buildJobMap}); err != nil {
+			err = fmt.Errorf("Error setting build_job: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_image", "read", "set-build_job").GetDiag()
 		}
 	}
 

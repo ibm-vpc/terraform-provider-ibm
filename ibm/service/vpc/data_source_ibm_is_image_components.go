@@ -3,7 +3,7 @@
 
 /*
  * IBM OpenAPI Terraform Generator Version: 3.117.0-7f07c563-20260915-094553
-*/
+ */
 
 package vpc
 
@@ -18,6 +18,7 @@ import (
 
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/conns"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
+	"github.com/IBM/go-sdk-core/v5/core"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
 )
 
@@ -26,10 +27,20 @@ func DataSourceIBMIsImageComponents() *schema.Resource {
 		ReadContext: dataSourceIBMIsImageComponentsRead,
 
 		Schema: map[string]*schema.Schema{
-			"is_image_components_id": &schema.Schema{
+			"software_name": &schema.Schema{
 				Type:        schema.TypeString,
-				Required:    true,
-				Description: "The image identifier.",
+				Optional:    true,
+				Description: "Filters the collection to image components with a `software.name` property matching the specified value.",
+			},
+			"status": &schema.Schema{
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Filters the collection to image components with a `status` property matching the specified value.",
+			},
+			"visibility": &schema.Schema{
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "Filters the collection to image components with a `visibility` property matching the specified value.",
 			},
 			"image_components": &schema.Schema{
 				Type:        schema.TypeList,
@@ -38,8 +49,8 @@ func DataSourceIBMIsImageComponents() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"allowed_use": &schema.Schema{
-							Type:        schema.TypeList,
-							Computed:    true,
+							Type:     schema.TypeList,
+							Computed: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"api_version": &schema.Schema{
@@ -168,8 +179,8 @@ func DataSourceIBMIsImageComponents() *schema.Resource {
 							Description: "The resource type.",
 						},
 						"software": &schema.Schema{
-							Type:        schema.TypeList,
-							Computed:    true,
+							Type:     schema.TypeList,
+							Computed: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
 									"name": &schema.Schema{
@@ -239,12 +250,18 @@ func dataSourceIBMIsImageComponentsRead(context context.Context, d *schema.Resou
 		return tfErr.GetDiag()
 	}
 
-	listImageImageComponentsOptions := &vpcv1.ListImageImageComponentsOptions{}
+	listImageComponentsOptions := &vpcv1.ListImageComponentsOptions{}
+	if v, ok := d.GetOk("software_name"); ok {
+		listImageComponentsOptions.SetSoftwareName(v.(string))
+	}
+	if v, ok := d.GetOk("status"); ok {
+		listImageComponentsOptions.SetStatus(v.(string))
+	}
+	if v, ok := d.GetOk("visibility"); ok {
+		listImageComponentsOptions.SetVisibility(v.(string))
+	}
 
-	listImageImageComponentsOptions.SetID(d.Get("is_image_components_id").(string))
-
-	var pager *vpcv1.ImageImageComponentsPager
-	pager, err = vpcClient.NewImageImageComponentsPager(listImageImageComponentsOptions)
+	pager, err := vpcClient.NewImageComponentsPager(listImageComponentsOptions)
 	if err != nil {
 		tfErr := flex.TerraformErrorf(err, err.Error(), "(Data) ibm_is_image_components", "read")
 		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
@@ -253,7 +270,7 @@ func dataSourceIBMIsImageComponentsRead(context context.Context, d *schema.Resou
 
 	allItems, err := pager.GetAll()
 	if err != nil {
-		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("ImageImageComponentsPager.GetAll() failed %s", err), "(Data) ibm_is_image_components", "read")
+		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("ImageComponentsPager.GetAll() failed %s", err), "(Data) ibm_is_image_components", "read")
 		log.Printf("[DEBUG] %s", tfErr.GetDebugMessage())
 		return tfErr.GetDiag()
 	}
@@ -288,7 +305,7 @@ func DataSourceIBMIsImageComponentsImageComponentToMap(model *vpcv1.ImageCompone
 		return modelMap, err
 	}
 	modelMap["allowed_use"] = []map[string]interface{}{allowedUseMap}
-	modelMap["created_at"] = model.CreatedAt.String()
+	modelMap["created_at"] = flex.DateTimeToString(model.CreatedAt)
 	modelMap["crn"] = *model.CRN
 	dependencies := []map[string]interface{}{}
 	for _, dependenciesItem := range model.Dependencies {
@@ -299,14 +316,14 @@ func DataSourceIBMIsImageComponentsImageComponentToMap(model *vpcv1.ImageCompone
 		dependencies = append(dependencies, dependenciesItemMap)
 	}
 	modelMap["dependencies"] = dependencies
-	if model.DeprecationAt != nil {
-		modelMap["deprecation_at"] = model.DeprecationAt.String()
+	if !core.IsNil(model.DeprecationAt) {
+		modelMap["deprecation_at"] = flex.DateTimeToString(model.DeprecationAt)
 	}
 	modelMap["href"] = *model.Href
 	modelMap["id"] = *model.ID
 	modelMap["name"] = *model.Name
-	if model.ObsolescenceAt != nil {
-		modelMap["obsolescence_at"] = model.ObsolescenceAt.String()
+	if !core.IsNil(model.ObsolescenceAt) {
+		modelMap["obsolescence_at"] = flex.DateTimeToString(model.ObsolescenceAt)
 	}
 	resourceGroupMap, err := DataSourceIBMIsImageComponentsImageComponentResourceGroupToMap(model.ResourceGroup)
 	if err != nil {

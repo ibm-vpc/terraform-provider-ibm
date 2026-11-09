@@ -230,6 +230,48 @@ func TestAccIBMISImageDataSourceRemoteAccountId(t *testing.T) {
 	})
 }
 
+func TestAccIBMISImageDataSource_SourceImageRecipeAndBuildJob(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { acc.TestAccPreCheck(t) },
+		Providers: acc.TestAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckIBMISImageDataSourceSourceImageRecipeAndBuildJobConfig(),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet("data.ibm_is_image.test1", "source_image_recipe.#"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_image.test1", "source_image_recipe.0.crn"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_image.test1", "source_image_recipe.0.href"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_image.test1", "source_image_recipe.0.id"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_image.test1", "source_image_recipe.0.name"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_image.test1", "source_image_recipe.0.resource_type"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_image.test1", "source_image_recipe.0.version"),
+					resource.TestCheckResourceAttrPair("data.ibm_is_image.test1", "source_image_recipe.0.id", "ibm_is_image_recipe.is_image_job_recipe", "id"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_image.test1", "build_job.#"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_image.test1", "build_job.0.href"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_image.test1", "build_job.0.id"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_image.test1", "build_job.0.name"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_image.test1", "build_job.0.resource_type"),
+					resource.TestCheckResourceAttrPair("data.ibm_is_image.test1", "build_job.0.id", "ibm_is_image_job.is_image_job_instance", "id"),
+				),
+			},
+		},
+	})
+}
+
+func testAccCheckIBMISImageDataSourceSourceImageRecipeAndBuildJobConfig() string {
+	return testAccCheckIBMIsImageJobConfigDependencies() + `
+	resource "ibm_is_image_job" "is_image_job_instance" {
+		type          = "build"
+		image_recipe  = ibm_is_image_recipe.is_image_job_recipe.id
+		worker_subnet = ibm_is_subnet.is_image_job_subnet.id
+	}
+
+	data "ibm_is_image" "test1" {
+		identifier = ibm_is_image_job.is_image_job_instance.image_id
+	}
+	`
+}
+
 func testAccCheckIBMISImageDataSourceConfig(imageName string) string {
 	return fmt.Sprintf(`
 	resource "ibm_is_image" "isExampleImage" {

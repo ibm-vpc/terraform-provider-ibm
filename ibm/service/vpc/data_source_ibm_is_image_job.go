@@ -26,7 +26,7 @@ func DataSourceIBMIsImageJob() *schema.Resource {
 		ReadContext: dataSourceIBMIsImageJobRead,
 
 		Schema: map[string]*schema.Schema{
-			"is_image_job_id": &schema.Schema{
+			"image_job": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "The image job identifier.",
@@ -417,7 +417,7 @@ func dataSourceIBMIsImageJobRead(context context.Context, d *schema.ResourceData
 
 	getImageJobOptions := &vpcv1.GetImageJobOptions{}
 
-	getImageJobOptions.SetID(d.Get("is_image_job_id").(string))
+	getImageJobOptions.SetID(d.Get("image_job").(string))
 
 	imageJobIntf, _, err := vpcClient.GetImageJobWithContext(context, getImageJobOptions)
 	if err != nil {

@@ -13,8 +13,15 @@ Provides a read-only data source to retrieve information about an ImageComponent
 ## Example Usage
 
 ```hcl
-data "ibm_is_image_components" "is_image_components" {
-	is_image_components_id = "is_image_components_id"
+data "ibm_is_image_components" "all_components" {
+}
+```
+
+```hcl
+data "ibm_is_image_components" "filtered_components" {
+	software_name = "cuda-toolkit"
+	status        = "available"
+	visibility    = "public"
 }
 ```
 
@@ -22,8 +29,9 @@ data "ibm_is_image_components" "is_image_components" {
 
 You can specify the following arguments for this data source.
 
-* `is_image_components_id` - (Required, Forces new resource, String) The image identifier.
-  * Constraints: The maximum length is `64` characters. The minimum length is `1` character. The value must match regular expression `/^[-0-9a-z_]+$/`.
+* `software_name` - (Optional, String) Filters the collection to image components with a `software.name` property matching the specified value.
+* `status` - (Optional, String) Filters the collection to image components with a `status` property matching the specified value.
+* `visibility` - (Optional, String) Filters the collection to image components with a `visibility` property matching the specified value.
 
 ## Attribute Reference
 

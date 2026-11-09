@@ -12,18 +12,26 @@ Provides a read-only data source to retrieve information about an ImageComponent
 
 ## Example Usage
 
+### Retrieve an image component by ID
 ```hcl
 data "ibm_is_image_component" "is_image_component" {
-	is_image_component_id = "is_image_component_id"
+	image_component = "r006-72b27b5c-f4b0-48bb-b954-5becc7f1bcb8"
+}
+```
+
+### Retrieve an image component by Name
+```hcl
+data "ibm_is_image_component" "is_image_component" {
+	name = "my-image-component"
 }
 ```
 
 ## Argument Reference
 
-You can specify the following arguments for this data source.
+You can specify the following arguments for this data source. Exactly one of `image_component` or `name` must be specified.
 
-* `is_image_component_id` - (Required, Forces new resource, String) The image component identifier.
-  * Constraints: The maximum length is `64` characters. The minimum length is `1` character. The value must match regular expression `/^[-0-9a-z_]+$/`.
+* `image_component` - (Optional, String) The image component identifier.
+* `name` - (Optional, String) The unique name for this image component.
 
 ## Attribute Reference
 

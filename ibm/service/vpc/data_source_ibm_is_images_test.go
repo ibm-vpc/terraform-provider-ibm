@@ -8,9 +8,11 @@ import (
 	"testing"
 
 	acc "github.com/IBM-Cloud/terraform-provider-ibm/ibm/acctest"
+	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/service/vpc"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func TestAccIBMISImagesDataSource_basic(t *testing.T) {
@@ -158,6 +160,67 @@ func TestAccIBMISImageDataSource_With_FilterStatus(t *testing.T) {
 	})
 }
 
+func TestAccIBMISImageDataSource_With_FilterSourceImageRecipe(t *testing.T) {
+	resName := "data.ibm_is_images.test1"
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { acc.TestAccPreCheck(t) },
+		Providers: acc.TestAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckIBMISImagesDataSourceWithSourceImageRecipe(),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet(resName, "images.#"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccIBMISImagesDataSource_SourceImageRecipeAndBuildJob(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { acc.TestAccPreCheck(t) },
+		Providers: acc.TestAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckIBMISImagesDataSourceSourceImageRecipeAndBuildJobConfig(),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrSet("data.ibm_is_images.test1", "images.#"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_images.test1", "images.0.source_image_recipe.#"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_images.test1", "images.0.source_image_recipe.0.crn"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_images.test1", "images.0.source_image_recipe.0.href"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_images.test1", "images.0.source_image_recipe.0.id"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_images.test1", "images.0.source_image_recipe.0.name"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_images.test1", "images.0.source_image_recipe.0.resource_type"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_images.test1", "images.0.source_image_recipe.0.version"),
+					resource.TestCheckResourceAttrPair("data.ibm_is_images.test1", "images.0.source_image_recipe.0.id", "ibm_is_image_recipe.is_image_job_recipe", "id"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_images.test1", "images.0.build_job.#"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_images.test1", "images.0.build_job.0.href"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_images.test1", "images.0.build_job.0.id"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_images.test1", "images.0.build_job.0.name"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_images.test1", "images.0.build_job.0.resource_type"),
+					resource.TestCheckResourceAttrPair("data.ibm_is_images.test1", "images.0.build_job.0.id", "ibm_is_image_job.is_image_job_instance", "id"),
+				),
+			},
+		},
+	})
+}
+
+func TestIBMISImagesDataSourceSchema_SourceImageRecipeFilters(t *testing.T) {
+	s := vpc.DataSourceIBMISImages().Schema
+	for _, key := range []string{"source_image_recipe_id", "source_image_recipe_version"} {
+		field, ok := s[key]
+		if !ok {
+			t.Fatalf("expected %s in ibm_is_images schema", key)
+		}
+		if !field.Optional || field.Computed {
+			t.Fatalf("expected %s to be an optional, non-computed filter", key)
+		}
+		if field.Type != schema.TypeString {
+			t.Fatalf("expected %s to be a string", key)
+		}
+	}
+}
+
 func testAccCheckIBMISImagesDataSourceConfig() string {
 	// status filter defaults to empty
 	return fmt.Sprintf(`
@@ -200,6 +263,31 @@ func testAccCheckIBMISImagesDataSourceWithStatusPublic(status string) string {
 		status = "%s"
 	}
 	`, status)
+}
+
+func testAccCheckIBMISImagesDataSourceWithSourceImageRecipe() string {
+	return testAccCheckIBMIsImageJobConfigDependencies() + `
+	data "ibm_is_images" "test1" {
+		source_image_recipe_id      = ibm_is_image_recipe.is_image_job_recipe.id
+		source_image_recipe_version = ibm_is_image_recipe.is_image_job_recipe.version
+	}
+	`
+}
+
+func testAccCheckIBMISImagesDataSourceSourceImageRecipeAndBuildJobConfig() string {
+	return testAccCheckIBMIsImageJobConfigDependencies() + `
+	resource "ibm_is_image_job" "is_image_job_instance" {
+		type          = "build"
+		image_recipe  = ibm_is_image_recipe.is_image_job_recipe.id
+		worker_subnet = ibm_is_subnet.is_image_job_subnet.id
+	}
+
+	data "ibm_is_images" "test1" {
+		source_image_recipe_id      = ibm_is_image_recipe.is_image_job_recipe.id
+		source_image_recipe_version = ibm_is_image_recipe.is_image_job_recipe.version
+		depends_on                  = [ibm_is_image_job.is_image_job_instance]
+	}
+	`
 }
 
 func testAccCheckIBMISImagesDataSourceWithRemoteAccountId(remoteAccountId string) string {

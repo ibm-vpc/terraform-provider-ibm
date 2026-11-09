@@ -1,5 +1,5 @@
 /**
- * (C) Copyright IBM Corp. 2024, 2025, 2026.
+ * (C) Copyright IBM Corp. 2026.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 
 /*
- * IBM OpenAPI SDK Code Generator Version: 3.104.0-b4a47c49-20250418-184351
+ * IBM OpenAPI SDK Code Generator Version: 3.116.0-df613dbc-20260803-154903
  */
 
 // Package vpcv1 : Operations and models for the VpcV1 service
@@ -31,14 +31,14 @@ import (
 	"time"
 
 	"github.com/IBM/go-sdk-core/v5/core"
-	"github.com/go-openapi/strfmt"
 	common "github.com/IBM/vpc-go-sdk/common"
+	"github.com/go-openapi/strfmt"
 )
 
 // VpcV1 : The IBM Cloud Virtual Private Cloud (VPC) API can be used to programmatically provision and manage virtual
 // server instances, along with subnets, volumes, load balancers, and more.
 //
-// API Version: 2026-10-06
+// API Version: 2026-09-01
 type VpcV1 struct {
 	Service *core.BaseService
 
@@ -46,13 +46,13 @@ type VpcV1 struct {
 	// `2`.
 	Generation *int64
 
-	// The API version, in format `YYYY-MM-DD`. For the API behavior documented here, specify any date between `2026-10-13`
-	// and `2026-10-13`.
+	// The API version, in format `YYYY-MM-DD`. For the API behavior documented here, specify any date between `2026-09-01`
+	// and `2026-11-02`.
 	Version *string
 }
 
 // DefaultServiceURL is the default URL to make service requests to.
-const DefaultServiceURL = "https://us-south.iaas.cloud.ibm.com/v1"
+const DefaultServiceURL = "https://au-syd.iaas.cloud.ibm.com/v1"
 
 // DefaultServiceName is the default key used to find external configuration information.
 const DefaultServiceName = "vpc"
@@ -67,8 +67,8 @@ type VpcV1Options struct {
 	// `2`.
 	Generation *int64
 
-	// The API version, in format `YYYY-MM-DD`. For the API behavior documented here, specify any date between `2026-10-13`
-	// and `2026-10-13`.
+	// The API version, in format `YYYY-MM-DD`. For the API behavior documented here, specify any date between `2026-09-01`
+	// and `2026-11-02`.
 	Version *string
 }
 
@@ -133,7 +133,7 @@ func NewVpcV1(options *VpcV1Options) (service *VpcV1, err error) {
 	}
 
 	if options.Version == nil {
-		options.Version = core.StringPtr("2026-10-06")
+		options.Version = core.StringPtr("2026-08-18")
 	}
 	service = &VpcV1{
 		Service:    baseService,
@@ -248,12 +248,12 @@ func (vpc *VpcV1) ListBackupPoliciesWithContext(ctx context.Context, listBackupP
 		return
 	}
 
-	for headerName, headerValue := range listBackupPoliciesOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListBackupPolicies")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListBackupPolicies")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listBackupPoliciesOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -332,12 +332,12 @@ func (vpc *VpcV1) CreateBackupPolicyWithContext(ctx context.Context, createBacku
 		return
 	}
 
-	for headerName, headerValue := range createBackupPolicyOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateBackupPolicy")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateBackupPolicy")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createBackupPolicyOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -412,12 +412,12 @@ func (vpc *VpcV1) ListBackupPolicyJobsWithContext(ctx context.Context, listBacku
 		return
 	}
 
-	for headerName, headerValue := range listBackupPolicyJobsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListBackupPolicyJobs")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListBackupPolicyJobs")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listBackupPolicyJobsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -509,12 +509,12 @@ func (vpc *VpcV1) GetBackupPolicyJobWithContext(ctx context.Context, getBackupPo
 		return
 	}
 
-	for headerName, headerValue := range getBackupPolicyJobOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetBackupPolicyJob")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetBackupPolicyJob")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getBackupPolicyJobOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -581,12 +581,12 @@ func (vpc *VpcV1) ListBackupPolicyPlansWithContext(ctx context.Context, listBack
 		return
 	}
 
-	for headerName, headerValue := range listBackupPolicyPlansOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListBackupPolicyPlans")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListBackupPolicyPlans")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listBackupPolicyPlansOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -663,12 +663,12 @@ func (vpc *VpcV1) CreateBackupPolicyPlanWithContext(ctx context.Context, createB
 		return
 	}
 
-	for headerName, headerValue := range createBackupPolicyPlanOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateBackupPolicyPlan")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateBackupPolicyPlan")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createBackupPolicyPlanOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -773,12 +773,12 @@ func (vpc *VpcV1) DeleteBackupPolicyPlanWithContext(ctx context.Context, deleteB
 		return
 	}
 
-	for headerName, headerValue := range deleteBackupPolicyPlanOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteBackupPolicyPlan")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteBackupPolicyPlan")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteBackupPolicyPlanOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -849,12 +849,12 @@ func (vpc *VpcV1) GetBackupPolicyPlanWithContext(ctx context.Context, getBackupP
 		return
 	}
 
-	for headerName, headerValue := range getBackupPolicyPlanOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetBackupPolicyPlan")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetBackupPolicyPlan")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getBackupPolicyPlanOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -923,12 +923,12 @@ func (vpc *VpcV1) UpdateBackupPolicyPlanWithContext(ctx context.Context, updateB
 		return
 	}
 
-	for headerName, headerValue := range updateBackupPolicyPlanOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateBackupPolicyPlan")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateBackupPolicyPlan")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateBackupPolicyPlanOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -1008,12 +1008,12 @@ func (vpc *VpcV1) DeleteBackupPolicyWithContext(ctx context.Context, deleteBacku
 		return
 	}
 
-	for headerName, headerValue := range deleteBackupPolicyOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteBackupPolicy")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteBackupPolicy")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteBackupPolicyOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -1083,12 +1083,12 @@ func (vpc *VpcV1) GetBackupPolicyWithContext(ctx context.Context, getBackupPolic
 		return
 	}
 
-	for headerName, headerValue := range getBackupPolicyOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetBackupPolicy")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetBackupPolicy")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getBackupPolicyOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -1156,12 +1156,12 @@ func (vpc *VpcV1) UpdateBackupPolicyWithContext(ctx context.Context, updateBacku
 		return
 	}
 
-	for headerName, headerValue := range updateBackupPolicyOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateBackupPolicy")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateBackupPolicy")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateBackupPolicyOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -1229,12 +1229,12 @@ func (vpc *VpcV1) ListBareMetalServerCapacitiesWithContext(ctx context.Context, 
 		return
 	}
 
-	for headerName, headerValue := range listBareMetalServerCapacitiesOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListBareMetalServerCapacities")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListBareMetalServerCapacities")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listBareMetalServerCapacitiesOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -1306,12 +1306,12 @@ func (vpc *VpcV1) ListBareMetalServerProfilesWithContext(ctx context.Context, li
 		return
 	}
 
-	for headerName, headerValue := range listBareMetalServerProfilesOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListBareMetalServerProfiles")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListBareMetalServerProfiles")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listBareMetalServerProfilesOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -1384,12 +1384,12 @@ func (vpc *VpcV1) GetBareMetalServerProfileWithContext(ctx context.Context, getB
 		return
 	}
 
-	for headerName, headerValue := range getBareMetalServerProfileOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetBareMetalServerProfile")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetBareMetalServerProfile")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getBareMetalServerProfileOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -1447,12 +1447,12 @@ func (vpc *VpcV1) ListBareMetalServersWithContext(ctx context.Context, listBareM
 		return
 	}
 
-	for headerName, headerValue := range listBareMetalServersOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListBareMetalServers")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListBareMetalServers")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listBareMetalServersOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -1549,12 +1549,12 @@ func (vpc *VpcV1) CreateBareMetalServerWithContext(ctx context.Context, createBa
 		return
 	}
 
-	for headerName, headerValue := range createBareMetalServerOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateBareMetalServer")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateBareMetalServer")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createBareMetalServerOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -1632,12 +1632,12 @@ func (vpc *VpcV1) CreateBareMetalServerConsoleAccessTokenWithContext(ctx context
 		return
 	}
 
-	for headerName, headerValue := range createBareMetalServerConsoleAccessTokenOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateBareMetalServerConsoleAccessToken")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateBareMetalServerConsoleAccessToken")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createBareMetalServerConsoleAccessTokenOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -1719,12 +1719,12 @@ func (vpc *VpcV1) ListBareMetalServerDisksWithContext(ctx context.Context, listB
 		return
 	}
 
-	for headerName, headerValue := range listBareMetalServerDisksOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListBareMetalServerDisks")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListBareMetalServerDisks")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listBareMetalServerDisksOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -1792,12 +1792,12 @@ func (vpc *VpcV1) GetBareMetalServerDiskWithContext(ctx context.Context, getBare
 		return
 	}
 
-	for headerName, headerValue := range getBareMetalServerDiskOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetBareMetalServerDisk")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetBareMetalServerDisk")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getBareMetalServerDiskOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -1865,12 +1865,12 @@ func (vpc *VpcV1) UpdateBareMetalServerDiskWithContext(ctx context.Context, upda
 		return
 	}
 
-	for headerName, headerValue := range updateBareMetalServerDiskOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateBareMetalServerDisk")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateBareMetalServerDisk")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateBareMetalServerDiskOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -1951,12 +1951,12 @@ func (vpc *VpcV1) ListBareMetalServerNetworkAttachmentsWithContext(ctx context.C
 		return
 	}
 
-	for headerName, headerValue := range listBareMetalServerNetworkAttachmentsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListBareMetalServerNetworkAttachments")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListBareMetalServerNetworkAttachments")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listBareMetalServerNetworkAttachmentsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -2031,12 +2031,12 @@ func (vpc *VpcV1) CreateBareMetalServerNetworkAttachmentWithContext(ctx context.
 		return
 	}
 
-	for headerName, headerValue := range createBareMetalServerNetworkAttachmentOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateBareMetalServerNetworkAttachment")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateBareMetalServerNetworkAttachment")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createBareMetalServerNetworkAttachmentOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -2114,12 +2114,12 @@ func (vpc *VpcV1) DeleteBareMetalServerNetworkAttachmentWithContext(ctx context.
 		return
 	}
 
-	for headerName, headerValue := range deleteBareMetalServerNetworkAttachmentOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteBareMetalServerNetworkAttachment")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteBareMetalServerNetworkAttachment")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteBareMetalServerNetworkAttachmentOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -2177,12 +2177,12 @@ func (vpc *VpcV1) GetBareMetalServerNetworkAttachmentWithContext(ctx context.Con
 		return
 	}
 
-	for headerName, headerValue := range getBareMetalServerNetworkAttachmentOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetBareMetalServerNetworkAttachment")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetBareMetalServerNetworkAttachment")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getBareMetalServerNetworkAttachmentOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -2252,12 +2252,12 @@ func (vpc *VpcV1) UpdateBareMetalServerNetworkAttachmentWithContext(ctx context.
 		return
 	}
 
-	for headerName, headerValue := range updateBareMetalServerNetworkAttachmentOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateBareMetalServerNetworkAttachment")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateBareMetalServerNetworkAttachment")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateBareMetalServerNetworkAttachmentOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -2338,12 +2338,12 @@ func (vpc *VpcV1) ListBareMetalServerNetworkInterfacesWithContext(ctx context.Co
 		return
 	}
 
-	for headerName, headerValue := range listBareMetalServerNetworkInterfacesOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListBareMetalServerNetworkInterfaces")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListBareMetalServerNetworkInterfaces")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listBareMetalServerNetworkInterfacesOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -2424,12 +2424,12 @@ func (vpc *VpcV1) CreateBareMetalServerNetworkInterfaceWithContext(ctx context.C
 		return
 	}
 
-	for headerName, headerValue := range createBareMetalServerNetworkInterfaceOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateBareMetalServerNetworkInterface")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateBareMetalServerNetworkInterface")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createBareMetalServerNetworkInterfaceOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -2510,12 +2510,12 @@ func (vpc *VpcV1) DeleteBareMetalServerNetworkInterfaceWithContext(ctx context.C
 		return
 	}
 
-	for headerName, headerValue := range deleteBareMetalServerNetworkInterfaceOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteBareMetalServerNetworkInterface")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteBareMetalServerNetworkInterface")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteBareMetalServerNetworkInterfaceOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -2577,12 +2577,12 @@ func (vpc *VpcV1) GetBareMetalServerNetworkInterfaceWithContext(ctx context.Cont
 		return
 	}
 
-	for headerName, headerValue := range getBareMetalServerNetworkInterfaceOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetBareMetalServerNetworkInterface")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetBareMetalServerNetworkInterface")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getBareMetalServerNetworkInterfaceOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -2656,12 +2656,12 @@ func (vpc *VpcV1) UpdateBareMetalServerNetworkInterfaceWithContext(ctx context.C
 		return
 	}
 
-	for headerName, headerValue := range updateBareMetalServerNetworkInterfaceOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateBareMetalServerNetworkInterface")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateBareMetalServerNetworkInterface")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateBareMetalServerNetworkInterfaceOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -2736,12 +2736,12 @@ func (vpc *VpcV1) ListBareMetalServerNetworkInterfaceFloatingIpsWithContext(ctx 
 		return
 	}
 
-	for headerName, headerValue := range listBareMetalServerNetworkInterfaceFloatingIpsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListBareMetalServerNetworkInterfaceFloatingIps")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListBareMetalServerNetworkInterfaceFloatingIps")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listBareMetalServerNetworkInterfaceFloatingIpsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -2810,12 +2810,12 @@ func (vpc *VpcV1) RemoveBareMetalServerNetworkInterfaceFloatingIPWithContext(ctx
 		return
 	}
 
-	for headerName, headerValue := range removeBareMetalServerNetworkInterfaceFloatingIPOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "RemoveBareMetalServerNetworkInterfaceFloatingIP")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "RemoveBareMetalServerNetworkInterfaceFloatingIP")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range removeBareMetalServerNetworkInterfaceFloatingIPOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -2875,12 +2875,12 @@ func (vpc *VpcV1) GetBareMetalServerNetworkInterfaceFloatingIPWithContext(ctx co
 		return
 	}
 
-	for headerName, headerValue := range getBareMetalServerNetworkInterfaceFloatingIPOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetBareMetalServerNetworkInterfaceFloatingIP")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetBareMetalServerNetworkInterfaceFloatingIP")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getBareMetalServerNetworkInterfaceFloatingIPOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -2957,12 +2957,12 @@ func (vpc *VpcV1) AddBareMetalServerNetworkInterfaceFloatingIPWithContext(ctx co
 		return
 	}
 
-	for headerName, headerValue := range addBareMetalServerNetworkInterfaceFloatingIPOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "AddBareMetalServerNetworkInterfaceFloatingIP")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "AddBareMetalServerNetworkInterfaceFloatingIP")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range addBareMetalServerNetworkInterfaceFloatingIPOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -3033,12 +3033,12 @@ func (vpc *VpcV1) ListBareMetalServerNetworkInterfaceIpsWithContext(ctx context.
 		return
 	}
 
-	for headerName, headerValue := range listBareMetalServerNetworkInterfaceIpsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListBareMetalServerNetworkInterfaceIps")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListBareMetalServerNetworkInterfaceIps")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listBareMetalServerNetworkInterfaceIpsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -3110,12 +3110,12 @@ func (vpc *VpcV1) GetBareMetalServerNetworkInterfaceIPWithContext(ctx context.Co
 		return
 	}
 
-	for headerName, headerValue := range getBareMetalServerNetworkInterfaceIPOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetBareMetalServerNetworkInterfaceIP")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetBareMetalServerNetworkInterfaceIP")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getBareMetalServerNetworkInterfaceIPOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -3183,12 +3183,12 @@ func (vpc *VpcV1) DeleteBareMetalServerWithContext(ctx context.Context, deleteBa
 		return
 	}
 
-	for headerName, headerValue := range deleteBareMetalServerOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteBareMetalServer")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteBareMetalServer")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteBareMetalServerOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -3245,12 +3245,12 @@ func (vpc *VpcV1) GetBareMetalServerWithContext(ctx context.Context, getBareMeta
 		return
 	}
 
-	for headerName, headerValue := range getBareMetalServerOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetBareMetalServer")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetBareMetalServer")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getBareMetalServerOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -3321,12 +3321,12 @@ func (vpc *VpcV1) UpdateBareMetalServerWithContext(ctx context.Context, updateBa
 		return
 	}
 
-	for headerName, headerValue := range updateBareMetalServerOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateBareMetalServer")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateBareMetalServer")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateBareMetalServerOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -3400,12 +3400,12 @@ func (vpc *VpcV1) UpdateFirmwareForBareMetalServerWithContext(ctx context.Contex
 		return
 	}
 
-	for headerName, headerValue := range updateFirmwareForBareMetalServerOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateFirmwareForBareMetalServer")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateFirmwareForBareMetalServer")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateFirmwareForBareMetalServerOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Content-Type", "application/json")
@@ -3475,12 +3475,12 @@ func (vpc *VpcV1) GetBareMetalServerInitializationWithContext(ctx context.Contex
 		return
 	}
 
-	for headerName, headerValue := range getBareMetalServerInitializationOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetBareMetalServerInitialization")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetBareMetalServerInitialization")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getBareMetalServerInitializationOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -3515,7 +3515,7 @@ func (vpc *VpcV1) GetBareMetalServerInitializationWithContext(ctx context.Contex
 
 // ReplaceBareMetalServerInitialization : Reinitialize a bare metal server
 // This request reinitializes a bare metal server with the specified image and SSH keys. The server must be stopped.
-// Upon successful reinitiatilization, the bare metal server will be started automatically.
+// Upon successful reinitialization, the bare metal server will be started automatically.
 //
 // For this request to succeed, the properties of the server which would result from the reinitialization must adhere to
 // the specified image's `allowed_use` property.
@@ -3551,12 +3551,12 @@ func (vpc *VpcV1) ReplaceBareMetalServerInitializationWithContext(ctx context.Co
 		return
 	}
 
-	for headerName, headerValue := range replaceBareMetalServerInitializationOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ReplaceBareMetalServerInitialization")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ReplaceBareMetalServerInitialization")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range replaceBareMetalServerInitializationOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -3565,20 +3565,7 @@ func (vpc *VpcV1) ReplaceBareMetalServerInitializationWithContext(ctx context.Co
 	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
 	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
 
-	body := make(map[string]interface{})
-	if replaceBareMetalServerInitializationOptions.Image != nil {
-		body["image"] = replaceBareMetalServerInitializationOptions.Image
-	}
-	if replaceBareMetalServerInitializationOptions.Keys != nil {
-		body["keys"] = replaceBareMetalServerInitializationOptions.Keys
-	}
-	if replaceBareMetalServerInitializationOptions.DefaultTrustedProfile != nil {
-		body["default_trusted_profile"] = replaceBareMetalServerInitializationOptions.DefaultTrustedProfile
-	}
-	if replaceBareMetalServerInitializationOptions.UserData != nil {
-		body["user_data"] = replaceBareMetalServerInitializationOptions.UserData
-	}
-	_, err = builder.SetBodyContentJSON(body)
+	_, err = builder.SetBodyContentJSON(replaceBareMetalServerInitializationOptions.BareMetalServerInitializationReplacePrototype)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "set-json-body-error", common.GetComponentInfo())
 		return
@@ -3644,12 +3631,12 @@ func (vpc *VpcV1) RestartBareMetalServerWithContext(ctx context.Context, restart
 		return
 	}
 
-	for headerName, headerValue := range restartBareMetalServerOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "RestartBareMetalServer")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "RestartBareMetalServer")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range restartBareMetalServerOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -3706,12 +3693,12 @@ func (vpc *VpcV1) StartBareMetalServerWithContext(ctx context.Context, startBare
 		return
 	}
 
-	for headerName, headerValue := range startBareMetalServerOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "StartBareMetalServer")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "StartBareMetalServer")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range startBareMetalServerOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -3769,12 +3756,12 @@ func (vpc *VpcV1) StopBareMetalServerWithContext(ctx context.Context, stopBareMe
 		return
 	}
 
-	for headerName, headerValue := range stopBareMetalServerOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "StopBareMetalServer")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "StopBareMetalServer")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range stopBareMetalServerOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Content-Type", "application/json")
@@ -3834,12 +3821,12 @@ func (vpc *VpcV1) ListClusterNetworkProfilesWithContext(ctx context.Context, lis
 		return
 	}
 
-	for headerName, headerValue := range listClusterNetworkProfilesOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListClusterNetworkProfiles")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListClusterNetworkProfiles")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listClusterNetworkProfilesOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -3912,12 +3899,12 @@ func (vpc *VpcV1) GetClusterNetworkProfileWithContext(ctx context.Context, getCl
 		return
 	}
 
-	for headerName, headerValue := range getClusterNetworkProfileOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetClusterNetworkProfile")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetClusterNetworkProfile")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getClusterNetworkProfileOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -3977,12 +3964,12 @@ func (vpc *VpcV1) ListClusterNetworksWithContext(ctx context.Context, listCluste
 		return
 	}
 
-	for headerName, headerValue := range listClusterNetworksOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListClusterNetworks")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListClusterNetworks")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listClusterNetworksOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -4071,12 +4058,12 @@ func (vpc *VpcV1) CreateClusterNetworkWithContext(ctx context.Context, createClu
 		return
 	}
 
-	for headerName, headerValue := range createClusterNetworkOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateClusterNetwork")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateClusterNetwork")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createClusterNetworkOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -4174,12 +4161,12 @@ func (vpc *VpcV1) ListClusterNetworkInterfacesWithContext(ctx context.Context, l
 		return
 	}
 
-	for headerName, headerValue := range listClusterNetworkInterfacesOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListClusterNetworkInterfaces")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListClusterNetworkInterfaces")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listClusterNetworkInterfacesOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -4260,12 +4247,12 @@ func (vpc *VpcV1) CreateClusterNetworkInterfaceWithContext(ctx context.Context, 
 		return
 	}
 
-	for headerName, headerValue := range createClusterNetworkInterfaceOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateClusterNetworkInterface")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateClusterNetworkInterface")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createClusterNetworkInterfaceOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -4352,12 +4339,12 @@ func (vpc *VpcV1) DeleteClusterNetworkInterfaceWithContext(ctx context.Context, 
 		return
 	}
 
-	for headerName, headerValue := range deleteClusterNetworkInterfaceOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteClusterNetworkInterface")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteClusterNetworkInterface")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteClusterNetworkInterfaceOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -4428,12 +4415,12 @@ func (vpc *VpcV1) GetClusterNetworkInterfaceWithContext(ctx context.Context, get
 		return
 	}
 
-	for headerName, headerValue := range getClusterNetworkInterfaceOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetClusterNetworkInterface")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetClusterNetworkInterface")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getClusterNetworkInterfaceOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -4503,12 +4490,12 @@ func (vpc *VpcV1) UpdateClusterNetworkInterfaceWithContext(ctx context.Context, 
 		return
 	}
 
-	for headerName, headerValue := range updateClusterNetworkInterfaceOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateClusterNetworkInterface")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateClusterNetworkInterface")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateClusterNetworkInterfaceOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -4586,12 +4573,12 @@ func (vpc *VpcV1) ListClusterNetworkSubnetsWithContext(ctx context.Context, list
 		return
 	}
 
-	for headerName, headerValue := range listClusterNetworkSubnetsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListClusterNetworkSubnets")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListClusterNetworkSubnets")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listClusterNetworkSubnetsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -4672,12 +4659,12 @@ func (vpc *VpcV1) CreateClusterNetworkSubnetWithContext(ctx context.Context, cre
 		return
 	}
 
-	for headerName, headerValue := range createClusterNetworkSubnetOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateClusterNetworkSubnet")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateClusterNetworkSubnet")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createClusterNetworkSubnetOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -4752,12 +4739,12 @@ func (vpc *VpcV1) ListClusterNetworkSubnetReservedIpsWithContext(ctx context.Con
 		return
 	}
 
-	for headerName, headerValue := range listClusterNetworkSubnetReservedIpsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListClusterNetworkSubnetReservedIps")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListClusterNetworkSubnetReservedIps")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listClusterNetworkSubnetReservedIpsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -4839,12 +4826,12 @@ func (vpc *VpcV1) CreateClusterNetworkSubnetReservedIPWithContext(ctx context.Co
 		return
 	}
 
-	for headerName, headerValue := range createClusterNetworkSubnetReservedIPOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateClusterNetworkSubnetReservedIP")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateClusterNetworkSubnetReservedIP")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createClusterNetworkSubnetReservedIPOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -4930,12 +4917,12 @@ func (vpc *VpcV1) DeleteClusterNetworkSubnetReservedIPWithContext(ctx context.Co
 		return
 	}
 
-	for headerName, headerValue := range deleteClusterNetworkSubnetReservedIPOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteClusterNetworkSubnetReservedIP")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteClusterNetworkSubnetReservedIP")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteClusterNetworkSubnetReservedIPOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -5007,12 +4994,12 @@ func (vpc *VpcV1) GetClusterNetworkSubnetReservedIPWithContext(ctx context.Conte
 		return
 	}
 
-	for headerName, headerValue := range getClusterNetworkSubnetReservedIPOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetClusterNetworkSubnetReservedIP")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetClusterNetworkSubnetReservedIP")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getClusterNetworkSubnetReservedIPOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -5083,12 +5070,12 @@ func (vpc *VpcV1) UpdateClusterNetworkSubnetReservedIPWithContext(ctx context.Co
 		return
 	}
 
-	for headerName, headerValue := range updateClusterNetworkSubnetReservedIPOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateClusterNetworkSubnetReservedIP")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateClusterNetworkSubnetReservedIP")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateClusterNetworkSubnetReservedIPOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -5168,12 +5155,12 @@ func (vpc *VpcV1) DeleteClusterNetworkSubnetWithContext(ctx context.Context, del
 		return
 	}
 
-	for headerName, headerValue := range deleteClusterNetworkSubnetOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteClusterNetworkSubnet")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteClusterNetworkSubnet")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteClusterNetworkSubnetOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -5244,12 +5231,12 @@ func (vpc *VpcV1) GetClusterNetworkSubnetWithContext(ctx context.Context, getClu
 		return
 	}
 
-	for headerName, headerValue := range getClusterNetworkSubnetOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetClusterNetworkSubnet")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetClusterNetworkSubnet")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getClusterNetworkSubnetOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -5319,12 +5306,12 @@ func (vpc *VpcV1) UpdateClusterNetworkSubnetWithContext(ctx context.Context, upd
 		return
 	}
 
-	for headerName, headerValue := range updateClusterNetworkSubnetOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateClusterNetworkSubnet")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateClusterNetworkSubnet")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateClusterNetworkSubnetOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -5403,12 +5390,12 @@ func (vpc *VpcV1) DeleteClusterNetworkWithContext(ctx context.Context, deleteClu
 		return
 	}
 
-	for headerName, headerValue := range deleteClusterNetworkOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteClusterNetwork")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteClusterNetwork")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteClusterNetworkOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -5478,12 +5465,12 @@ func (vpc *VpcV1) GetClusterNetworkWithContext(ctx context.Context, getClusterNe
 		return
 	}
 
-	for headerName, headerValue := range getClusterNetworkOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetClusterNetwork")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetClusterNetwork")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getClusterNetworkOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -5552,12 +5539,12 @@ func (vpc *VpcV1) UpdateClusterNetworkWithContext(ctx context.Context, updateClu
 		return
 	}
 
-	for headerName, headerValue := range updateClusterNetworkOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateClusterNetwork")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateClusterNetwork")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateClusterNetworkOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -5626,12 +5613,12 @@ func (vpc *VpcV1) ListDedicatedHostGroupsWithContext(ctx context.Context, listDe
 		return
 	}
 
-	for headerName, headerValue := range listDedicatedHostGroupsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListDedicatedHostGroups")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListDedicatedHostGroups")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listDedicatedHostGroupsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -5709,12 +5696,12 @@ func (vpc *VpcV1) CreateDedicatedHostGroupWithContext(ctx context.Context, creat
 		return
 	}
 
-	for headerName, headerValue := range createDedicatedHostGroupOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateDedicatedHostGroup")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateDedicatedHostGroup")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createDedicatedHostGroupOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -5804,12 +5791,12 @@ func (vpc *VpcV1) DeleteDedicatedHostGroupWithContext(ctx context.Context, delet
 		return
 	}
 
-	for headerName, headerValue := range deleteDedicatedHostGroupOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteDedicatedHostGroup")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteDedicatedHostGroup")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteDedicatedHostGroupOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -5866,12 +5853,12 @@ func (vpc *VpcV1) GetDedicatedHostGroupWithContext(ctx context.Context, getDedic
 		return
 	}
 
-	for headerName, headerValue := range getDedicatedHostGroupOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetDedicatedHostGroup")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetDedicatedHostGroup")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getDedicatedHostGroupOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -5940,12 +5927,12 @@ func (vpc *VpcV1) UpdateDedicatedHostGroupWithContext(ctx context.Context, updat
 		return
 	}
 
-	for headerName, headerValue := range updateDedicatedHostGroupOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateDedicatedHostGroup")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateDedicatedHostGroup")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateDedicatedHostGroupOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -6011,12 +5998,12 @@ func (vpc *VpcV1) ListDedicatedHostProfilesWithContext(ctx context.Context, list
 		return
 	}
 
-	for headerName, headerValue := range listDedicatedHostProfilesOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListDedicatedHostProfiles")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListDedicatedHostProfiles")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listDedicatedHostProfilesOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -6089,12 +6076,12 @@ func (vpc *VpcV1) GetDedicatedHostProfileWithContext(ctx context.Context, getDed
 		return
 	}
 
-	for headerName, headerValue := range getDedicatedHostProfileOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetDedicatedHostProfile")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetDedicatedHostProfile")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getDedicatedHostProfileOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -6152,12 +6139,12 @@ func (vpc *VpcV1) ListDedicatedHostsWithContext(ctx context.Context, listDedicat
 		return
 	}
 
-	for headerName, headerValue := range listDedicatedHostsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListDedicatedHosts")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListDedicatedHosts")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listDedicatedHostsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -6238,12 +6225,12 @@ func (vpc *VpcV1) CreateDedicatedHostWithContext(ctx context.Context, createDedi
 		return
 	}
 
-	for headerName, headerValue := range createDedicatedHostOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateDedicatedHost")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateDedicatedHost")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createDedicatedHostOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -6319,12 +6306,12 @@ func (vpc *VpcV1) ListDedicatedHostDisksWithContext(ctx context.Context, listDed
 		return
 	}
 
-	for headerName, headerValue := range listDedicatedHostDisksOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListDedicatedHostDisks")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListDedicatedHostDisks")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listDedicatedHostDisksOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -6392,12 +6379,12 @@ func (vpc *VpcV1) GetDedicatedHostDiskWithContext(ctx context.Context, getDedica
 		return
 	}
 
-	for headerName, headerValue := range getDedicatedHostDiskOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetDedicatedHostDisk")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetDedicatedHostDisk")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getDedicatedHostDiskOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -6465,12 +6452,12 @@ func (vpc *VpcV1) UpdateDedicatedHostDiskWithContext(ctx context.Context, update
 		return
 	}
 
-	for headerName, headerValue := range updateDedicatedHostDiskOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateDedicatedHostDisk")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateDedicatedHostDisk")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateDedicatedHostDiskOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -6545,12 +6532,12 @@ func (vpc *VpcV1) DeleteDedicatedHostWithContext(ctx context.Context, deleteDedi
 		return
 	}
 
-	for headerName, headerValue := range deleteDedicatedHostOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteDedicatedHost")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteDedicatedHost")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteDedicatedHostOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -6607,12 +6594,12 @@ func (vpc *VpcV1) GetDedicatedHostWithContext(ctx context.Context, getDedicatedH
 		return
 	}
 
-	for headerName, headerValue := range getDedicatedHostOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetDedicatedHost")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetDedicatedHost")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getDedicatedHostOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -6681,12 +6668,12 @@ func (vpc *VpcV1) UpdateDedicatedHostWithContext(ctx context.Context, updateDedi
 		return
 	}
 
-	for headerName, headerValue := range updateDedicatedHostOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateDedicatedHost")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateDedicatedHost")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateDedicatedHostOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -6756,12 +6743,12 @@ func (vpc *VpcV1) ListEndpointGatewaysWithContext(ctx context.Context, listEndpo
 		return
 	}
 
-	for headerName, headerValue := range listEndpointGatewaysOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListEndpointGateways")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListEndpointGateways")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listEndpointGatewaysOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -6853,12 +6840,12 @@ func (vpc *VpcV1) CreateEndpointGatewayWithContext(ctx context.Context, createEn
 		return
 	}
 
-	for headerName, headerValue := range createEndpointGatewayOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateEndpointGateway")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateEndpointGateway")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createEndpointGatewayOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -6954,12 +6941,12 @@ func (vpc *VpcV1) ListEndpointGatewayIpsWithContext(ctx context.Context, listEnd
 		return
 	}
 
-	for headerName, headerValue := range listEndpointGatewayIpsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListEndpointGatewayIps")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListEndpointGatewayIps")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listEndpointGatewayIpsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -7037,12 +7024,12 @@ func (vpc *VpcV1) RemoveEndpointGatewayIPWithContext(ctx context.Context, remove
 		return
 	}
 
-	for headerName, headerValue := range removeEndpointGatewayIPOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "RemoveEndpointGatewayIP")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "RemoveEndpointGatewayIP")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range removeEndpointGatewayIPOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -7100,12 +7087,12 @@ func (vpc *VpcV1) GetEndpointGatewayIPWithContext(ctx context.Context, getEndpoi
 		return
 	}
 
-	for headerName, headerValue := range getEndpointGatewayIPOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetEndpointGatewayIP")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetEndpointGatewayIP")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getEndpointGatewayIPOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -7176,12 +7163,12 @@ func (vpc *VpcV1) AddEndpointGatewayIPWithContext(ctx context.Context, addEndpoi
 		return
 	}
 
-	for headerName, headerValue := range addEndpointGatewayIPOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "AddEndpointGatewayIP")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "AddEndpointGatewayIP")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range addEndpointGatewayIPOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -7255,12 +7242,12 @@ func (vpc *VpcV1) ListEndpointGatewayResourceBindingsWithContext(ctx context.Con
 		return
 	}
 
-	for headerName, headerValue := range listEndpointGatewayResourceBindingsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListEndpointGatewayResourceBindings")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListEndpointGatewayResourceBindings")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listEndpointGatewayResourceBindingsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -7339,12 +7326,12 @@ func (vpc *VpcV1) CreateEndpointGatewayResourceBindingWithContext(ctx context.Co
 		return
 	}
 
-	for headerName, headerValue := range createEndpointGatewayResourceBindingOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateEndpointGatewayResourceBinding")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateEndpointGatewayResourceBinding")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createEndpointGatewayResourceBindingOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -7427,12 +7414,12 @@ func (vpc *VpcV1) DeleteEndpointGatewayResourceBindingWithContext(ctx context.Co
 		return
 	}
 
-	for headerName, headerValue := range deleteEndpointGatewayResourceBindingOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteEndpointGatewayResourceBinding")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteEndpointGatewayResourceBinding")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteEndpointGatewayResourceBindingOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -7490,12 +7477,12 @@ func (vpc *VpcV1) GetEndpointGatewayResourceBindingWithContext(ctx context.Conte
 		return
 	}
 
-	for headerName, headerValue := range getEndpointGatewayResourceBindingOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetEndpointGatewayResourceBinding")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetEndpointGatewayResourceBinding")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getEndpointGatewayResourceBindingOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -7565,12 +7552,12 @@ func (vpc *VpcV1) UpdateEndpointGatewayResourceBindingWithContext(ctx context.Co
 		return
 	}
 
-	for headerName, headerValue := range updateEndpointGatewayResourceBindingOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateEndpointGatewayResourceBinding")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateEndpointGatewayResourceBinding")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateEndpointGatewayResourceBindingOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -7651,12 +7638,12 @@ func (vpc *VpcV1) DeleteEndpointGatewayWithContext(ctx context.Context, deleteEn
 		return
 	}
 
-	for headerName, headerValue := range deleteEndpointGatewayOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteEndpointGateway")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteEndpointGateway")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteEndpointGatewayOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -7713,12 +7700,12 @@ func (vpc *VpcV1) GetEndpointGatewayWithContext(ctx context.Context, getEndpoint
 		return
 	}
 
-	for headerName, headerValue := range getEndpointGatewayOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetEndpointGateway")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetEndpointGateway")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getEndpointGatewayOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -7787,12 +7774,12 @@ func (vpc *VpcV1) UpdateEndpointGatewayWithContext(ctx context.Context, updateEn
 		return
 	}
 
-	for headerName, headerValue := range updateEndpointGatewayOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateEndpointGateway")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateEndpointGateway")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateEndpointGatewayOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -7858,12 +7845,12 @@ func (vpc *VpcV1) ListFloatingIpsWithContext(ctx context.Context, listFloatingIp
 		return
 	}
 
-	for headerName, headerValue := range listFloatingIpsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListFloatingIps")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListFloatingIps")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listFloatingIpsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -7950,12 +7937,12 @@ func (vpc *VpcV1) CreateFloatingIPWithContext(ctx context.Context, createFloatin
 		return
 	}
 
-	for headerName, headerValue := range createFloatingIPOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateFloatingIP")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateFloatingIP")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createFloatingIPOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -8030,12 +8017,12 @@ func (vpc *VpcV1) DeleteFloatingIPWithContext(ctx context.Context, deleteFloatin
 		return
 	}
 
-	for headerName, headerValue := range deleteFloatingIPOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteFloatingIP")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteFloatingIP")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteFloatingIPOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -8092,12 +8079,12 @@ func (vpc *VpcV1) GetFloatingIPWithContext(ctx context.Context, getFloatingIPOpt
 		return
 	}
 
-	for headerName, headerValue := range getFloatingIPOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetFloatingIP")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetFloatingIP")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getFloatingIPOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -8164,12 +8151,12 @@ func (vpc *VpcV1) UpdateFloatingIPWithContext(ctx context.Context, updateFloatin
 		return
 	}
 
-	for headerName, headerValue := range updateFloatingIPOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateFloatingIP")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateFloatingIP")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateFloatingIPOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -8237,12 +8224,12 @@ func (vpc *VpcV1) ListFlowLogCollectorsWithContext(ctx context.Context, listFlow
 		return
 	}
 
-	for headerName, headerValue := range listFlowLogCollectorsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListFlowLogCollectors")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListFlowLogCollectors")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listFlowLogCollectorsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -8334,12 +8321,12 @@ func (vpc *VpcV1) CreateFlowLogCollectorWithContext(ctx context.Context, createF
 		return
 	}
 
-	for headerName, headerValue := range createFlowLogCollectorOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateFlowLogCollector")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateFlowLogCollector")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createFlowLogCollectorOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -8431,12 +8418,12 @@ func (vpc *VpcV1) DeleteFlowLogCollectorWithContext(ctx context.Context, deleteF
 		return
 	}
 
-	for headerName, headerValue := range deleteFlowLogCollectorOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteFlowLogCollector")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteFlowLogCollector")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteFlowLogCollectorOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -8493,12 +8480,12 @@ func (vpc *VpcV1) GetFlowLogCollectorWithContext(ctx context.Context, getFlowLog
 		return
 	}
 
-	for headerName, headerValue := range getFlowLogCollectorOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetFlowLogCollector")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetFlowLogCollector")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getFlowLogCollectorOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -8567,12 +8554,12 @@ func (vpc *VpcV1) UpdateFlowLogCollectorWithContext(ctx context.Context, updateF
 		return
 	}
 
-	for headerName, headerValue := range updateFlowLogCollectorOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateFlowLogCollector")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateFlowLogCollector")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateFlowLogCollectorOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -8641,12 +8628,12 @@ func (vpc *VpcV1) ListRegionsWithContext(ctx context.Context, listRegionsOptions
 		return
 	}
 
-	for headerName, headerValue := range listRegionsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListRegions")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListRegions")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listRegionsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -8713,12 +8700,12 @@ func (vpc *VpcV1) GetRegionWithContext(ctx context.Context, getRegionOptions *Ge
 		return
 	}
 
-	for headerName, headerValue := range getRegionOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetRegion")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetRegion")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getRegionOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -8786,12 +8773,12 @@ func (vpc *VpcV1) ListRegionZonesWithContext(ctx context.Context, listRegionZone
 		return
 	}
 
-	for headerName, headerValue := range listRegionZonesOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListRegionZones")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListRegionZones")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listRegionZonesOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -8859,12 +8846,12 @@ func (vpc *VpcV1) GetRegionZoneWithContext(ctx context.Context, getRegionZoneOpt
 		return
 	}
 
-	for headerName, headerValue := range getRegionZoneOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetRegionZone")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetRegionZone")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getRegionZoneOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -8925,12 +8912,12 @@ func (vpc *VpcV1) ListImageJobsWithContext(ctx context.Context, listImageJobsOpt
 		return
 	}
 
-	for headerName, headerValue := range listImageJobsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListImageJobs")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListImageJobs")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listImageJobsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -8943,11 +8930,17 @@ func (vpc *VpcV1) ListImageJobsWithContext(ctx context.Context, listImageJobsOpt
 	if listImageJobsOptions.Limit != nil {
 		builder.AddQuery("limit", fmt.Sprint(*listImageJobsOptions.Limit))
 	}
+	if listImageJobsOptions.ImageID != nil {
+		builder.AddQuery("image.id", fmt.Sprint(*listImageJobsOptions.ImageID))
+	}
 	if listImageJobsOptions.Name != nil {
 		builder.AddQuery("name", fmt.Sprint(*listImageJobsOptions.Name))
 	}
 	if listImageJobsOptions.Status != nil {
 		builder.AddQuery("status", fmt.Sprint(*listImageJobsOptions.Status))
+	}
+	if listImageJobsOptions.Type != nil {
+		builder.AddQuery("type", fmt.Sprint(*listImageJobsOptions.Type))
 	}
 
 	request, err := builder.Build()
@@ -8976,7 +8969,7 @@ func (vpc *VpcV1) ListImageJobsWithContext(ctx context.Context, listImageJobsOpt
 }
 
 // CreateImageJob : Create an image job
-// This request creates a new image job. The job creates a new image from the specified recipe.
+// This request creates a new image job.
 func (vpc *VpcV1) CreateImageJob(createImageJobOptions *CreateImageJobOptions) (result ImageJobIntf, response *core.DetailedResponse, err error) {
 	result, response, err = vpc.CreateImageJobWithContext(context.Background(), createImageJobOptions)
 	err = core.RepurposeSDKProblem(err, "")
@@ -9005,12 +8998,12 @@ func (vpc *VpcV1) CreateImageJobWithContext(ctx context.Context, createImageJobO
 		return
 	}
 
-	for headerName, headerValue := range createImageJobOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateImageJob")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateImageJob")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createImageJobOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -9090,12 +9083,12 @@ func (vpc *VpcV1) DeleteImageJobWithContext(ctx context.Context, deleteImageJobO
 		return
 	}
 
-	for headerName, headerValue := range deleteImageJobOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteImageJob")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteImageJob")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteImageJobOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -9152,12 +9145,12 @@ func (vpc *VpcV1) GetImageJobWithContext(ctx context.Context, getImageJobOptions
 		return
 	}
 
-	for headerName, headerValue := range getImageJobOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetImageJob")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetImageJob")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getImageJobOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -9224,12 +9217,12 @@ func (vpc *VpcV1) UpdateImageJobWithContext(ctx context.Context, updateImageJobO
 		return
 	}
 
-	for headerName, headerValue := range updateImageJobOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateImageJob")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateImageJob")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateImageJobOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -9295,12 +9288,12 @@ func (vpc *VpcV1) ListImagesWithContext(ctx context.Context, listImagesOptions *
 		return
 	}
 
-	for headerName, headerValue := range listImagesOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListImages")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListImages")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listImagesOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -9396,12 +9389,12 @@ func (vpc *VpcV1) CreateImageWithContext(ctx context.Context, createImageOptions
 		return
 	}
 
-	for headerName, headerValue := range createImageOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateImage")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateImage")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createImageOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -9479,12 +9472,12 @@ func (vpc *VpcV1) DeleteImageWithContext(ctx context.Context, deleteImageOptions
 		return
 	}
 
-	for headerName, headerValue := range deleteImageOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteImage")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteImage")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteImageOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -9541,12 +9534,12 @@ func (vpc *VpcV1) GetImageWithContext(ctx context.Context, getImageOptions *GetI
 		return
 	}
 
-	for headerName, headerValue := range getImageOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetImage")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetImage")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getImageOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -9615,12 +9608,12 @@ func (vpc *VpcV1) UpdateImageWithContext(ctx context.Context, updateImageOptions
 		return
 	}
 
-	for headerName, headerValue := range updateImageOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateImage")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateImage")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateImageOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -9696,12 +9689,12 @@ func (vpc *VpcV1) ListImageBareMetalServerProfilesWithContext(ctx context.Contex
 		return
 	}
 
-	for headerName, headerValue := range listImageBareMetalServerProfilesOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListImageBareMetalServerProfiles")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListImageBareMetalServerProfiles")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listImageBareMetalServerProfilesOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -9782,12 +9775,12 @@ func (vpc *VpcV1) DeprecateImageWithContext(ctx context.Context, deprecateImageO
 		return
 	}
 
-	for headerName, headerValue := range deprecateImageOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeprecateImage")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeprecateImage")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deprecateImageOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -9813,14 +9806,14 @@ func (vpc *VpcV1) DeprecateImageWithContext(ctx context.Context, deprecateImageO
 // ListImageImageComponents : List the image components compatible with an image
 // This request lists image components compatible with an image based on the image component's `allowed_use.image`
 // property. It is sorted by ascending `name` property values.
-func (vpc *VpcV1) ListImageImageComponents(listImageImageComponentsOptions *ListImageImageComponentsOptions) (result *ImageComponentCollection, response *core.DetailedResponse, err error) {
+func (vpc *VpcV1) ListImageImageComponents(listImageImageComponentsOptions *ListImageImageComponentsOptions) (result *ImageImageComponentCollection, response *core.DetailedResponse, err error) {
 	result, response, err = vpc.ListImageImageComponentsWithContext(context.Background(), listImageImageComponentsOptions)
 	err = core.RepurposeSDKProblem(err, "")
 	return
 }
 
 // ListImageImageComponentsWithContext is an alternate form of the ListImageImageComponents method which supports a Context parameter
-func (vpc *VpcV1) ListImageImageComponentsWithContext(ctx context.Context, listImageImageComponentsOptions *ListImageImageComponentsOptions) (result *ImageComponentCollection, response *core.DetailedResponse, err error) {
+func (vpc *VpcV1) ListImageImageComponentsWithContext(ctx context.Context, listImageImageComponentsOptions *ListImageImageComponentsOptions) (result *ImageImageComponentCollection, response *core.DetailedResponse, err error) {
 	err = core.ValidateNotNil(listImageImageComponentsOptions, "listImageImageComponentsOptions cannot be nil")
 	if err != nil {
 		err = core.SDKErrorf(err, "", "unexpected-nil-param", common.GetComponentInfo())
@@ -9845,12 +9838,12 @@ func (vpc *VpcV1) ListImageImageComponentsWithContext(ctx context.Context, listI
 		return
 	}
 
-	for headerName, headerValue := range listImageImageComponentsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListImageImageComponents")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListImageImageComponents")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listImageImageComponentsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -9878,7 +9871,7 @@ func (vpc *VpcV1) ListImageImageComponentsWithContext(ctx context.Context, listI
 		return
 	}
 	if rawResponse != nil {
-		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalImageComponentCollection)
+		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalImageImageComponentCollection)
 		if err != nil {
 			err = core.SDKErrorf(err, "", "unmarshal-resp-error", common.GetComponentInfo())
 			return
@@ -9925,12 +9918,12 @@ func (vpc *VpcV1) ListImageInstanceProfilesWithContext(ctx context.Context, list
 		return
 	}
 
-	for headerName, headerValue := range listImageInstanceProfilesOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListImageInstanceProfiles")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListImageInstanceProfiles")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listImageInstanceProfilesOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -9959,80 +9952,6 @@ func (vpc *VpcV1) ListImageInstanceProfilesWithContext(ctx context.Context, list
 	}
 	if rawResponse != nil {
 		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalImageInstanceProfileCollection)
-		if err != nil {
-			err = core.SDKErrorf(err, "", "unmarshal-resp-error", common.GetComponentInfo())
-			return
-		}
-		response.Result = result
-	}
-
-	return
-}
-
-// GetImageInventory : Retrieve an image inventory
-// This request retrieves the image inventory for an image built from an image recipe. The image inventory is available
-// after the image job is complete and the image `status` is not
-// `pending`.
-func (vpc *VpcV1) GetImageInventory(getImageInventoryOptions *GetImageInventoryOptions) (result *ImageInventory, response *core.DetailedResponse, err error) {
-	result, response, err = vpc.GetImageInventoryWithContext(context.Background(), getImageInventoryOptions)
-	err = core.RepurposeSDKProblem(err, "")
-	return
-}
-
-// GetImageInventoryWithContext is an alternate form of the GetImageInventory method which supports a Context parameter
-func (vpc *VpcV1) GetImageInventoryWithContext(ctx context.Context, getImageInventoryOptions *GetImageInventoryOptions) (result *ImageInventory, response *core.DetailedResponse, err error) {
-	err = core.ValidateNotNil(getImageInventoryOptions, "getImageInventoryOptions cannot be nil")
-	if err != nil {
-		err = core.SDKErrorf(err, "", "unexpected-nil-param", common.GetComponentInfo())
-		return
-	}
-	err = core.ValidateStruct(getImageInventoryOptions, "getImageInventoryOptions")
-	if err != nil {
-		err = core.SDKErrorf(err, "", "struct-validation-error", common.GetComponentInfo())
-		return
-	}
-
-	pathParamsMap := map[string]string{
-		"id": *getImageInventoryOptions.ID,
-	}
-
-	builder := core.NewRequestBuilder(core.GET)
-	builder = builder.WithContext(ctx)
-	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
-	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/images/{id}/inventory`, pathParamsMap)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "url-resolve-error", common.GetComponentInfo())
-		return
-	}
-
-	for headerName, headerValue := range getImageInventoryOptions.Headers {
-		builder.AddHeader(headerName, headerValue)
-	}
-
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetImageInventory")
-	for headerName, headerValue := range sdkHeaders {
-		builder.AddHeader(headerName, headerValue)
-	}
-	builder.AddHeader("Accept", "application/json")
-
-	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
-	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
-
-	request, err := builder.Build()
-	if err != nil {
-		err = core.SDKErrorf(err, "", "build-error", common.GetComponentInfo())
-		return
-	}
-
-	var rawResponse map[string]json.RawMessage
-	response, err = vpc.Service.Request(request, &rawResponse)
-	if err != nil {
-		core.EnrichHTTPProblem(err, "get_image_inventory", getServiceComponentInfo())
-		err = core.SDKErrorf(err, "", "http-request-err", common.GetComponentInfo())
-		return
-	}
-	if rawResponse != nil {
-		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalImageInventory)
 		if err != nil {
 			err = core.SDKErrorf(err, "", "unmarshal-resp-error", common.GetComponentInfo())
 			return
@@ -10086,12 +10005,12 @@ func (vpc *VpcV1) ObsoleteImageWithContext(ctx context.Context, obsoleteImageOpt
 		return
 	}
 
-	for headerName, headerValue := range obsoleteImageOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ObsoleteImage")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ObsoleteImage")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range obsoleteImageOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -10109,6 +10028,88 @@ func (vpc *VpcV1) ObsoleteImageWithContext(ctx context.Context, obsoleteImageOpt
 		core.EnrichHTTPProblem(err, "obsolete_image", getServiceComponentInfo())
 		err = core.SDKErrorf(err, "", "http-request-err", common.GetComponentInfo())
 		return
+	}
+
+	return
+}
+
+// ListImagePackages : List the packages installed in an image
+// This request lists the packages installed in an image built from an image recipe. It is sorted by ascending `name`
+// property values. The package list is available only after a completed and successful image job.
+func (vpc *VpcV1) ListImagePackages(listImagePackagesOptions *ListImagePackagesOptions) (result *ImagePackageCollection, response *core.DetailedResponse, err error) {
+	result, response, err = vpc.ListImagePackagesWithContext(context.Background(), listImagePackagesOptions)
+	err = core.RepurposeSDKProblem(err, "")
+	return
+}
+
+// ListImagePackagesWithContext is an alternate form of the ListImagePackages method which supports a Context parameter
+func (vpc *VpcV1) ListImagePackagesWithContext(ctx context.Context, listImagePackagesOptions *ListImagePackagesOptions) (result *ImagePackageCollection, response *core.DetailedResponse, err error) {
+	err = core.ValidateNotNil(listImagePackagesOptions, "listImagePackagesOptions cannot be nil")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "unexpected-nil-param", common.GetComponentInfo())
+		return
+	}
+	err = core.ValidateStruct(listImagePackagesOptions, "listImagePackagesOptions")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "struct-validation-error", common.GetComponentInfo())
+		return
+	}
+
+	pathParamsMap := map[string]string{
+		"id": *listImagePackagesOptions.ID,
+	}
+
+	builder := core.NewRequestBuilder(core.GET)
+	builder = builder.WithContext(ctx)
+	builder.EnableGzipCompression = vpc.GetEnableGzipCompression()
+	_, err = builder.ResolveRequestURL(vpc.Service.Options.URL, `/images/{id}/packages`, pathParamsMap)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "url-resolve-error", common.GetComponentInfo())
+		return
+	}
+
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListImagePackages")
+	for headerName, headerValue := range sdkHeaders {
+		builder.AddHeader(headerName, headerValue)
+	}
+
+	for headerName, headerValue := range listImagePackagesOptions.Headers {
+		builder.AddHeader(headerName, headerValue)
+	}
+	builder.AddHeader("Accept", "application/json")
+
+	builder.AddQuery("version", fmt.Sprint(*vpc.Version))
+	builder.AddQuery("generation", fmt.Sprint(*vpc.Generation))
+	if listImagePackagesOptions.Start != nil {
+		builder.AddQuery("start", fmt.Sprint(*listImagePackagesOptions.Start))
+	}
+	if listImagePackagesOptions.Limit != nil {
+		builder.AddQuery("limit", fmt.Sprint(*listImagePackagesOptions.Limit))
+	}
+	if listImagePackagesOptions.Name != nil {
+		builder.AddQuery("name", fmt.Sprint(*listImagePackagesOptions.Name))
+	}
+
+	request, err := builder.Build()
+	if err != nil {
+		err = core.SDKErrorf(err, "", "build-error", common.GetComponentInfo())
+		return
+	}
+
+	var rawResponse map[string]json.RawMessage
+	response, err = vpc.Service.Request(request, &rawResponse)
+	if err != nil {
+		core.EnrichHTTPProblem(err, "list_image_packages", getServiceComponentInfo())
+		err = core.SDKErrorf(err, "", "http-request-err", common.GetComponentInfo())
+		return
+	}
+	if rawResponse != nil {
+		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalImagePackageCollection)
+		if err != nil {
+			err = core.SDKErrorf(err, "", "unmarshal-resp-error", common.GetComponentInfo())
+			return
+		}
+		response.Result = result
 	}
 
 	return
@@ -10153,12 +10154,12 @@ func (vpc *VpcV1) ListImageExportJobsWithContext(ctx context.Context, listImageE
 		return
 	}
 
-	for headerName, headerValue := range listImageExportJobsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListImageExportJobs")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListImageExportJobs")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listImageExportJobsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -10231,12 +10232,12 @@ func (vpc *VpcV1) CreateImageExportJobWithContext(ctx context.Context, createIma
 		return
 	}
 
-	for headerName, headerValue := range createImageExportJobOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateImageExportJob")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateImageExportJob")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createImageExportJobOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -10323,12 +10324,12 @@ func (vpc *VpcV1) DeleteImageExportJobWithContext(ctx context.Context, deleteIma
 		return
 	}
 
-	for headerName, headerValue := range deleteImageExportJobOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteImageExportJob")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteImageExportJob")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteImageExportJobOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -10386,12 +10387,12 @@ func (vpc *VpcV1) GetImageExportJobWithContext(ctx context.Context, getImageExpo
 		return
 	}
 
-	for headerName, headerValue := range getImageExportJobOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetImageExportJob")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetImageExportJob")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getImageExportJobOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -10461,12 +10462,12 @@ func (vpc *VpcV1) UpdateImageExportJobWithContext(ctx context.Context, updateIma
 		return
 	}
 
-	for headerName, headerValue := range updateImageExportJobOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateImageExportJob")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateImageExportJob")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateImageExportJobOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -10531,12 +10532,12 @@ func (vpc *VpcV1) ListOperatingSystemsWithContext(ctx context.Context, listOpera
 		return
 	}
 
-	for headerName, headerValue := range listOperatingSystemsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListOperatingSystems")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListOperatingSystems")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listOperatingSystemsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -10609,12 +10610,12 @@ func (vpc *VpcV1) GetOperatingSystemWithContext(ctx context.Context, getOperatin
 		return
 	}
 
-	for headerName, headerValue := range getOperatingSystemOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetOperatingSystem")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetOperatingSystem")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getOperatingSystemOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -10648,7 +10649,7 @@ func (vpc *VpcV1) GetOperatingSystemWithContext(ctx context.Context, getOperatin
 }
 
 // ListImageComponents : List image components
-// This request lists image components. Components are provided by IBM and third-party vendors.
+// This request lists image components. Image components are provided by IBM and third-party vendors.
 func (vpc *VpcV1) ListImageComponents(listImageComponentsOptions *ListImageComponentsOptions) (result *ImageComponentCollection, response *core.DetailedResponse, err error) {
 	result, response, err = vpc.ListImageComponentsWithContext(context.Background(), listImageComponentsOptions)
 	err = core.RepurposeSDKProblem(err, "")
@@ -10672,12 +10673,12 @@ func (vpc *VpcV1) ListImageComponentsWithContext(ctx context.Context, listImageC
 		return
 	}
 
-	for headerName, headerValue := range listImageComponentsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListImageComponents")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListImageComponents")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listImageComponentsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -10759,12 +10760,12 @@ func (vpc *VpcV1) GetImageComponentsWithContext(ctx context.Context, getImageCom
 		return
 	}
 
-	for headerName, headerValue := range getImageComponentsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetImageComponents")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetImageComponents")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getImageComponentsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -10824,12 +10825,12 @@ func (vpc *VpcV1) ListImageRecipesWithContext(ctx context.Context, listImageReci
 		return
 	}
 
-	for headerName, headerValue := range listImageRecipesOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListImageRecipes")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListImageRecipes")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listImageRecipesOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -10909,12 +10910,12 @@ func (vpc *VpcV1) CreateImageRecipeWithContext(ctx context.Context, createImageR
 		return
 	}
 
-	for headerName, headerValue := range createImageRecipeOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateImageRecipe")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateImageRecipe")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createImageRecipeOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -11007,12 +11008,12 @@ func (vpc *VpcV1) DeleteImageRecipeWithContext(ctx context.Context, deleteImageR
 		return
 	}
 
-	for headerName, headerValue := range deleteImageRecipeOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteImageRecipe")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteImageRecipe")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteImageRecipeOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -11069,12 +11070,12 @@ func (vpc *VpcV1) GetImageRecipeWithContext(ctx context.Context, getImageRecipeO
 		return
 	}
 
-	for headerName, headerValue := range getImageRecipeOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetImageRecipe")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetImageRecipe")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getImageRecipeOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -11145,12 +11146,12 @@ func (vpc *VpcV1) UpdateImageRecipeWithContext(ctx context.Context, updateImageR
 		return
 	}
 
-	for headerName, headerValue := range updateImageRecipeOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateImageRecipe")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateImageRecipe")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateImageRecipeOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -11229,12 +11230,12 @@ func (vpc *VpcV1) DeprecateImageRecipeWithContext(ctx context.Context, deprecate
 		return
 	}
 
-	for headerName, headerValue := range deprecateImageRecipeOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeprecateImageRecipe")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeprecateImageRecipe")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deprecateImageRecipeOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -11291,12 +11292,12 @@ func (vpc *VpcV1) ListImageRecipeHistoryWithContext(ctx context.Context, listIma
 		return
 	}
 
-	for headerName, headerValue := range listImageRecipeHistoryOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListImageRecipeHistory")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListImageRecipeHistory")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listImageRecipeHistoryOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -11371,12 +11372,12 @@ func (vpc *VpcV1) GetImageRecipeVersionWithContext(ctx context.Context, getImage
 		return
 	}
 
-	for headerName, headerValue := range getImageRecipeVersionOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetImageRecipeVersion")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetImageRecipeVersion")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getImageRecipeVersionOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -11448,12 +11449,12 @@ func (vpc *VpcV1) ObsoleteImageRecipeWithContext(ctx context.Context, obsoleteIm
 		return
 	}
 
-	for headerName, headerValue := range obsoleteImageRecipeOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ObsoleteImageRecipe")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ObsoleteImageRecipe")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range obsoleteImageRecipeOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -11501,12 +11502,12 @@ func (vpc *VpcV1) ListInstanceGroupsWithContext(ctx context.Context, listInstanc
 		return
 	}
 
-	for headerName, headerValue := range listInstanceGroupsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListInstanceGroups")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListInstanceGroups")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listInstanceGroupsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -11575,12 +11576,12 @@ func (vpc *VpcV1) CreateInstanceGroupWithContext(ctx context.Context, createInst
 		return
 	}
 
-	for headerName, headerValue := range createInstanceGroupOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateInstanceGroup")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateInstanceGroup")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createInstanceGroupOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -11680,12 +11681,12 @@ func (vpc *VpcV1) DeleteInstanceGroupWithContext(ctx context.Context, deleteInst
 		return
 	}
 
-	for headerName, headerValue := range deleteInstanceGroupOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteInstanceGroup")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteInstanceGroup")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteInstanceGroupOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -11742,12 +11743,12 @@ func (vpc *VpcV1) GetInstanceGroupWithContext(ctx context.Context, getInstanceGr
 		return
 	}
 
-	for headerName, headerValue := range getInstanceGroupOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetInstanceGroup")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetInstanceGroup")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getInstanceGroupOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -11815,12 +11816,12 @@ func (vpc *VpcV1) UpdateInstanceGroupWithContext(ctx context.Context, updateInst
 		return
 	}
 
-	for headerName, headerValue := range updateInstanceGroupOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateInstanceGroup")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateInstanceGroup")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateInstanceGroupOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -11894,12 +11895,12 @@ func (vpc *VpcV1) DeleteInstanceGroupLoadBalancerWithContext(ctx context.Context
 		return
 	}
 
-	for headerName, headerValue := range deleteInstanceGroupLoadBalancerOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteInstanceGroupLoadBalancer")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteInstanceGroupLoadBalancer")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteInstanceGroupLoadBalancerOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -11956,12 +11957,12 @@ func (vpc *VpcV1) ListInstanceGroupManagersWithContext(ctx context.Context, list
 		return
 	}
 
-	for headerName, headerValue := range listInstanceGroupManagersOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListInstanceGroupManagers")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListInstanceGroupManagers")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listInstanceGroupManagersOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -12034,12 +12035,12 @@ func (vpc *VpcV1) CreateInstanceGroupManagerWithContext(ctx context.Context, cre
 		return
 	}
 
-	for headerName, headerValue := range createInstanceGroupManagerOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateInstanceGroupManager")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateInstanceGroupManager")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createInstanceGroupManagerOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -12114,12 +12115,12 @@ func (vpc *VpcV1) DeleteInstanceGroupManagerWithContext(ctx context.Context, del
 		return
 	}
 
-	for headerName, headerValue := range deleteInstanceGroupManagerOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteInstanceGroupManager")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteInstanceGroupManager")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteInstanceGroupManagerOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -12177,12 +12178,12 @@ func (vpc *VpcV1) GetInstanceGroupManagerWithContext(ctx context.Context, getIns
 		return
 	}
 
-	for headerName, headerValue := range getInstanceGroupManagerOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetInstanceGroupManager")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetInstanceGroupManager")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getInstanceGroupManagerOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -12250,12 +12251,12 @@ func (vpc *VpcV1) UpdateInstanceGroupManagerWithContext(ctx context.Context, upd
 		return
 	}
 
-	for headerName, headerValue := range updateInstanceGroupManagerOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateInstanceGroupManager")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateInstanceGroupManager")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateInstanceGroupManagerOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -12330,12 +12331,12 @@ func (vpc *VpcV1) ListInstanceGroupManagerActionsWithContext(ctx context.Context
 		return
 	}
 
-	for headerName, headerValue := range listInstanceGroupManagerActionsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListInstanceGroupManagerActions")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListInstanceGroupManagerActions")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listInstanceGroupManagerActionsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -12409,12 +12410,12 @@ func (vpc *VpcV1) CreateInstanceGroupManagerActionWithContext(ctx context.Contex
 		return
 	}
 
-	for headerName, headerValue := range createInstanceGroupManagerActionOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateInstanceGroupManagerAction")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateInstanceGroupManagerAction")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createInstanceGroupManagerActionOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -12490,12 +12491,12 @@ func (vpc *VpcV1) DeleteInstanceGroupManagerActionWithContext(ctx context.Contex
 		return
 	}
 
-	for headerName, headerValue := range deleteInstanceGroupManagerActionOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteInstanceGroupManagerAction")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteInstanceGroupManagerAction")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteInstanceGroupManagerActionOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -12554,12 +12555,12 @@ func (vpc *VpcV1) GetInstanceGroupManagerActionWithContext(ctx context.Context, 
 		return
 	}
 
-	for headerName, headerValue := range getInstanceGroupManagerActionOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetInstanceGroupManagerAction")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetInstanceGroupManagerAction")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getInstanceGroupManagerActionOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -12628,12 +12629,12 @@ func (vpc *VpcV1) UpdateInstanceGroupManagerActionWithContext(ctx context.Contex
 		return
 	}
 
-	for headerName, headerValue := range updateInstanceGroupManagerActionOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateInstanceGroupManagerAction")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateInstanceGroupManagerAction")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateInstanceGroupManagerActionOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -12708,12 +12709,12 @@ func (vpc *VpcV1) ListInstanceGroupManagerPoliciesWithContext(ctx context.Contex
 		return
 	}
 
-	for headerName, headerValue := range listInstanceGroupManagerPoliciesOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListInstanceGroupManagerPolicies")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListInstanceGroupManagerPolicies")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listInstanceGroupManagerPoliciesOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -12787,12 +12788,12 @@ func (vpc *VpcV1) CreateInstanceGroupManagerPolicyWithContext(ctx context.Contex
 		return
 	}
 
-	for headerName, headerValue := range createInstanceGroupManagerPolicyOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateInstanceGroupManagerPolicy")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateInstanceGroupManagerPolicy")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createInstanceGroupManagerPolicyOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -12868,12 +12869,12 @@ func (vpc *VpcV1) DeleteInstanceGroupManagerPolicyWithContext(ctx context.Contex
 		return
 	}
 
-	for headerName, headerValue := range deleteInstanceGroupManagerPolicyOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteInstanceGroupManagerPolicy")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteInstanceGroupManagerPolicy")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteInstanceGroupManagerPolicyOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -12932,12 +12933,12 @@ func (vpc *VpcV1) GetInstanceGroupManagerPolicyWithContext(ctx context.Context, 
 		return
 	}
 
-	for headerName, headerValue := range getInstanceGroupManagerPolicyOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetInstanceGroupManagerPolicy")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetInstanceGroupManagerPolicy")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getInstanceGroupManagerPolicyOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -13006,12 +13007,12 @@ func (vpc *VpcV1) UpdateInstanceGroupManagerPolicyWithContext(ctx context.Contex
 		return
 	}
 
-	for headerName, headerValue := range updateInstanceGroupManagerPolicyOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateInstanceGroupManagerPolicy")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateInstanceGroupManagerPolicy")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateInstanceGroupManagerPolicyOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -13086,12 +13087,12 @@ func (vpc *VpcV1) DeleteInstanceGroupMembershipsWithContext(ctx context.Context,
 		return
 	}
 
-	for headerName, headerValue := range deleteInstanceGroupMembershipsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteInstanceGroupMemberships")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteInstanceGroupMemberships")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteInstanceGroupMembershipsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -13148,12 +13149,12 @@ func (vpc *VpcV1) ListInstanceGroupMembershipsWithContext(ctx context.Context, l
 		return
 	}
 
-	for headerName, headerValue := range listInstanceGroupMembershipsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListInstanceGroupMemberships")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListInstanceGroupMemberships")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listInstanceGroupMembershipsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -13228,12 +13229,12 @@ func (vpc *VpcV1) DeleteInstanceGroupMembershipWithContext(ctx context.Context, 
 		return
 	}
 
-	for headerName, headerValue := range deleteInstanceGroupMembershipOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteInstanceGroupMembership")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteInstanceGroupMembership")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteInstanceGroupMembershipOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -13291,12 +13292,12 @@ func (vpc *VpcV1) GetInstanceGroupMembershipWithContext(ctx context.Context, get
 		return
 	}
 
-	for headerName, headerValue := range getInstanceGroupMembershipOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetInstanceGroupMembership")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetInstanceGroupMembership")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getInstanceGroupMembershipOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -13364,12 +13365,12 @@ func (vpc *VpcV1) UpdateInstanceGroupMembershipWithContext(ctx context.Context, 
 		return
 	}
 
-	for headerName, headerValue := range updateInstanceGroupMembershipOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateInstanceGroupMembership")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateInstanceGroupMembership")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateInstanceGroupMembershipOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -13434,12 +13435,12 @@ func (vpc *VpcV1) ListInstanceTemplatesWithContext(ctx context.Context, listInst
 		return
 	}
 
-	for headerName, headerValue := range listInstanceTemplatesOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListInstanceTemplates")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListInstanceTemplates")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listInstanceTemplatesOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -13506,12 +13507,12 @@ func (vpc *VpcV1) CreateInstanceTemplateWithContext(ctx context.Context, createI
 		return
 	}
 
-	for headerName, headerValue := range createInstanceTemplateOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateInstanceTemplate")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateInstanceTemplate")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createInstanceTemplateOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -13585,12 +13586,12 @@ func (vpc *VpcV1) DeleteInstanceTemplateWithContext(ctx context.Context, deleteI
 		return
 	}
 
-	for headerName, headerValue := range deleteInstanceTemplateOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteInstanceTemplate")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteInstanceTemplate")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteInstanceTemplateOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -13647,12 +13648,12 @@ func (vpc *VpcV1) GetInstanceTemplateWithContext(ctx context.Context, getInstanc
 		return
 	}
 
-	for headerName, headerValue := range getInstanceTemplateOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetInstanceTemplate")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetInstanceTemplate")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getInstanceTemplateOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -13721,12 +13722,12 @@ func (vpc *VpcV1) UpdateInstanceTemplateWithContext(ctx context.Context, updateI
 		return
 	}
 
-	for headerName, headerValue := range updateInstanceTemplateOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateInstanceTemplate")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateInstanceTemplate")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateInstanceTemplateOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -13792,12 +13793,12 @@ func (vpc *VpcV1) ListInstanceProfilesWithContext(ctx context.Context, listInsta
 		return
 	}
 
-	for headerName, headerValue := range listInstanceProfilesOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListInstanceProfiles")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListInstanceProfiles")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listInstanceProfilesOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -13870,12 +13871,12 @@ func (vpc *VpcV1) GetInstanceProfileWithContext(ctx context.Context, getInstance
 		return
 	}
 
-	for headerName, headerValue := range getInstanceProfileOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetInstanceProfile")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetInstanceProfile")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getInstanceProfileOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -13933,12 +13934,12 @@ func (vpc *VpcV1) ListInstancesWithContext(ctx context.Context, listInstancesOpt
 		return
 	}
 
-	for headerName, headerValue := range listInstancesOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListInstances")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListInstances")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listInstancesOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -14075,12 +14076,12 @@ func (vpc *VpcV1) CreateInstanceWithContext(ctx context.Context, createInstanceO
 		return
 	}
 
-	for headerName, headerValue := range createInstanceOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateInstance")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateInstance")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createInstanceOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -14158,12 +14159,12 @@ func (vpc *VpcV1) DeleteInstanceWithContext(ctx context.Context, deleteInstanceO
 		return
 	}
 
-	for headerName, headerValue := range deleteInstanceOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteInstance")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteInstance")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteInstanceOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	if deleteInstanceOptions.IfMatch != nil {
@@ -14223,12 +14224,12 @@ func (vpc *VpcV1) GetInstanceWithContext(ctx context.Context, getInstanceOptions
 		return
 	}
 
-	for headerName, headerValue := range getInstanceOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetInstance")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetInstance")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getInstanceOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -14299,12 +14300,12 @@ func (vpc *VpcV1) UpdateInstanceWithContext(ctx context.Context, updateInstanceO
 		return
 	}
 
-	for headerName, headerValue := range updateInstanceOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateInstance")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateInstance")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateInstanceOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -14382,12 +14383,12 @@ func (vpc *VpcV1) GetInstanceInitializationWithContext(ctx context.Context, getI
 		return
 	}
 
-	for headerName, headerValue := range getInstanceInitializationOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetInstanceInitialization")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetInstanceInitialization")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getInstanceInitializationOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -14461,12 +14462,12 @@ func (vpc *VpcV1) CreateInstanceReinitializationWithContext(ctx context.Context,
 		return
 	}
 
-	for headerName, headerValue := range createInstanceReinitializationOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateInstanceReinitialization")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateInstanceReinitialization")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createInstanceReinitializationOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Content-Type", "application/json")
@@ -14531,12 +14532,12 @@ func (vpc *VpcV1) CreateInstanceActionWithContext(ctx context.Context, createIns
 		return
 	}
 
-	for headerName, headerValue := range createInstanceActionOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateInstanceAction")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateInstanceAction")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createInstanceActionOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -14618,12 +14619,12 @@ func (vpc *VpcV1) ListInstanceClusterNetworkAttachmentsWithContext(ctx context.C
 		return
 	}
 
-	for headerName, headerValue := range listInstanceClusterNetworkAttachmentsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListInstanceClusterNetworkAttachments")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListInstanceClusterNetworkAttachments")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listInstanceClusterNetworkAttachmentsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -14700,12 +14701,12 @@ func (vpc *VpcV1) CreateClusterNetworkAttachmentWithContext(ctx context.Context,
 		return
 	}
 
-	for headerName, headerValue := range createClusterNetworkAttachmentOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateClusterNetworkAttachment")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateClusterNetworkAttachment")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createClusterNetworkAttachmentOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -14793,12 +14794,12 @@ func (vpc *VpcV1) DeleteInstanceClusterNetworkAttachmentWithContext(ctx context.
 		return
 	}
 
-	for headerName, headerValue := range deleteInstanceClusterNetworkAttachmentOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteInstanceClusterNetworkAttachment")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteInstanceClusterNetworkAttachment")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteInstanceClusterNetworkAttachmentOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -14866,12 +14867,12 @@ func (vpc *VpcV1) GetInstanceClusterNetworkAttachmentWithContext(ctx context.Con
 		return
 	}
 
-	for headerName, headerValue := range getInstanceClusterNetworkAttachmentOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetInstanceClusterNetworkAttachment")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetInstanceClusterNetworkAttachment")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getInstanceClusterNetworkAttachmentOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -14941,12 +14942,12 @@ func (vpc *VpcV1) UpdateInstanceClusterNetworkAttachmentWithContext(ctx context.
 		return
 	}
 
-	for headerName, headerValue := range updateInstanceClusterNetworkAttachmentOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateInstanceClusterNetworkAttachment")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateInstanceClusterNetworkAttachment")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateInstanceClusterNetworkAttachmentOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -15023,12 +15024,12 @@ func (vpc *VpcV1) CreateInstanceConsoleAccessTokenWithContext(ctx context.Contex
 		return
 	}
 
-	for headerName, headerValue := range createInstanceConsoleAccessTokenOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateInstanceConsoleAccessToken")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateInstanceConsoleAccessToken")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createInstanceConsoleAccessTokenOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -15111,12 +15112,12 @@ func (vpc *VpcV1) ListInstanceDisksWithContext(ctx context.Context, listInstance
 		return
 	}
 
-	for headerName, headerValue := range listInstanceDisksOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListInstanceDisks")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListInstanceDisks")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listInstanceDisksOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -15184,12 +15185,12 @@ func (vpc *VpcV1) GetInstanceDiskWithContext(ctx context.Context, getInstanceDis
 		return
 	}
 
-	for headerName, headerValue := range getInstanceDiskOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetInstanceDisk")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetInstanceDisk")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getInstanceDiskOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -15257,12 +15258,12 @@ func (vpc *VpcV1) UpdateInstanceDiskWithContext(ctx context.Context, updateInsta
 		return
 	}
 
-	for headerName, headerValue := range updateInstanceDiskOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateInstanceDisk")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateInstanceDisk")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateInstanceDiskOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -15341,12 +15342,12 @@ func (vpc *VpcV1) ListInstanceNetworkAttachmentsWithContext(ctx context.Context,
 		return
 	}
 
-	for headerName, headerValue := range listInstanceNetworkAttachmentsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListInstanceNetworkAttachments")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListInstanceNetworkAttachments")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listInstanceNetworkAttachmentsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -15415,12 +15416,12 @@ func (vpc *VpcV1) CreateInstanceNetworkAttachmentWithContext(ctx context.Context
 		return
 	}
 
-	for headerName, headerValue := range createInstanceNetworkAttachmentOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateInstanceNetworkAttachment")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateInstanceNetworkAttachment")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createInstanceNetworkAttachmentOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -15505,12 +15506,12 @@ func (vpc *VpcV1) DeleteInstanceNetworkAttachmentWithContext(ctx context.Context
 		return
 	}
 
-	for headerName, headerValue := range deleteInstanceNetworkAttachmentOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteInstanceNetworkAttachment")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteInstanceNetworkAttachment")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteInstanceNetworkAttachmentOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -15568,12 +15569,12 @@ func (vpc *VpcV1) GetInstanceNetworkAttachmentWithContext(ctx context.Context, g
 		return
 	}
 
-	for headerName, headerValue := range getInstanceNetworkAttachmentOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetInstanceNetworkAttachment")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetInstanceNetworkAttachment")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getInstanceNetworkAttachmentOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -15643,12 +15644,12 @@ func (vpc *VpcV1) UpdateInstanceNetworkAttachmentWithContext(ctx context.Context
 		return
 	}
 
-	for headerName, headerValue := range updateInstanceNetworkAttachmentOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateInstanceNetworkAttachment")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateInstanceNetworkAttachment")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateInstanceNetworkAttachmentOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -15729,12 +15730,12 @@ func (vpc *VpcV1) ListInstanceNetworkInterfacesWithContext(ctx context.Context, 
 		return
 	}
 
-	for headerName, headerValue := range listInstanceNetworkInterfacesOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListInstanceNetworkInterfaces")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListInstanceNetworkInterfaces")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listInstanceNetworkInterfacesOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -15808,12 +15809,12 @@ func (vpc *VpcV1) CreateInstanceNetworkInterfaceWithContext(ctx context.Context,
 		return
 	}
 
-	for headerName, headerValue := range createInstanceNetworkInterfaceOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateInstanceNetworkInterface")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateInstanceNetworkInterface")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createInstanceNetworkInterfaceOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -15911,12 +15912,12 @@ func (vpc *VpcV1) DeleteInstanceNetworkInterfaceWithContext(ctx context.Context,
 		return
 	}
 
-	for headerName, headerValue := range deleteInstanceNetworkInterfaceOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteInstanceNetworkInterface")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteInstanceNetworkInterface")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteInstanceNetworkInterfaceOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -15978,12 +15979,12 @@ func (vpc *VpcV1) GetInstanceNetworkInterfaceWithContext(ctx context.Context, ge
 		return
 	}
 
-	for headerName, headerValue := range getInstanceNetworkInterfaceOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetInstanceNetworkInterface")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetInstanceNetworkInterface")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getInstanceNetworkInterfaceOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -16057,12 +16058,12 @@ func (vpc *VpcV1) UpdateInstanceNetworkInterfaceWithContext(ctx context.Context,
 		return
 	}
 
-	for headerName, headerValue := range updateInstanceNetworkInterfaceOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateInstanceNetworkInterface")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateInstanceNetworkInterface")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateInstanceNetworkInterfaceOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -16137,12 +16138,12 @@ func (vpc *VpcV1) ListInstanceNetworkInterfaceFloatingIpsWithContext(ctx context
 		return
 	}
 
-	for headerName, headerValue := range listInstanceNetworkInterfaceFloatingIpsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListInstanceNetworkInterfaceFloatingIps")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListInstanceNetworkInterfaceFloatingIps")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listInstanceNetworkInterfaceFloatingIpsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -16211,12 +16212,12 @@ func (vpc *VpcV1) RemoveInstanceNetworkInterfaceFloatingIPWithContext(ctx contex
 		return
 	}
 
-	for headerName, headerValue := range removeInstanceNetworkInterfaceFloatingIPOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "RemoveInstanceNetworkInterfaceFloatingIP")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "RemoveInstanceNetworkInterfaceFloatingIP")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range removeInstanceNetworkInterfaceFloatingIPOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -16276,12 +16277,12 @@ func (vpc *VpcV1) GetInstanceNetworkInterfaceFloatingIPWithContext(ctx context.C
 		return
 	}
 
-	for headerName, headerValue := range getInstanceNetworkInterfaceFloatingIPOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetInstanceNetworkInterfaceFloatingIP")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetInstanceNetworkInterfaceFloatingIP")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getInstanceNetworkInterfaceFloatingIPOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -16357,12 +16358,12 @@ func (vpc *VpcV1) AddInstanceNetworkInterfaceFloatingIPWithContext(ctx context.C
 		return
 	}
 
-	for headerName, headerValue := range addInstanceNetworkInterfaceFloatingIPOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "AddInstanceNetworkInterfaceFloatingIP")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "AddInstanceNetworkInterfaceFloatingIP")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range addInstanceNetworkInterfaceFloatingIPOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -16433,12 +16434,12 @@ func (vpc *VpcV1) ListInstanceNetworkInterfaceIpsWithContext(ctx context.Context
 		return
 	}
 
-	for headerName, headerValue := range listInstanceNetworkInterfaceIpsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListInstanceNetworkInterfaceIps")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListInstanceNetworkInterfaceIps")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listInstanceNetworkInterfaceIpsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -16516,12 +16517,12 @@ func (vpc *VpcV1) GetInstanceNetworkInterfaceIPWithContext(ctx context.Context, 
 		return
 	}
 
-	for headerName, headerValue := range getInstanceNetworkInterfaceIPOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetInstanceNetworkInterfaceIP")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetInstanceNetworkInterfaceIP")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getInstanceNetworkInterfaceIPOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -16592,12 +16593,12 @@ func (vpc *VpcV1) ListInstanceSoftwareAttachmentsWithContext(ctx context.Context
 		return
 	}
 
-	for headerName, headerValue := range listInstanceSoftwareAttachmentsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListInstanceSoftwareAttachments")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListInstanceSoftwareAttachments")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listInstanceSoftwareAttachmentsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -16665,12 +16666,12 @@ func (vpc *VpcV1) GetInstanceSoftwareAttachmentWithContext(ctx context.Context, 
 		return
 	}
 
-	for headerName, headerValue := range getInstanceSoftwareAttachmentOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetInstanceSoftwareAttachment")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetInstanceSoftwareAttachment")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getInstanceSoftwareAttachmentOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -16740,12 +16741,12 @@ func (vpc *VpcV1) UpdateInstanceSoftwareAttachmentWithContext(ctx context.Contex
 		return
 	}
 
-	for headerName, headerValue := range updateInstanceSoftwareAttachmentOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateInstanceSoftwareAttachment")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateInstanceSoftwareAttachment")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateInstanceSoftwareAttachmentOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -16821,12 +16822,12 @@ func (vpc *VpcV1) ListInstanceVolumeAttachmentsWithContext(ctx context.Context, 
 		return
 	}
 
-	for headerName, headerValue := range listInstanceVolumeAttachmentsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListInstanceVolumeAttachments")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListInstanceVolumeAttachments")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listInstanceVolumeAttachmentsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -16896,12 +16897,12 @@ func (vpc *VpcV1) CreateInstanceVolumeAttachmentWithContext(ctx context.Context,
 		return
 	}
 
-	for headerName, headerValue := range createInstanceVolumeAttachmentOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateInstanceVolumeAttachment")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateInstanceVolumeAttachment")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createInstanceVolumeAttachmentOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -16987,12 +16988,12 @@ func (vpc *VpcV1) DeleteInstanceVolumeAttachmentWithContext(ctx context.Context,
 		return
 	}
 
-	for headerName, headerValue := range deleteInstanceVolumeAttachmentOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteInstanceVolumeAttachment")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteInstanceVolumeAttachment")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteInstanceVolumeAttachmentOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -17050,12 +17051,12 @@ func (vpc *VpcV1) GetInstanceVolumeAttachmentWithContext(ctx context.Context, ge
 		return
 	}
 
-	for headerName, headerValue := range getInstanceVolumeAttachmentOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetInstanceVolumeAttachment")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetInstanceVolumeAttachment")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getInstanceVolumeAttachmentOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -17125,12 +17126,12 @@ func (vpc *VpcV1) UpdateInstanceVolumeAttachmentWithContext(ctx context.Context,
 		return
 	}
 
-	for headerName, headerValue := range updateInstanceVolumeAttachmentOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateInstanceVolumeAttachment")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateInstanceVolumeAttachment")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateInstanceVolumeAttachmentOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -17196,12 +17197,12 @@ func (vpc *VpcV1) ListKeysWithContext(ctx context.Context, listKeysOptions *List
 		return
 	}
 
-	for headerName, headerValue := range listKeysOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListKeys")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListKeys")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listKeysOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -17275,12 +17276,12 @@ func (vpc *VpcV1) CreateKeyWithContext(ctx context.Context, createKeyOptions *Cr
 		return
 	}
 
-	for headerName, headerValue := range createKeyOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateKey")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateKey")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createKeyOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -17367,12 +17368,12 @@ func (vpc *VpcV1) DeleteKeyWithContext(ctx context.Context, deleteKeyOptions *De
 		return
 	}
 
-	for headerName, headerValue := range deleteKeyOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteKey")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteKey")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteKeyOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -17429,12 +17430,12 @@ func (vpc *VpcV1) GetKeyWithContext(ctx context.Context, getKeyOptions *GetKeyOp
 		return
 	}
 
-	for headerName, headerValue := range getKeyOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetKey")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetKey")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getKeyOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -17501,12 +17502,12 @@ func (vpc *VpcV1) UpdateKeyWithContext(ctx context.Context, updateKeyOptions *Up
 		return
 	}
 
-	for headerName, headerValue := range updateKeyOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateKey")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateKey")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateKeyOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -17572,12 +17573,12 @@ func (vpc *VpcV1) ListLoadBalancerProfilesWithContext(ctx context.Context, listL
 		return
 	}
 
-	for headerName, headerValue := range listLoadBalancerProfilesOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListLoadBalancerProfiles")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListLoadBalancerProfiles")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listLoadBalancerProfilesOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -17650,12 +17651,12 @@ func (vpc *VpcV1) GetLoadBalancerProfileWithContext(ctx context.Context, getLoad
 		return
 	}
 
-	for headerName, headerValue := range getLoadBalancerProfileOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetLoadBalancerProfile")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetLoadBalancerProfile")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getLoadBalancerProfileOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -17713,12 +17714,12 @@ func (vpc *VpcV1) ListLoadBalancersWithContext(ctx context.Context, listLoadBala
 		return
 	}
 
-	for headerName, headerValue := range listLoadBalancersOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListLoadBalancers")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListLoadBalancers")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listLoadBalancersOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -17787,12 +17788,12 @@ func (vpc *VpcV1) CreateLoadBalancerWithContext(ctx context.Context, createLoadB
 		return
 	}
 
-	for headerName, headerValue := range createLoadBalancerOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateLoadBalancer")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateLoadBalancer")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createLoadBalancerOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -17904,12 +17905,12 @@ func (vpc *VpcV1) DeleteLoadBalancerWithContext(ctx context.Context, deleteLoadB
 		return
 	}
 
-	for headerName, headerValue := range deleteLoadBalancerOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteLoadBalancer")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteLoadBalancer")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteLoadBalancerOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	if deleteLoadBalancerOptions.IfMatch != nil {
@@ -17969,12 +17970,12 @@ func (vpc *VpcV1) GetLoadBalancerWithContext(ctx context.Context, getLoadBalance
 		return
 	}
 
-	for headerName, headerValue := range getLoadBalancerOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetLoadBalancer")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetLoadBalancer")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getLoadBalancerOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -18043,12 +18044,12 @@ func (vpc *VpcV1) UpdateLoadBalancerWithContext(ctx context.Context, updateLoadB
 		return
 	}
 
-	for headerName, headerValue := range updateLoadBalancerOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateLoadBalancer")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateLoadBalancer")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateLoadBalancerOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -18125,12 +18126,12 @@ func (vpc *VpcV1) GetLoadBalancerStatisticsWithContext(ctx context.Context, getL
 		return
 	}
 
-	for headerName, headerValue := range getLoadBalancerStatisticsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetLoadBalancerStatistics")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetLoadBalancerStatistics")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getLoadBalancerStatisticsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -18197,12 +18198,12 @@ func (vpc *VpcV1) ListLoadBalancerListenersWithContext(ctx context.Context, list
 		return
 	}
 
-	for headerName, headerValue := range listLoadBalancerListenersOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListLoadBalancerListeners")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListLoadBalancerListeners")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listLoadBalancerListenersOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -18269,12 +18270,12 @@ func (vpc *VpcV1) CreateLoadBalancerListenerWithContext(ctx context.Context, cre
 		return
 	}
 
-	for headerName, headerValue := range createLoadBalancerListenerOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateLoadBalancerListener")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateLoadBalancerListener")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createLoadBalancerListenerOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -18387,12 +18388,12 @@ func (vpc *VpcV1) DeleteLoadBalancerListenerWithContext(ctx context.Context, del
 		return
 	}
 
-	for headerName, headerValue := range deleteLoadBalancerListenerOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteLoadBalancerListener")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteLoadBalancerListener")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteLoadBalancerListenerOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -18450,12 +18451,12 @@ func (vpc *VpcV1) GetLoadBalancerListenerWithContext(ctx context.Context, getLoa
 		return
 	}
 
-	for headerName, headerValue := range getLoadBalancerListenerOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetLoadBalancerListener")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetLoadBalancerListener")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getLoadBalancerListenerOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -18523,12 +18524,12 @@ func (vpc *VpcV1) UpdateLoadBalancerListenerWithContext(ctx context.Context, upd
 		return
 	}
 
-	for headerName, headerValue := range updateLoadBalancerListenerOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateLoadBalancerListener")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateLoadBalancerListener")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateLoadBalancerListenerOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -18604,12 +18605,12 @@ func (vpc *VpcV1) ListLoadBalancerListenerPoliciesWithContext(ctx context.Contex
 		return
 	}
 
-	for headerName, headerValue := range listLoadBalancerListenerPoliciesOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListLoadBalancerListenerPolicies")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListLoadBalancerListenerPolicies")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listLoadBalancerListenerPoliciesOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -18679,12 +18680,12 @@ func (vpc *VpcV1) CreateLoadBalancerListenerPolicyWithContext(ctx context.Contex
 		return
 	}
 
-	for headerName, headerValue := range createLoadBalancerListenerPolicyOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateLoadBalancerListenerPolicy")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateLoadBalancerListenerPolicy")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createLoadBalancerListenerPolicyOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -18776,12 +18777,12 @@ func (vpc *VpcV1) DeleteLoadBalancerListenerPolicyWithContext(ctx context.Contex
 		return
 	}
 
-	for headerName, headerValue := range deleteLoadBalancerListenerPolicyOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteLoadBalancerListenerPolicy")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteLoadBalancerListenerPolicy")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteLoadBalancerListenerPolicyOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -18840,12 +18841,12 @@ func (vpc *VpcV1) GetLoadBalancerListenerPolicyWithContext(ctx context.Context, 
 		return
 	}
 
-	for headerName, headerValue := range getLoadBalancerListenerPolicyOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetLoadBalancerListenerPolicy")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetLoadBalancerListenerPolicy")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getLoadBalancerListenerPolicyOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -18915,12 +18916,12 @@ func (vpc *VpcV1) UpdateLoadBalancerListenerPolicyWithContext(ctx context.Contex
 		return
 	}
 
-	for headerName, headerValue := range updateLoadBalancerListenerPolicyOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateLoadBalancerListenerPolicy")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateLoadBalancerListenerPolicy")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateLoadBalancerListenerPolicyOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -18996,12 +18997,12 @@ func (vpc *VpcV1) ListLoadBalancerListenerPolicyRulesWithContext(ctx context.Con
 		return
 	}
 
-	for headerName, headerValue := range listLoadBalancerListenerPolicyRulesOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListLoadBalancerListenerPolicyRules")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListLoadBalancerListenerPolicyRules")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listLoadBalancerListenerPolicyRulesOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -19070,12 +19071,12 @@ func (vpc *VpcV1) CreateLoadBalancerListenerPolicyRuleWithContext(ctx context.Co
 		return
 	}
 
-	for headerName, headerValue := range createLoadBalancerListenerPolicyRuleOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateLoadBalancerListenerPolicyRule")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateLoadBalancerListenerPolicyRule")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createLoadBalancerListenerPolicyRuleOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -19165,12 +19166,12 @@ func (vpc *VpcV1) DeleteLoadBalancerListenerPolicyRuleWithContext(ctx context.Co
 		return
 	}
 
-	for headerName, headerValue := range deleteLoadBalancerListenerPolicyRuleOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteLoadBalancerListenerPolicyRule")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteLoadBalancerListenerPolicyRule")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteLoadBalancerListenerPolicyRuleOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -19230,12 +19231,12 @@ func (vpc *VpcV1) GetLoadBalancerListenerPolicyRuleWithContext(ctx context.Conte
 		return
 	}
 
-	for headerName, headerValue := range getLoadBalancerListenerPolicyRuleOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetLoadBalancerListenerPolicyRule")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetLoadBalancerListenerPolicyRule")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getLoadBalancerListenerPolicyRuleOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -19305,12 +19306,12 @@ func (vpc *VpcV1) UpdateLoadBalancerListenerPolicyRuleWithContext(ctx context.Co
 		return
 	}
 
-	for headerName, headerValue := range updateLoadBalancerListenerPolicyRuleOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateLoadBalancerListenerPolicyRule")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateLoadBalancerListenerPolicyRule")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateLoadBalancerListenerPolicyRuleOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -19384,12 +19385,12 @@ func (vpc *VpcV1) ListLoadBalancerPoolsWithContext(ctx context.Context, listLoad
 		return
 	}
 
-	for headerName, headerValue := range listLoadBalancerPoolsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListLoadBalancerPools")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListLoadBalancerPools")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listLoadBalancerPoolsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -19456,12 +19457,12 @@ func (vpc *VpcV1) CreateLoadBalancerPoolWithContext(ctx context.Context, createL
 		return
 	}
 
-	for headerName, headerValue := range createLoadBalancerPoolOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateLoadBalancerPool")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateLoadBalancerPool")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createLoadBalancerPoolOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -19568,12 +19569,12 @@ func (vpc *VpcV1) DeleteLoadBalancerPoolWithContext(ctx context.Context, deleteL
 		return
 	}
 
-	for headerName, headerValue := range deleteLoadBalancerPoolOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteLoadBalancerPool")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteLoadBalancerPool")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteLoadBalancerPoolOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -19631,12 +19632,12 @@ func (vpc *VpcV1) GetLoadBalancerPoolWithContext(ctx context.Context, getLoadBal
 		return
 	}
 
-	for headerName, headerValue := range getLoadBalancerPoolOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetLoadBalancerPool")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetLoadBalancerPool")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getLoadBalancerPoolOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -19704,12 +19705,12 @@ func (vpc *VpcV1) UpdateLoadBalancerPoolWithContext(ctx context.Context, updateL
 		return
 	}
 
-	for headerName, headerValue := range updateLoadBalancerPoolOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateLoadBalancerPool")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateLoadBalancerPool")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateLoadBalancerPoolOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -19787,12 +19788,12 @@ func (vpc *VpcV1) ListLoadBalancerPoolMembersWithContext(ctx context.Context, li
 		return
 	}
 
-	for headerName, headerValue := range listLoadBalancerPoolMembersOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListLoadBalancerPoolMembers")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListLoadBalancerPoolMembers")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listLoadBalancerPoolMembersOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -19862,12 +19863,12 @@ func (vpc *VpcV1) CreateLoadBalancerPoolMemberWithContext(ctx context.Context, c
 		return
 	}
 
-	for headerName, headerValue := range createLoadBalancerPoolMemberOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateLoadBalancerPoolMember")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateLoadBalancerPoolMember")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createLoadBalancerPoolMemberOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -19953,12 +19954,12 @@ func (vpc *VpcV1) ReplaceLoadBalancerPoolMembersWithContext(ctx context.Context,
 		return
 	}
 
-	for headerName, headerValue := range replaceLoadBalancerPoolMembersOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ReplaceLoadBalancerPoolMembers")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ReplaceLoadBalancerPoolMembers")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range replaceLoadBalancerPoolMembersOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -20038,12 +20039,12 @@ func (vpc *VpcV1) DeleteLoadBalancerPoolMemberWithContext(ctx context.Context, d
 		return
 	}
 
-	for headerName, headerValue := range deleteLoadBalancerPoolMemberOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteLoadBalancerPoolMember")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteLoadBalancerPoolMember")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteLoadBalancerPoolMemberOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -20102,12 +20103,12 @@ func (vpc *VpcV1) GetLoadBalancerPoolMemberWithContext(ctx context.Context, getL
 		return
 	}
 
-	for headerName, headerValue := range getLoadBalancerPoolMemberOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetLoadBalancerPoolMember")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetLoadBalancerPoolMember")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getLoadBalancerPoolMemberOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -20176,12 +20177,12 @@ func (vpc *VpcV1) UpdateLoadBalancerPoolMemberWithContext(ctx context.Context, u
 		return
 	}
 
-	for headerName, headerValue := range updateLoadBalancerPoolMemberOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateLoadBalancerPoolMember")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateLoadBalancerPoolMember")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateLoadBalancerPoolMemberOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -20249,12 +20250,12 @@ func (vpc *VpcV1) ListNetworkAclsWithContext(ctx context.Context, listNetworkAcl
 		return
 	}
 
-	for headerName, headerValue := range listNetworkAclsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListNetworkAcls")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListNetworkAcls")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listNetworkAclsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -20328,12 +20329,12 @@ func (vpc *VpcV1) CreateNetworkACLWithContext(ctx context.Context, createNetwork
 		return
 	}
 
-	for headerName, headerValue := range createNetworkACLOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateNetworkACL")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateNetworkACL")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createNetworkACLOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -20408,12 +20409,12 @@ func (vpc *VpcV1) DeleteNetworkACLWithContext(ctx context.Context, deleteNetwork
 		return
 	}
 
-	for headerName, headerValue := range deleteNetworkACLOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteNetworkACL")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteNetworkACL")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteNetworkACLOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -20470,12 +20471,12 @@ func (vpc *VpcV1) GetNetworkACLWithContext(ctx context.Context, getNetworkACLOpt
 		return
 	}
 
-	for headerName, headerValue := range getNetworkACLOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetNetworkACL")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetNetworkACL")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getNetworkACLOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -20542,12 +20543,12 @@ func (vpc *VpcV1) UpdateNetworkACLWithContext(ctx context.Context, updateNetwork
 		return
 	}
 
-	for headerName, headerValue := range updateNetworkACLOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateNetworkACL")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateNetworkACL")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateNetworkACLOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -20622,12 +20623,12 @@ func (vpc *VpcV1) ListNetworkACLRulesWithContext(ctx context.Context, listNetwor
 		return
 	}
 
-	for headerName, headerValue := range listNetworkACLRulesOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListNetworkACLRules")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListNetworkACLRules")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listNetworkACLRulesOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -20704,12 +20705,12 @@ func (vpc *VpcV1) CreateNetworkACLRuleWithContext(ctx context.Context, createNet
 		return
 	}
 
-	for headerName, headerValue := range createNetworkACLRuleOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateNetworkACLRule")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateNetworkACLRule")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createNetworkACLRuleOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -20784,12 +20785,12 @@ func (vpc *VpcV1) DeleteNetworkACLRuleWithContext(ctx context.Context, deleteNet
 		return
 	}
 
-	for headerName, headerValue := range deleteNetworkACLRuleOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteNetworkACLRule")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteNetworkACLRule")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteNetworkACLRuleOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -20847,12 +20848,12 @@ func (vpc *VpcV1) GetNetworkACLRuleWithContext(ctx context.Context, getNetworkAC
 		return
 	}
 
-	for headerName, headerValue := range getNetworkACLRuleOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetNetworkACLRule")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetNetworkACLRule")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getNetworkACLRuleOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -20922,12 +20923,12 @@ func (vpc *VpcV1) UpdateNetworkACLRuleWithContext(ctx context.Context, updateNet
 		return
 	}
 
-	for headerName, headerValue := range updateNetworkACLRuleOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateNetworkACLRule")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateNetworkACLRule")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateNetworkACLRuleOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -20992,12 +20993,12 @@ func (vpc *VpcV1) ListPlacementGroupsWithContext(ctx context.Context, listPlacem
 		return
 	}
 
-	for headerName, headerValue := range listPlacementGroupsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListPlacementGroups")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListPlacementGroups")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listPlacementGroupsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -21066,12 +21067,12 @@ func (vpc *VpcV1) CreatePlacementGroupWithContext(ctx context.Context, createPla
 		return
 	}
 
-	for headerName, headerValue := range createPlacementGroupOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreatePlacementGroup")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreatePlacementGroup")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createPlacementGroupOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -21156,12 +21157,12 @@ func (vpc *VpcV1) DeletePlacementGroupWithContext(ctx context.Context, deletePla
 		return
 	}
 
-	for headerName, headerValue := range deletePlacementGroupOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeletePlacementGroup")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeletePlacementGroup")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deletePlacementGroupOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -21218,12 +21219,12 @@ func (vpc *VpcV1) GetPlacementGroupWithContext(ctx context.Context, getPlacement
 		return
 	}
 
-	for headerName, headerValue := range getPlacementGroupOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetPlacementGroup")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetPlacementGroup")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getPlacementGroupOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -21291,12 +21292,12 @@ func (vpc *VpcV1) UpdatePlacementGroupWithContext(ctx context.Context, updatePla
 		return
 	}
 
-	for headerName, headerValue := range updatePlacementGroupOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdatePlacementGroup")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdatePlacementGroup")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updatePlacementGroupOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -21368,12 +21369,12 @@ func (vpc *VpcV1) ListPrivatePathServiceGatewaysWithContext(ctx context.Context,
 		return
 	}
 
-	for headerName, headerValue := range listPrivatePathServiceGatewaysOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListPrivatePathServiceGateways")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListPrivatePathServiceGateways")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listPrivatePathServiceGatewaysOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -21447,12 +21448,12 @@ func (vpc *VpcV1) CreatePrivatePathServiceGatewayWithContext(ctx context.Context
 		return
 	}
 
-	for headerName, headerValue := range createPrivatePathServiceGatewayOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreatePrivatePathServiceGateway")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreatePrivatePathServiceGateway")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createPrivatePathServiceGatewayOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -21546,12 +21547,12 @@ func (vpc *VpcV1) DeletePrivatePathServiceGatewayWithContext(ctx context.Context
 		return
 	}
 
-	for headerName, headerValue := range deletePrivatePathServiceGatewayOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeletePrivatePathServiceGateway")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeletePrivatePathServiceGateway")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deletePrivatePathServiceGatewayOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -21608,12 +21609,12 @@ func (vpc *VpcV1) GetPrivatePathServiceGatewayWithContext(ctx context.Context, g
 		return
 	}
 
-	for headerName, headerValue := range getPrivatePathServiceGatewayOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetPrivatePathServiceGateway")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetPrivatePathServiceGateway")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getPrivatePathServiceGatewayOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -21682,12 +21683,12 @@ func (vpc *VpcV1) UpdatePrivatePathServiceGatewayWithContext(ctx context.Context
 		return
 	}
 
-	for headerName, headerValue := range updatePrivatePathServiceGatewayOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdatePrivatePathServiceGateway")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdatePrivatePathServiceGateway")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updatePrivatePathServiceGatewayOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -21766,12 +21767,12 @@ func (vpc *VpcV1) ListPrivatePathServiceGatewayAccountPoliciesWithContext(ctx co
 		return
 	}
 
-	for headerName, headerValue := range listPrivatePathServiceGatewayAccountPoliciesOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListPrivatePathServiceGatewayAccountPolicies")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListPrivatePathServiceGatewayAccountPolicies")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listPrivatePathServiceGatewayAccountPoliciesOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -21848,12 +21849,12 @@ func (vpc *VpcV1) CreatePrivatePathServiceGatewayAccountPolicyWithContext(ctx co
 		return
 	}
 
-	for headerName, headerValue := range createPrivatePathServiceGatewayAccountPolicyOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreatePrivatePathServiceGatewayAccountPolicy")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreatePrivatePathServiceGatewayAccountPolicy")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createPrivatePathServiceGatewayAccountPolicyOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -21936,12 +21937,12 @@ func (vpc *VpcV1) DeletePrivatePathServiceGatewayAccountPolicyWithContext(ctx co
 		return
 	}
 
-	for headerName, headerValue := range deletePrivatePathServiceGatewayAccountPolicyOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeletePrivatePathServiceGatewayAccountPolicy")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeletePrivatePathServiceGatewayAccountPolicy")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deletePrivatePathServiceGatewayAccountPolicyOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -21999,12 +22000,12 @@ func (vpc *VpcV1) GetPrivatePathServiceGatewayAccountPolicyWithContext(ctx conte
 		return
 	}
 
-	for headerName, headerValue := range getPrivatePathServiceGatewayAccountPolicyOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetPrivatePathServiceGatewayAccountPolicy")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetPrivatePathServiceGatewayAccountPolicy")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getPrivatePathServiceGatewayAccountPolicyOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -22074,12 +22075,12 @@ func (vpc *VpcV1) UpdatePrivatePathServiceGatewayAccountPolicyWithContext(ctx co
 		return
 	}
 
-	for headerName, headerValue := range updatePrivatePathServiceGatewayAccountPolicyOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdatePrivatePathServiceGatewayAccountPolicy")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdatePrivatePathServiceGatewayAccountPolicy")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updatePrivatePathServiceGatewayAccountPolicyOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -22160,12 +22161,12 @@ func (vpc *VpcV1) ListPrivatePathServiceGatewayEndpointGatewayBindingsWithContex
 		return
 	}
 
-	for headerName, headerValue := range listPrivatePathServiceGatewayEndpointGatewayBindingsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListPrivatePathServiceGatewayEndpointGatewayBindings")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListPrivatePathServiceGatewayEndpointGatewayBindings")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listPrivatePathServiceGatewayEndpointGatewayBindingsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -22245,12 +22246,12 @@ func (vpc *VpcV1) GetPrivatePathServiceGatewayEndpointGatewayBindingWithContext(
 		return
 	}
 
-	for headerName, headerValue := range getPrivatePathServiceGatewayEndpointGatewayBindingOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetPrivatePathServiceGatewayEndpointGatewayBinding")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetPrivatePathServiceGatewayEndpointGatewayBinding")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getPrivatePathServiceGatewayEndpointGatewayBindingOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -22319,12 +22320,12 @@ func (vpc *VpcV1) DenyPrivatePathServiceGatewayEndpointGatewayBindingWithContext
 		return
 	}
 
-	for headerName, headerValue := range denyPrivatePathServiceGatewayEndpointGatewayBindingOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DenyPrivatePathServiceGatewayEndpointGatewayBinding")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DenyPrivatePathServiceGatewayEndpointGatewayBinding")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range denyPrivatePathServiceGatewayEndpointGatewayBindingOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Content-Type", "application/json")
@@ -22394,12 +22395,12 @@ func (vpc *VpcV1) PermitPrivatePathServiceGatewayEndpointGatewayBindingWithConte
 		return
 	}
 
-	for headerName, headerValue := range permitPrivatePathServiceGatewayEndpointGatewayBindingOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "PermitPrivatePathServiceGatewayEndpointGatewayBinding")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "PermitPrivatePathServiceGatewayEndpointGatewayBinding")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range permitPrivatePathServiceGatewayEndpointGatewayBindingOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Content-Type", "application/json")
@@ -22467,12 +22468,12 @@ func (vpc *VpcV1) PublishPrivatePathServiceGatewayWithContext(ctx context.Contex
 		return
 	}
 
-	for headerName, headerValue := range publishPrivatePathServiceGatewayOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "PublishPrivatePathServiceGateway")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "PublishPrivatePathServiceGateway")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range publishPrivatePathServiceGatewayOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -22532,12 +22533,12 @@ func (vpc *VpcV1) RevokeAccountForPrivatePathServiceGatewayWithContext(ctx conte
 		return
 	}
 
-	for headerName, headerValue := range revokeAccountForPrivatePathServiceGatewayOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "RevokeAccountForPrivatePathServiceGateway")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "RevokeAccountForPrivatePathServiceGateway")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range revokeAccountForPrivatePathServiceGatewayOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Content-Type", "application/json")
@@ -22607,12 +22608,12 @@ func (vpc *VpcV1) UnpublishPrivatePathServiceGatewayWithContext(ctx context.Cont
 		return
 	}
 
-	for headerName, headerValue := range unpublishPrivatePathServiceGatewayOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UnpublishPrivatePathServiceGateway")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UnpublishPrivatePathServiceGateway")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range unpublishPrivatePathServiceGatewayOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -22667,12 +22668,12 @@ func (vpc *VpcV1) ListPublicAddressRangesWithContext(ctx context.Context, listPu
 		return
 	}
 
-	for headerName, headerValue := range listPublicAddressRangesOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListPublicAddressRanges")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListPublicAddressRanges")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listPublicAddressRangesOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -22746,12 +22747,12 @@ func (vpc *VpcV1) CreatePublicAddressRangeWithContext(ctx context.Context, creat
 		return
 	}
 
-	for headerName, headerValue := range createPublicAddressRangeOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreatePublicAddressRange")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreatePublicAddressRange")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createPublicAddressRangeOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -22839,12 +22840,12 @@ func (vpc *VpcV1) DeletePublicAddressRangeWithContext(ctx context.Context, delet
 		return
 	}
 
-	for headerName, headerValue := range deletePublicAddressRangeOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeletePublicAddressRange")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeletePublicAddressRange")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deletePublicAddressRangeOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -22911,12 +22912,12 @@ func (vpc *VpcV1) GetPublicAddressRangeWithContext(ctx context.Context, getPubli
 		return
 	}
 
-	for headerName, headerValue := range getPublicAddressRangeOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetPublicAddressRange")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetPublicAddressRange")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getPublicAddressRangeOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -22985,12 +22986,12 @@ func (vpc *VpcV1) UpdatePublicAddressRangeWithContext(ctx context.Context, updat
 		return
 	}
 
-	for headerName, headerValue := range updatePublicAddressRangeOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdatePublicAddressRange")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdatePublicAddressRange")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updatePublicAddressRangeOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -23057,12 +23058,12 @@ func (vpc *VpcV1) ListPublicGatewaysWithContext(ctx context.Context, listPublicG
 		return
 	}
 
-	for headerName, headerValue := range listPublicGatewaysOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListPublicGateways")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListPublicGateways")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listPublicGatewaysOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -23139,12 +23140,12 @@ func (vpc *VpcV1) CreatePublicGatewayWithContext(ctx context.Context, createPubl
 		return
 	}
 
-	for headerName, headerValue := range createPublicGatewayOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreatePublicGateway")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreatePublicGateway")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createPublicGatewayOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -23236,12 +23237,12 @@ func (vpc *VpcV1) DeletePublicGatewayWithContext(ctx context.Context, deletePubl
 		return
 	}
 
-	for headerName, headerValue := range deletePublicGatewayOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeletePublicGateway")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeletePublicGateway")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deletePublicGatewayOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -23298,12 +23299,12 @@ func (vpc *VpcV1) GetPublicGatewayWithContext(ctx context.Context, getPublicGate
 		return
 	}
 
-	for headerName, headerValue := range getPublicGatewayOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetPublicGateway")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetPublicGateway")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getPublicGatewayOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -23370,12 +23371,12 @@ func (vpc *VpcV1) UpdatePublicGatewayWithContext(ctx context.Context, updatePubl
 		return
 	}
 
-	for headerName, headerValue := range updatePublicGatewayOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdatePublicGateway")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdatePublicGateway")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updatePublicGatewayOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -23444,12 +23445,12 @@ func (vpc *VpcV1) ListReservationsWithContext(ctx context.Context, listReservati
 		return
 	}
 
-	for headerName, headerValue := range listReservationsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListReservations")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListReservations")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listReservationsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -23534,12 +23535,12 @@ func (vpc *VpcV1) CreateReservationWithContext(ctx context.Context, createReserv
 		return
 	}
 
-	for headerName, headerValue := range createReservationOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateReservation")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateReservation")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createReservationOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -23636,12 +23637,12 @@ func (vpc *VpcV1) DeleteReservationWithContext(ctx context.Context, deleteReserv
 		return
 	}
 
-	for headerName, headerValue := range deleteReservationOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteReservation")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteReservation")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteReservationOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -23708,12 +23709,12 @@ func (vpc *VpcV1) GetReservationWithContext(ctx context.Context, getReservationO
 		return
 	}
 
-	for headerName, headerValue := range getReservationOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetReservation")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetReservation")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getReservationOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -23781,12 +23782,12 @@ func (vpc *VpcV1) UpdateReservationWithContext(ctx context.Context, updateReserv
 		return
 	}
 
-	for headerName, headerValue := range updateReservationOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateReservation")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateReservation")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateReservationOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -23860,12 +23861,12 @@ func (vpc *VpcV1) ActivateReservationWithContext(ctx context.Context, activateRe
 		return
 	}
 
-	for headerName, headerValue := range activateReservationOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ActivateReservation")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ActivateReservation")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range activateReservationOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -23915,12 +23916,12 @@ func (vpc *VpcV1) ListSecurityGroupsWithContext(ctx context.Context, listSecurit
 		return
 	}
 
-	for headerName, headerValue := range listSecurityGroupsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListSecurityGroups")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListSecurityGroups")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listSecurityGroupsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -24004,12 +24005,12 @@ func (vpc *VpcV1) CreateSecurityGroupWithContext(ctx context.Context, createSecu
 		return
 	}
 
-	for headerName, headerValue := range createSecurityGroupOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateSecurityGroup")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateSecurityGroup")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createSecurityGroupOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -24097,12 +24098,12 @@ func (vpc *VpcV1) DeleteSecurityGroupWithContext(ctx context.Context, deleteSecu
 		return
 	}
 
-	for headerName, headerValue := range deleteSecurityGroupOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteSecurityGroup")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteSecurityGroup")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteSecurityGroupOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -24159,12 +24160,12 @@ func (vpc *VpcV1) GetSecurityGroupWithContext(ctx context.Context, getSecurityGr
 		return
 	}
 
-	for headerName, headerValue := range getSecurityGroupOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetSecurityGroup")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetSecurityGroup")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getSecurityGroupOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -24233,12 +24234,12 @@ func (vpc *VpcV1) UpdateSecurityGroupWithContext(ctx context.Context, updateSecu
 		return
 	}
 
-	for headerName, headerValue := range updateSecurityGroupOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateSecurityGroup")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateSecurityGroup")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateSecurityGroupOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -24313,12 +24314,12 @@ func (vpc *VpcV1) ListSecurityGroupRulesWithContext(ctx context.Context, listSec
 		return
 	}
 
-	for headerName, headerValue := range listSecurityGroupRulesOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListSecurityGroupRules")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListSecurityGroupRules")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listSecurityGroupRulesOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -24390,12 +24391,12 @@ func (vpc *VpcV1) CreateSecurityGroupRuleWithContext(ctx context.Context, create
 		return
 	}
 
-	for headerName, headerValue := range createSecurityGroupRuleOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateSecurityGroupRule")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateSecurityGroupRule")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createSecurityGroupRuleOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -24471,12 +24472,12 @@ func (vpc *VpcV1) DeleteSecurityGroupRuleWithContext(ctx context.Context, delete
 		return
 	}
 
-	for headerName, headerValue := range deleteSecurityGroupRuleOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteSecurityGroupRule")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteSecurityGroupRule")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteSecurityGroupRuleOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -24534,12 +24535,12 @@ func (vpc *VpcV1) GetSecurityGroupRuleWithContext(ctx context.Context, getSecuri
 		return
 	}
 
-	for headerName, headerValue := range getSecurityGroupRuleOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetSecurityGroupRule")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetSecurityGroupRule")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getSecurityGroupRuleOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -24609,12 +24610,12 @@ func (vpc *VpcV1) UpdateSecurityGroupRuleWithContext(ctx context.Context, update
 		return
 	}
 
-	for headerName, headerValue := range updateSecurityGroupRuleOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateSecurityGroupRule")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateSecurityGroupRule")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateSecurityGroupRuleOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -24688,12 +24689,12 @@ func (vpc *VpcV1) ListSecurityGroupTargetsWithContext(ctx context.Context, listS
 		return
 	}
 
-	for headerName, headerValue := range listSecurityGroupTargetsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListSecurityGroupTargets")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListSecurityGroupTargets")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listSecurityGroupTargetsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -24778,12 +24779,12 @@ func (vpc *VpcV1) DeleteSecurityGroupTargetBindingWithContext(ctx context.Contex
 		return
 	}
 
-	for headerName, headerValue := range deleteSecurityGroupTargetBindingOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteSecurityGroupTargetBinding")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteSecurityGroupTargetBinding")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteSecurityGroupTargetBindingOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -24842,12 +24843,12 @@ func (vpc *VpcV1) GetSecurityGroupTargetWithContext(ctx context.Context, getSecu
 		return
 	}
 
-	for headerName, headerValue := range getSecurityGroupTargetOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetSecurityGroupTarget")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetSecurityGroupTarget")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getSecurityGroupTargetOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -24925,12 +24926,12 @@ func (vpc *VpcV1) CreateSecurityGroupTargetBindingWithContext(ctx context.Contex
 		return
 	}
 
-	for headerName, headerValue := range createSecurityGroupTargetBindingOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateSecurityGroupTargetBinding")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateSecurityGroupTargetBinding")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createSecurityGroupTargetBindingOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -24989,12 +24990,12 @@ func (vpc *VpcV1) ListShareProfilesWithContext(ctx context.Context, listSharePro
 		return
 	}
 
-	for headerName, headerValue := range listShareProfilesOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListShareProfiles")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListShareProfiles")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listShareProfilesOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -25070,12 +25071,12 @@ func (vpc *VpcV1) GetShareProfileWithContext(ctx context.Context, getShareProfil
 		return
 	}
 
-	for headerName, headerValue := range getShareProfileOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetShareProfile")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetShareProfile")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getShareProfileOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -25133,12 +25134,12 @@ func (vpc *VpcV1) ListSharesWithContext(ctx context.Context, listSharesOptions *
 		return
 	}
 
-	for headerName, headerValue := range listSharesOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListShares")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListShares")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listSharesOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -25223,12 +25224,12 @@ func (vpc *VpcV1) CreateShareWithContext(ctx context.Context, createShareOptions
 		return
 	}
 
-	for headerName, headerValue := range createShareOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateShare")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateShare")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createShareOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -25308,12 +25309,12 @@ func (vpc *VpcV1) DeleteShareWithContext(ctx context.Context, deleteShareOptions
 		return
 	}
 
-	for headerName, headerValue := range deleteShareOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteShare")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteShare")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteShareOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -25383,12 +25384,12 @@ func (vpc *VpcV1) GetShareWithContext(ctx context.Context, getShareOptions *GetS
 		return
 	}
 
-	for headerName, headerValue := range getShareOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetShare")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetShare")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getShareOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -25456,12 +25457,12 @@ func (vpc *VpcV1) UpdateShareWithContext(ctx context.Context, updateShareOptions
 		return
 	}
 
-	for headerName, headerValue := range updateShareOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateShare")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateShare")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateShareOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -25541,12 +25542,12 @@ func (vpc *VpcV1) ListShareAccessorBindingsWithContext(ctx context.Context, list
 		return
 	}
 
-	for headerName, headerValue := range listShareAccessorBindingsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListShareAccessorBindings")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListShareAccessorBindings")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listShareAccessorBindingsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -25620,12 +25621,12 @@ func (vpc *VpcV1) DeleteShareAccessorBindingWithContext(ctx context.Context, del
 		return
 	}
 
-	for headerName, headerValue := range deleteShareAccessorBindingOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteShareAccessorBinding")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteShareAccessorBinding")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteShareAccessorBindingOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -25683,12 +25684,12 @@ func (vpc *VpcV1) GetShareAccessorBindingWithContext(ctx context.Context, getSha
 		return
 	}
 
-	for headerName, headerValue := range getShareAccessorBindingOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetShareAccessorBinding")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetShareAccessorBinding")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getShareAccessorBindingOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -25760,12 +25761,12 @@ func (vpc *VpcV1) FailoverShareWithContext(ctx context.Context, failoverShareOpt
 		return
 	}
 
-	for headerName, headerValue := range failoverShareOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "FailoverShare")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "FailoverShare")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range failoverShareOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Content-Type", "application/json")
@@ -25839,12 +25840,12 @@ func (vpc *VpcV1) ListShareMountTargetsWithContext(ctx context.Context, listShar
 		return
 	}
 
-	for headerName, headerValue := range listShareMountTargetsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListShareMountTargets")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListShareMountTargets")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listShareMountTargetsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -25923,12 +25924,12 @@ func (vpc *VpcV1) CreateShareMountTargetWithContext(ctx context.Context, createS
 		return
 	}
 
-	for headerName, headerValue := range createShareMountTargetOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateShareMountTarget")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateShareMountTarget")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createShareMountTargetOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -26006,12 +26007,12 @@ func (vpc *VpcV1) DeleteShareMountTargetWithContext(ctx context.Context, deleteS
 		return
 	}
 
-	for headerName, headerValue := range deleteShareMountTargetOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteShareMountTarget")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteShareMountTarget")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteShareMountTargetOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -26079,12 +26080,12 @@ func (vpc *VpcV1) GetShareMountTargetWithContext(ctx context.Context, getShareMo
 		return
 	}
 
-	for headerName, headerValue := range getShareMountTargetOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetShareMountTarget")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetShareMountTarget")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getShareMountTargetOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -26154,12 +26155,12 @@ func (vpc *VpcV1) UpdateShareMountTargetWithContext(ctx context.Context, updateS
 		return
 	}
 
-	for headerName, headerValue := range updateShareMountTargetOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateShareMountTarget")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateShareMountTarget")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateShareMountTargetOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -26236,12 +26237,12 @@ func (vpc *VpcV1) ListShareSnapshotsWithContext(ctx context.Context, listShareSn
 		return
 	}
 
-	for headerName, headerValue := range listShareSnapshotsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListShareSnapshots")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListShareSnapshots")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listShareSnapshotsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -26335,12 +26336,12 @@ func (vpc *VpcV1) CreateShareSnapshotWithContext(ctx context.Context, createShar
 		return
 	}
 
-	for headerName, headerValue := range createShareSnapshotOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateShareSnapshot")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateShareSnapshot")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createShareSnapshotOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -26433,12 +26434,12 @@ func (vpc *VpcV1) DeleteShareSnapshotWithContext(ctx context.Context, deleteShar
 		return
 	}
 
-	for headerName, headerValue := range deleteShareSnapshotOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteShareSnapshot")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteShareSnapshot")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteShareSnapshotOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -26506,12 +26507,12 @@ func (vpc *VpcV1) GetShareSnapshotWithContext(ctx context.Context, getShareSnaps
 		return
 	}
 
-	for headerName, headerValue := range getShareSnapshotOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetShareSnapshot")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetShareSnapshot")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getShareSnapshotOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -26581,12 +26582,12 @@ func (vpc *VpcV1) UpdateShareSnapshotWithContext(ctx context.Context, updateShar
 		return
 	}
 
-	for headerName, headerValue := range updateShareSnapshotOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateShareSnapshot")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateShareSnapshot")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateShareSnapshotOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -26667,12 +26668,12 @@ func (vpc *VpcV1) DeleteShareSourceWithContext(ctx context.Context, deleteShareS
 		return
 	}
 
-	for headerName, headerValue := range deleteShareSourceOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteShareSource")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteShareSource")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteShareSourceOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -26730,12 +26731,12 @@ func (vpc *VpcV1) GetShareSourceWithContext(ctx context.Context, getShareSourceO
 		return
 	}
 
-	for headerName, headerValue := range getShareSourceOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetShareSource")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetShareSource")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getShareSourceOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -26794,12 +26795,12 @@ func (vpc *VpcV1) ListSnapshotConsistencyGroupsWithContext(ctx context.Context, 
 		return
 	}
 
-	for headerName, headerValue := range listSnapshotConsistencyGroupsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListSnapshotConsistencyGroups")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListSnapshotConsistencyGroups")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listSnapshotConsistencyGroupsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -26885,12 +26886,12 @@ func (vpc *VpcV1) CreateSnapshotConsistencyGroupWithContext(ctx context.Context,
 		return
 	}
 
-	for headerName, headerValue := range createSnapshotConsistencyGroupOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateSnapshotConsistencyGroup")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateSnapshotConsistencyGroup")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createSnapshotConsistencyGroupOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -26965,12 +26966,12 @@ func (vpc *VpcV1) DeleteSnapshotConsistencyGroupWithContext(ctx context.Context,
 		return
 	}
 
-	for headerName, headerValue := range deleteSnapshotConsistencyGroupOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteSnapshotConsistencyGroup")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteSnapshotConsistencyGroup")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteSnapshotConsistencyGroupOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -27037,12 +27038,12 @@ func (vpc *VpcV1) GetSnapshotConsistencyGroupWithContext(ctx context.Context, ge
 		return
 	}
 
-	for headerName, headerValue := range getSnapshotConsistencyGroupOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetSnapshotConsistencyGroup")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetSnapshotConsistencyGroup")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getSnapshotConsistencyGroupOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -27111,12 +27112,12 @@ func (vpc *VpcV1) UpdateSnapshotConsistencyGroupWithContext(ctx context.Context,
 		return
 	}
 
-	for headerName, headerValue := range updateSnapshotConsistencyGroupOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateSnapshotConsistencyGroup")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateSnapshotConsistencyGroup")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateSnapshotConsistencyGroupOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -27189,12 +27190,12 @@ func (vpc *VpcV1) DeleteSnapshotsWithContext(ctx context.Context, deleteSnapshot
 		return
 	}
 
-	for headerName, headerValue := range deleteSnapshotsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteSnapshots")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteSnapshots")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteSnapshotsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -27244,12 +27245,12 @@ func (vpc *VpcV1) ListSnapshotsWithContext(ctx context.Context, listSnapshotsOpt
 		return
 	}
 
-	for headerName, headerValue := range listSnapshotsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListSnapshots")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListSnapshots")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listSnapshotsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -27379,12 +27380,12 @@ func (vpc *VpcV1) CreateSnapshotWithContext(ctx context.Context, createSnapshotO
 		return
 	}
 
-	for headerName, headerValue := range createSnapshotOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateSnapshot")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateSnapshot")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createSnapshotOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -27458,12 +27459,12 @@ func (vpc *VpcV1) DeleteSnapshotWithContext(ctx context.Context, deleteSnapshotO
 		return
 	}
 
-	for headerName, headerValue := range deleteSnapshotOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteSnapshot")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteSnapshot")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteSnapshotOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	if deleteSnapshotOptions.IfMatch != nil {
@@ -27523,12 +27524,12 @@ func (vpc *VpcV1) GetSnapshotWithContext(ctx context.Context, getSnapshotOptions
 		return
 	}
 
-	for headerName, headerValue := range getSnapshotOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetSnapshot")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetSnapshot")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getSnapshotOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -27596,12 +27597,12 @@ func (vpc *VpcV1) UpdateSnapshotWithContext(ctx context.Context, updateSnapshotO
 		return
 	}
 
-	for headerName, headerValue := range updateSnapshotOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateSnapshot")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateSnapshot")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateSnapshotOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -27678,12 +27679,12 @@ func (vpc *VpcV1) ListSnapshotClonesWithContext(ctx context.Context, listSnapsho
 		return
 	}
 
-	for headerName, headerValue := range listSnapshotClonesOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListSnapshotClones")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListSnapshotClones")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listSnapshotClonesOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -27752,12 +27753,12 @@ func (vpc *VpcV1) DeleteSnapshotCloneWithContext(ctx context.Context, deleteSnap
 		return
 	}
 
-	for headerName, headerValue := range deleteSnapshotCloneOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteSnapshotClone")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteSnapshotClone")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteSnapshotCloneOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -27815,12 +27816,12 @@ func (vpc *VpcV1) GetSnapshotCloneWithContext(ctx context.Context, getSnapshotCl
 		return
 	}
 
-	for headerName, headerValue := range getSnapshotCloneOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetSnapshotClone")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetSnapshotClone")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getSnapshotCloneOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -27889,12 +27890,12 @@ func (vpc *VpcV1) CreateSnapshotCloneWithContext(ctx context.Context, createSnap
 		return
 	}
 
-	for headerName, headerValue := range createSnapshotCloneOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateSnapshotClone")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateSnapshotClone")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createSnapshotCloneOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -27964,12 +27965,12 @@ func (vpc *VpcV1) ListSnapshotInstanceProfilesWithContext(ctx context.Context, l
 		return
 	}
 
-	for headerName, headerValue := range listSnapshotInstanceProfilesOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListSnapshotInstanceProfiles")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListSnapshotInstanceProfiles")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listSnapshotInstanceProfilesOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -28046,12 +28047,12 @@ func (vpc *VpcV1) ListSnapshotSoftwareAttachmentsWithContext(ctx context.Context
 		return
 	}
 
-	for headerName, headerValue := range listSnapshotSoftwareAttachmentsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListSnapshotSoftwareAttachments")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListSnapshotSoftwareAttachments")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listSnapshotSoftwareAttachmentsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -28119,12 +28120,12 @@ func (vpc *VpcV1) GetSnapshotSoftwareAttachmentWithContext(ctx context.Context, 
 		return
 	}
 
-	for headerName, headerValue := range getSnapshotSoftwareAttachmentOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetSnapshotSoftwareAttachment")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetSnapshotSoftwareAttachment")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getSnapshotSoftwareAttachmentOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -28194,12 +28195,12 @@ func (vpc *VpcV1) UpdateSnapshotSoftwareAttachmentWithContext(ctx context.Contex
 		return
 	}
 
-	for headerName, headerValue := range updateSnapshotSoftwareAttachmentOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateSnapshotSoftwareAttachment")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateSnapshotSoftwareAttachment")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateSnapshotSoftwareAttachmentOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -28265,12 +28266,12 @@ func (vpc *VpcV1) ListSubnetsWithContext(ctx context.Context, listSubnetsOptions
 		return
 	}
 
-	for headerName, headerValue := range listSubnetsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListSubnets")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListSubnets")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listSubnetsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -28362,12 +28363,12 @@ func (vpc *VpcV1) CreateSubnetWithContext(ctx context.Context, createSubnetOptio
 		return
 	}
 
-	for headerName, headerValue := range createSubnetOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateSubnet")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateSubnet")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createSubnetOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -28445,12 +28446,12 @@ func (vpc *VpcV1) DeleteSubnetWithContext(ctx context.Context, deleteSubnetOptio
 		return
 	}
 
-	for headerName, headerValue := range deleteSubnetOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteSubnet")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteSubnet")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteSubnetOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -28507,12 +28508,12 @@ func (vpc *VpcV1) GetSubnetWithContext(ctx context.Context, getSubnetOptions *Ge
 		return
 	}
 
-	for headerName, headerValue := range getSubnetOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetSubnet")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetSubnet")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getSubnetOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -28580,12 +28581,12 @@ func (vpc *VpcV1) UpdateSubnetWithContext(ctx context.Context, updateSubnetOptio
 		return
 	}
 
-	for headerName, headerValue := range updateSubnetOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateSubnet")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateSubnet")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateSubnetOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -28659,12 +28660,12 @@ func (vpc *VpcV1) GetSubnetNetworkACLWithContext(ctx context.Context, getSubnetN
 		return
 	}
 
-	for headerName, headerValue := range getSubnetNetworkACLOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetSubnetNetworkACL")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetSubnetNetworkACL")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getSubnetNetworkACLOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -28731,12 +28732,12 @@ func (vpc *VpcV1) ReplaceSubnetNetworkACLWithContext(ctx context.Context, replac
 		return
 	}
 
-	for headerName, headerValue := range replaceSubnetNetworkACLOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ReplaceSubnetNetworkACL")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ReplaceSubnetNetworkACL")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range replaceSubnetNetworkACLOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -28810,12 +28811,12 @@ func (vpc *VpcV1) UnsetSubnetPublicGatewayWithContext(ctx context.Context, unset
 		return
 	}
 
-	for headerName, headerValue := range unsetSubnetPublicGatewayOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UnsetSubnetPublicGateway")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UnsetSubnetPublicGateway")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range unsetSubnetPublicGatewayOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -28872,12 +28873,12 @@ func (vpc *VpcV1) GetSubnetPublicGatewayWithContext(ctx context.Context, getSubn
 		return
 	}
 
-	for headerName, headerValue := range getSubnetPublicGatewayOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetSubnetPublicGateway")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetSubnetPublicGateway")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getSubnetPublicGatewayOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -28945,12 +28946,12 @@ func (vpc *VpcV1) SetSubnetPublicGatewayWithContext(ctx context.Context, setSubn
 		return
 	}
 
-	for headerName, headerValue := range setSubnetPublicGatewayOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "SetSubnetPublicGateway")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "SetSubnetPublicGateway")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range setSubnetPublicGatewayOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -29024,12 +29025,12 @@ func (vpc *VpcV1) GetSubnetRoutingTableWithContext(ctx context.Context, getSubne
 		return
 	}
 
-	for headerName, headerValue := range getSubnetRoutingTableOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetSubnetRoutingTable")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetSubnetRoutingTable")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getSubnetRoutingTableOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -29099,12 +29100,12 @@ func (vpc *VpcV1) ReplaceSubnetRoutingTableWithContext(ctx context.Context, repl
 		return
 	}
 
-	for headerName, headerValue := range replaceSubnetRoutingTableOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ReplaceSubnetRoutingTable")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ReplaceSubnetRoutingTable")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range replaceSubnetRoutingTableOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -29179,12 +29180,12 @@ func (vpc *VpcV1) ListSubnetReservedIpsWithContext(ctx context.Context, listSubn
 		return
 	}
 
-	for headerName, headerValue := range listSubnetReservedIpsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListSubnetReservedIps")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListSubnetReservedIps")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listSubnetReservedIpsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -29273,12 +29274,12 @@ func (vpc *VpcV1) CreateSubnetReservedIPWithContext(ctx context.Context, createS
 		return
 	}
 
-	for headerName, headerValue := range createSubnetReservedIPOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateSubnetReservedIP")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateSubnetReservedIP")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createSubnetReservedIPOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -29370,12 +29371,12 @@ func (vpc *VpcV1) DeleteSubnetReservedIPWithContext(ctx context.Context, deleteS
 		return
 	}
 
-	for headerName, headerValue := range deleteSubnetReservedIPOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteSubnetReservedIP")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteSubnetReservedIP")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteSubnetReservedIPOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -29433,12 +29434,12 @@ func (vpc *VpcV1) GetSubnetReservedIPWithContext(ctx context.Context, getSubnetR
 		return
 	}
 
-	for headerName, headerValue := range getSubnetReservedIPOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetSubnetReservedIP")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetSubnetReservedIP")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getSubnetReservedIPOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -29509,12 +29510,12 @@ func (vpc *VpcV1) UpdateSubnetReservedIPWithContext(ctx context.Context, updateS
 		return
 	}
 
-	for headerName, headerValue := range updateSubnetReservedIPOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateSubnetReservedIP")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateSubnetReservedIP")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateSubnetReservedIPOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -29584,12 +29585,12 @@ func (vpc *VpcV1) ListVirtualNetworkInterfacesWithContext(ctx context.Context, l
 		return
 	}
 
-	for headerName, headerValue := range listVirtualNetworkInterfacesOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVirtualNetworkInterfaces")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVirtualNetworkInterfaces")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listVirtualNetworkInterfacesOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -29663,12 +29664,12 @@ func (vpc *VpcV1) CreateVirtualNetworkInterfaceWithContext(ctx context.Context, 
 		return
 	}
 
-	for headerName, headerValue := range createVirtualNetworkInterfaceOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateVirtualNetworkInterface")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateVirtualNetworkInterface")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createVirtualNetworkInterfaceOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -29775,12 +29776,12 @@ func (vpc *VpcV1) DeleteVirtualNetworkInterfacesWithContext(ctx context.Context,
 		return
 	}
 
-	for headerName, headerValue := range deleteVirtualNetworkInterfacesOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteVirtualNetworkInterfaces")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteVirtualNetworkInterfaces")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteVirtualNetworkInterfacesOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -29850,12 +29851,12 @@ func (vpc *VpcV1) GetVirtualNetworkInterfaceWithContext(ctx context.Context, get
 		return
 	}
 
-	for headerName, headerValue := range getVirtualNetworkInterfaceOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVirtualNetworkInterface")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVirtualNetworkInterface")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getVirtualNetworkInterfaceOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -29924,12 +29925,12 @@ func (vpc *VpcV1) UpdateVirtualNetworkInterfaceWithContext(ctx context.Context, 
 		return
 	}
 
-	for headerName, headerValue := range updateVirtualNetworkInterfaceOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateVirtualNetworkInterface")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateVirtualNetworkInterface")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateVirtualNetworkInterfaceOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -30006,12 +30007,12 @@ func (vpc *VpcV1) ListNetworkInterfaceFloatingIpsWithContext(ctx context.Context
 		return
 	}
 
-	for headerName, headerValue := range listNetworkInterfaceFloatingIpsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListNetworkInterfaceFloatingIps")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListNetworkInterfaceFloatingIps")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listNetworkInterfaceFloatingIpsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -30088,12 +30089,12 @@ func (vpc *VpcV1) RemoveNetworkInterfaceFloatingIPWithContext(ctx context.Contex
 		return
 	}
 
-	for headerName, headerValue := range removeNetworkInterfaceFloatingIPOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "RemoveNetworkInterfaceFloatingIP")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "RemoveNetworkInterfaceFloatingIP")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range removeNetworkInterfaceFloatingIPOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -30152,12 +30153,12 @@ func (vpc *VpcV1) GetNetworkInterfaceFloatingIPWithContext(ctx context.Context, 
 		return
 	}
 
-	for headerName, headerValue := range getNetworkInterfaceFloatingIPOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetNetworkInterfaceFloatingIP")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetNetworkInterfaceFloatingIP")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getNetworkInterfaceFloatingIPOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -30240,12 +30241,12 @@ func (vpc *VpcV1) AddNetworkInterfaceFloatingIPWithContext(ctx context.Context, 
 		return
 	}
 
-	for headerName, headerValue := range addNetworkInterfaceFloatingIPOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "AddNetworkInterfaceFloatingIP")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "AddNetworkInterfaceFloatingIP")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range addNetworkInterfaceFloatingIPOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -30312,12 +30313,12 @@ func (vpc *VpcV1) ListVirtualNetworkInterfaceIpsWithContext(ctx context.Context,
 		return
 	}
 
-	for headerName, headerValue := range listVirtualNetworkInterfaceIpsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVirtualNetworkInterfaceIps")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVirtualNetworkInterfaceIps")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listVirtualNetworkInterfaceIpsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -30397,12 +30398,12 @@ func (vpc *VpcV1) RemoveVirtualNetworkInterfaceIPWithContext(ctx context.Context
 		return
 	}
 
-	for headerName, headerValue := range removeVirtualNetworkInterfaceIPOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "RemoveVirtualNetworkInterfaceIP")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "RemoveVirtualNetworkInterfaceIP")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range removeVirtualNetworkInterfaceIPOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -30461,12 +30462,12 @@ func (vpc *VpcV1) GetVirtualNetworkInterfaceIPWithContext(ctx context.Context, g
 		return
 	}
 
-	for headerName, headerValue := range getVirtualNetworkInterfaceIPOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVirtualNetworkInterfaceIP")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVirtualNetworkInterfaceIP")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getVirtualNetworkInterfaceIPOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -30538,12 +30539,12 @@ func (vpc *VpcV1) AddVirtualNetworkInterfaceIPWithContext(ctx context.Context, a
 		return
 	}
 
-	for headerName, headerValue := range addVirtualNetworkInterfaceIPOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "AddVirtualNetworkInterfaceIP")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "AddVirtualNetworkInterfaceIP")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range addVirtualNetworkInterfaceIPOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -30602,12 +30603,12 @@ func (vpc *VpcV1) ListVolumeProfilesWithContext(ctx context.Context, listVolumeP
 		return
 	}
 
-	for headerName, headerValue := range listVolumeProfilesOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVolumeProfiles")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVolumeProfiles")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listVolumeProfilesOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -30680,12 +30681,12 @@ func (vpc *VpcV1) GetVolumeProfileWithContext(ctx context.Context, getVolumeProf
 		return
 	}
 
-	for headerName, headerValue := range getVolumeProfileOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVolumeProfile")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVolumeProfile")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getVolumeProfileOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -30744,12 +30745,12 @@ func (vpc *VpcV1) ListVolumesWithContext(ctx context.Context, listVolumesOptions
 		return
 	}
 
-	for headerName, headerValue := range listVolumesOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVolumes")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVolumes")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listVolumesOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -30843,12 +30844,12 @@ func (vpc *VpcV1) CreateVolumeWithContext(ctx context.Context, createVolumeOptio
 		return
 	}
 
-	for headerName, headerValue := range createVolumeOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateVolume")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateVolume")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createVolumeOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -30923,12 +30924,12 @@ func (vpc *VpcV1) DeleteVolumeWithContext(ctx context.Context, deleteVolumeOptio
 		return
 	}
 
-	for headerName, headerValue := range deleteVolumeOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteVolume")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteVolume")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteVolumeOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	if deleteVolumeOptions.IfMatch != nil {
@@ -30988,12 +30989,12 @@ func (vpc *VpcV1) GetVolumeWithContext(ctx context.Context, getVolumeOptions *Ge
 		return
 	}
 
-	for headerName, headerValue := range getVolumeOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVolume")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVolume")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getVolumeOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -31061,12 +31062,12 @@ func (vpc *VpcV1) UpdateVolumeWithContext(ctx context.Context, updateVolumeOptio
 		return
 	}
 
-	for headerName, headerValue := range updateVolumeOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateVolume")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateVolume")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateVolumeOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -31146,12 +31147,12 @@ func (vpc *VpcV1) ListVolumeInstanceProfilesWithContext(ctx context.Context, lis
 		return
 	}
 
-	for headerName, headerValue := range listVolumeInstanceProfilesOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVolumeInstanceProfiles")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVolumeInstanceProfiles")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listVolumeInstanceProfilesOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -31231,12 +31232,12 @@ func (vpc *VpcV1) ListVolumeJobsWithContext(ctx context.Context, listVolumeJobsO
 		return
 	}
 
-	for headerName, headerValue := range listVolumeJobsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVolumeJobs")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVolumeJobs")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listVolumeJobsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -31309,12 +31310,12 @@ func (vpc *VpcV1) CreateVolumeJobWithContext(ctx context.Context, createVolumeJo
 		return
 	}
 
-	for headerName, headerValue := range createVolumeJobOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateVolumeJob")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateVolumeJob")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createVolumeJobOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -31396,12 +31397,12 @@ func (vpc *VpcV1) DeleteVolumeJobWithContext(ctx context.Context, deleteVolumeJo
 		return
 	}
 
-	for headerName, headerValue := range deleteVolumeJobOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteVolumeJob")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteVolumeJob")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteVolumeJobOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -31459,12 +31460,12 @@ func (vpc *VpcV1) GetVolumeJobWithContext(ctx context.Context, getVolumeJobOptio
 		return
 	}
 
-	for headerName, headerValue := range getVolumeJobOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVolumeJob")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVolumeJob")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getVolumeJobOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -31533,12 +31534,12 @@ func (vpc *VpcV1) UpdateVolumeJobWithContext(ctx context.Context, updateVolumeJo
 		return
 	}
 
-	for headerName, headerValue := range updateVolumeJobOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateVolumeJob")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateVolumeJob")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateVolumeJobOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -31613,12 +31614,12 @@ func (vpc *VpcV1) CancelVolumeJobWithContext(ctx context.Context, cancelVolumeJo
 		return
 	}
 
-	for headerName, headerValue := range cancelVolumeJobOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CancelVolumeJob")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CancelVolumeJob")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range cancelVolumeJobOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -31655,8 +31656,8 @@ func (vpc *VpcV1) CancelVolumeJobWithContext(ctx context.Context, cancelVolumeJo
 // This request lists software attachments associated with a volume.
 //
 // The volume software attachments will be sorted by their `created_at` property values, with newest volume software
-// attachments first. Software attachments with identical `created_at` property values will in turn be sorted by
-// ascending `name` property values.
+// attachments first. Software attachments with identical
+// `created_at` property values will in turn be sorted by ascending `name` property values.
 func (vpc *VpcV1) ListVolumeSoftwareAttachments(listVolumeSoftwareAttachmentsOptions *ListVolumeSoftwareAttachmentsOptions) (result *VolumeSoftwareAttachmentCollection, response *core.DetailedResponse, err error) {
 	result, response, err = vpc.ListVolumeSoftwareAttachmentsWithContext(context.Background(), listVolumeSoftwareAttachmentsOptions)
 	err = core.RepurposeSDKProblem(err, "")
@@ -31689,12 +31690,12 @@ func (vpc *VpcV1) ListVolumeSoftwareAttachmentsWithContext(ctx context.Context, 
 		return
 	}
 
-	for headerName, headerValue := range listVolumeSoftwareAttachmentsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVolumeSoftwareAttachments")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVolumeSoftwareAttachments")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listVolumeSoftwareAttachmentsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -31762,12 +31763,12 @@ func (vpc *VpcV1) GetVolumeSoftwareAttachmentWithContext(ctx context.Context, ge
 		return
 	}
 
-	for headerName, headerValue := range getVolumeSoftwareAttachmentOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVolumeSoftwareAttachment")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVolumeSoftwareAttachment")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getVolumeSoftwareAttachmentOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -31837,12 +31838,12 @@ func (vpc *VpcV1) UpdateVolumeSoftwareAttachmentWithContext(ctx context.Context,
 		return
 	}
 
-	for headerName, headerValue := range updateVolumeSoftwareAttachmentOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateVolumeSoftwareAttachment")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateVolumeSoftwareAttachment")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateVolumeSoftwareAttachmentOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -31909,12 +31910,12 @@ func (vpc *VpcV1) ListVpcsWithContext(ctx context.Context, listVpcsOptions *List
 		return
 	}
 
-	for headerName, headerValue := range listVpcsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVpcs")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVpcs")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listVpcsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -31995,12 +31996,12 @@ func (vpc *VpcV1) CreateVPCWithContext(ctx context.Context, createVPCOptions *Cr
 		return
 	}
 
-	for headerName, headerValue := range createVPCOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateVPC")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateVPC")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createVPCOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -32100,12 +32101,12 @@ func (vpc *VpcV1) DeleteVPCWithContext(ctx context.Context, deleteVPCOptions *De
 		return
 	}
 
-	for headerName, headerValue := range deleteVPCOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteVPC")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteVPC")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteVPCOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	if deleteVPCOptions.IfMatch != nil {
@@ -32165,12 +32166,12 @@ func (vpc *VpcV1) GetVPCWithContext(ctx context.Context, getVPCOptions *GetVPCOp
 		return
 	}
 
-	for headerName, headerValue := range getVPCOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVPC")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVPC")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getVPCOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -32238,12 +32239,12 @@ func (vpc *VpcV1) UpdateVPCWithContext(ctx context.Context, updateVPCOptions *Up
 		return
 	}
 
-	for headerName, headerValue := range updateVPCOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateVPC")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateVPC")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateVPCOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -32321,12 +32322,12 @@ func (vpc *VpcV1) GetVPCDefaultNetworkACLWithContext(ctx context.Context, getVPC
 		return
 	}
 
-	for headerName, headerValue := range getVPCDefaultNetworkACLOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVPCDefaultNetworkACL")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVPCDefaultNetworkACL")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getVPCDefaultNetworkACLOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -32395,12 +32396,12 @@ func (vpc *VpcV1) GetVPCDefaultRoutingTableWithContext(ctx context.Context, getV
 		return
 	}
 
-	for headerName, headerValue := range getVPCDefaultRoutingTableOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVPCDefaultRoutingTable")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVPCDefaultRoutingTable")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getVPCDefaultRoutingTableOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -32468,12 +32469,12 @@ func (vpc *VpcV1) GetVPCDefaultSecurityGroupWithContext(ctx context.Context, get
 		return
 	}
 
-	for headerName, headerValue := range getVPCDefaultSecurityGroupOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVPCDefaultSecurityGroup")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVPCDefaultSecurityGroup")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getVPCDefaultSecurityGroupOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -32540,12 +32541,12 @@ func (vpc *VpcV1) ListVPCAddressPrefixesWithContext(ctx context.Context, listVPC
 		return
 	}
 
-	for headerName, headerValue := range listVPCAddressPrefixesOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVPCAddressPrefixes")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVPCAddressPrefixes")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listVPCAddressPrefixesOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -32619,12 +32620,12 @@ func (vpc *VpcV1) CreateVPCAddressPrefixWithContext(ctx context.Context, createV
 		return
 	}
 
-	for headerName, headerValue := range createVPCAddressPrefixOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateVPCAddressPrefix")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateVPCAddressPrefix")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createVPCAddressPrefixOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -32713,12 +32714,12 @@ func (vpc *VpcV1) DeleteVPCAddressPrefixWithContext(ctx context.Context, deleteV
 		return
 	}
 
-	for headerName, headerValue := range deleteVPCAddressPrefixOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteVPCAddressPrefix")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteVPCAddressPrefix")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteVPCAddressPrefixOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -32776,12 +32777,12 @@ func (vpc *VpcV1) GetVPCAddressPrefixWithContext(ctx context.Context, getVPCAddr
 		return
 	}
 
-	for headerName, headerValue := range getVPCAddressPrefixOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVPCAddressPrefix")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVPCAddressPrefix")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getVPCAddressPrefixOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -32850,12 +32851,12 @@ func (vpc *VpcV1) UpdateVPCAddressPrefixWithContext(ctx context.Context, updateV
 		return
 	}
 
-	for headerName, headerValue := range updateVPCAddressPrefixOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateVPCAddressPrefix")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateVPCAddressPrefix")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateVPCAddressPrefixOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -32941,12 +32942,12 @@ func (vpc *VpcV1) ListVPCDnsResolutionBindingsWithContext(ctx context.Context, l
 		return
 	}
 
-	for headerName, headerValue := range listVPCDnsResolutionBindingsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVPCDnsResolutionBindings")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVPCDnsResolutionBindings")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listVPCDnsResolutionBindingsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -33057,12 +33058,12 @@ func (vpc *VpcV1) CreateVPCDnsResolutionBindingWithContext(ctx context.Context, 
 		return
 	}
 
-	for headerName, headerValue := range createVPCDnsResolutionBindingOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateVPCDnsResolutionBinding")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateVPCDnsResolutionBinding")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createVPCDnsResolutionBindingOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -33147,12 +33148,12 @@ func (vpc *VpcV1) DeleteVPCDnsResolutionBindingWithContext(ctx context.Context, 
 		return
 	}
 
-	for headerName, headerValue := range deleteVPCDnsResolutionBindingOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteVPCDnsResolutionBinding")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteVPCDnsResolutionBinding")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteVPCDnsResolutionBindingOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -33220,12 +33221,12 @@ func (vpc *VpcV1) GetVPCDnsResolutionBindingWithContext(ctx context.Context, get
 		return
 	}
 
-	for headerName, headerValue := range getVPCDnsResolutionBindingOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVPCDnsResolutionBinding")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVPCDnsResolutionBinding")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getVPCDnsResolutionBindingOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -33295,12 +33296,12 @@ func (vpc *VpcV1) UpdateVPCDnsResolutionBindingWithContext(ctx context.Context, 
 		return
 	}
 
-	for headerName, headerValue := range updateVPCDnsResolutionBindingOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateVPCDnsResolutionBinding")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateVPCDnsResolutionBinding")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateVPCDnsResolutionBindingOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -33379,12 +33380,12 @@ func (vpc *VpcV1) ListVPCRoutesWithContext(ctx context.Context, listVPCRoutesOpt
 		return
 	}
 
-	for headerName, headerValue := range listVPCRoutesOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVPCRoutes")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVPCRoutes")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listVPCRoutesOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -33431,7 +33432,7 @@ func (vpc *VpcV1) ListVPCRoutesWithContext(ctx context.Context, listVPCRoutesOpt
 // same way as a retrieved route, and contains the information necessary to create the new route. The request will fail
 // if the new route will cause a loop.
 // Deprecated: this method is deprecated and may be removed in a future release.
-func (vpc *VpcV1) CreateVPCRoute(createVPCRouteOptions *CreateVPCRouteOptions) (result *Route, response *core.DetailedResponse, err error) {
+func (vpc *VpcV1) CreateVPCRoute(createVPCRouteOptions *CreateVPCRouteOptions) (result *CreateVPCRouteResponse, response *core.DetailedResponse, err error) {
 	result, response, err = vpc.CreateVPCRouteWithContext(context.Background(), createVPCRouteOptions)
 	err = core.RepurposeSDKProblem(err, "")
 	return
@@ -33439,7 +33440,7 @@ func (vpc *VpcV1) CreateVPCRoute(createVPCRouteOptions *CreateVPCRouteOptions) (
 
 // CreateVPCRouteWithContext is an alternate form of the CreateVPCRoute method which supports a Context parameter
 // Deprecated: this method is deprecated and may be removed in a future release.
-func (vpc *VpcV1) CreateVPCRouteWithContext(ctx context.Context, createVPCRouteOptions *CreateVPCRouteOptions) (result *Route, response *core.DetailedResponse, err error) {
+func (vpc *VpcV1) CreateVPCRouteWithContext(ctx context.Context, createVPCRouteOptions *CreateVPCRouteOptions) (result *CreateVPCRouteResponse, response *core.DetailedResponse, err error) {
 	core.GetLogger().Warn("A deprecated operation has been invoked: CreateVPCRoute")
 	err = core.ValidateNotNil(createVPCRouteOptions, "createVPCRouteOptions cannot be nil")
 	if err != nil {
@@ -33465,12 +33466,12 @@ func (vpc *VpcV1) CreateVPCRouteWithContext(ctx context.Context, createVPCRouteO
 		return
 	}
 
-	for headerName, headerValue := range createVPCRouteOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateVPCRoute")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateVPCRoute")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createVPCRouteOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -33521,7 +33522,7 @@ func (vpc *VpcV1) CreateVPCRouteWithContext(ctx context.Context, createVPCRouteO
 		return
 	}
 	if rawResponse != nil {
-		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalRoute)
+		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalCreateVPCRouteResponse)
 		if err != nil {
 			err = core.SDKErrorf(err, "", "unmarshal-resp-error", common.GetComponentInfo())
 			return
@@ -33570,12 +33571,12 @@ func (vpc *VpcV1) DeleteVPCRouteWithContext(ctx context.Context, deleteVPCRouteO
 		return
 	}
 
-	for headerName, headerValue := range deleteVPCRouteOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteVPCRoute")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteVPCRoute")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteVPCRouteOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -33601,7 +33602,7 @@ func (vpc *VpcV1) DeleteVPCRouteWithContext(ctx context.Context, deleteVPCRouteO
 // GetVPCRoute : Retrieve a VPC route
 // This request retrieves a single route specified by the identifier in the URL.
 // Deprecated: this method is deprecated and may be removed in a future release.
-func (vpc *VpcV1) GetVPCRoute(getVPCRouteOptions *GetVPCRouteOptions) (result *Route, response *core.DetailedResponse, err error) {
+func (vpc *VpcV1) GetVPCRoute(getVPCRouteOptions *GetVPCRouteOptions) (result *GetVPCRouteResponse, response *core.DetailedResponse, err error) {
 	result, response, err = vpc.GetVPCRouteWithContext(context.Background(), getVPCRouteOptions)
 	err = core.RepurposeSDKProblem(err, "")
 	return
@@ -33609,7 +33610,7 @@ func (vpc *VpcV1) GetVPCRoute(getVPCRouteOptions *GetVPCRouteOptions) (result *R
 
 // GetVPCRouteWithContext is an alternate form of the GetVPCRoute method which supports a Context parameter
 // Deprecated: this method is deprecated and may be removed in a future release.
-func (vpc *VpcV1) GetVPCRouteWithContext(ctx context.Context, getVPCRouteOptions *GetVPCRouteOptions) (result *Route, response *core.DetailedResponse, err error) {
+func (vpc *VpcV1) GetVPCRouteWithContext(ctx context.Context, getVPCRouteOptions *GetVPCRouteOptions) (result *GetVPCRouteResponse, response *core.DetailedResponse, err error) {
 	core.GetLogger().Warn("A deprecated operation has been invoked: GetVPCRoute")
 	err = core.ValidateNotNil(getVPCRouteOptions, "getVPCRouteOptions cannot be nil")
 	if err != nil {
@@ -33636,12 +33637,12 @@ func (vpc *VpcV1) GetVPCRouteWithContext(ctx context.Context, getVPCRouteOptions
 		return
 	}
 
-	for headerName, headerValue := range getVPCRouteOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVPCRoute")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVPCRoute")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getVPCRouteOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -33663,7 +33664,7 @@ func (vpc *VpcV1) GetVPCRouteWithContext(ctx context.Context, getVPCRouteOptions
 		return
 	}
 	if rawResponse != nil {
-		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalRoute)
+		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalGetVPCRouteResponse)
 		if err != nil {
 			err = core.SDKErrorf(err, "", "unmarshal-resp-error", common.GetComponentInfo())
 			return
@@ -33678,7 +33679,7 @@ func (vpc *VpcV1) GetVPCRouteWithContext(ctx context.Context, getVPCRouteOptions
 // This request updates a route with the information in a provided route patch. The route patch object is structured in
 // the same way as a retrieved route and contains only the information to be updated.
 // Deprecated: this method is deprecated and may be removed in a future release.
-func (vpc *VpcV1) UpdateVPCRoute(updateVPCRouteOptions *UpdateVPCRouteOptions) (result *Route, response *core.DetailedResponse, err error) {
+func (vpc *VpcV1) UpdateVPCRoute(updateVPCRouteOptions *UpdateVPCRouteOptions) (result *UpdateVPCRouteResponse, response *core.DetailedResponse, err error) {
 	result, response, err = vpc.UpdateVPCRouteWithContext(context.Background(), updateVPCRouteOptions)
 	err = core.RepurposeSDKProblem(err, "")
 	return
@@ -33686,7 +33687,7 @@ func (vpc *VpcV1) UpdateVPCRoute(updateVPCRouteOptions *UpdateVPCRouteOptions) (
 
 // UpdateVPCRouteWithContext is an alternate form of the UpdateVPCRoute method which supports a Context parameter
 // Deprecated: this method is deprecated and may be removed in a future release.
-func (vpc *VpcV1) UpdateVPCRouteWithContext(ctx context.Context, updateVPCRouteOptions *UpdateVPCRouteOptions) (result *Route, response *core.DetailedResponse, err error) {
+func (vpc *VpcV1) UpdateVPCRouteWithContext(ctx context.Context, updateVPCRouteOptions *UpdateVPCRouteOptions) (result *UpdateVPCRouteResponse, response *core.DetailedResponse, err error) {
 	core.GetLogger().Warn("A deprecated operation has been invoked: UpdateVPCRoute")
 	err = core.ValidateNotNil(updateVPCRouteOptions, "updateVPCRouteOptions cannot be nil")
 	if err != nil {
@@ -33713,12 +33714,12 @@ func (vpc *VpcV1) UpdateVPCRouteWithContext(ctx context.Context, updateVPCRouteO
 		return
 	}
 
-	for headerName, headerValue := range updateVPCRouteOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateVPCRoute")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateVPCRoute")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateVPCRouteOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -33747,7 +33748,7 @@ func (vpc *VpcV1) UpdateVPCRouteWithContext(ctx context.Context, updateVPCRouteO
 		return
 	}
 	if rawResponse != nil {
-		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalRoute)
+		err = core.UnmarshalModel(rawResponse, "", &result, UnmarshalUpdateVPCRouteResponse)
 		if err != nil {
 			err = core.SDKErrorf(err, "", "unmarshal-resp-error", common.GetComponentInfo())
 			return
@@ -33795,12 +33796,12 @@ func (vpc *VpcV1) ListVPCRoutingTablesWithContext(ctx context.Context, listVPCRo
 		return
 	}
 
-	for headerName, headerValue := range listVPCRoutingTablesOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVPCRoutingTables")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVPCRoutingTables")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listVPCRoutingTablesOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -33880,12 +33881,12 @@ func (vpc *VpcV1) CreateVPCRoutingTableWithContext(ctx context.Context, createVP
 		return
 	}
 
-	for headerName, headerValue := range createVPCRoutingTableOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateVPCRoutingTable")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateVPCRoutingTable")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createVPCRoutingTableOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -33986,12 +33987,12 @@ func (vpc *VpcV1) DeleteVPCRoutingTableWithContext(ctx context.Context, deleteVP
 		return
 	}
 
-	for headerName, headerValue := range deleteVPCRoutingTableOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteVPCRoutingTable")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteVPCRoutingTable")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteVPCRoutingTableOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	if deleteVPCRoutingTableOptions.IfMatch != nil {
@@ -34052,12 +34053,12 @@ func (vpc *VpcV1) GetVPCRoutingTableWithContext(ctx context.Context, getVPCRouti
 		return
 	}
 
-	for headerName, headerValue := range getVPCRoutingTableOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVPCRoutingTable")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVPCRoutingTable")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getVPCRoutingTableOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -34126,12 +34127,12 @@ func (vpc *VpcV1) UpdateVPCRoutingTableWithContext(ctx context.Context, updateVP
 		return
 	}
 
-	for headerName, headerValue := range updateVPCRoutingTableOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateVPCRoutingTable")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateVPCRoutingTable")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateVPCRoutingTableOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -34213,12 +34214,12 @@ func (vpc *VpcV1) ListVPCRoutingTableRoutesWithContext(ctx context.Context, list
 		return
 	}
 
-	for headerName, headerValue := range listVPCRoutingTableRoutesOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVPCRoutingTableRoutes")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVPCRoutingTableRoutes")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listVPCRoutingTableRoutesOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -34293,12 +34294,12 @@ func (vpc *VpcV1) CreateVPCRoutingTableRouteWithContext(ctx context.Context, cre
 		return
 	}
 
-	for headerName, headerValue := range createVPCRoutingTableRouteOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateVPCRoutingTableRoute")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateVPCRoutingTableRoute")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createVPCRoutingTableRouteOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -34397,12 +34398,12 @@ func (vpc *VpcV1) DeleteVPCRoutingTableRouteWithContext(ctx context.Context, del
 		return
 	}
 
-	for headerName, headerValue := range deleteVPCRoutingTableRouteOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteVPCRoutingTableRoute")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteVPCRoutingTableRoute")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteVPCRoutingTableRouteOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -34461,12 +34462,12 @@ func (vpc *VpcV1) GetVPCRoutingTableRouteWithContext(ctx context.Context, getVPC
 		return
 	}
 
-	for headerName, headerValue := range getVPCRoutingTableRouteOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVPCRoutingTableRoute")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVPCRoutingTableRoute")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getVPCRoutingTableRouteOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -34537,12 +34538,12 @@ func (vpc *VpcV1) UpdateVPCRoutingTableRouteWithContext(ctx context.Context, upd
 		return
 	}
 
-	for headerName, headerValue := range updateVPCRoutingTableRouteOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateVPCRoutingTableRoute")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateVPCRoutingTableRoute")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateVPCRoutingTableRouteOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -34607,12 +34608,12 @@ func (vpc *VpcV1) ListIkePoliciesWithContext(ctx context.Context, listIkePolicie
 		return
 	}
 
-	for headerName, headerValue := range listIkePoliciesOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListIkePolicies")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListIkePolicies")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listIkePoliciesOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -34681,12 +34682,12 @@ func (vpc *VpcV1) CreateIkePolicyWithContext(ctx context.Context, createIkePolic
 		return
 	}
 
-	for headerName, headerValue := range createIkePolicyOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateIkePolicy")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateIkePolicy")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createIkePolicyOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -34792,12 +34793,12 @@ func (vpc *VpcV1) DeleteIkePolicyWithContext(ctx context.Context, deleteIkePolic
 		return
 	}
 
-	for headerName, headerValue := range deleteIkePolicyOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteIkePolicy")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteIkePolicy")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteIkePolicyOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -34854,12 +34855,12 @@ func (vpc *VpcV1) GetIkePolicyWithContext(ctx context.Context, getIkePolicyOptio
 		return
 	}
 
-	for headerName, headerValue := range getIkePolicyOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetIkePolicy")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetIkePolicy")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getIkePolicyOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -34926,12 +34927,12 @@ func (vpc *VpcV1) UpdateIkePolicyWithContext(ctx context.Context, updateIkePolic
 		return
 	}
 
-	for headerName, headerValue := range updateIkePolicyOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateIkePolicy")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateIkePolicy")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateIkePolicyOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -35005,12 +35006,12 @@ func (vpc *VpcV1) ListIkePolicyConnectionsWithContext(ctx context.Context, listI
 		return
 	}
 
-	for headerName, headerValue := range listIkePolicyConnectionsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListIkePolicyConnections")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListIkePolicyConnections")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listIkePolicyConnectionsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -35074,12 +35075,12 @@ func (vpc *VpcV1) ListIpsecPoliciesWithContext(ctx context.Context, listIpsecPol
 		return
 	}
 
-	for headerName, headerValue := range listIpsecPoliciesOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListIpsecPolicies")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListIpsecPolicies")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listIpsecPoliciesOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -35148,12 +35149,12 @@ func (vpc *VpcV1) CreateIpsecPolicyWithContext(ctx context.Context, createIpsecP
 		return
 	}
 
-	for headerName, headerValue := range createIpsecPolicyOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateIpsecPolicy")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateIpsecPolicy")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createIpsecPolicyOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -35256,12 +35257,12 @@ func (vpc *VpcV1) DeleteIpsecPolicyWithContext(ctx context.Context, deleteIpsecP
 		return
 	}
 
-	for headerName, headerValue := range deleteIpsecPolicyOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteIpsecPolicy")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteIpsecPolicy")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteIpsecPolicyOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -35318,12 +35319,12 @@ func (vpc *VpcV1) GetIpsecPolicyWithContext(ctx context.Context, getIpsecPolicyO
 		return
 	}
 
-	for headerName, headerValue := range getIpsecPolicyOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetIpsecPolicy")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetIpsecPolicy")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getIpsecPolicyOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -35390,12 +35391,12 @@ func (vpc *VpcV1) UpdateIpsecPolicyWithContext(ctx context.Context, updateIpsecP
 		return
 	}
 
-	for headerName, headerValue := range updateIpsecPolicyOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateIpsecPolicy")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateIpsecPolicy")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateIpsecPolicyOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -35469,12 +35470,12 @@ func (vpc *VpcV1) ListIpsecPolicyConnectionsWithContext(ctx context.Context, lis
 		return
 	}
 
-	for headerName, headerValue := range listIpsecPolicyConnectionsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListIpsecPolicyConnections")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListIpsecPolicyConnections")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listIpsecPolicyConnectionsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -35538,12 +35539,12 @@ func (vpc *VpcV1) ListVPNGatewaysWithContext(ctx context.Context, listVPNGateway
 		return
 	}
 
-	for headerName, headerValue := range listVPNGatewaysOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVPNGateways")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVPNGateways")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listVPNGatewaysOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -35621,12 +35622,12 @@ func (vpc *VpcV1) CreateVPNGatewayWithContext(ctx context.Context, createVPNGate
 		return
 	}
 
-	for headerName, headerValue := range createVPNGatewayOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateVPNGateway")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateVPNGateway")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createVPNGatewayOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -35702,12 +35703,12 @@ func (vpc *VpcV1) DeleteVPNGatewayWithContext(ctx context.Context, deleteVPNGate
 		return
 	}
 
-	for headerName, headerValue := range deleteVPNGatewayOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteVPNGateway")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteVPNGateway")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteVPNGatewayOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -35764,12 +35765,12 @@ func (vpc *VpcV1) GetVPNGatewayWithContext(ctx context.Context, getVPNGatewayOpt
 		return
 	}
 
-	for headerName, headerValue := range getVPNGatewayOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVPNGateway")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVPNGateway")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getVPNGatewayOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -35836,12 +35837,12 @@ func (vpc *VpcV1) UpdateVPNGatewayWithContext(ctx context.Context, updateVPNGate
 		return
 	}
 
-	for headerName, headerValue := range updateVPNGatewayOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateVPNGateway")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateVPNGateway")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateVPNGatewayOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -35917,12 +35918,12 @@ func (vpc *VpcV1) ListVPNGatewayAdvertisedCIDRsWithContext(ctx context.Context, 
 		return
 	}
 
-	for headerName, headerValue := range listVPNGatewayAdvertisedCIDRsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVPNGatewayAdvertisedCIDRs")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVPNGatewayAdvertisedCIDRs")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listVPNGatewayAdvertisedCIDRsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -35992,12 +35993,12 @@ func (vpc *VpcV1) RemoveVPNGatewayAdvertisedCIDRWithContext(ctx context.Context,
 		return
 	}
 
-	for headerName, headerValue := range removeVPNGatewayAdvertisedCIDROptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "RemoveVPNGatewayAdvertisedCIDR")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "RemoveVPNGatewayAdvertisedCIDR")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range removeVPNGatewayAdvertisedCIDROptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -36057,12 +36058,12 @@ func (vpc *VpcV1) CheckVPNGatewayAdvertisedCIDRWithContext(ctx context.Context, 
 		return
 	}
 
-	for headerName, headerValue := range checkVPNGatewayAdvertisedCIDROptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CheckVPNGatewayAdvertisedCIDR")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CheckVPNGatewayAdvertisedCIDR")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range checkVPNGatewayAdvertisedCIDROptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -36123,12 +36124,12 @@ func (vpc *VpcV1) AddVPNGatewayAdvertisedCIDRWithContext(ctx context.Context, ad
 		return
 	}
 
-	for headerName, headerValue := range addVPNGatewayAdvertisedCIDROptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "AddVPNGatewayAdvertisedCIDR")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "AddVPNGatewayAdvertisedCIDR")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range addVPNGatewayAdvertisedCIDROptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -36185,12 +36186,12 @@ func (vpc *VpcV1) ListVPNGatewayConnectionsWithContext(ctx context.Context, list
 		return
 	}
 
-	for headerName, headerValue := range listVPNGatewayConnectionsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVPNGatewayConnections")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVPNGatewayConnections")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listVPNGatewayConnectionsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -36266,12 +36267,12 @@ func (vpc *VpcV1) CreateVPNGatewayConnectionWithContext(ctx context.Context, cre
 		return
 	}
 
-	for headerName, headerValue := range createVPNGatewayConnectionOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateVPNGatewayConnection")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateVPNGatewayConnection")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createVPNGatewayConnectionOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -36347,12 +36348,12 @@ func (vpc *VpcV1) DeleteVPNGatewayConnectionWithContext(ctx context.Context, del
 		return
 	}
 
-	for headerName, headerValue := range deleteVPNGatewayConnectionOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteVPNGatewayConnection")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteVPNGatewayConnection")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteVPNGatewayConnectionOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	if deleteVPNGatewayConnectionOptions.IfMatch != nil {
@@ -36413,12 +36414,12 @@ func (vpc *VpcV1) GetVPNGatewayConnectionWithContext(ctx context.Context, getVPN
 		return
 	}
 
-	for headerName, headerValue := range getVPNGatewayConnectionOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVPNGatewayConnection")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVPNGatewayConnection")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getVPNGatewayConnectionOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -36486,12 +36487,12 @@ func (vpc *VpcV1) UpdateVPNGatewayConnectionWithContext(ctx context.Context, upd
 		return
 	}
 
-	for headerName, headerValue := range updateVPNGatewayConnectionOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateVPNGatewayConnection")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateVPNGatewayConnection")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateVPNGatewayConnectionOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -36571,12 +36572,12 @@ func (vpc *VpcV1) ListVPNGatewayConnectionsLocalCIDRsWithContext(ctx context.Con
 		return
 	}
 
-	for headerName, headerValue := range listVPNGatewayConnectionsLocalCIDRsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVPNGatewayConnectionsLocalCIDRs")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVPNGatewayConnectionsLocalCIDRs")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listVPNGatewayConnectionsLocalCIDRsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -36647,12 +36648,12 @@ func (vpc *VpcV1) RemoveVPNGatewayConnectionsLocalCIDRWithContext(ctx context.Co
 		return
 	}
 
-	for headerName, headerValue := range removeVPNGatewayConnectionsLocalCIDROptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "RemoveVPNGatewayConnectionsLocalCIDR")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "RemoveVPNGatewayConnectionsLocalCIDR")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range removeVPNGatewayConnectionsLocalCIDROptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -36713,12 +36714,12 @@ func (vpc *VpcV1) CheckVPNGatewayConnectionsLocalCIDRWithContext(ctx context.Con
 		return
 	}
 
-	for headerName, headerValue := range checkVPNGatewayConnectionsLocalCIDROptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CheckVPNGatewayConnectionsLocalCIDR")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CheckVPNGatewayConnectionsLocalCIDR")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range checkVPNGatewayConnectionsLocalCIDROptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -36780,12 +36781,12 @@ func (vpc *VpcV1) AddVPNGatewayConnectionsLocalCIDRWithContext(ctx context.Conte
 		return
 	}
 
-	for headerName, headerValue := range addVPNGatewayConnectionsLocalCIDROptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "AddVPNGatewayConnectionsLocalCIDR")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "AddVPNGatewayConnectionsLocalCIDR")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range addVPNGatewayConnectionsLocalCIDROptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -36845,12 +36846,12 @@ func (vpc *VpcV1) ListVPNGatewayConnectionsPeerCIDRsWithContext(ctx context.Cont
 		return
 	}
 
-	for headerName, headerValue := range listVPNGatewayConnectionsPeerCIDRsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVPNGatewayConnectionsPeerCIDRs")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVPNGatewayConnectionsPeerCIDRs")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listVPNGatewayConnectionsPeerCIDRsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -36921,12 +36922,12 @@ func (vpc *VpcV1) RemoveVPNGatewayConnectionsPeerCIDRWithContext(ctx context.Con
 		return
 	}
 
-	for headerName, headerValue := range removeVPNGatewayConnectionsPeerCIDROptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "RemoveVPNGatewayConnectionsPeerCIDR")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "RemoveVPNGatewayConnectionsPeerCIDR")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range removeVPNGatewayConnectionsPeerCIDROptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -36987,12 +36988,12 @@ func (vpc *VpcV1) CheckVPNGatewayConnectionsPeerCIDRWithContext(ctx context.Cont
 		return
 	}
 
-	for headerName, headerValue := range checkVPNGatewayConnectionsPeerCIDROptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CheckVPNGatewayConnectionsPeerCIDR")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CheckVPNGatewayConnectionsPeerCIDR")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range checkVPNGatewayConnectionsPeerCIDROptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -37054,12 +37055,12 @@ func (vpc *VpcV1) AddVPNGatewayConnectionsPeerCIDRWithContext(ctx context.Contex
 		return
 	}
 
-	for headerName, headerValue := range addVPNGatewayConnectionsPeerCIDROptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "AddVPNGatewayConnectionsPeerCIDR")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "AddVPNGatewayConnectionsPeerCIDR")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range addVPNGatewayConnectionsPeerCIDROptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -37116,12 +37117,12 @@ func (vpc *VpcV1) ListVPNGatewayMembersWithContext(ctx context.Context, listVPNG
 		return
 	}
 
-	for headerName, headerValue := range listVPNGatewayMembersOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVPNGatewayMembers")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVPNGatewayMembers")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listVPNGatewayMembersOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -37189,12 +37190,12 @@ func (vpc *VpcV1) GetVPNGatewayMemberWithContext(ctx context.Context, getVPNGate
 		return
 	}
 
-	for headerName, headerValue := range getVPNGatewayMemberOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVPNGatewayMember")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVPNGatewayMember")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getVPNGatewayMemberOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -37265,12 +37266,12 @@ func (vpc *VpcV1) ReplaceVPNGatewayMemberWithContext(ctx context.Context, replac
 		return
 	}
 
-	for headerName, headerValue := range replaceVPNGatewayMemberOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ReplaceVPNGatewayMember")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ReplaceVPNGatewayMember")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range replaceVPNGatewayMemberOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -37351,12 +37352,12 @@ func (vpc *VpcV1) ListVPNGatewayServiceConnectionsWithContext(ctx context.Contex
 		return
 	}
 
-	for headerName, headerValue := range listVPNGatewayServiceConnectionsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVPNGatewayServiceConnections")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVPNGatewayServiceConnections")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listVPNGatewayServiceConnectionsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -37430,12 +37431,12 @@ func (vpc *VpcV1) GetVPNGatewayServiceConnectionWithContext(ctx context.Context,
 		return
 	}
 
-	for headerName, headerValue := range getVPNGatewayServiceConnectionOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVPNGatewayServiceConnection")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVPNGatewayServiceConnection")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getVPNGatewayServiceConnectionOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -37493,12 +37494,12 @@ func (vpc *VpcV1) ListVPNServersWithContext(ctx context.Context, listVPNServersO
 		return
 	}
 
-	for headerName, headerValue := range listVPNServersOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVPNServers")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVPNServers")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listVPNServersOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -37576,12 +37577,12 @@ func (vpc *VpcV1) CreateVPNServerWithContext(ctx context.Context, createVPNServe
 		return
 	}
 
-	for headerName, headerValue := range createVPNServerOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateVPNServer")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateVPNServer")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createVPNServerOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -37692,12 +37693,12 @@ func (vpc *VpcV1) DeleteVPNServerWithContext(ctx context.Context, deleteVPNServe
 		return
 	}
 
-	for headerName, headerValue := range deleteVPNServerOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteVPNServer")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteVPNServer")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteVPNServerOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	if deleteVPNServerOptions.IfMatch != nil {
@@ -37757,12 +37758,12 @@ func (vpc *VpcV1) GetVPNServerWithContext(ctx context.Context, getVPNServerOptio
 		return
 	}
 
-	for headerName, headerValue := range getVPNServerOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVPNServer")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVPNServer")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getVPNServerOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -37830,12 +37831,12 @@ func (vpc *VpcV1) UpdateVPNServerWithContext(ctx context.Context, updateVPNServe
 		return
 	}
 
-	for headerName, headerValue := range updateVPNServerOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateVPNServer")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateVPNServer")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateVPNServerOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -37913,12 +37914,12 @@ func (vpc *VpcV1) GetVPNServerClientConfigurationWithContext(ctx context.Context
 		return
 	}
 
-	for headerName, headerValue := range getVPNServerClientConfigurationOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVPNServerClientConfiguration")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVPNServerClientConfiguration")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getVPNServerClientConfigurationOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "text/plain")
@@ -37977,12 +37978,12 @@ func (vpc *VpcV1) ListVPNServerClientsWithContext(ctx context.Context, listVPNSe
 		return
 	}
 
-	for headerName, headerValue := range listVPNServerClientsOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVPNServerClients")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVPNServerClients")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listVPNServerClientsOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -38061,12 +38062,12 @@ func (vpc *VpcV1) DeleteVPNServerClientWithContext(ctx context.Context, deleteVP
 		return
 	}
 
-	for headerName, headerValue := range deleteVPNServerClientOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteVPNServerClient")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteVPNServerClient")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteVPNServerClientOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -38124,12 +38125,12 @@ func (vpc *VpcV1) GetVPNServerClientWithContext(ctx context.Context, getVPNServe
 		return
 	}
 
-	for headerName, headerValue := range getVPNServerClientOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVPNServerClient")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVPNServerClient")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getVPNServerClientOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -38199,12 +38200,12 @@ func (vpc *VpcV1) DisconnectVPNClientWithContext(ctx context.Context, disconnect
 		return
 	}
 
-	for headerName, headerValue := range disconnectVPNClientOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DisconnectVPNClient")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DisconnectVPNClient")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range disconnectVPNClientOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -38263,12 +38264,12 @@ func (vpc *VpcV1) ListVPNServerRoutesWithContext(ctx context.Context, listVPNSer
 		return
 	}
 
-	for headerName, headerValue := range listVPNServerRoutesOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVPNServerRoutes")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "ListVPNServerRoutes")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range listVPNServerRoutesOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -38346,12 +38347,12 @@ func (vpc *VpcV1) CreateVPNServerRouteWithContext(ctx context.Context, createVPN
 		return
 	}
 
-	for headerName, headerValue := range createVPNServerRouteOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateVPNServerRoute")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "CreateVPNServerRoute")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range createVPNServerRouteOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -38436,12 +38437,12 @@ func (vpc *VpcV1) DeleteVPNServerRouteWithContext(ctx context.Context, deleteVPN
 		return
 	}
 
-	for headerName, headerValue := range deleteVPNServerRouteOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteVPNServerRoute")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "DeleteVPNServerRoute")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range deleteVPNServerRouteOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 
@@ -38499,12 +38500,12 @@ func (vpc *VpcV1) GetVPNServerRouteWithContext(ctx context.Context, getVPNServer
 		return
 	}
 
-	for headerName, headerValue := range getVPNServerRouteOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVPNServerRoute")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "GetVPNServerRoute")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range getVPNServerRouteOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -38573,12 +38574,12 @@ func (vpc *VpcV1) UpdateVPNServerRouteWithContext(ctx context.Context, updateVPN
 		return
 	}
 
-	for headerName, headerValue := range updateVPNServerRouteOptions.Headers {
+	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateVPNServerRoute")
+	for headerName, headerValue := range sdkHeaders {
 		builder.AddHeader(headerName, headerValue)
 	}
 
-	sdkHeaders := common.GetSdkHeaders("vpc", "V1", "UpdateVPNServerRoute")
-	for headerName, headerValue := range sdkHeaders {
+	for headerName, headerValue := range updateVPNServerRouteOptions.Headers {
 		builder.AddHeader(headerName, headerValue)
 	}
 	builder.AddHeader("Accept", "application/json")
@@ -38618,7 +38619,7 @@ func (vpc *VpcV1) UpdateVPNServerRouteWithContext(ctx context.Context, updateVPN
 	return
 }
 func getServiceComponentInfo() *core.ProblemComponent {
-	return core.NewProblemComponent(DefaultServiceName, "2026-10-06")
+	return core.NewProblemComponent(DefaultServiceName, "2026-09-01")
 }
 
 // AccountIdentity : Identifies an account by a unique property.
@@ -42184,14 +42185,13 @@ func UnmarshalBareMetalServerInitializationDefaultTrustedProfilePrototype(m map[
 }
 
 // BareMetalServerInitializationPrototype : BareMetalServerInitializationPrototype struct
+// Models which "extend" this model:
+// - BareMetalServerInitializationPrototypeBareMetalServerInitializationByImage
 type BareMetalServerInitializationPrototype struct {
 	// The default trusted profile to be used when initializing the bare metal server.
 	//
 	// If unspecified, no default trusted profile will be made available.
 	DefaultTrustedProfile *BareMetalServerInitializationDefaultTrustedProfilePrototype `json:"default_trusted_profile,omitempty"`
-
-	// The image to be used when provisioning the bare metal server.
-	Image ImageIdentityIntf `json:"image" validate:"required"`
 
 	// The public SSH keys to install on the bare metal server. Keys will be made available to the bare metal server as
 	// cloud-init vendor data. For cloud-init enabled images, these keys will also be added as SSH authorized keys for the
@@ -42205,19 +42205,17 @@ type BareMetalServerInitializationPrototype struct {
 	// The [user data](https://cloud.ibm.com/docs/vpc?topic=vpc-user-data) to make available when setting up the bare metal
 	// server.
 	UserData *string `json:"user_data,omitempty"`
+
+	// The image to be used when provisioning the bare metal server.
+	Image ImageIdentityIntf `json:"image,omitempty"`
 }
 
-// NewBareMetalServerInitializationPrototype : Instantiate BareMetalServerInitializationPrototype (Generic Model Constructor)
-func (*VpcV1) NewBareMetalServerInitializationPrototype(image ImageIdentityIntf, keys []KeyIdentityIntf) (_model *BareMetalServerInitializationPrototype, err error) {
-	_model = &BareMetalServerInitializationPrototype{
-		Image: image,
-		Keys:  keys,
-	}
-	err = core.ValidateStruct(_model, "required parameters")
-	if err != nil {
-		err = core.SDKErrorf(err, "", "model-missing-required", common.GetComponentInfo())
-	}
-	return
+func (*BareMetalServerInitializationPrototype) isaBareMetalServerInitializationPrototype() bool {
+	return true
+}
+
+type BareMetalServerInitializationPrototypeIntf interface {
+	isaBareMetalServerInitializationPrototype() bool
 }
 
 // UnmarshalBareMetalServerInitializationPrototype unmarshals an instance of BareMetalServerInitializationPrototype from the specified map of raw messages.
@@ -42228,9 +42226,65 @@ func UnmarshalBareMetalServerInitializationPrototype(m map[string]json.RawMessag
 		err = core.SDKErrorf(err, "", "default_trusted_profile-error", common.GetComponentInfo())
 		return
 	}
+	err = core.UnmarshalModel(m, "keys", &obj.Keys, UnmarshalKeyIdentity)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "keys-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "user_data", &obj.UserData)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "user_data-error", common.GetComponentInfo())
+		return
+	}
 	err = core.UnmarshalModel(m, "image", &obj.Image, UnmarshalImageIdentity)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "image-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// BareMetalServerInitializationReplacePrototype : BareMetalServerInitializationReplacePrototype struct
+// Models which "extend" this model:
+// - BareMetalServerInitializationReplacePrototypeBareMetalServerInitializationByImage
+type BareMetalServerInitializationReplacePrototype struct {
+	// The default trusted profile to be used when initializing the bare metal server.
+	//
+	// If unspecified, no default trusted profile will be made available.
+	DefaultTrustedProfile *BareMetalServerInitializationDefaultTrustedProfilePrototype `json:"default_trusted_profile,omitempty"`
+
+	// The public SSH keys to install on the bare metal server. Keys will be made available to the bare metal server as
+	// cloud-init vendor data. For cloud-init enabled images, these keys will also be added as SSH authorized keys for the
+	// [default user](https://cloud.ibm.com/docs/vpc?topic=vpc-vsi_is_connecting_linux#determining-default-user-account).
+	//
+	// For Windows images, at least one SSH key of type `rsa` must be specified. One of the provided keys is selected to
+	// encrypt the administrator password. SSH keys are optional for other images; however, if no keys are specified, the
+	// bare metal server will be inaccessible unless the selected image provides an alternative access mechanism.
+	Keys []KeyIdentityIntf `json:"keys" validate:"required"`
+
+	// The [user data](https://cloud.ibm.com/docs/vpc?topic=vpc-user-data) to make available when setting up the bare metal
+	// server.
+	UserData *string `json:"user_data,omitempty"`
+
+	// The image to be used when provisioning the bare metal server.
+	Image ImageIdentityIntf `json:"image,omitempty"`
+}
+
+func (*BareMetalServerInitializationReplacePrototype) isaBareMetalServerInitializationReplacePrototype() bool {
+	return true
+}
+
+type BareMetalServerInitializationReplacePrototypeIntf interface {
+	isaBareMetalServerInitializationReplacePrototype() bool
+}
+
+// UnmarshalBareMetalServerInitializationReplacePrototype unmarshals an instance of BareMetalServerInitializationReplacePrototype from the specified map of raw messages.
+func UnmarshalBareMetalServerInitializationReplacePrototype(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(BareMetalServerInitializationReplacePrototype)
+	err = core.UnmarshalModel(m, "default_trusted_profile", &obj.DefaultTrustedProfile, UnmarshalBareMetalServerInitializationDefaultTrustedProfilePrototype)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "default_trusted_profile-error", common.GetComponentInfo())
 		return
 	}
 	err = core.UnmarshalModel(m, "keys", &obj.Keys, UnmarshalKeyIdentity)
@@ -42241,6 +42295,11 @@ func UnmarshalBareMetalServerInitializationPrototype(m map[string]json.RawMessag
 	err = core.UnmarshalPrimitive(m, "user_data", &obj.UserData)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "user_data-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "image", &obj.Image, UnmarshalImageIdentity)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "image-error", common.GetComponentInfo())
 		return
 	}
 	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
@@ -45356,7 +45415,7 @@ type BareMetalServerPrototype struct {
 	// boot.
 	EnableSecureBoot *bool `json:"enable_secure_boot,omitempty"`
 
-	Initialization *BareMetalServerInitializationPrototype `json:"initialization" validate:"required"`
+	Initialization BareMetalServerInitializationPrototypeIntf `json:"initialization" validate:"required"`
 
 	// The metadata service configuration for the bare metal server.
 	MetadataService *BareMetalServerMetadataServicePrototype `json:"metadata_service,omitempty"`
@@ -49697,12 +49756,12 @@ func (options *CreateImageOptions) SetHeaders(param map[string]string) *CreateIm
 // CreateImageRecipeOptions : The CreateImageRecipe options.
 type CreateImageRecipeOptions struct {
 	// The base image from which the image will be built. The base image must meet the usage
-	// constraints of the image components specified in the image recipe, and the base image
+	// constraints of the image components specified in the request, and the base image
 	// `visibility` must be `public`.
 	BaseImage ImageRecipeBaseImagePrototypeIntf `json:"base_image" validate:"required"`
 
 	// The image components to include in this image recipe.
-	ImageComponents []ImageComponentIdentityIntf `json:"image_components" validate:"required"`
+	ImageComponents []ImageRecipeImageComponentPrototypeIntf `json:"image_components" validate:"required"`
 
 	// The deprecation date and time to set for this image recipe.
 	//
@@ -49740,7 +49799,7 @@ type CreateImageRecipeOptions struct {
 }
 
 // NewCreateImageRecipeOptions : Instantiate CreateImageRecipeOptions
-func (*VpcV1) NewCreateImageRecipeOptions(baseImage ImageRecipeBaseImagePrototypeIntf, imageComponents []ImageComponentIdentityIntf) *CreateImageRecipeOptions {
+func (*VpcV1) NewCreateImageRecipeOptions(baseImage ImageRecipeBaseImagePrototypeIntf, imageComponents []ImageRecipeImageComponentPrototypeIntf) *CreateImageRecipeOptions {
 	return &CreateImageRecipeOptions{
 		BaseImage:       baseImage,
 		ImageComponents: imageComponents,
@@ -49754,7 +49813,7 @@ func (_options *CreateImageRecipeOptions) SetBaseImage(baseImage ImageRecipeBase
 }
 
 // SetImageComponents : Allow user to set ImageComponents
-func (_options *CreateImageRecipeOptions) SetImageComponents(imageComponents []ImageComponentIdentityIntf) *CreateImageRecipeOptions {
+func (_options *CreateImageRecipeOptions) SetImageComponents(imageComponents []ImageRecipeImageComponentPrototypeIntf) *CreateImageRecipeOptions {
 	_options.ImageComponents = imageComponents
 	return _options
 }
@@ -52671,6 +52730,186 @@ func (_options *CreateSubnetReservedIPOptions) SetTarget(target ReservedIPTarget
 func (options *CreateSubnetReservedIPOptions) SetHeaders(param map[string]string) *CreateSubnetReservedIPOptions {
 	options.Headers = param
 	return options
+}
+
+// CreateVPCRouteResponse : CreateVPCRouteResponse struct
+type CreateVPCRouteResponse struct {
+	// The action to perform with a packet matching the route:
+	// - `delegate`: delegate to system-provided routes
+	// - `delegate_vpc`: delegate to system-provided routes, ignoring Internet-bound routes
+	// - `deliver`: deliver the packet to the specified `next_hop`
+	// - `drop`: drop the packet
+	//
+	// The enumerated values for this property may
+	// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.
+	Action *string `json:"action" validate:"required"`
+
+	// Indicates whether this route will be advertised to the ingress sources specified by the `advertise_routes_to`
+	// routing table property.
+	Advertise *bool `json:"advertise" validate:"required"`
+
+	// The date and time that the route was created.
+	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
+
+	// If present, the resource that created the route. Routes with this property present cannot
+	// be directly deleted. All routes with an `origin` of `service` will have this property set,
+	// and future `origin` values may also have this property set.
+	Creator RouteCreatorIntf `json:"creator,omitempty"`
+
+	// The destination CIDR of the route.
+	Destination *string `json:"destination" validate:"required"`
+
+	// The URL for this route.
+	Href *string `json:"href" validate:"required"`
+
+	// The unique identifier for this route.
+	ID *string `json:"id" validate:"required"`
+
+	// The lifecycle state of the route.
+	LifecycleState *string `json:"lifecycle_state" validate:"required"`
+
+	// The name for this route. The name is unique across all routes in the routing table.
+	Name *string `json:"name" validate:"required"`
+
+	// If `action` is `deliver`, the next hop that packets will be delivered to.  For
+	// other `action` values, its `address` will be `0.0.0.0`.
+	NextHop RouteNextHopIntf `json:"next_hop" validate:"required"`
+
+	// The origin of this route:
+	// - `service`: route was directly created by a service
+	// - `user`: route was directly created by a user
+	//
+	// The enumerated values for this property may
+	// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.
+	Origin *string `json:"origin" validate:"required"`
+
+	// The priority of this route. Smaller values have higher priority.
+	//
+	// If a routing table contains multiple routes with the same `zone` and `destination`, the route with the highest
+	// priority (smallest value) is selected. If two routes have the same `destination` and `priority`, traffic is
+	// distributed between them.
+	Priority *int64 `json:"priority" validate:"required"`
+
+	// The zone the route applies to.
+	//
+	// If subnets are attached to the route's routing table, egress traffic from those
+	// subnets in this zone will be subject to this route. If this route's routing table
+	// has any of `route_direct_link_ingress`, `route_internet_ingress`,
+	// `route_transit_gateway_ingress` or `route_vpc_zone_ingress`  set to`true`, traffic
+	// from those ingress sources arriving in this zone will be subject to this route.
+	Zone *ZoneReference `json:"zone" validate:"required"`
+}
+
+// Constants associated with the CreateVPCRouteResponse.Action property.
+// The action to perform with a packet matching the route:
+// - `delegate`: delegate to system-provided routes
+// - `delegate_vpc`: delegate to system-provided routes, ignoring Internet-bound routes
+// - `deliver`: deliver the packet to the specified `next_hop`
+// - `drop`: drop the packet
+//
+// The enumerated values for this property may
+// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.
+const (
+	CreateVPCRouteResponseActionDelegateConst    = "delegate"
+	CreateVPCRouteResponseActionDelegateVPCConst = "delegate_vpc"
+	CreateVPCRouteResponseActionDeliverConst     = "deliver"
+	CreateVPCRouteResponseActionDropConst        = "drop"
+)
+
+// Constants associated with the CreateVPCRouteResponse.LifecycleState property.
+// The lifecycle state of the route.
+const (
+	CreateVPCRouteResponseLifecycleStateDeletingConst  = "deleting"
+	CreateVPCRouteResponseLifecycleStateFailedConst    = "failed"
+	CreateVPCRouteResponseLifecycleStatePendingConst   = "pending"
+	CreateVPCRouteResponseLifecycleStateStableConst    = "stable"
+	CreateVPCRouteResponseLifecycleStateSuspendedConst = "suspended"
+	CreateVPCRouteResponseLifecycleStateUpdatingConst  = "updating"
+	CreateVPCRouteResponseLifecycleStateWaitingConst   = "waiting"
+)
+
+// Constants associated with the CreateVPCRouteResponse.Origin property.
+// The origin of this route:
+// - `service`: route was directly created by a service
+// - `user`: route was directly created by a user
+//
+// The enumerated values for this property may
+// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.
+const (
+	CreateVPCRouteResponseOriginServiceConst = "service"
+	CreateVPCRouteResponseOriginUserConst    = "user"
+)
+
+// UnmarshalCreateVPCRouteResponse unmarshals an instance of CreateVPCRouteResponse from the specified map of raw messages.
+func UnmarshalCreateVPCRouteResponse(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(CreateVPCRouteResponse)
+	err = core.UnmarshalPrimitive(m, "action", &obj.Action)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "action-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "advertise", &obj.Advertise)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "advertise-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "created_at", &obj.CreatedAt)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "created_at-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "creator", &obj.Creator, UnmarshalRouteCreator)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "creator-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "destination", &obj.Destination)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "destination-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "href-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "id-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "lifecycle_state", &obj.LifecycleState)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "lifecycle_state-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "next_hop", &obj.NextHop, UnmarshalRouteNextHop)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "next_hop-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "origin", &obj.Origin)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "origin-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "priority", &obj.Priority)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "priority-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "zone", &obj.Zone, UnmarshalZoneReference)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "zone-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
 }
 
 // CreateVirtualNetworkInterfaceOptions : The CreateVirtualNetworkInterface options.
@@ -60991,14 +61230,23 @@ type FloatingIPTargetPatch struct {
 	// If this bare metal server has network attachments, this network interface is a
 	// [read-only representation](https://cloud.ibm.com/docs/vpc?topic=vpc-vni-about#vni-old-api-clients) of its
 	// corresponding network attachment and its attached virtual network interface, and the identifier is that of the
-	// corresponding network attachment.
+	// corresponding network attachment or the unique identifier for this instance network interface.
+	//
+	// If this instance has network attachments, this network interface is a
+	// [read-only representation](https://cloud.ibm.com/docs/vpc?topic=vpc-vni-about#vni-old-api-clients) of its
+	// corresponding network attachment and its attached virtual network interface, and the identifier is that of the
+	// corresponding network attachment or the unique identifier for this virtual network interface.
 	ID *string `json:"id,omitempty"`
 
 	// The URL for this bare metal server network interface.
 	//
 	// If this bare metal server has network attachments, this network interface is a
 	// [read-only representation](https://cloud.ibm.com/docs/vpc?topic=vpc-vni-about#vni-old-api-clients) of its
-	// corresponding network attachment.
+	// corresponding network attachment or the URL for this instance network interface.
+	//
+	// If this instance has network attachments, this network interface is a
+	// [read-only representation](https://cloud.ibm.com/docs/vpc?topic=vpc-vni-about#vni-old-api-clients) of its
+	// corresponding network attachment or the URL for this virtual network interface.
 	Href *string `json:"href,omitempty"`
 
 	// The CRN for this virtual network interface.
@@ -61069,14 +61317,23 @@ type FloatingIPTargetPrototype struct {
 	// If this bare metal server has network attachments, this network interface is a
 	// [read-only representation](https://cloud.ibm.com/docs/vpc?topic=vpc-vni-about#vni-old-api-clients) of its
 	// corresponding network attachment and its attached virtual network interface, and the identifier is that of the
-	// corresponding network attachment.
+	// corresponding network attachment or the unique identifier for this instance network interface.
+	//
+	// If this instance has network attachments, this network interface is a
+	// [read-only representation](https://cloud.ibm.com/docs/vpc?topic=vpc-vni-about#vni-old-api-clients) of its
+	// corresponding network attachment and its attached virtual network interface, and the identifier is that of the
+	// corresponding network attachment or the unique identifier for this virtual network interface.
 	ID *string `json:"id,omitempty"`
 
 	// The URL for this bare metal server network interface.
 	//
 	// If this bare metal server has network attachments, this network interface is a
 	// [read-only representation](https://cloud.ibm.com/docs/vpc?topic=vpc-vni-about#vni-old-api-clients) of its
-	// corresponding network attachment.
+	// corresponding network attachment or the URL for this instance network interface.
+	//
+	// If this instance has network attachments, this network interface is a
+	// [read-only representation](https://cloud.ibm.com/docs/vpc?topic=vpc-vni-about#vni-old-api-clients) of its
+	// corresponding network attachment or the URL for this virtual network interface.
 	Href *string `json:"href,omitempty"`
 
 	// The CRN for this virtual network interface.
@@ -61412,7 +61669,8 @@ type FlowLogCollectorTarget struct {
 	//
 	// If this instance has network attachments, this network interface is a
 	// [read-only representation](https://cloud.ibm.com/docs/vpc?topic=vpc-vni-about#vni-old-api-clients) of its
-	// corresponding network attachment.
+	// corresponding network attachment or the URL for this virtual server instance or the URL for this subnet or the URL
+	// for this VPC or the URL for this instance network attachment or the URL for this virtual network interface.
 	Href *string `json:"href,omitempty"`
 
 	// The unique identifier for this instance network interface.
@@ -61420,21 +61678,28 @@ type FlowLogCollectorTarget struct {
 	// If this instance has network attachments, this network interface is a
 	// [read-only representation](https://cloud.ibm.com/docs/vpc?topic=vpc-vni-about#vni-old-api-clients) of its
 	// corresponding network attachment and its attached virtual network interface, and the identifier is that of the
-	// corresponding network attachment.
+	// corresponding network attachment or the unique identifier for this virtual server instance or the unique identifier
+	// for this subnet or the unique identifier for this VPC or the unique identifier for this instance network attachment
+	// or the unique identifier for this virtual network interface.
 	ID *string `json:"id,omitempty"`
 
-	// The name for this instance network interface.
+	// The name for this instance network interface or the name for this virtual server instance. The name is unique across
+	// all virtual server instances in the region or the name for this subnet. The name is unique across all subnets in the
+	// VPC or the name for this VPC. The name is unique across all VPCs in the region or the name for this instance network
+	// attachment. The name is unique across all network attachments for the instance or the name for this virtual network
+	// interface. The name is unique across all virtual network interfaces in the VPC.
 	Name *string `json:"name,omitempty"`
 
-	// The resource type.
+	// The resource type or the resource type or the resource type or the resource type or the resource type.
 	ResourceType *string `json:"resource_type,omitempty"`
 
-	// The CRN for this virtual server instance.
+	// The CRN for this virtual server instance or the CRN for this subnet or the CRN for this VPC or the CRN for this
+	// virtual network interface.
 	CRN *string `json:"crn,omitempty"`
 }
 
 // Constants associated with the FlowLogCollectorTarget.ResourceType property.
-// The resource type.
+// The resource type or the resource type or the resource type or the resource type or the resource type.
 const (
 	FlowLogCollectorTargetResourceTypeNetworkInterfaceConst = "network_interface"
 )
@@ -61508,17 +61773,21 @@ type FlowLogCollectorTargetPrototype struct {
 	// If this instance has network attachments, this network interface is a
 	// [read-only representation](https://cloud.ibm.com/docs/vpc?topic=vpc-vni-about#vni-old-api-clients) of its
 	// corresponding network attachment and its attached virtual network interface, and the identifier is that of the
-	// corresponding network attachment.
+	// corresponding network attachment or the unique identifier for this virtual server instance or the unique identifier
+	// for this subnet or the unique identifier for this VPC or the unique identifier for this virtual network interface or
+	// the unique identifier for this instance network attachment.
 	ID *string `json:"id,omitempty"`
 
 	// The URL for this instance network interface.
 	//
 	// If this instance has network attachments, this network interface is a
 	// [read-only representation](https://cloud.ibm.com/docs/vpc?topic=vpc-vni-about#vni-old-api-clients) of its
-	// corresponding network attachment.
+	// corresponding network attachment or the URL for this virtual server instance or the URL for this subnet or the URL
+	// for this VPC or the URL for this virtual network interface or the URL for this instance network attachment.
 	Href *string `json:"href,omitempty"`
 
-	// The CRN for this virtual server instance.
+	// The CRN for this virtual server instance or the CRN for this subnet or the CRN for this VPC or the CRN for this
+	// virtual network interface.
 	CRN *string `json:"crn,omitempty"`
 }
 
@@ -62502,34 +62771,6 @@ func (_options *GetImageExportJobOptions) SetID(id string) *GetImageExportJobOpt
 
 // SetHeaders : Allow user to set Headers
 func (options *GetImageExportJobOptions) SetHeaders(param map[string]string) *GetImageExportJobOptions {
-	options.Headers = param
-	return options
-}
-
-// GetImageInventoryOptions : The GetImageInventory options.
-type GetImageInventoryOptions struct {
-	// The image identifier.
-	ID *string `json:"id" validate:"required,ne="`
-
-	// Allows users to set headers on API requests.
-	Headers map[string]string
-}
-
-// NewGetImageInventoryOptions : Instantiate GetImageInventoryOptions
-func (*VpcV1) NewGetImageInventoryOptions(id string) *GetImageInventoryOptions {
-	return &GetImageInventoryOptions{
-		ID: core.StringPtr(id),
-	}
-}
-
-// SetID : Allow user to set ID
-func (_options *GetImageInventoryOptions) SetID(id string) *GetImageInventoryOptions {
-	_options.ID = core.StringPtr(id)
-	return _options
-}
-
-// SetHeaders : Allow user to set Headers
-func (options *GetImageInventoryOptions) SetHeaders(param map[string]string) *GetImageInventoryOptions {
 	options.Headers = param
 	return options
 }
@@ -64658,6 +64899,186 @@ func (_options *GetSubnetRoutingTableOptions) SetID(id string) *GetSubnetRouting
 func (options *GetSubnetRoutingTableOptions) SetHeaders(param map[string]string) *GetSubnetRoutingTableOptions {
 	options.Headers = param
 	return options
+}
+
+// GetVPCRouteResponse : GetVPCRouteResponse struct
+type GetVPCRouteResponse struct {
+	// The action to perform with a packet matching the route:
+	// - `delegate`: delegate to system-provided routes
+	// - `delegate_vpc`: delegate to system-provided routes, ignoring Internet-bound routes
+	// - `deliver`: deliver the packet to the specified `next_hop`
+	// - `drop`: drop the packet
+	//
+	// The enumerated values for this property may
+	// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.
+	Action *string `json:"action" validate:"required"`
+
+	// Indicates whether this route will be advertised to the ingress sources specified by the `advertise_routes_to`
+	// routing table property.
+	Advertise *bool `json:"advertise" validate:"required"`
+
+	// The date and time that the route was created.
+	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
+
+	// If present, the resource that created the route. Routes with this property present cannot
+	// be directly deleted. All routes with an `origin` of `service` will have this property set,
+	// and future `origin` values may also have this property set.
+	Creator RouteCreatorIntf `json:"creator,omitempty"`
+
+	// The destination CIDR of the route.
+	Destination *string `json:"destination" validate:"required"`
+
+	// The URL for this route.
+	Href *string `json:"href" validate:"required"`
+
+	// The unique identifier for this route.
+	ID *string `json:"id" validate:"required"`
+
+	// The lifecycle state of the route.
+	LifecycleState *string `json:"lifecycle_state" validate:"required"`
+
+	// The name for this route. The name is unique across all routes in the routing table.
+	Name *string `json:"name" validate:"required"`
+
+	// If `action` is `deliver`, the next hop that packets will be delivered to.  For
+	// other `action` values, its `address` will be `0.0.0.0`.
+	NextHop RouteNextHopIntf `json:"next_hop" validate:"required"`
+
+	// The origin of this route:
+	// - `service`: route was directly created by a service
+	// - `user`: route was directly created by a user
+	//
+	// The enumerated values for this property may
+	// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.
+	Origin *string `json:"origin" validate:"required"`
+
+	// The priority of this route. Smaller values have higher priority.
+	//
+	// If a routing table contains multiple routes with the same `zone` and `destination`, the route with the highest
+	// priority (smallest value) is selected. If two routes have the same `destination` and `priority`, traffic is
+	// distributed between them.
+	Priority *int64 `json:"priority" validate:"required"`
+
+	// The zone the route applies to.
+	//
+	// If subnets are attached to the route's routing table, egress traffic from those
+	// subnets in this zone will be subject to this route. If this route's routing table
+	// has any of `route_direct_link_ingress`, `route_internet_ingress`,
+	// `route_transit_gateway_ingress` or `route_vpc_zone_ingress`  set to`true`, traffic
+	// from those ingress sources arriving in this zone will be subject to this route.
+	Zone *ZoneReference `json:"zone" validate:"required"`
+}
+
+// Constants associated with the GetVPCRouteResponse.Action property.
+// The action to perform with a packet matching the route:
+// - `delegate`: delegate to system-provided routes
+// - `delegate_vpc`: delegate to system-provided routes, ignoring Internet-bound routes
+// - `deliver`: deliver the packet to the specified `next_hop`
+// - `drop`: drop the packet
+//
+// The enumerated values for this property may
+// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.
+const (
+	GetVPCRouteResponseActionDelegateConst    = "delegate"
+	GetVPCRouteResponseActionDelegateVPCConst = "delegate_vpc"
+	GetVPCRouteResponseActionDeliverConst     = "deliver"
+	GetVPCRouteResponseActionDropConst        = "drop"
+)
+
+// Constants associated with the GetVPCRouteResponse.LifecycleState property.
+// The lifecycle state of the route.
+const (
+	GetVPCRouteResponseLifecycleStateDeletingConst  = "deleting"
+	GetVPCRouteResponseLifecycleStateFailedConst    = "failed"
+	GetVPCRouteResponseLifecycleStatePendingConst   = "pending"
+	GetVPCRouteResponseLifecycleStateStableConst    = "stable"
+	GetVPCRouteResponseLifecycleStateSuspendedConst = "suspended"
+	GetVPCRouteResponseLifecycleStateUpdatingConst  = "updating"
+	GetVPCRouteResponseLifecycleStateWaitingConst   = "waiting"
+)
+
+// Constants associated with the GetVPCRouteResponse.Origin property.
+// The origin of this route:
+// - `service`: route was directly created by a service
+// - `user`: route was directly created by a user
+//
+// The enumerated values for this property may
+// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.
+const (
+	GetVPCRouteResponseOriginServiceConst = "service"
+	GetVPCRouteResponseOriginUserConst    = "user"
+)
+
+// UnmarshalGetVPCRouteResponse unmarshals an instance of GetVPCRouteResponse from the specified map of raw messages.
+func UnmarshalGetVPCRouteResponse(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(GetVPCRouteResponse)
+	err = core.UnmarshalPrimitive(m, "action", &obj.Action)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "action-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "advertise", &obj.Advertise)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "advertise-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "created_at", &obj.CreatedAt)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "created_at-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "creator", &obj.Creator, UnmarshalRouteCreator)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "creator-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "destination", &obj.Destination)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "destination-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "href-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "id-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "lifecycle_state", &obj.LifecycleState)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "lifecycle_state-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "next_hop", &obj.NextHop, UnmarshalRouteNextHop)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "next_hop-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "origin", &obj.Origin)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "origin-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "priority", &obj.Priority)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "priority-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "zone", &obj.Zone, UnmarshalZoneReference)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "zone-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
 }
 
 // GetVirtualNetworkInterfaceIPOptions : The GetVirtualNetworkInterfaceIP options.
@@ -66910,6 +67331,11 @@ type Image struct {
 	// properties to determine compatibility.
 	AllowedUse *ImageAllowedUse `json:"allowed_use" validate:"required"`
 
+	// The job that created this image.
+	//
+	// This property will be present for images created by an image job.
+	BuildJob *ImageJobReference `json:"build_job,omitempty"`
+
 	CatalogOffering *ImageCatalogOffering `json:"catalog_offering" validate:"required"`
 
 	// The date and time that the image was created.
@@ -66940,11 +67366,6 @@ type Image struct {
 
 	// The unique identifier for this image.
 	ID *string `json:"id" validate:"required"`
-
-	// The job that created this image.
-	//
-	// This property will be present for images created by an image job.
-	Job *ImageJobReference `json:"job,omitempty"`
 
 	// The minimum size (in gigabytes) of a volume onto which this image may be provisioned.
 	//
@@ -67102,6 +67523,11 @@ func UnmarshalImage(m map[string]json.RawMessage, result interface{}) (err error
 		err = core.SDKErrorf(err, "", "allowed_use-error", common.GetComponentInfo())
 		return
 	}
+	err = core.UnmarshalModel(m, "build_job", &obj.BuildJob, UnmarshalImageJobReference)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "build_job-error", common.GetComponentInfo())
+		return
+	}
 	err = core.UnmarshalModel(m, "catalog_offering", &obj.CatalogOffering, UnmarshalImageCatalogOffering)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "catalog_offering-error", common.GetComponentInfo())
@@ -67145,11 +67571,6 @@ func UnmarshalImage(m map[string]json.RawMessage, result interface{}) (err error
 	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "id-error", common.GetComponentInfo())
-		return
-	}
-	err = core.UnmarshalModel(m, "job", &obj.Job, UnmarshalImageJobReference)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "job-error", common.GetComponentInfo())
 		return
 	}
 	err = core.UnmarshalPrimitive(m, "minimum_provisioned_size", &obj.MinimumProvisionedSize)
@@ -67578,10 +67999,10 @@ type ImageComponent struct {
 	// The date and time that the image component was created.
 	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
 
-	// The CRN for this component.
+	// The CRN for this image component.
 	CRN *string `json:"crn" validate:"required"`
 
-	// The dependencies for this image component. An image recipe that uses this component must contain its required
+	// The dependencies for this image component. An image recipe that uses this image component must contain its required
 	// dependencies.
 	Dependencies []ImageComponentReference `json:"dependencies" validate:"required"`
 
@@ -67590,21 +68011,21 @@ type ImageComponent struct {
 	// If absent, no deprecation date and time has been set.
 	DeprecationAt *strfmt.DateTime `json:"deprecation_at,omitempty"`
 
-	// The URL for this component.
+	// The URL for this image component.
 	Href *string `json:"href" validate:"required"`
 
-	// The unique identifier for this component.
+	// The unique identifier for this image component.
 	ID *string `json:"id" validate:"required"`
 
 	// The unique name for this image component.
 	Name *string `json:"name" validate:"required"`
 
-	// The obsolescence date and time for this component.
+	// The obsolescence date and time for this image component.
 	//
 	// If absent, no obsolescence date and time has been set.
 	ObsolescenceAt *strfmt.DateTime `json:"obsolescence_at,omitempty"`
 
-	// The resource group for this component.
+	// The resource group for this image component.
 	ResourceGroup *ImageComponentResourceGroup `json:"resource_group" validate:"required"`
 
 	// The resource type.
@@ -67763,7 +68184,9 @@ type ImageComponentAllowedUse struct {
 	// - `operating_system.architecture` (string): The operating system supported system
 	//   architecture
 	// - `operating_system.family` (string): The operating system family
-	// - `operating_system.version` (string): The operating system version.
+	// - `operating_system.version` (string): The operating system version
+	//
+	//   String comparisons are case-sensitive.
 	Image *string `json:"image" validate:"required"`
 }
 
@@ -67850,82 +68273,19 @@ func (resp *ImageComponentCollection) GetNextStart() (*string, error) {
 	return start, nil
 }
 
-// ImageComponentIdentity : Identifies an image component by a unique property.
-// Models which "extend" this model:
-// - ImageComponentIdentityImageComponentByID
-// - ImageComponentIdentityImageComponentByCRN
-// - ImageComponentIdentityImageComponentByHref
-type ImageComponentIdentity struct {
-	// The unique identifier for this component.
-	ID *string `json:"id,omitempty"`
-
-	// The CRN for this component.
-	CRN *string `json:"crn,omitempty"`
-
-	// The URL for this component.
-	Href *string `json:"href,omitempty"`
-}
-
-func (*ImageComponentIdentity) isaImageComponentIdentity() bool {
-	return true
-}
-
-type ImageComponentIdentityIntf interface {
-	isaImageComponentIdentity() bool
-	asPatch() map[string]interface{}
-}
-
-// UnmarshalImageComponentIdentity unmarshals an instance of ImageComponentIdentity from the specified map of raw messages.
-func UnmarshalImageComponentIdentity(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(ImageComponentIdentity)
-	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "id-error", common.GetComponentInfo())
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "crn-error", common.GetComponentInfo())
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "href-error", common.GetComponentInfo())
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// asPatch returns a generic map representation of the ImageComponentIdentity
-func (imageComponentIdentity *ImageComponentIdentity) asPatch() (_patch map[string]interface{}) {
-	_patch = map[string]interface{}{}
-	if !core.IsNil(imageComponentIdentity.ID) {
-		_patch["id"] = imageComponentIdentity.ID
-	}
-	if !core.IsNil(imageComponentIdentity.CRN) {
-		_patch["crn"] = imageComponentIdentity.CRN
-	}
-	if !core.IsNil(imageComponentIdentity.Href) {
-		_patch["href"] = imageComponentIdentity.Href
-	}
-
-	return
-}
-
 // ImageComponentReference : ImageComponentReference struct
 type ImageComponentReference struct {
-	// The CRN for this component.
+	// The CRN for this image component.
 	CRN *string `json:"crn" validate:"required"`
 
 	// If present, this property indicates the referenced resource has been deleted, and provides
 	// some supplementary information.
 	Deleted *Deleted `json:"deleted,omitempty"`
 
-	// The URL for this component.
+	// The URL for this image component.
 	Href *string `json:"href" validate:"required"`
 
-	// The unique identifier for this component.
+	// The unique identifier for this image component.
 	ID *string `json:"id" validate:"required"`
 
 	// The unique name for this image component.
@@ -67978,7 +68338,7 @@ func UnmarshalImageComponentReference(m map[string]json.RawMessage, result inter
 	return
 }
 
-// ImageComponentResourceGroup : The resource group for this component.
+// ImageComponentResourceGroup : The resource group for this image component.
 type ImageComponentResourceGroup struct {
 	// The URL for this resource group.
 	Href *string `json:"href" validate:"required"`
@@ -68480,9 +68840,9 @@ func UnmarshalImageFilePrototype(m map[string]json.RawMessage, result interface{
 
 // ImageIdentity : Identifies an image by a unique property.
 // Models which "extend" this model:
-// - ImageIdentityImageIdentityByID
-// - ImageIdentityImageIdentityByCRN
-// - ImageIdentityImageIdentityByHref
+// - ImageIdentityByID
+// - ImageIdentityByCRN
+// - ImageIdentityByHref
 type ImageIdentity struct {
 	// The unique identifier for this image.
 	ID *string `json:"id,omitempty"`
@@ -68522,6 +68882,72 @@ func UnmarshalImageIdentity(m map[string]json.RawMessage, result interface{}) (e
 	}
 	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
 	return
+}
+
+// ImageImageComponentCollection : ImageImageComponentCollection struct
+type ImageImageComponentCollection struct {
+	// A link to the first page of resources.
+	First *PageLink `json:"first" validate:"required"`
+
+	// A page of image components compatible with this image.
+	ImageComponents []ImageComponentReference `json:"image_components" validate:"required"`
+
+	// The maximum number of resources that can be returned by the request.
+	Limit *int64 `json:"limit" validate:"required"`
+
+	// A link to the next page of resources. This property is present for all pages
+	// except the last page.
+	Next *PageLink `json:"next,omitempty"`
+
+	// The total number of resources across all pages.
+	TotalCount *int64 `json:"total_count" validate:"required"`
+}
+
+// UnmarshalImageImageComponentCollection unmarshals an instance of ImageImageComponentCollection from the specified map of raw messages.
+func UnmarshalImageImageComponentCollection(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(ImageImageComponentCollection)
+	err = core.UnmarshalModel(m, "first", &obj.First, UnmarshalPageLink)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "first-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "image_components", &obj.ImageComponents, UnmarshalImageComponentReference)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "image_components-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "limit", &obj.Limit)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "limit-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "next", &obj.Next, UnmarshalPageLink)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "next-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "total_count", &obj.TotalCount)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "total_count-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// Retrieve the value to be passed to a request to access the next page of results
+func (resp *ImageImageComponentCollection) GetNextStart() (*string, error) {
+	if core.IsNil(resp.Next) {
+		return nil, nil
+	}
+	start, err := core.GetQueryParam(resp.Next.Href, "start")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "read-query-param-error", common.GetComponentInfo())
+		return nil, err
+	} else if start == nil {
+		return nil, nil
+	}
+	return start, nil
 }
 
 // ImageInstanceProfileCollection : ImageInstanceProfileCollection struct
@@ -68588,71 +69014,6 @@ func (resp *ImageInstanceProfileCollection) GetNextStart() (*string, error) {
 		return nil, nil
 	}
 	return start, nil
-}
-
-// ImageInventory : ImageInventory struct
-type ImageInventory struct {
-	// The date and time when image inventory was created.
-	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
-
-	Packages []ImageInventoryPackage `json:"packages" validate:"required"`
-
-	// The resource type.
-	ResourceType *string `json:"resource_type" validate:"required"`
-}
-
-// Constants associated with the ImageInventory.ResourceType property.
-// The resource type.
-const (
-	ImageInventoryResourceTypeImageInventoryConst = "image_inventory"
-)
-
-// UnmarshalImageInventory unmarshals an instance of ImageInventory from the specified map of raw messages.
-func UnmarshalImageInventory(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(ImageInventory)
-	err = core.UnmarshalPrimitive(m, "created_at", &obj.CreatedAt)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "created_at-error", common.GetComponentInfo())
-		return
-	}
-	err = core.UnmarshalModel(m, "packages", &obj.Packages, UnmarshalImageInventoryPackage)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "packages-error", common.GetComponentInfo())
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "resource_type-error", common.GetComponentInfo())
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// ImageInventoryPackage : ImageInventoryPackage struct
-type ImageInventoryPackage struct {
-	// The package name.
-	Name *string `json:"name" validate:"required"`
-
-	// The package version.
-	Version *string `json:"version" validate:"required"`
-}
-
-// UnmarshalImageInventoryPackage unmarshals an instance of ImageInventoryPackage from the specified map of raw messages.
-func UnmarshalImageInventoryPackage(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(ImageInventoryPackage)
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
-		return
-	}
-	err = core.UnmarshalPrimitive(m, "version", &obj.Version)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "version-error", common.GetComponentInfo())
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
 }
 
 // ImageJob : ImageJob struct
@@ -69560,6 +69921,98 @@ func UnmarshalImageJobStatusReasons(m map[string]json.RawMessage, result interfa
 	return
 }
 
+// ImagePackage : ImagePackage struct
+type ImagePackage struct {
+	// The package name.
+	Name *string `json:"name" validate:"required"`
+
+	// The package version.
+	Version *string `json:"version" validate:"required"`
+}
+
+// UnmarshalImagePackage unmarshals an instance of ImagePackage from the specified map of raw messages.
+func UnmarshalImagePackage(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(ImagePackage)
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "version", &obj.Version)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "version-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// ImagePackageCollection : ImagePackageCollection struct
+type ImagePackageCollection struct {
+	// A link to the first page of resources.
+	First *PageLink `json:"first" validate:"required"`
+
+	// The maximum number of resources that can be returned by the request.
+	Limit *int64 `json:"limit" validate:"required"`
+
+	// A link to the next page of resources. This property is present for all pages
+	// except the last page.
+	Next *PageLink `json:"next,omitempty"`
+
+	// A page of packages installed in the image.
+	Packages []ImagePackage `json:"packages" validate:"required"`
+
+	// The total number of resources across all pages.
+	TotalCount *int64 `json:"total_count" validate:"required"`
+}
+
+// UnmarshalImagePackageCollection unmarshals an instance of ImagePackageCollection from the specified map of raw messages.
+func UnmarshalImagePackageCollection(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(ImagePackageCollection)
+	err = core.UnmarshalModel(m, "first", &obj.First, UnmarshalPageLink)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "first-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "limit", &obj.Limit)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "limit-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "next", &obj.Next, UnmarshalPageLink)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "next-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "packages", &obj.Packages, UnmarshalImagePackage)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "packages-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "total_count", &obj.TotalCount)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "total_count-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// Retrieve the value to be passed to a request to access the next page of results
+func (resp *ImagePackageCollection) GetNextStart() (*string, error) {
+	if core.IsNil(resp.Next) {
+		return nil, nil
+	}
+	start, err := core.GetQueryParam(resp.Next.Href, "start")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "read-query-param-error", common.GetComponentInfo())
+		return nil, err
+	} else if start == nil {
+		return nil, nil
+	}
+	return start, nil
+}
+
 // ImagePatch : ImagePatch struct
 type ImagePatch struct {
 	// The usage constraints to be matched against the requested instance or bare metal server
@@ -69992,9 +70445,7 @@ func UnmarshalImageRecipe(m map[string]json.RawMessage, result interface{}) (err
 
 // ImageRecipeBaseImagePatch : The base image from which the image will be built.
 // Models which "extend" this model:
-// - ImageRecipeBaseImagePatchImageIdentityByID
-// - ImageRecipeBaseImagePatchImageIdentityByCRN
-// - ImageRecipeBaseImagePatchImageIdentityByHref
+// - ImageRecipeBaseImagePatchImageIdentity
 type ImageRecipeBaseImagePatch struct {
 	// The unique identifier for this image.
 	ID *string `json:"id,omitempty"`
@@ -70054,12 +70505,10 @@ func (imageRecipeBaseImagePatch *ImageRecipeBaseImagePatch) asPatch() (_patch ma
 }
 
 // ImageRecipeBaseImagePrototype : The base image from which the image will be built. The base image must meet the usage constraints of the image
-// components specified in the image recipe, and the base image
+// components specified in the request, and the base image
 // `visibility` must be `public`.
 // Models which "extend" this model:
-// - ImageRecipeBaseImagePrototypeImageIdentityByID
-// - ImageRecipeBaseImagePrototypeImageIdentityByCRN
-// - ImageRecipeBaseImagePrototypeImageIdentityByHref
+// - ImageRecipeBaseImagePrototypeImageIdentity
 type ImageRecipeBaseImagePrototype struct {
 	// The unique identifier for this image.
 	ID *string `json:"id,omitempty"`
@@ -70095,24 +70544,6 @@ func UnmarshalImageRecipeBaseImagePrototype(m map[string]json.RawMessage, result
 	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "href-error", common.GetComponentInfo())
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// ImageRecipeByName : ImageRecipeByName struct
-type ImageRecipeByName struct {
-	// The unique name for this image recipe.
-	Name *string `json:"name" validate:"required"`
-}
-
-// UnmarshalImageRecipeByName unmarshals an instance of ImageRecipeByName from the specified map of raw messages.
-func UnmarshalImageRecipeByName(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(ImageRecipeByName)
-	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
 		return
 	}
 	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
@@ -70201,16 +70632,16 @@ type ImageRecipeHistory struct {
 	// If absent, no deprecation date and time has been set.
 	DeprecationAt *strfmt.DateTime `json:"deprecation_at,omitempty"`
 
-	// The URL for this image recipe.
+	// The URL for this version of the image recipe.
 	Href *string `json:"href" validate:"required"`
 
 	// The unique identifier for this image recipe.
 	ID *string `json:"id" validate:"required"`
 
-	// The image components included in this image recipe.
+	// The image components included in this version of the image recipe.
 	ImageComponents []ImageComponentReference `json:"image_components" validate:"required"`
 
-	// The unique name for this image recipe.
+	// The name for this version of the image recipe.
 	Name *string `json:"name" validate:"required"`
 
 	// The obsolescence date and time (UTC) for this image recipe.
@@ -70448,6 +70879,67 @@ func (resp *ImageRecipeHistoryCollection) GetNextStart() (*string, error) {
 	return start, nil
 }
 
+// ImageRecipeImageComponentPrototype : Identifies an image component to include in an image recipe, by a unique property.
+// Models which "extend" this model:
+// - ImageRecipeImageComponentPrototypeImageComponentIdentity
+type ImageRecipeImageComponentPrototype struct {
+	// The unique identifier for this image component.
+	ID *string `json:"id,omitempty"`
+
+	// The CRN for this image component.
+	CRN *string `json:"crn,omitempty"`
+
+	// The URL for this image component.
+	Href *string `json:"href,omitempty"`
+}
+
+func (*ImageRecipeImageComponentPrototype) isaImageRecipeImageComponentPrototype() bool {
+	return true
+}
+
+type ImageRecipeImageComponentPrototypeIntf interface {
+	isaImageRecipeImageComponentPrototype() bool
+	asPatch() map[string]interface{}
+}
+
+// UnmarshalImageRecipeImageComponentPrototype unmarshals an instance of ImageRecipeImageComponentPrototype from the specified map of raw messages.
+func UnmarshalImageRecipeImageComponentPrototype(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(ImageRecipeImageComponentPrototype)
+	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "id-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "crn-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "href-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// asPatch returns a generic map representation of the ImageRecipeImageComponentPrototype
+func (imageRecipeImageComponentPrototype *ImageRecipeImageComponentPrototype) asPatch() (_patch map[string]interface{}) {
+	_patch = map[string]interface{}{}
+	if !core.IsNil(imageRecipeImageComponentPrototype.ID) {
+		_patch["id"] = imageRecipeImageComponentPrototype.ID
+	}
+	if !core.IsNil(imageRecipeImageComponentPrototype.CRN) {
+		_patch["crn"] = imageRecipeImageComponentPrototype.CRN
+	}
+	if !core.IsNil(imageRecipeImageComponentPrototype.Href) {
+		_patch["href"] = imageRecipeImageComponentPrototype.Href
+	}
+
+	return
+}
+
 // ImageRecipePatch : ImageRecipePatch struct
 type ImageRecipePatch struct {
 	// The base image from which the image will be built.
@@ -70474,7 +70966,7 @@ type ImageRecipePatch struct {
 	// Note: When updating the image components array, the entire array is replaced. To add, remove, or update a single
 	// image component, the request must include the complete updated image components array containing all items you want
 	// to retain.
-	ImageComponents []ImageComponentIdentityIntf `json:"image_components,omitempty"`
+	ImageComponents []ImageRecipeImageComponentPrototypeIntf `json:"image_components,omitempty"`
 
 	// The name for this image recipe. The name must not be used by another image recipe. Names starting with `ibm-` are
 	// reserved for system-provided image recipes.
@@ -70510,7 +71002,7 @@ func UnmarshalImageRecipePatch(m map[string]json.RawMessage, result interface{})
 		err = core.SDKErrorf(err, "", "deprecation_at-error", common.GetComponentInfo())
 		return
 	}
-	err = core.UnmarshalModel(m, "image_components", &obj.ImageComponents, UnmarshalImageComponentIdentity)
+	err = core.UnmarshalModel(m, "image_components", &obj.ImageComponents, UnmarshalImageRecipeImageComponentPrototype)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "image_components-error", common.GetComponentInfo())
 		return
@@ -76298,13 +76790,13 @@ func UnmarshalInstancePlacementTarget(m map[string]json.RawMessage, result inter
 // - InstancePlacementTargetPatchDedicatedHostIdentity
 // - InstancePlacementTargetPatchDedicatedHostGroupIdentity
 type InstancePlacementTargetPatch struct {
-	// The unique identifier for this dedicated host.
+	// The unique identifier for this dedicated host or the unique identifier for this dedicated host group.
 	ID *string `json:"id,omitempty"`
 
-	// The CRN for this dedicated host.
+	// The CRN for this dedicated host or the CRN for this dedicated host group.
 	CRN *string `json:"crn,omitempty"`
 
-	// The URL for this dedicated host.
+	// The URL for this dedicated host or the URL for this dedicated host group.
 	Href *string `json:"href,omitempty"`
 }
 
@@ -76364,13 +76856,14 @@ func (instancePlacementTargetPatch *InstancePlacementTargetPatch) asPatch() (_pa
 // - InstancePlacementTargetPrototypeDedicatedHostGroupIdentity
 // - InstancePlacementTargetPrototypePlacementGroupIdentity
 type InstancePlacementTargetPrototype struct {
-	// The unique identifier for this dedicated host.
+	// The unique identifier for this dedicated host or the unique identifier for this dedicated host group or the unique
+	// identifier for this placement group.
 	ID *string `json:"id,omitempty"`
 
-	// The CRN for this dedicated host.
+	// The CRN for this dedicated host or the CRN for this dedicated host group or the CRN for this placement group.
 	CRN *string `json:"crn,omitempty"`
 
-	// The URL for this dedicated host.
+	// The URL for this dedicated host or the URL for this dedicated host group or the URL for this placement group.
 	Href *string `json:"href,omitempty"`
 }
 
@@ -83067,11 +83560,17 @@ type ListImageJobsOptions struct {
 	// The number of resources to return on a page.
 	Limit *int64 `json:"limit,omitempty"`
 
+	// Filters the collection to image jobs with an `image.id` property matching the specified image identifier.
+	ImageID *string `json:"image.id,omitempty"`
+
 	// Filters the collection to image jobs with a `name` property matching the specified value.
 	Name *string `json:"name,omitempty"`
 
 	// Filters the collection to image jobs with a `status` property matching the specified value.
 	Status *string `json:"status,omitempty"`
+
+	// Filters the collection to image jobs with a `type` property matching the specified value.
+	Type *string `json:"type,omitempty"`
 
 	// Allows users to set headers on API requests.
 	Headers map[string]string
@@ -83085,6 +83584,12 @@ const (
 	ListImageJobsOptionsStatusQueuedConst    = "queued"
 	ListImageJobsOptionsStatusRunningConst   = "running"
 	ListImageJobsOptionsStatusSucceededConst = "succeeded"
+)
+
+// Constants associated with the ListImageJobsOptions.Type property.
+// Filters the collection to image jobs with a `type` property matching the specified value.
+const (
+	ListImageJobsOptionsTypeBuildConst = "build"
 )
 
 // NewListImageJobsOptions : Instantiate ListImageJobsOptions
@@ -83104,6 +83609,12 @@ func (_options *ListImageJobsOptions) SetLimit(limit int64) *ListImageJobsOption
 	return _options
 }
 
+// SetImageID : Allow user to set ImageID
+func (_options *ListImageJobsOptions) SetImageID(imageID string) *ListImageJobsOptions {
+	_options.ImageID = core.StringPtr(imageID)
+	return _options
+}
+
 // SetName : Allow user to set Name
 func (_options *ListImageJobsOptions) SetName(name string) *ListImageJobsOptions {
 	_options.Name = core.StringPtr(name)
@@ -83116,8 +83627,69 @@ func (_options *ListImageJobsOptions) SetStatus(status string) *ListImageJobsOpt
 	return _options
 }
 
+// SetType : Allow user to set Type
+func (_options *ListImageJobsOptions) SetType(typeVar string) *ListImageJobsOptions {
+	_options.Type = core.StringPtr(typeVar)
+	return _options
+}
+
 // SetHeaders : Allow user to set Headers
 func (options *ListImageJobsOptions) SetHeaders(param map[string]string) *ListImageJobsOptions {
+	options.Headers = param
+	return options
+}
+
+// ListImagePackagesOptions : The ListImagePackages options.
+type ListImagePackagesOptions struct {
+	// The image identifier.
+	ID *string `json:"id" validate:"required,ne="`
+
+	// A server-provided token determining what resource to start the page on.
+	Start *string `json:"start,omitempty"`
+
+	// The number of resources to return on a page.
+	Limit *int64 `json:"limit,omitempty"`
+
+	// Filters the collection to packages with a `name` property matching the exact specified name.
+	Name *string `json:"name,omitempty"`
+
+	// Allows users to set headers on API requests.
+	Headers map[string]string
+}
+
+// NewListImagePackagesOptions : Instantiate ListImagePackagesOptions
+func (*VpcV1) NewListImagePackagesOptions(id string) *ListImagePackagesOptions {
+	return &ListImagePackagesOptions{
+		ID: core.StringPtr(id),
+	}
+}
+
+// SetID : Allow user to set ID
+func (_options *ListImagePackagesOptions) SetID(id string) *ListImagePackagesOptions {
+	_options.ID = core.StringPtr(id)
+	return _options
+}
+
+// SetStart : Allow user to set Start
+func (_options *ListImagePackagesOptions) SetStart(start string) *ListImagePackagesOptions {
+	_options.Start = core.StringPtr(start)
+	return _options
+}
+
+// SetLimit : Allow user to set Limit
+func (_options *ListImagePackagesOptions) SetLimit(limit int64) *ListImagePackagesOptions {
+	_options.Limit = core.Int64Ptr(limit)
+	return _options
+}
+
+// SetName : Allow user to set Name
+func (_options *ListImagePackagesOptions) SetName(name string) *ListImagePackagesOptions {
+	_options.Name = core.StringPtr(name)
+	return _options
+}
+
+// SetHeaders : Allow user to set Headers
+func (options *ListImagePackagesOptions) SetHeaders(param map[string]string) *ListImagePackagesOptions {
 	options.Headers = param
 	return options
 }
@@ -83176,9 +83748,8 @@ type ListImageRecipesOptions struct {
 	// The number of resources to return on a page.
 	Limit *int64 `json:"limit,omitempty"`
 
-	// Filters the collection to image recipes with a `name` property matching the
-	// specified value.
-	Name *ImageRecipeByName `json:"name,omitempty"`
+	// Filters the collection to image recipes with a `name` property matching the specified value.
+	Name *string `json:"name,omitempty"`
 
 	// Filters the collection to image recipes with a `status` property matching the specified value.
 	Status *string `json:"status,omitempty"`
@@ -83226,8 +83797,8 @@ func (_options *ListImageRecipesOptions) SetLimit(limit int64) *ListImageRecipes
 }
 
 // SetName : Allow user to set Name
-func (_options *ListImageRecipesOptions) SetName(name *ImageRecipeByName) *ListImageRecipesOptions {
-	_options.Name = name
+func (_options *ListImageRecipesOptions) SetName(name string) *ListImageRecipesOptions {
+	_options.Name = core.StringPtr(name)
 	return _options
 }
 
@@ -83280,6 +83851,9 @@ type ListImagesOptions struct {
 	RemoteAccountID *string `json:"remote.account.id,omitempty"`
 
 	// Filters the collection to images with a `source_image_recipe.id` property matching the specified recipe identifier.
+	//
+	// This parameter also supports the values `null` and `not:null` which filter the collection to images which have no
+	// source image recipe or any source image recipe, respectively.
 	SourceImageRecipeID *string `json:"source_image_recipe.id,omitempty"`
 
 	// Filters the collection to images with a `source_image_recipe.version` property matching the specified value.
@@ -89995,13 +90569,13 @@ func UnmarshalLoadBalancerListenerPolicyTarget(m map[string]json.RawMessage, res
 // - LoadBalancerListenerPolicyTargetPatchLoadBalancerListenerPolicyRedirectURLPatch
 // - LoadBalancerListenerPolicyTargetPatchLoadBalancerListenerIdentity
 type LoadBalancerListenerPolicyTargetPatch struct {
-	// The unique identifier for this load balancer pool.
+	// The unique identifier for this load balancer pool or the unique identifier for this load balancer listener.
 	ID *string `json:"id,omitempty"`
 
-	// The URL for this load balancer pool.
+	// The URL for this load balancer pool or the URL for this load balancer listener.
 	Href *string `json:"href,omitempty"`
 
-	// The HTTP status code for this redirect.
+	// The HTTP status code for this redirect or the HTTP status code for this redirect.
 	HTTPStatusCode *int64 `json:"http_status_code,omitempty"`
 
 	// The target listener.
@@ -90121,13 +90695,13 @@ func (loadBalancerListenerPolicyTargetPatch *LoadBalancerListenerPolicyTargetPat
 // - LoadBalancerListenerPolicyTargetPrototypeLoadBalancerListenerPolicyHTTPSRedirectPrototype
 // - LoadBalancerListenerPolicyTargetPrototypeLoadBalancerListenerPolicyRedirectURLPrototype
 type LoadBalancerListenerPolicyTargetPrototype struct {
-	// The unique identifier for this load balancer pool.
+	// The unique identifier for this load balancer pool or the unique identifier for this load balancer listener.
 	ID *string `json:"id,omitempty"`
 
-	// The URL for this load balancer pool.
+	// The URL for this load balancer pool or the URL for this load balancer listener.
 	Href *string `json:"href,omitempty"`
 
-	// The HTTP status code for this redirect.
+	// The HTTP status code for this redirect or the HTTP status code for this redirect.
 	HTTPStatusCode *int64 `json:"http_status_code,omitempty"`
 
 	// The target listener.
@@ -92453,13 +93027,14 @@ func UnmarshalLoadBalancerPoolMemberTarget(m map[string]json.RawMessage, result 
 // - LoadBalancerPoolMemberTargetPrototypeLoadBalancerIdentity
 // - LoadBalancerPoolMemberTargetPrototypeFqdn
 type LoadBalancerPoolMemberTargetPrototype struct {
-	// The unique identifier for this virtual server instance.
+	// The unique identifier for this virtual server instance or the unique identifier for this reserved IP or the unique
+	// identifier for this load balancer.
 	ID *string `json:"id,omitempty"`
 
-	// The CRN for this virtual server instance.
+	// The CRN for this virtual server instance or the CRN for this load balancer.
 	CRN *string `json:"crn,omitempty"`
 
-	// The URL for this virtual server instance.
+	// The URL for this virtual server instance or the URL for this reserved IP or the URL for this load balancer.
 	Href *string `json:"href,omitempty"`
 
 	// The IP address.
@@ -102560,37 +103135,18 @@ type ReplaceBareMetalServerInitializationOptions struct {
 	// The bare metal server identifier.
 	ID *string `json:"id" validate:"required,ne="`
 
-	// The image to be used when provisioning the bare metal server.
-	Image ImageIdentityIntf `json:"image" validate:"required"`
-
-	// The public SSH keys to install on the bare metal server. Keys will be made available to the bare metal server as
-	// cloud-init vendor data. For cloud-init enabled images, these keys will also be added as SSH authorized keys for the
-	// [default user](https://cloud.ibm.com/docs/vpc?topic=vpc-vsi_is_connecting_linux#determining-default-user-account).
-	//
-	// For Windows images, at least one SSH key of type `rsa` must be specified. One of the provided keys is selected to
-	// encrypt the administrator password. SSH keys are optional for other images; however, if no keys are specified, the
-	// bare metal server will be inaccessible unless the selected image provides an alternative access mechanism.
-	Keys []KeyIdentityIntf `json:"keys" validate:"required"`
-
-	// The default trusted profile to be used when initializing the bare metal server.
-	//
-	// If unspecified, no default trusted profile will be made available.
-	DefaultTrustedProfile *BareMetalServerInitializationDefaultTrustedProfilePrototype `json:"default_trusted_profile,omitempty"`
-
-	// The [user data](https://cloud.ibm.com/docs/vpc?topic=vpc-user-data) to make available when setting up the bare metal
-	// server.
-	UserData *string `json:"user_data,omitempty"`
+	// The image and keys with which to reinitialize the bare metal server.
+	BareMetalServerInitializationReplacePrototype BareMetalServerInitializationReplacePrototypeIntf `json:"BareMetalServerInitializationReplacePrototype" validate:"required"`
 
 	// Allows users to set headers on API requests.
 	Headers map[string]string
 }
 
 // NewReplaceBareMetalServerInitializationOptions : Instantiate ReplaceBareMetalServerInitializationOptions
-func (*VpcV1) NewReplaceBareMetalServerInitializationOptions(id string, image ImageIdentityIntf, keys []KeyIdentityIntf) *ReplaceBareMetalServerInitializationOptions {
+func (*VpcV1) NewReplaceBareMetalServerInitializationOptions(id string, bareMetalServerInitializationReplacePrototype BareMetalServerInitializationReplacePrototypeIntf) *ReplaceBareMetalServerInitializationOptions {
 	return &ReplaceBareMetalServerInitializationOptions{
-		ID:    core.StringPtr(id),
-		Image: image,
-		Keys:  keys,
+		ID: core.StringPtr(id),
+		BareMetalServerInitializationReplacePrototype: bareMetalServerInitializationReplacePrototype,
 	}
 }
 
@@ -102600,27 +103156,9 @@ func (_options *ReplaceBareMetalServerInitializationOptions) SetID(id string) *R
 	return _options
 }
 
-// SetImage : Allow user to set Image
-func (_options *ReplaceBareMetalServerInitializationOptions) SetImage(image ImageIdentityIntf) *ReplaceBareMetalServerInitializationOptions {
-	_options.Image = image
-	return _options
-}
-
-// SetKeys : Allow user to set Keys
-func (_options *ReplaceBareMetalServerInitializationOptions) SetKeys(keys []KeyIdentityIntf) *ReplaceBareMetalServerInitializationOptions {
-	_options.Keys = keys
-	return _options
-}
-
-// SetDefaultTrustedProfile : Allow user to set DefaultTrustedProfile
-func (_options *ReplaceBareMetalServerInitializationOptions) SetDefaultTrustedProfile(defaultTrustedProfile *BareMetalServerInitializationDefaultTrustedProfilePrototype) *ReplaceBareMetalServerInitializationOptions {
-	_options.DefaultTrustedProfile = defaultTrustedProfile
-	return _options
-}
-
-// SetUserData : Allow user to set UserData
-func (_options *ReplaceBareMetalServerInitializationOptions) SetUserData(userData string) *ReplaceBareMetalServerInitializationOptions {
-	_options.UserData = core.StringPtr(userData)
+// SetBareMetalServerInitializationReplacePrototype : Allow user to set BareMetalServerInitializationReplacePrototype
+func (_options *ReplaceBareMetalServerInitializationOptions) SetBareMetalServerInitializationReplacePrototype(bareMetalServerInitializationReplacePrototype BareMetalServerInitializationReplacePrototypeIntf) *ReplaceBareMetalServerInitializationOptions {
+	_options.BareMetalServerInitializationReplacePrototype = bareMetalServerInitializationReplacePrototype
 	return _options
 }
 
@@ -104523,13 +105061,13 @@ func UnmarshalReservedIPTarget(m map[string]json.RawMessage, result interface{})
 // - ReservedIPTargetPrototypeEndpointGatewayIdentity
 // - ReservedIPTargetPrototypeVirtualNetworkInterfaceIdentity
 type ReservedIPTargetPrototype struct {
-	// The unique identifier for this endpoint gateway.
+	// The unique identifier for this endpoint gateway or the unique identifier for this virtual network interface.
 	ID *string `json:"id,omitempty"`
 
-	// The CRN for this endpoint gateway.
+	// The CRN for this endpoint gateway or the CRN for this virtual network interface.
 	CRN *string `json:"crn,omitempty"`
 
-	// The URL for this endpoint gateway.
+	// The URL for this endpoint gateway or the URL for this virtual network interface.
 	Href *string `json:"href,omitempty"`
 }
 
@@ -118668,6 +119206,186 @@ func (options *UpdateSubnetReservedIPOptions) SetHeaders(param map[string]string
 	return options
 }
 
+// UpdateVPCRouteResponse : UpdateVPCRouteResponse struct
+type UpdateVPCRouteResponse struct {
+	// The action to perform with a packet matching the route:
+	// - `delegate`: delegate to system-provided routes
+	// - `delegate_vpc`: delegate to system-provided routes, ignoring Internet-bound routes
+	// - `deliver`: deliver the packet to the specified `next_hop`
+	// - `drop`: drop the packet
+	//
+	// The enumerated values for this property may
+	// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.
+	Action *string `json:"action" validate:"required"`
+
+	// Indicates whether this route will be advertised to the ingress sources specified by the `advertise_routes_to`
+	// routing table property.
+	Advertise *bool `json:"advertise" validate:"required"`
+
+	// The date and time that the route was created.
+	CreatedAt *strfmt.DateTime `json:"created_at" validate:"required"`
+
+	// If present, the resource that created the route. Routes with this property present cannot
+	// be directly deleted. All routes with an `origin` of `service` will have this property set,
+	// and future `origin` values may also have this property set.
+	Creator RouteCreatorIntf `json:"creator,omitempty"`
+
+	// The destination CIDR of the route.
+	Destination *string `json:"destination" validate:"required"`
+
+	// The URL for this route.
+	Href *string `json:"href" validate:"required"`
+
+	// The unique identifier for this route.
+	ID *string `json:"id" validate:"required"`
+
+	// The lifecycle state of the route.
+	LifecycleState *string `json:"lifecycle_state" validate:"required"`
+
+	// The name for this route. The name is unique across all routes in the routing table.
+	Name *string `json:"name" validate:"required"`
+
+	// If `action` is `deliver`, the next hop that packets will be delivered to.  For
+	// other `action` values, its `address` will be `0.0.0.0`.
+	NextHop RouteNextHopIntf `json:"next_hop" validate:"required"`
+
+	// The origin of this route:
+	// - `service`: route was directly created by a service
+	// - `user`: route was directly created by a user
+	//
+	// The enumerated values for this property may
+	// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.
+	Origin *string `json:"origin" validate:"required"`
+
+	// The priority of this route. Smaller values have higher priority.
+	//
+	// If a routing table contains multiple routes with the same `zone` and `destination`, the route with the highest
+	// priority (smallest value) is selected. If two routes have the same `destination` and `priority`, traffic is
+	// distributed between them.
+	Priority *int64 `json:"priority" validate:"required"`
+
+	// The zone the route applies to.
+	//
+	// If subnets are attached to the route's routing table, egress traffic from those
+	// subnets in this zone will be subject to this route. If this route's routing table
+	// has any of `route_direct_link_ingress`, `route_internet_ingress`,
+	// `route_transit_gateway_ingress` or `route_vpc_zone_ingress`  set to`true`, traffic
+	// from those ingress sources arriving in this zone will be subject to this route.
+	Zone *ZoneReference `json:"zone" validate:"required"`
+}
+
+// Constants associated with the UpdateVPCRouteResponse.Action property.
+// The action to perform with a packet matching the route:
+// - `delegate`: delegate to system-provided routes
+// - `delegate_vpc`: delegate to system-provided routes, ignoring Internet-bound routes
+// - `deliver`: deliver the packet to the specified `next_hop`
+// - `drop`: drop the packet
+//
+// The enumerated values for this property may
+// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.
+const (
+	UpdateVPCRouteResponseActionDelegateConst    = "delegate"
+	UpdateVPCRouteResponseActionDelegateVPCConst = "delegate_vpc"
+	UpdateVPCRouteResponseActionDeliverConst     = "deliver"
+	UpdateVPCRouteResponseActionDropConst        = "drop"
+)
+
+// Constants associated with the UpdateVPCRouteResponse.LifecycleState property.
+// The lifecycle state of the route.
+const (
+	UpdateVPCRouteResponseLifecycleStateDeletingConst  = "deleting"
+	UpdateVPCRouteResponseLifecycleStateFailedConst    = "failed"
+	UpdateVPCRouteResponseLifecycleStatePendingConst   = "pending"
+	UpdateVPCRouteResponseLifecycleStateStableConst    = "stable"
+	UpdateVPCRouteResponseLifecycleStateSuspendedConst = "suspended"
+	UpdateVPCRouteResponseLifecycleStateUpdatingConst  = "updating"
+	UpdateVPCRouteResponseLifecycleStateWaitingConst   = "waiting"
+)
+
+// Constants associated with the UpdateVPCRouteResponse.Origin property.
+// The origin of this route:
+// - `service`: route was directly created by a service
+// - `user`: route was directly created by a user
+//
+// The enumerated values for this property may
+// [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) in the future.
+const (
+	UpdateVPCRouteResponseOriginServiceConst = "service"
+	UpdateVPCRouteResponseOriginUserConst    = "user"
+)
+
+// UnmarshalUpdateVPCRouteResponse unmarshals an instance of UpdateVPCRouteResponse from the specified map of raw messages.
+func UnmarshalUpdateVPCRouteResponse(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(UpdateVPCRouteResponse)
+	err = core.UnmarshalPrimitive(m, "action", &obj.Action)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "action-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "advertise", &obj.Advertise)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "advertise-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "created_at", &obj.CreatedAt)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "created_at-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "creator", &obj.Creator, UnmarshalRouteCreator)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "creator-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "destination", &obj.Destination)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "destination-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "href-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "id-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "lifecycle_state", &obj.LifecycleState)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "lifecycle_state-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "name", &obj.Name)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "name-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "next_hop", &obj.NextHop, UnmarshalRouteNextHop)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "next_hop-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "origin", &obj.Origin)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "origin-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "priority", &obj.Priority)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "priority-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "zone", &obj.Zone, UnmarshalZoneReference)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "zone-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
 // UpdateVirtualNetworkInterfaceOptions : The UpdateVirtualNetworkInterface options.
 type UpdateVirtualNetworkInterfaceOptions struct {
 	// The virtual network interface identifier.
@@ -122305,10 +123023,11 @@ func (vpnGatewayConnectionPatch *VPNGatewayConnectionPatch) AsPatch() (_patch ma
 // - VPNGatewayConnectionPeerPatchVPNGatewayConnectionPolicyModePeerPatch
 // - VPNGatewayConnectionPeerPatchVPNGatewayConnectionDynamicRouteModePeerPatch
 type VPNGatewayConnectionPeerPatch struct {
-	// The IP address of the peer VPN gateway for this connection.
+	// The IP address of the peer VPN gateway for this connection or the IP address of the peer VPN gateway for this
+	// connection.
 	Address *string `json:"address,omitempty"`
 
-	// The FQDN of the peer VPN gateway for this connection.
+	// The FQDN of the peer VPN gateway for this connection or the FQDN of the peer VPN gateway for this connection.
 	Fqdn *string `json:"fqdn,omitempty"`
 
 	// The peer autonomous system number (ASN) for this VPN gateway connection. The ASN values in the
@@ -127189,10 +127908,16 @@ type VolumeAttachmentPrototypeVolume struct {
 	UserTags []string `json:"user_tags,omitempty"`
 
 	// The capacity to use for the volume (in gigabytes). The specified value must be within the `capacity` range of the
-	// volume's profile.
+	// volume's profile or the capacity to use for the volume (in gigabytes). The specified value must be at least the
+	// snapshot's `minimum_capacity`, and must be within the `capacity` range of the volume's profile.
+	//
+	// If unspecified, the capacity will be the source snapshot's `minimum_capacity`.
 	Capacity *int64 `json:"capacity,omitempty"`
 
 	// The root key to use to wrap the data encryption key for the volume.
+	//
+	// If unspecified, the `encryption` type for the volume will be `provider_managed` or the root key to use to wrap the
+	// data encryption key for the volume.
 	//
 	// If unspecified, the `encryption` type for the volume will be `provider_managed`.
 	EncryptionKey EncryptionKeyIdentityIntf `json:"encryption_key,omitempty"`
@@ -128994,10 +129719,16 @@ type VolumePrototype struct {
 	Zone ZoneIdentityIntf `json:"zone" validate:"required"`
 
 	// The capacity to use for the volume (in gigabytes). The specified value must be within the `capacity` range of the
-	// volume's profile.
+	// volume's profile or the capacity to use for the volume (in gigabytes). The specified value must be at least the
+	// snapshot's `minimum_capacity`, and must be within the `capacity` range of the volume's profile.
+	//
+	// If unspecified, the capacity will be the source snapshot's `minimum_capacity`.
 	Capacity *int64 `json:"capacity,omitempty"`
 
 	// The root key to use to wrap the data encryption key for the volume.
+	//
+	// If unspecified, the `encryption` type for the volume will be `provider_managed` or the root key to use to wrap the
+	// data encryption key for the volume.
 	//
 	// If unspecified, the `encryption` type for the volume will be `provider_managed`.
 	EncryptionKey EncryptionKeyIdentityIntf `json:"encryption_key,omitempty"`
@@ -131437,6 +132168,144 @@ func UnmarshalBareMetalServerBootTargetBareMetalServerDiskReference(m map[string
 	err = core.UnmarshalPrimitive(m, "resource_type", &obj.ResourceType)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "resource_type-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// BareMetalServerInitializationPrototypeBareMetalServerInitializationByImage : Initialize a bare metal server by using an image.
+// This model "extends" BareMetalServerInitializationPrototype
+type BareMetalServerInitializationPrototypeBareMetalServerInitializationByImage struct {
+	// The default trusted profile to be used when initializing the bare metal server.
+	//
+	// If unspecified, no default trusted profile will be made available.
+	DefaultTrustedProfile *BareMetalServerInitializationDefaultTrustedProfilePrototype `json:"default_trusted_profile,omitempty"`
+
+	// The public SSH keys to install on the bare metal server. Keys will be made available to the bare metal server as
+	// cloud-init vendor data. For cloud-init enabled images, these keys will also be added as SSH authorized keys for the
+	// [default user](https://cloud.ibm.com/docs/vpc?topic=vpc-vsi_is_connecting_linux#determining-default-user-account).
+	//
+	// For Windows images, at least one SSH key of type `rsa` must be specified. One of the provided keys is selected to
+	// encrypt the administrator password. SSH keys are optional for other images; however, if no keys are specified, the
+	// bare metal server will be inaccessible unless the selected image provides an alternative access mechanism.
+	Keys []KeyIdentityIntf `json:"keys" validate:"required"`
+
+	// The [user data](https://cloud.ibm.com/docs/vpc?topic=vpc-user-data) to make available when setting up the bare metal
+	// server.
+	UserData *string `json:"user_data,omitempty"`
+
+	// The image to be used when provisioning the bare metal server.
+	Image ImageIdentityIntf `json:"image" validate:"required"`
+}
+
+// NewBareMetalServerInitializationPrototypeBareMetalServerInitializationByImage : Instantiate BareMetalServerInitializationPrototypeBareMetalServerInitializationByImage (Generic Model Constructor)
+func (*VpcV1) NewBareMetalServerInitializationPrototypeBareMetalServerInitializationByImage(keys []KeyIdentityIntf, image ImageIdentityIntf) (_model *BareMetalServerInitializationPrototypeBareMetalServerInitializationByImage, err error) {
+	_model = &BareMetalServerInitializationPrototypeBareMetalServerInitializationByImage{
+		Keys:  keys,
+		Image: image,
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "model-missing-required", common.GetComponentInfo())
+	}
+	return
+}
+
+func (*BareMetalServerInitializationPrototypeBareMetalServerInitializationByImage) isaBareMetalServerInitializationPrototype() bool {
+	return true
+}
+
+// UnmarshalBareMetalServerInitializationPrototypeBareMetalServerInitializationByImage unmarshals an instance of BareMetalServerInitializationPrototypeBareMetalServerInitializationByImage from the specified map of raw messages.
+func UnmarshalBareMetalServerInitializationPrototypeBareMetalServerInitializationByImage(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(BareMetalServerInitializationPrototypeBareMetalServerInitializationByImage)
+	err = core.UnmarshalModel(m, "default_trusted_profile", &obj.DefaultTrustedProfile, UnmarshalBareMetalServerInitializationDefaultTrustedProfilePrototype)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "default_trusted_profile-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "keys", &obj.Keys, UnmarshalKeyIdentity)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "keys-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "user_data", &obj.UserData)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "user_data-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "image", &obj.Image, UnmarshalImageIdentity)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "image-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// BareMetalServerInitializationReplacePrototypeBareMetalServerInitializationByImage : Initialize a bare metal server by using an image.
+// This model "extends" BareMetalServerInitializationReplacePrototype
+type BareMetalServerInitializationReplacePrototypeBareMetalServerInitializationByImage struct {
+	// The default trusted profile to be used when initializing the bare metal server.
+	//
+	// If unspecified, no default trusted profile will be made available.
+	DefaultTrustedProfile *BareMetalServerInitializationDefaultTrustedProfilePrototype `json:"default_trusted_profile,omitempty"`
+
+	// The public SSH keys to install on the bare metal server. Keys will be made available to the bare metal server as
+	// cloud-init vendor data. For cloud-init enabled images, these keys will also be added as SSH authorized keys for the
+	// [default user](https://cloud.ibm.com/docs/vpc?topic=vpc-vsi_is_connecting_linux#determining-default-user-account).
+	//
+	// For Windows images, at least one SSH key of type `rsa` must be specified. One of the provided keys is selected to
+	// encrypt the administrator password. SSH keys are optional for other images; however, if no keys are specified, the
+	// bare metal server will be inaccessible unless the selected image provides an alternative access mechanism.
+	Keys []KeyIdentityIntf `json:"keys" validate:"required"`
+
+	// The [user data](https://cloud.ibm.com/docs/vpc?topic=vpc-user-data) to make available when setting up the bare metal
+	// server.
+	UserData *string `json:"user_data,omitempty"`
+
+	// The image to be used when provisioning the bare metal server.
+	Image ImageIdentityIntf `json:"image" validate:"required"`
+}
+
+// NewBareMetalServerInitializationReplacePrototypeBareMetalServerInitializationByImage : Instantiate BareMetalServerInitializationReplacePrototypeBareMetalServerInitializationByImage (Generic Model Constructor)
+func (*VpcV1) NewBareMetalServerInitializationReplacePrototypeBareMetalServerInitializationByImage(keys []KeyIdentityIntf, image ImageIdentityIntf) (_model *BareMetalServerInitializationReplacePrototypeBareMetalServerInitializationByImage, err error) {
+	_model = &BareMetalServerInitializationReplacePrototypeBareMetalServerInitializationByImage{
+		Keys:  keys,
+		Image: image,
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "model-missing-required", common.GetComponentInfo())
+	}
+	return
+}
+
+func (*BareMetalServerInitializationReplacePrototypeBareMetalServerInitializationByImage) isaBareMetalServerInitializationReplacePrototype() bool {
+	return true
+}
+
+// UnmarshalBareMetalServerInitializationReplacePrototypeBareMetalServerInitializationByImage unmarshals an instance of BareMetalServerInitializationReplacePrototypeBareMetalServerInitializationByImage from the specified map of raw messages.
+func UnmarshalBareMetalServerInitializationReplacePrototypeBareMetalServerInitializationByImage(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(BareMetalServerInitializationReplacePrototypeBareMetalServerInitializationByImage)
+	err = core.UnmarshalModel(m, "default_trusted_profile", &obj.DefaultTrustedProfile, UnmarshalBareMetalServerInitializationDefaultTrustedProfilePrototype)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "default_trusted_profile-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "keys", &obj.Keys, UnmarshalKeyIdentity)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "keys-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "user_data", &obj.UserData)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "user_data-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalModel(m, "image", &obj.Image, UnmarshalImageIdentity)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "image-error", common.GetComponentInfo())
 		return
 	}
 	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
@@ -134675,7 +135544,7 @@ type BareMetalServerPrototypeBareMetalServerByNetworkAttachment struct {
 	// boot.
 	EnableSecureBoot *bool `json:"enable_secure_boot,omitempty"`
 
-	Initialization *BareMetalServerInitializationPrototype `json:"initialization" validate:"required"`
+	Initialization BareMetalServerInitializationPrototypeIntf `json:"initialization" validate:"required"`
 
 	MetadataService *BareMetalServerMetadataServicePrototype `json:"metadata_service,omitempty"`
 
@@ -134712,7 +135581,7 @@ type BareMetalServerPrototypeBareMetalServerByNetworkAttachment struct {
 }
 
 // NewBareMetalServerPrototypeBareMetalServerByNetworkAttachment : Instantiate BareMetalServerPrototypeBareMetalServerByNetworkAttachment (Generic Model Constructor)
-func (*VpcV1) NewBareMetalServerPrototypeBareMetalServerByNetworkAttachment(initialization *BareMetalServerInitializationPrototype, profile BareMetalServerProfileIdentityIntf, zone ZoneIdentityIntf, primaryNetworkAttachment BareMetalServerPrimaryNetworkAttachmentPrototypeIntf) (_model *BareMetalServerPrototypeBareMetalServerByNetworkAttachment, err error) {
+func (*VpcV1) NewBareMetalServerPrototypeBareMetalServerByNetworkAttachment(initialization BareMetalServerInitializationPrototypeIntf, profile BareMetalServerProfileIdentityIntf, zone ZoneIdentityIntf, primaryNetworkAttachment BareMetalServerPrimaryNetworkAttachmentPrototypeIntf) (_model *BareMetalServerPrototypeBareMetalServerByNetworkAttachment, err error) {
 	_model = &BareMetalServerPrototypeBareMetalServerByNetworkAttachment{
 		Initialization:           initialization,
 		Profile:                  profile,
@@ -134814,7 +135683,7 @@ type BareMetalServerPrototypeBareMetalServerByNetworkInterface struct {
 	// boot.
 	EnableSecureBoot *bool `json:"enable_secure_boot,omitempty"`
 
-	Initialization *BareMetalServerInitializationPrototype `json:"initialization" validate:"required"`
+	Initialization BareMetalServerInitializationPrototypeIntf `json:"initialization" validate:"required"`
 
 	MetadataService *BareMetalServerMetadataServicePrototype `json:"metadata_service,omitempty"`
 
@@ -134851,7 +135720,7 @@ type BareMetalServerPrototypeBareMetalServerByNetworkInterface struct {
 }
 
 // NewBareMetalServerPrototypeBareMetalServerByNetworkInterface : Instantiate BareMetalServerPrototypeBareMetalServerByNetworkInterface (Generic Model Constructor)
-func (*VpcV1) NewBareMetalServerPrototypeBareMetalServerByNetworkInterface(initialization *BareMetalServerInitializationPrototype, profile BareMetalServerProfileIdentityIntf, zone ZoneIdentityIntf, primaryNetworkInterface *BareMetalServerPrimaryNetworkInterfacePrototype) (_model *BareMetalServerPrototypeBareMetalServerByNetworkInterface, err error) {
+func (*VpcV1) NewBareMetalServerPrototypeBareMetalServerByNetworkInterface(initialization BareMetalServerInitializationPrototypeIntf, profile BareMetalServerProfileIdentityIntf, zone ZoneIdentityIntf, primaryNetworkInterface *BareMetalServerPrimaryNetworkInterfacePrototype) (_model *BareMetalServerPrototypeBareMetalServerByNetworkInterface, err error) {
 	_model = &BareMetalServerPrototypeBareMetalServerByNetworkInterface{
 		Initialization:          initialization,
 		Profile:                 profile,
@@ -138549,141 +139418,6 @@ func UnmarshalFlowLogCollectorTargetVirtualNetworkInterfaceReferenceAttachmentCo
 	return
 }
 
-// ImageComponentIdentityImageComponentByCRN : ImageComponentIdentityImageComponentByCRN struct
-// This model "extends" ImageComponentIdentity
-type ImageComponentIdentityImageComponentByCRN struct {
-	// The CRN for this component.
-	CRN *string `json:"crn" validate:"required"`
-}
-
-// NewImageComponentIdentityImageComponentByCRN : Instantiate ImageComponentIdentityImageComponentByCRN (Generic Model Constructor)
-func (*VpcV1) NewImageComponentIdentityImageComponentByCRN(crn string) (_model *ImageComponentIdentityImageComponentByCRN, err error) {
-	_model = &ImageComponentIdentityImageComponentByCRN{
-		CRN: core.StringPtr(crn),
-	}
-	err = core.ValidateStruct(_model, "required parameters")
-	if err != nil {
-		err = core.SDKErrorf(err, "", "model-missing-required", common.GetComponentInfo())
-	}
-	return
-}
-
-func (*ImageComponentIdentityImageComponentByCRN) isaImageComponentIdentity() bool {
-	return true
-}
-
-// UnmarshalImageComponentIdentityImageComponentByCRN unmarshals an instance of ImageComponentIdentityImageComponentByCRN from the specified map of raw messages.
-func UnmarshalImageComponentIdentityImageComponentByCRN(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(ImageComponentIdentityImageComponentByCRN)
-	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "crn-error", common.GetComponentInfo())
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// asPatch returns a generic map representation of the ImageComponentIdentityImageComponentByCRN
-func (imageComponentIdentityImageComponentByCRN *ImageComponentIdentityImageComponentByCRN) asPatch() (_patch map[string]interface{}) {
-	_patch = map[string]interface{}{}
-	if !core.IsNil(imageComponentIdentityImageComponentByCRN.CRN) {
-		_patch["crn"] = imageComponentIdentityImageComponentByCRN.CRN
-	}
-
-	return
-}
-
-// ImageComponentIdentityImageComponentByHref : ImageComponentIdentityImageComponentByHref struct
-// This model "extends" ImageComponentIdentity
-type ImageComponentIdentityImageComponentByHref struct {
-	// The URL for this component.
-	Href *string `json:"href" validate:"required"`
-}
-
-// NewImageComponentIdentityImageComponentByHref : Instantiate ImageComponentIdentityImageComponentByHref (Generic Model Constructor)
-func (*VpcV1) NewImageComponentIdentityImageComponentByHref(href string) (_model *ImageComponentIdentityImageComponentByHref, err error) {
-	_model = &ImageComponentIdentityImageComponentByHref{
-		Href: core.StringPtr(href),
-	}
-	err = core.ValidateStruct(_model, "required parameters")
-	if err != nil {
-		err = core.SDKErrorf(err, "", "model-missing-required", common.GetComponentInfo())
-	}
-	return
-}
-
-func (*ImageComponentIdentityImageComponentByHref) isaImageComponentIdentity() bool {
-	return true
-}
-
-// UnmarshalImageComponentIdentityImageComponentByHref unmarshals an instance of ImageComponentIdentityImageComponentByHref from the specified map of raw messages.
-func UnmarshalImageComponentIdentityImageComponentByHref(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(ImageComponentIdentityImageComponentByHref)
-	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "href-error", common.GetComponentInfo())
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// asPatch returns a generic map representation of the ImageComponentIdentityImageComponentByHref
-func (imageComponentIdentityImageComponentByHref *ImageComponentIdentityImageComponentByHref) asPatch() (_patch map[string]interface{}) {
-	_patch = map[string]interface{}{}
-	if !core.IsNil(imageComponentIdentityImageComponentByHref.Href) {
-		_patch["href"] = imageComponentIdentityImageComponentByHref.Href
-	}
-
-	return
-}
-
-// ImageComponentIdentityImageComponentByID : ImageComponentIdentityImageComponentByID struct
-// This model "extends" ImageComponentIdentity
-type ImageComponentIdentityImageComponentByID struct {
-	// The unique identifier for this component.
-	ID *string `json:"id" validate:"required"`
-}
-
-// NewImageComponentIdentityImageComponentByID : Instantiate ImageComponentIdentityImageComponentByID (Generic Model Constructor)
-func (*VpcV1) NewImageComponentIdentityImageComponentByID(id string) (_model *ImageComponentIdentityImageComponentByID, err error) {
-	_model = &ImageComponentIdentityImageComponentByID{
-		ID: core.StringPtr(id),
-	}
-	err = core.ValidateStruct(_model, "required parameters")
-	if err != nil {
-		err = core.SDKErrorf(err, "", "model-missing-required", common.GetComponentInfo())
-	}
-	return
-}
-
-func (*ImageComponentIdentityImageComponentByID) isaImageComponentIdentity() bool {
-	return true
-}
-
-// UnmarshalImageComponentIdentityImageComponentByID unmarshals an instance of ImageComponentIdentityImageComponentByID from the specified map of raw messages.
-func UnmarshalImageComponentIdentityImageComponentByID(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(ImageComponentIdentityImageComponentByID)
-	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
-	if err != nil {
-		err = core.SDKErrorf(err, "", "id-error", common.GetComponentInfo())
-		return
-	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// asPatch returns a generic map representation of the ImageComponentIdentityImageComponentByID
-func (imageComponentIdentityImageComponentByID *ImageComponentIdentityImageComponentByID) asPatch() (_patch map[string]interface{}) {
-	_patch = map[string]interface{}{}
-	if !core.IsNil(imageComponentIdentityImageComponentByID.ID) {
-		_patch["id"] = imageComponentIdentityImageComponentByID.ID
-	}
-
-	return
-}
-
 // ImageComponentSoftwarePackage : ImageComponentSoftwarePackage struct
 // This model "extends" ImageComponentSoftware
 type ImageComponentSoftwarePackage struct {
@@ -138729,16 +139463,16 @@ func UnmarshalImageComponentSoftwarePackage(m map[string]json.RawMessage, result
 	return
 }
 
-// ImageIdentityImageIdentityByCRN : ImageIdentityImageIdentityByCRN struct
+// ImageIdentityByCRN : ImageIdentityByCRN struct
 // This model "extends" ImageIdentity
-type ImageIdentityImageIdentityByCRN struct {
+type ImageIdentityByCRN struct {
 	// The CRN for this image.
 	CRN *string `json:"crn" validate:"required"`
 }
 
-// NewImageIdentityImageIdentityByCRN : Instantiate ImageIdentityImageIdentityByCRN (Generic Model Constructor)
-func (*VpcV1) NewImageIdentityImageIdentityByCRN(crn string) (_model *ImageIdentityImageIdentityByCRN, err error) {
-	_model = &ImageIdentityImageIdentityByCRN{
+// NewImageIdentityByCRN : Instantiate ImageIdentityByCRN (Generic Model Constructor)
+func (*VpcV1) NewImageIdentityByCRN(crn string) (_model *ImageIdentityByCRN, err error) {
+	_model = &ImageIdentityByCRN{
 		CRN: core.StringPtr(crn),
 	}
 	err = core.ValidateStruct(_model, "required parameters")
@@ -138748,13 +139482,13 @@ func (*VpcV1) NewImageIdentityImageIdentityByCRN(crn string) (_model *ImageIdent
 	return
 }
 
-func (*ImageIdentityImageIdentityByCRN) isaImageIdentity() bool {
+func (*ImageIdentityByCRN) isaImageIdentity() bool {
 	return true
 }
 
-// UnmarshalImageIdentityImageIdentityByCRN unmarshals an instance of ImageIdentityImageIdentityByCRN from the specified map of raw messages.
-func UnmarshalImageIdentityImageIdentityByCRN(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(ImageIdentityImageIdentityByCRN)
+// UnmarshalImageIdentityByCRN unmarshals an instance of ImageIdentityByCRN from the specified map of raw messages.
+func UnmarshalImageIdentityByCRN(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(ImageIdentityByCRN)
 	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "crn-error", common.GetComponentInfo())
@@ -138764,16 +139498,16 @@ func UnmarshalImageIdentityImageIdentityByCRN(m map[string]json.RawMessage, resu
 	return
 }
 
-// ImageIdentityImageIdentityByHref : ImageIdentityImageIdentityByHref struct
+// ImageIdentityByHref : ImageIdentityByHref struct
 // This model "extends" ImageIdentity
-type ImageIdentityImageIdentityByHref struct {
+type ImageIdentityByHref struct {
 	// The URL for this image.
 	Href *string `json:"href" validate:"required"`
 }
 
-// NewImageIdentityImageIdentityByHref : Instantiate ImageIdentityImageIdentityByHref (Generic Model Constructor)
-func (*VpcV1) NewImageIdentityImageIdentityByHref(href string) (_model *ImageIdentityImageIdentityByHref, err error) {
-	_model = &ImageIdentityImageIdentityByHref{
+// NewImageIdentityByHref : Instantiate ImageIdentityByHref (Generic Model Constructor)
+func (*VpcV1) NewImageIdentityByHref(href string) (_model *ImageIdentityByHref, err error) {
+	_model = &ImageIdentityByHref{
 		Href: core.StringPtr(href),
 	}
 	err = core.ValidateStruct(_model, "required parameters")
@@ -138783,13 +139517,13 @@ func (*VpcV1) NewImageIdentityImageIdentityByHref(href string) (_model *ImageIde
 	return
 }
 
-func (*ImageIdentityImageIdentityByHref) isaImageIdentity() bool {
+func (*ImageIdentityByHref) isaImageIdentity() bool {
 	return true
 }
 
-// UnmarshalImageIdentityImageIdentityByHref unmarshals an instance of ImageIdentityImageIdentityByHref from the specified map of raw messages.
-func UnmarshalImageIdentityImageIdentityByHref(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(ImageIdentityImageIdentityByHref)
+// UnmarshalImageIdentityByHref unmarshals an instance of ImageIdentityByHref from the specified map of raw messages.
+func UnmarshalImageIdentityByHref(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(ImageIdentityByHref)
 	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "href-error", common.GetComponentInfo())
@@ -138799,16 +139533,16 @@ func UnmarshalImageIdentityImageIdentityByHref(m map[string]json.RawMessage, res
 	return
 }
 
-// ImageIdentityImageIdentityByID : ImageIdentityImageIdentityByID struct
+// ImageIdentityByID : ImageIdentityByID struct
 // This model "extends" ImageIdentity
-type ImageIdentityImageIdentityByID struct {
+type ImageIdentityByID struct {
 	// The unique identifier for this image.
 	ID *string `json:"id" validate:"required"`
 }
 
-// NewImageIdentityImageIdentityByID : Instantiate ImageIdentityImageIdentityByID (Generic Model Constructor)
-func (*VpcV1) NewImageIdentityImageIdentityByID(id string) (_model *ImageIdentityImageIdentityByID, err error) {
-	_model = &ImageIdentityImageIdentityByID{
+// NewImageIdentityByID : Instantiate ImageIdentityByID (Generic Model Constructor)
+func (*VpcV1) NewImageIdentityByID(id string) (_model *ImageIdentityByID, err error) {
+	_model = &ImageIdentityByID{
 		ID: core.StringPtr(id),
 	}
 	err = core.ValidateStruct(_model, "required parameters")
@@ -138818,13 +139552,13 @@ func (*VpcV1) NewImageIdentityImageIdentityByID(id string) (_model *ImageIdentit
 	return
 }
 
-func (*ImageIdentityImageIdentityByID) isaImageIdentity() bool {
+func (*ImageIdentityByID) isaImageIdentity() bool {
 	return true
 }
 
-// UnmarshalImageIdentityImageIdentityByID unmarshals an instance of ImageIdentityImageIdentityByID from the specified map of raw messages.
-func UnmarshalImageIdentityImageIdentityByID(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(ImageIdentityImageIdentityByID)
+// UnmarshalImageIdentityByID unmarshals an instance of ImageIdentityByID from the specified map of raw messages.
+func UnmarshalImageIdentityByID(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(ImageIdentityByID)
 	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "id-error", common.GetComponentInfo())
@@ -139390,7 +140124,7 @@ func (imageJobPatchImageJobBuildPatch *ImageJobPatchImageJobBuildPatch) AsPatch(
 	return
 }
 
-// ImageJobPrototypeImageJobBuildPrototype : ImageJobPrototypeImageJobBuildPrototype struct
+// ImageJobPrototypeImageJobBuildPrototype : This creates a new image from the specified recipe.
 // This model "extends" ImageJobPrototype
 type ImageJobPrototypeImageJobBuildPrototype struct {
 	// The name for this image job. The name must not be used by another image job in the region. If unspecified, the name
@@ -139737,77 +140471,49 @@ func UnmarshalImagePrototypeImageBySourceVolume(m map[string]json.RawMessage, re
 	return
 }
 
-// ImageRecipeBaseImagePatchImageIdentityByCRN : ImageRecipeBaseImagePatchImageIdentityByCRN struct
+// ImageRecipeBaseImagePatchImageIdentity : Identifies an image by a unique property.
+// Models which "extend" this model:
+// - ImageRecipeBaseImagePatchImageIdentityImageIdentityByID
+// - ImageRecipeBaseImagePatchImageIdentityImageIdentityByCRN
+// - ImageRecipeBaseImagePatchImageIdentityImageIdentityByHref
 // This model "extends" ImageRecipeBaseImagePatch
-type ImageRecipeBaseImagePatchImageIdentityByCRN struct {
+type ImageRecipeBaseImagePatchImageIdentity struct {
+	// The unique identifier for this image.
+	ID *string `json:"id,omitempty"`
+
 	// The CRN for this image.
-	CRN *string `json:"crn" validate:"required"`
+	CRN *string `json:"crn,omitempty"`
+
+	// The URL for this image.
+	Href *string `json:"href,omitempty"`
 }
 
-// NewImageRecipeBaseImagePatchImageIdentityByCRN : Instantiate ImageRecipeBaseImagePatchImageIdentityByCRN (Generic Model Constructor)
-func (*VpcV1) NewImageRecipeBaseImagePatchImageIdentityByCRN(crn string) (_model *ImageRecipeBaseImagePatchImageIdentityByCRN, err error) {
-	_model = &ImageRecipeBaseImagePatchImageIdentityByCRN{
-		CRN: core.StringPtr(crn),
-	}
-	err = core.ValidateStruct(_model, "required parameters")
-	if err != nil {
-		err = core.SDKErrorf(err, "", "model-missing-required", common.GetComponentInfo())
-	}
-	return
-}
-
-func (*ImageRecipeBaseImagePatchImageIdentityByCRN) isaImageRecipeBaseImagePatch() bool {
+func (*ImageRecipeBaseImagePatchImageIdentity) isaImageRecipeBaseImagePatchImageIdentity() bool {
 	return true
 }
 
-// UnmarshalImageRecipeBaseImagePatchImageIdentityByCRN unmarshals an instance of ImageRecipeBaseImagePatchImageIdentityByCRN from the specified map of raw messages.
-func UnmarshalImageRecipeBaseImagePatchImageIdentityByCRN(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(ImageRecipeBaseImagePatchImageIdentityByCRN)
+type ImageRecipeBaseImagePatchImageIdentityIntf interface {
+	ImageRecipeBaseImagePatchIntf
+	isaImageRecipeBaseImagePatchImageIdentity() bool
+}
+
+func (*ImageRecipeBaseImagePatchImageIdentity) isaImageRecipeBaseImagePatch() bool {
+	return true
+}
+
+// UnmarshalImageRecipeBaseImagePatchImageIdentity unmarshals an instance of ImageRecipeBaseImagePatchImageIdentity from the specified map of raw messages.
+func UnmarshalImageRecipeBaseImagePatchImageIdentity(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(ImageRecipeBaseImagePatchImageIdentity)
+	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "id-error", common.GetComponentInfo())
+		return
+	}
 	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "crn-error", common.GetComponentInfo())
 		return
 	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// asPatch returns a generic map representation of the ImageRecipeBaseImagePatchImageIdentityByCRN
-func (imageRecipeBaseImagePatchImageIdentityByCRN *ImageRecipeBaseImagePatchImageIdentityByCRN) asPatch() (_patch map[string]interface{}) {
-	_patch = map[string]interface{}{}
-	if !core.IsNil(imageRecipeBaseImagePatchImageIdentityByCRN.CRN) {
-		_patch["crn"] = imageRecipeBaseImagePatchImageIdentityByCRN.CRN
-	}
-
-	return
-}
-
-// ImageRecipeBaseImagePatchImageIdentityByHref : ImageRecipeBaseImagePatchImageIdentityByHref struct
-// This model "extends" ImageRecipeBaseImagePatch
-type ImageRecipeBaseImagePatchImageIdentityByHref struct {
-	// The URL for this image.
-	Href *string `json:"href" validate:"required"`
-}
-
-// NewImageRecipeBaseImagePatchImageIdentityByHref : Instantiate ImageRecipeBaseImagePatchImageIdentityByHref (Generic Model Constructor)
-func (*VpcV1) NewImageRecipeBaseImagePatchImageIdentityByHref(href string) (_model *ImageRecipeBaseImagePatchImageIdentityByHref, err error) {
-	_model = &ImageRecipeBaseImagePatchImageIdentityByHref{
-		Href: core.StringPtr(href),
-	}
-	err = core.ValidateStruct(_model, "required parameters")
-	if err != nil {
-		err = core.SDKErrorf(err, "", "model-missing-required", common.GetComponentInfo())
-	}
-	return
-}
-
-func (*ImageRecipeBaseImagePatchImageIdentityByHref) isaImageRecipeBaseImagePatch() bool {
-	return true
-}
-
-// UnmarshalImageRecipeBaseImagePatchImageIdentityByHref unmarshals an instance of ImageRecipeBaseImagePatchImageIdentityByHref from the specified map of raw messages.
-func UnmarshalImageRecipeBaseImagePatchImageIdentityByHref(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(ImageRecipeBaseImagePatchImageIdentityByHref)
 	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "href-error", common.GetComponentInfo())
@@ -139817,122 +140523,65 @@ func UnmarshalImageRecipeBaseImagePatchImageIdentityByHref(m map[string]json.Raw
 	return
 }
 
-// asPatch returns a generic map representation of the ImageRecipeBaseImagePatchImageIdentityByHref
-func (imageRecipeBaseImagePatchImageIdentityByHref *ImageRecipeBaseImagePatchImageIdentityByHref) asPatch() (_patch map[string]interface{}) {
+// asPatch returns a generic map representation of the ImageRecipeBaseImagePatchImageIdentity
+func (imageRecipeBaseImagePatchImageIdentity *ImageRecipeBaseImagePatchImageIdentity) asPatch() (_patch map[string]interface{}) {
 	_patch = map[string]interface{}{}
-	if !core.IsNil(imageRecipeBaseImagePatchImageIdentityByHref.Href) {
-		_patch["href"] = imageRecipeBaseImagePatchImageIdentityByHref.Href
+	if !core.IsNil(imageRecipeBaseImagePatchImageIdentity.ID) {
+		_patch["id"] = imageRecipeBaseImagePatchImageIdentity.ID
+	}
+	if !core.IsNil(imageRecipeBaseImagePatchImageIdentity.CRN) {
+		_patch["crn"] = imageRecipeBaseImagePatchImageIdentity.CRN
+	}
+	if !core.IsNil(imageRecipeBaseImagePatchImageIdentity.Href) {
+		_patch["href"] = imageRecipeBaseImagePatchImageIdentity.Href
 	}
 
 	return
 }
 
-// ImageRecipeBaseImagePatchImageIdentityByID : ImageRecipeBaseImagePatchImageIdentityByID struct
-// This model "extends" ImageRecipeBaseImagePatch
-type ImageRecipeBaseImagePatchImageIdentityByID struct {
+// ImageRecipeBaseImagePrototypeImageIdentity : Identifies an image by a unique property.
+// Models which "extend" this model:
+// - ImageRecipeBaseImagePrototypeImageIdentityImageIdentityByID
+// - ImageRecipeBaseImagePrototypeImageIdentityImageIdentityByCRN
+// - ImageRecipeBaseImagePrototypeImageIdentityImageIdentityByHref
+// This model "extends" ImageRecipeBaseImagePrototype
+type ImageRecipeBaseImagePrototypeImageIdentity struct {
 	// The unique identifier for this image.
-	ID *string `json:"id" validate:"required"`
+	ID *string `json:"id,omitempty"`
+
+	// The CRN for this image.
+	CRN *string `json:"crn,omitempty"`
+
+	// The URL for this image.
+	Href *string `json:"href,omitempty"`
 }
 
-// NewImageRecipeBaseImagePatchImageIdentityByID : Instantiate ImageRecipeBaseImagePatchImageIdentityByID (Generic Model Constructor)
-func (*VpcV1) NewImageRecipeBaseImagePatchImageIdentityByID(id string) (_model *ImageRecipeBaseImagePatchImageIdentityByID, err error) {
-	_model = &ImageRecipeBaseImagePatchImageIdentityByID{
-		ID: core.StringPtr(id),
-	}
-	err = core.ValidateStruct(_model, "required parameters")
-	if err != nil {
-		err = core.SDKErrorf(err, "", "model-missing-required", common.GetComponentInfo())
-	}
-	return
-}
-
-func (*ImageRecipeBaseImagePatchImageIdentityByID) isaImageRecipeBaseImagePatch() bool {
+func (*ImageRecipeBaseImagePrototypeImageIdentity) isaImageRecipeBaseImagePrototypeImageIdentity() bool {
 	return true
 }
 
-// UnmarshalImageRecipeBaseImagePatchImageIdentityByID unmarshals an instance of ImageRecipeBaseImagePatchImageIdentityByID from the specified map of raw messages.
-func UnmarshalImageRecipeBaseImagePatchImageIdentityByID(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(ImageRecipeBaseImagePatchImageIdentityByID)
+type ImageRecipeBaseImagePrototypeImageIdentityIntf interface {
+	ImageRecipeBaseImagePrototypeIntf
+	isaImageRecipeBaseImagePrototypeImageIdentity() bool
+}
+
+func (*ImageRecipeBaseImagePrototypeImageIdentity) isaImageRecipeBaseImagePrototype() bool {
+	return true
+}
+
+// UnmarshalImageRecipeBaseImagePrototypeImageIdentity unmarshals an instance of ImageRecipeBaseImagePrototypeImageIdentity from the specified map of raw messages.
+func UnmarshalImageRecipeBaseImagePrototypeImageIdentity(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(ImageRecipeBaseImagePrototypeImageIdentity)
 	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "id-error", common.GetComponentInfo())
 		return
 	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// asPatch returns a generic map representation of the ImageRecipeBaseImagePatchImageIdentityByID
-func (imageRecipeBaseImagePatchImageIdentityByID *ImageRecipeBaseImagePatchImageIdentityByID) asPatch() (_patch map[string]interface{}) {
-	_patch = map[string]interface{}{}
-	if !core.IsNil(imageRecipeBaseImagePatchImageIdentityByID.ID) {
-		_patch["id"] = imageRecipeBaseImagePatchImageIdentityByID.ID
-	}
-
-	return
-}
-
-// ImageRecipeBaseImagePrototypeImageIdentityByCRN : ImageRecipeBaseImagePrototypeImageIdentityByCRN struct
-// This model "extends" ImageRecipeBaseImagePrototype
-type ImageRecipeBaseImagePrototypeImageIdentityByCRN struct {
-	// The CRN for this image.
-	CRN *string `json:"crn" validate:"required"`
-}
-
-// NewImageRecipeBaseImagePrototypeImageIdentityByCRN : Instantiate ImageRecipeBaseImagePrototypeImageIdentityByCRN (Generic Model Constructor)
-func (*VpcV1) NewImageRecipeBaseImagePrototypeImageIdentityByCRN(crn string) (_model *ImageRecipeBaseImagePrototypeImageIdentityByCRN, err error) {
-	_model = &ImageRecipeBaseImagePrototypeImageIdentityByCRN{
-		CRN: core.StringPtr(crn),
-	}
-	err = core.ValidateStruct(_model, "required parameters")
-	if err != nil {
-		err = core.SDKErrorf(err, "", "model-missing-required", common.GetComponentInfo())
-	}
-	return
-}
-
-func (*ImageRecipeBaseImagePrototypeImageIdentityByCRN) isaImageRecipeBaseImagePrototype() bool {
-	return true
-}
-
-// UnmarshalImageRecipeBaseImagePrototypeImageIdentityByCRN unmarshals an instance of ImageRecipeBaseImagePrototypeImageIdentityByCRN from the specified map of raw messages.
-func UnmarshalImageRecipeBaseImagePrototypeImageIdentityByCRN(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(ImageRecipeBaseImagePrototypeImageIdentityByCRN)
 	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "crn-error", common.GetComponentInfo())
 		return
 	}
-	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
-	return
-}
-
-// ImageRecipeBaseImagePrototypeImageIdentityByHref : ImageRecipeBaseImagePrototypeImageIdentityByHref struct
-// This model "extends" ImageRecipeBaseImagePrototype
-type ImageRecipeBaseImagePrototypeImageIdentityByHref struct {
-	// The URL for this image.
-	Href *string `json:"href" validate:"required"`
-}
-
-// NewImageRecipeBaseImagePrototypeImageIdentityByHref : Instantiate ImageRecipeBaseImagePrototypeImageIdentityByHref (Generic Model Constructor)
-func (*VpcV1) NewImageRecipeBaseImagePrototypeImageIdentityByHref(href string) (_model *ImageRecipeBaseImagePrototypeImageIdentityByHref, err error) {
-	_model = &ImageRecipeBaseImagePrototypeImageIdentityByHref{
-		Href: core.StringPtr(href),
-	}
-	err = core.ValidateStruct(_model, "required parameters")
-	if err != nil {
-		err = core.SDKErrorf(err, "", "model-missing-required", common.GetComponentInfo())
-	}
-	return
-}
-
-func (*ImageRecipeBaseImagePrototypeImageIdentityByHref) isaImageRecipeBaseImagePrototype() bool {
-	return true
-}
-
-// UnmarshalImageRecipeBaseImagePrototypeImageIdentityByHref unmarshals an instance of ImageRecipeBaseImagePrototypeImageIdentityByHref from the specified map of raw messages.
-func UnmarshalImageRecipeBaseImagePrototypeImageIdentityByHref(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(ImageRecipeBaseImagePrototypeImageIdentityByHref)
 	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "href-error", common.GetComponentInfo())
@@ -139942,38 +140591,71 @@ func UnmarshalImageRecipeBaseImagePrototypeImageIdentityByHref(m map[string]json
 	return
 }
 
-// ImageRecipeBaseImagePrototypeImageIdentityByID : ImageRecipeBaseImagePrototypeImageIdentityByID struct
-// This model "extends" ImageRecipeBaseImagePrototype
-type ImageRecipeBaseImagePrototypeImageIdentityByID struct {
-	// The unique identifier for this image.
-	ID *string `json:"id" validate:"required"`
+// ImageRecipeImageComponentPrototypeImageComponentIdentity : Identifies an image component by a unique property.
+// Models which "extend" this model:
+// - ImageRecipeImageComponentPrototypeImageComponentIdentityImageComponentIdentityImageComponentByID
+// - ImageRecipeImageComponentPrototypeImageComponentIdentityImageComponentIdentityImageComponentByCRN
+// - ImageRecipeImageComponentPrototypeImageComponentIdentityImageComponentIdentityImageComponentByHref
+// This model "extends" ImageRecipeImageComponentPrototype
+type ImageRecipeImageComponentPrototypeImageComponentIdentity struct {
+	// The unique identifier for this image component.
+	ID *string `json:"id,omitempty"`
+
+	// The CRN for this image component.
+	CRN *string `json:"crn,omitempty"`
+
+	// The URL for this image component.
+	Href *string `json:"href,omitempty"`
 }
 
-// NewImageRecipeBaseImagePrototypeImageIdentityByID : Instantiate ImageRecipeBaseImagePrototypeImageIdentityByID (Generic Model Constructor)
-func (*VpcV1) NewImageRecipeBaseImagePrototypeImageIdentityByID(id string) (_model *ImageRecipeBaseImagePrototypeImageIdentityByID, err error) {
-	_model = &ImageRecipeBaseImagePrototypeImageIdentityByID{
-		ID: core.StringPtr(id),
-	}
-	err = core.ValidateStruct(_model, "required parameters")
-	if err != nil {
-		err = core.SDKErrorf(err, "", "model-missing-required", common.GetComponentInfo())
-	}
-	return
-}
-
-func (*ImageRecipeBaseImagePrototypeImageIdentityByID) isaImageRecipeBaseImagePrototype() bool {
+func (*ImageRecipeImageComponentPrototypeImageComponentIdentity) isaImageRecipeImageComponentPrototypeImageComponentIdentity() bool {
 	return true
 }
 
-// UnmarshalImageRecipeBaseImagePrototypeImageIdentityByID unmarshals an instance of ImageRecipeBaseImagePrototypeImageIdentityByID from the specified map of raw messages.
-func UnmarshalImageRecipeBaseImagePrototypeImageIdentityByID(m map[string]json.RawMessage, result interface{}) (err error) {
-	obj := new(ImageRecipeBaseImagePrototypeImageIdentityByID)
+type ImageRecipeImageComponentPrototypeImageComponentIdentityIntf interface {
+	ImageRecipeImageComponentPrototypeIntf
+	isaImageRecipeImageComponentPrototypeImageComponentIdentity() bool
+}
+
+func (*ImageRecipeImageComponentPrototypeImageComponentIdentity) isaImageRecipeImageComponentPrototype() bool {
+	return true
+}
+
+// UnmarshalImageRecipeImageComponentPrototypeImageComponentIdentity unmarshals an instance of ImageRecipeImageComponentPrototypeImageComponentIdentity from the specified map of raw messages.
+func UnmarshalImageRecipeImageComponentPrototypeImageComponentIdentity(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(ImageRecipeImageComponentPrototypeImageComponentIdentity)
 	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
 	if err != nil {
 		err = core.SDKErrorf(err, "", "id-error", common.GetComponentInfo())
 		return
 	}
+	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "crn-error", common.GetComponentInfo())
+		return
+	}
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "href-error", common.GetComponentInfo())
+		return
+	}
 	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// asPatch returns a generic map representation of the ImageRecipeImageComponentPrototypeImageComponentIdentity
+func (imageRecipeImageComponentPrototypeImageComponentIdentity *ImageRecipeImageComponentPrototypeImageComponentIdentity) asPatch() (_patch map[string]interface{}) {
+	_patch = map[string]interface{}{}
+	if !core.IsNil(imageRecipeImageComponentPrototypeImageComponentIdentity.ID) {
+		_patch["id"] = imageRecipeImageComponentPrototypeImageComponentIdentity.ID
+	}
+	if !core.IsNil(imageRecipeImageComponentPrototypeImageComponentIdentity.CRN) {
+		_patch["crn"] = imageRecipeImageComponentPrototypeImageComponentIdentity.CRN
+	}
+	if !core.IsNil(imageRecipeImageComponentPrototypeImageComponentIdentity.Href) {
+		_patch["href"] = imageRecipeImageComponentPrototypeImageComponentIdentity.Href
+	}
+
 	return
 }
 
@@ -168424,10 +169106,16 @@ type VolumeAttachmentPrototypeVolumeVolumePrototypeInstanceContext struct {
 	UserTags []string `json:"user_tags,omitempty"`
 
 	// The capacity to use for the volume (in gigabytes). The specified value must be within the `capacity` range of the
-	// volume's profile.
+	// volume's profile or the capacity to use for the volume (in gigabytes). The specified value must be at least the
+	// snapshot's `minimum_capacity`, and must be within the `capacity` range of the volume's profile.
+	//
+	// If unspecified, the capacity will be the source snapshot's `minimum_capacity`.
 	Capacity *int64 `json:"capacity,omitempty"`
 
 	// The root key to use to wrap the data encryption key for the volume.
+	//
+	// If unspecified, the `encryption` type for the volume will be `provider_managed` or the root key to use to wrap the
+	// data encryption key for the volume.
 	//
 	// If unspecified, the `encryption` type for the volume will be `provider_managed`.
 	EncryptionKey EncryptionKeyIdentityIntf `json:"encryption_key,omitempty"`
@@ -171710,6 +172398,417 @@ func UnmarshalFlowLogCollectorTargetPrototypeVirtualNetworkInterfaceIdentityVirt
 		return
 	}
 	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// ImageRecipeBaseImagePatchImageIdentityImageIdentityByCRN : ImageRecipeBaseImagePatchImageIdentityImageIdentityByCRN struct
+// This model "extends" ImageRecipeBaseImagePatchImageIdentity
+type ImageRecipeBaseImagePatchImageIdentityImageIdentityByCRN struct {
+	// The CRN for this image.
+	CRN *string `json:"crn" validate:"required"`
+}
+
+// NewImageRecipeBaseImagePatchImageIdentityImageIdentityByCRN : Instantiate ImageRecipeBaseImagePatchImageIdentityImageIdentityByCRN (Generic Model Constructor)
+func (*VpcV1) NewImageRecipeBaseImagePatchImageIdentityImageIdentityByCRN(crn string) (_model *ImageRecipeBaseImagePatchImageIdentityImageIdentityByCRN, err error) {
+	_model = &ImageRecipeBaseImagePatchImageIdentityImageIdentityByCRN{
+		CRN: core.StringPtr(crn),
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "model-missing-required", common.GetComponentInfo())
+	}
+	return
+}
+
+func (*ImageRecipeBaseImagePatchImageIdentityImageIdentityByCRN) isaImageRecipeBaseImagePatchImageIdentity() bool {
+	return true
+}
+
+func (*ImageRecipeBaseImagePatchImageIdentityImageIdentityByCRN) isaImageRecipeBaseImagePatch() bool {
+	return true
+}
+
+// UnmarshalImageRecipeBaseImagePatchImageIdentityImageIdentityByCRN unmarshals an instance of ImageRecipeBaseImagePatchImageIdentityImageIdentityByCRN from the specified map of raw messages.
+func UnmarshalImageRecipeBaseImagePatchImageIdentityImageIdentityByCRN(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(ImageRecipeBaseImagePatchImageIdentityImageIdentityByCRN)
+	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "crn-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// asPatch returns a generic map representation of the ImageRecipeBaseImagePatchImageIdentityImageIdentityByCRN
+func (imageRecipeBaseImagePatchImageIdentityImageIdentityByCRN *ImageRecipeBaseImagePatchImageIdentityImageIdentityByCRN) asPatch() (_patch map[string]interface{}) {
+	_patch = map[string]interface{}{}
+	if !core.IsNil(imageRecipeBaseImagePatchImageIdentityImageIdentityByCRN.CRN) {
+		_patch["crn"] = imageRecipeBaseImagePatchImageIdentityImageIdentityByCRN.CRN
+	}
+
+	return
+}
+
+// ImageRecipeBaseImagePatchImageIdentityImageIdentityByHref : ImageRecipeBaseImagePatchImageIdentityImageIdentityByHref struct
+// This model "extends" ImageRecipeBaseImagePatchImageIdentity
+type ImageRecipeBaseImagePatchImageIdentityImageIdentityByHref struct {
+	// The URL for this image.
+	Href *string `json:"href" validate:"required"`
+}
+
+// NewImageRecipeBaseImagePatchImageIdentityImageIdentityByHref : Instantiate ImageRecipeBaseImagePatchImageIdentityImageIdentityByHref (Generic Model Constructor)
+func (*VpcV1) NewImageRecipeBaseImagePatchImageIdentityImageIdentityByHref(href string) (_model *ImageRecipeBaseImagePatchImageIdentityImageIdentityByHref, err error) {
+	_model = &ImageRecipeBaseImagePatchImageIdentityImageIdentityByHref{
+		Href: core.StringPtr(href),
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "model-missing-required", common.GetComponentInfo())
+	}
+	return
+}
+
+func (*ImageRecipeBaseImagePatchImageIdentityImageIdentityByHref) isaImageRecipeBaseImagePatchImageIdentity() bool {
+	return true
+}
+
+func (*ImageRecipeBaseImagePatchImageIdentityImageIdentityByHref) isaImageRecipeBaseImagePatch() bool {
+	return true
+}
+
+// UnmarshalImageRecipeBaseImagePatchImageIdentityImageIdentityByHref unmarshals an instance of ImageRecipeBaseImagePatchImageIdentityImageIdentityByHref from the specified map of raw messages.
+func UnmarshalImageRecipeBaseImagePatchImageIdentityImageIdentityByHref(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(ImageRecipeBaseImagePatchImageIdentityImageIdentityByHref)
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "href-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// asPatch returns a generic map representation of the ImageRecipeBaseImagePatchImageIdentityImageIdentityByHref
+func (imageRecipeBaseImagePatchImageIdentityImageIdentityByHref *ImageRecipeBaseImagePatchImageIdentityImageIdentityByHref) asPatch() (_patch map[string]interface{}) {
+	_patch = map[string]interface{}{}
+	if !core.IsNil(imageRecipeBaseImagePatchImageIdentityImageIdentityByHref.Href) {
+		_patch["href"] = imageRecipeBaseImagePatchImageIdentityImageIdentityByHref.Href
+	}
+
+	return
+}
+
+// ImageRecipeBaseImagePatchImageIdentityImageIdentityByID : ImageRecipeBaseImagePatchImageIdentityImageIdentityByID struct
+// This model "extends" ImageRecipeBaseImagePatchImageIdentity
+type ImageRecipeBaseImagePatchImageIdentityImageIdentityByID struct {
+	// The unique identifier for this image.
+	ID *string `json:"id" validate:"required"`
+}
+
+// NewImageRecipeBaseImagePatchImageIdentityImageIdentityByID : Instantiate ImageRecipeBaseImagePatchImageIdentityImageIdentityByID (Generic Model Constructor)
+func (*VpcV1) NewImageRecipeBaseImagePatchImageIdentityImageIdentityByID(id string) (_model *ImageRecipeBaseImagePatchImageIdentityImageIdentityByID, err error) {
+	_model = &ImageRecipeBaseImagePatchImageIdentityImageIdentityByID{
+		ID: core.StringPtr(id),
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "model-missing-required", common.GetComponentInfo())
+	}
+	return
+}
+
+func (*ImageRecipeBaseImagePatchImageIdentityImageIdentityByID) isaImageRecipeBaseImagePatchImageIdentity() bool {
+	return true
+}
+
+func (*ImageRecipeBaseImagePatchImageIdentityImageIdentityByID) isaImageRecipeBaseImagePatch() bool {
+	return true
+}
+
+// UnmarshalImageRecipeBaseImagePatchImageIdentityImageIdentityByID unmarshals an instance of ImageRecipeBaseImagePatchImageIdentityImageIdentityByID from the specified map of raw messages.
+func UnmarshalImageRecipeBaseImagePatchImageIdentityImageIdentityByID(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(ImageRecipeBaseImagePatchImageIdentityImageIdentityByID)
+	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "id-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// asPatch returns a generic map representation of the ImageRecipeBaseImagePatchImageIdentityImageIdentityByID
+func (imageRecipeBaseImagePatchImageIdentityImageIdentityByID *ImageRecipeBaseImagePatchImageIdentityImageIdentityByID) asPatch() (_patch map[string]interface{}) {
+	_patch = map[string]interface{}{}
+	if !core.IsNil(imageRecipeBaseImagePatchImageIdentityImageIdentityByID.ID) {
+		_patch["id"] = imageRecipeBaseImagePatchImageIdentityImageIdentityByID.ID
+	}
+
+	return
+}
+
+// ImageRecipeBaseImagePrototypeImageIdentityImageIdentityByCRN : ImageRecipeBaseImagePrototypeImageIdentityImageIdentityByCRN struct
+// This model "extends" ImageRecipeBaseImagePrototypeImageIdentity
+type ImageRecipeBaseImagePrototypeImageIdentityImageIdentityByCRN struct {
+	// The CRN for this image.
+	CRN *string `json:"crn" validate:"required"`
+}
+
+// NewImageRecipeBaseImagePrototypeImageIdentityImageIdentityByCRN : Instantiate ImageRecipeBaseImagePrototypeImageIdentityImageIdentityByCRN (Generic Model Constructor)
+func (*VpcV1) NewImageRecipeBaseImagePrototypeImageIdentityImageIdentityByCRN(crn string) (_model *ImageRecipeBaseImagePrototypeImageIdentityImageIdentityByCRN, err error) {
+	_model = &ImageRecipeBaseImagePrototypeImageIdentityImageIdentityByCRN{
+		CRN: core.StringPtr(crn),
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "model-missing-required", common.GetComponentInfo())
+	}
+	return
+}
+
+func (*ImageRecipeBaseImagePrototypeImageIdentityImageIdentityByCRN) isaImageRecipeBaseImagePrototypeImageIdentity() bool {
+	return true
+}
+
+func (*ImageRecipeBaseImagePrototypeImageIdentityImageIdentityByCRN) isaImageRecipeBaseImagePrototype() bool {
+	return true
+}
+
+// UnmarshalImageRecipeBaseImagePrototypeImageIdentityImageIdentityByCRN unmarshals an instance of ImageRecipeBaseImagePrototypeImageIdentityImageIdentityByCRN from the specified map of raw messages.
+func UnmarshalImageRecipeBaseImagePrototypeImageIdentityImageIdentityByCRN(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(ImageRecipeBaseImagePrototypeImageIdentityImageIdentityByCRN)
+	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "crn-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// ImageRecipeBaseImagePrototypeImageIdentityImageIdentityByHref : ImageRecipeBaseImagePrototypeImageIdentityImageIdentityByHref struct
+// This model "extends" ImageRecipeBaseImagePrototypeImageIdentity
+type ImageRecipeBaseImagePrototypeImageIdentityImageIdentityByHref struct {
+	// The URL for this image.
+	Href *string `json:"href" validate:"required"`
+}
+
+// NewImageRecipeBaseImagePrototypeImageIdentityImageIdentityByHref : Instantiate ImageRecipeBaseImagePrototypeImageIdentityImageIdentityByHref (Generic Model Constructor)
+func (*VpcV1) NewImageRecipeBaseImagePrototypeImageIdentityImageIdentityByHref(href string) (_model *ImageRecipeBaseImagePrototypeImageIdentityImageIdentityByHref, err error) {
+	_model = &ImageRecipeBaseImagePrototypeImageIdentityImageIdentityByHref{
+		Href: core.StringPtr(href),
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "model-missing-required", common.GetComponentInfo())
+	}
+	return
+}
+
+func (*ImageRecipeBaseImagePrototypeImageIdentityImageIdentityByHref) isaImageRecipeBaseImagePrototypeImageIdentity() bool {
+	return true
+}
+
+func (*ImageRecipeBaseImagePrototypeImageIdentityImageIdentityByHref) isaImageRecipeBaseImagePrototype() bool {
+	return true
+}
+
+// UnmarshalImageRecipeBaseImagePrototypeImageIdentityImageIdentityByHref unmarshals an instance of ImageRecipeBaseImagePrototypeImageIdentityImageIdentityByHref from the specified map of raw messages.
+func UnmarshalImageRecipeBaseImagePrototypeImageIdentityImageIdentityByHref(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(ImageRecipeBaseImagePrototypeImageIdentityImageIdentityByHref)
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "href-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// ImageRecipeBaseImagePrototypeImageIdentityImageIdentityByID : ImageRecipeBaseImagePrototypeImageIdentityImageIdentityByID struct
+// This model "extends" ImageRecipeBaseImagePrototypeImageIdentity
+type ImageRecipeBaseImagePrototypeImageIdentityImageIdentityByID struct {
+	// The unique identifier for this image.
+	ID *string `json:"id" validate:"required"`
+}
+
+// NewImageRecipeBaseImagePrototypeImageIdentityImageIdentityByID : Instantiate ImageRecipeBaseImagePrototypeImageIdentityImageIdentityByID (Generic Model Constructor)
+func (*VpcV1) NewImageRecipeBaseImagePrototypeImageIdentityImageIdentityByID(id string) (_model *ImageRecipeBaseImagePrototypeImageIdentityImageIdentityByID, err error) {
+	_model = &ImageRecipeBaseImagePrototypeImageIdentityImageIdentityByID{
+		ID: core.StringPtr(id),
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "model-missing-required", common.GetComponentInfo())
+	}
+	return
+}
+
+func (*ImageRecipeBaseImagePrototypeImageIdentityImageIdentityByID) isaImageRecipeBaseImagePrototypeImageIdentity() bool {
+	return true
+}
+
+func (*ImageRecipeBaseImagePrototypeImageIdentityImageIdentityByID) isaImageRecipeBaseImagePrototype() bool {
+	return true
+}
+
+// UnmarshalImageRecipeBaseImagePrototypeImageIdentityImageIdentityByID unmarshals an instance of ImageRecipeBaseImagePrototypeImageIdentityImageIdentityByID from the specified map of raw messages.
+func UnmarshalImageRecipeBaseImagePrototypeImageIdentityImageIdentityByID(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(ImageRecipeBaseImagePrototypeImageIdentityImageIdentityByID)
+	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "id-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// ImageRecipeImageComponentPrototypeImageComponentIdentityImageComponentIdentityImageComponentByCRN : ImageRecipeImageComponentPrototypeImageComponentIdentityImageComponentIdentityImageComponentByCRN struct
+// This model "extends" ImageRecipeImageComponentPrototypeImageComponentIdentity
+type ImageRecipeImageComponentPrototypeImageComponentIdentityImageComponentIdentityImageComponentByCRN struct {
+	// The CRN for this image component.
+	CRN *string `json:"crn" validate:"required"`
+}
+
+// NewImageRecipeImageComponentPrototypeImageComponentIdentityImageComponentIdentityImageComponentByCRN : Instantiate ImageRecipeImageComponentPrototypeImageComponentIdentityImageComponentIdentityImageComponentByCRN (Generic Model Constructor)
+func (*VpcV1) NewImageRecipeImageComponentPrototypeImageComponentIdentityImageComponentIdentityImageComponentByCRN(crn string) (_model *ImageRecipeImageComponentPrototypeImageComponentIdentityImageComponentIdentityImageComponentByCRN, err error) {
+	_model = &ImageRecipeImageComponentPrototypeImageComponentIdentityImageComponentIdentityImageComponentByCRN{
+		CRN: core.StringPtr(crn),
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "model-missing-required", common.GetComponentInfo())
+	}
+	return
+}
+
+func (*ImageRecipeImageComponentPrototypeImageComponentIdentityImageComponentIdentityImageComponentByCRN) isaImageRecipeImageComponentPrototypeImageComponentIdentity() bool {
+	return true
+}
+
+func (*ImageRecipeImageComponentPrototypeImageComponentIdentityImageComponentIdentityImageComponentByCRN) isaImageRecipeImageComponentPrototype() bool {
+	return true
+}
+
+// UnmarshalImageRecipeImageComponentPrototypeImageComponentIdentityImageComponentIdentityImageComponentByCRN unmarshals an instance of ImageRecipeImageComponentPrototypeImageComponentIdentityImageComponentIdentityImageComponentByCRN from the specified map of raw messages.
+func UnmarshalImageRecipeImageComponentPrototypeImageComponentIdentityImageComponentIdentityImageComponentByCRN(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(ImageRecipeImageComponentPrototypeImageComponentIdentityImageComponentIdentityImageComponentByCRN)
+	err = core.UnmarshalPrimitive(m, "crn", &obj.CRN)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "crn-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// asPatch returns a generic map representation of the ImageRecipeImageComponentPrototypeImageComponentIdentityImageComponentIdentityImageComponentByCRN
+func (imageRecipeImageComponentPrototypeImageComponentIdentityImageComponentIdentityImageComponentByCRN *ImageRecipeImageComponentPrototypeImageComponentIdentityImageComponentIdentityImageComponentByCRN) asPatch() (_patch map[string]interface{}) {
+	_patch = map[string]interface{}{}
+	if !core.IsNil(imageRecipeImageComponentPrototypeImageComponentIdentityImageComponentIdentityImageComponentByCRN.CRN) {
+		_patch["crn"] = imageRecipeImageComponentPrototypeImageComponentIdentityImageComponentIdentityImageComponentByCRN.CRN
+	}
+
+	return
+}
+
+// ImageRecipeImageComponentPrototypeImageComponentIdentityImageComponentIdentityImageComponentByHref : ImageRecipeImageComponentPrototypeImageComponentIdentityImageComponentIdentityImageComponentByHref struct
+// This model "extends" ImageRecipeImageComponentPrototypeImageComponentIdentity
+type ImageRecipeImageComponentPrototypeImageComponentIdentityImageComponentIdentityImageComponentByHref struct {
+	// The URL for this image component.
+	Href *string `json:"href" validate:"required"`
+}
+
+// NewImageRecipeImageComponentPrototypeImageComponentIdentityImageComponentIdentityImageComponentByHref : Instantiate ImageRecipeImageComponentPrototypeImageComponentIdentityImageComponentIdentityImageComponentByHref (Generic Model Constructor)
+func (*VpcV1) NewImageRecipeImageComponentPrototypeImageComponentIdentityImageComponentIdentityImageComponentByHref(href string) (_model *ImageRecipeImageComponentPrototypeImageComponentIdentityImageComponentIdentityImageComponentByHref, err error) {
+	_model = &ImageRecipeImageComponentPrototypeImageComponentIdentityImageComponentIdentityImageComponentByHref{
+		Href: core.StringPtr(href),
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "model-missing-required", common.GetComponentInfo())
+	}
+	return
+}
+
+func (*ImageRecipeImageComponentPrototypeImageComponentIdentityImageComponentIdentityImageComponentByHref) isaImageRecipeImageComponentPrototypeImageComponentIdentity() bool {
+	return true
+}
+
+func (*ImageRecipeImageComponentPrototypeImageComponentIdentityImageComponentIdentityImageComponentByHref) isaImageRecipeImageComponentPrototype() bool {
+	return true
+}
+
+// UnmarshalImageRecipeImageComponentPrototypeImageComponentIdentityImageComponentIdentityImageComponentByHref unmarshals an instance of ImageRecipeImageComponentPrototypeImageComponentIdentityImageComponentIdentityImageComponentByHref from the specified map of raw messages.
+func UnmarshalImageRecipeImageComponentPrototypeImageComponentIdentityImageComponentIdentityImageComponentByHref(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(ImageRecipeImageComponentPrototypeImageComponentIdentityImageComponentIdentityImageComponentByHref)
+	err = core.UnmarshalPrimitive(m, "href", &obj.Href)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "href-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// asPatch returns a generic map representation of the ImageRecipeImageComponentPrototypeImageComponentIdentityImageComponentIdentityImageComponentByHref
+func (imageRecipeImageComponentPrototypeImageComponentIdentityImageComponentIdentityImageComponentByHref *ImageRecipeImageComponentPrototypeImageComponentIdentityImageComponentIdentityImageComponentByHref) asPatch() (_patch map[string]interface{}) {
+	_patch = map[string]interface{}{}
+	if !core.IsNil(imageRecipeImageComponentPrototypeImageComponentIdentityImageComponentIdentityImageComponentByHref.Href) {
+		_patch["href"] = imageRecipeImageComponentPrototypeImageComponentIdentityImageComponentIdentityImageComponentByHref.Href
+	}
+
+	return
+}
+
+// ImageRecipeImageComponentPrototypeImageComponentIdentityImageComponentIdentityImageComponentByID : ImageRecipeImageComponentPrototypeImageComponentIdentityImageComponentIdentityImageComponentByID struct
+// This model "extends" ImageRecipeImageComponentPrototypeImageComponentIdentity
+type ImageRecipeImageComponentPrototypeImageComponentIdentityImageComponentIdentityImageComponentByID struct {
+	// The unique identifier for this image component.
+	ID *string `json:"id" validate:"required"`
+}
+
+// NewImageRecipeImageComponentPrototypeImageComponentIdentityImageComponentIdentityImageComponentByID : Instantiate ImageRecipeImageComponentPrototypeImageComponentIdentityImageComponentIdentityImageComponentByID (Generic Model Constructor)
+func (*VpcV1) NewImageRecipeImageComponentPrototypeImageComponentIdentityImageComponentIdentityImageComponentByID(id string) (_model *ImageRecipeImageComponentPrototypeImageComponentIdentityImageComponentIdentityImageComponentByID, err error) {
+	_model = &ImageRecipeImageComponentPrototypeImageComponentIdentityImageComponentIdentityImageComponentByID{
+		ID: core.StringPtr(id),
+	}
+	err = core.ValidateStruct(_model, "required parameters")
+	if err != nil {
+		err = core.SDKErrorf(err, "", "model-missing-required", common.GetComponentInfo())
+	}
+	return
+}
+
+func (*ImageRecipeImageComponentPrototypeImageComponentIdentityImageComponentIdentityImageComponentByID) isaImageRecipeImageComponentPrototypeImageComponentIdentity() bool {
+	return true
+}
+
+func (*ImageRecipeImageComponentPrototypeImageComponentIdentityImageComponentIdentityImageComponentByID) isaImageRecipeImageComponentPrototype() bool {
+	return true
+}
+
+// UnmarshalImageRecipeImageComponentPrototypeImageComponentIdentityImageComponentIdentityImageComponentByID unmarshals an instance of ImageRecipeImageComponentPrototypeImageComponentIdentityImageComponentIdentityImageComponentByID from the specified map of raw messages.
+func UnmarshalImageRecipeImageComponentPrototypeImageComponentIdentityImageComponentIdentityImageComponentByID(m map[string]json.RawMessage, result interface{}) (err error) {
+	obj := new(ImageRecipeImageComponentPrototypeImageComponentIdentityImageComponentIdentityImageComponentByID)
+	err = core.UnmarshalPrimitive(m, "id", &obj.ID)
+	if err != nil {
+		err = core.SDKErrorf(err, "", "id-error", common.GetComponentInfo())
+		return
+	}
+	reflect.ValueOf(result).Elem().Set(reflect.ValueOf(obj))
+	return
+}
+
+// asPatch returns a generic map representation of the ImageRecipeImageComponentPrototypeImageComponentIdentityImageComponentIdentityImageComponentByID
+func (imageRecipeImageComponentPrototypeImageComponentIdentityImageComponentIdentityImageComponentByID *ImageRecipeImageComponentPrototypeImageComponentIdentityImageComponentIdentityImageComponentByID) asPatch() (_patch map[string]interface{}) {
+	_patch = map[string]interface{}{}
+	if !core.IsNil(imageRecipeImageComponentPrototypeImageComponentIdentityImageComponentIdentityImageComponentByID.ID) {
+		_patch["id"] = imageRecipeImageComponentPrototypeImageComponentIdentityImageComponentIdentityImageComponentByID.ID
+	}
+
 	return
 }
 
@@ -183473,7 +184572,7 @@ func (vpc *VpcV1) NewBackupPoliciesPager(options *ListBackupPoliciesOptions) (pa
 		return
 	}
 
-	var optionsCopy ListBackupPoliciesOptions = *options
+	optionsCopy := *options
 	pager = &BackupPoliciesPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -183565,7 +184664,7 @@ func (vpc *VpcV1) NewBackupPolicyJobsPager(options *ListBackupPolicyJobsOptions)
 		return
 	}
 
-	var optionsCopy ListBackupPolicyJobsOptions = *options
+	optionsCopy := *options
 	pager = &BackupPolicyJobsPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -183657,7 +184756,7 @@ func (vpc *VpcV1) NewBareMetalServerCapacitiesPager(options *ListBareMetalServer
 		return
 	}
 
-	var optionsCopy ListBareMetalServerCapacitiesOptions = *options
+	optionsCopy := *options
 	pager = &BareMetalServerCapacitiesPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -183749,7 +184848,7 @@ func (vpc *VpcV1) NewBareMetalServerProfilesPager(options *ListBareMetalServerPr
 		return
 	}
 
-	var optionsCopy ListBareMetalServerProfilesOptions = *options
+	optionsCopy := *options
 	pager = &BareMetalServerProfilesPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -183841,7 +184940,7 @@ func (vpc *VpcV1) NewBareMetalServersPager(options *ListBareMetalServersOptions)
 		return
 	}
 
-	var optionsCopy ListBareMetalServersOptions = *options
+	optionsCopy := *options
 	pager = &BareMetalServersPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -183933,7 +185032,7 @@ func (vpc *VpcV1) NewBareMetalServerNetworkAttachmentsPager(options *ListBareMet
 		return
 	}
 
-	var optionsCopy ListBareMetalServerNetworkAttachmentsOptions = *options
+	optionsCopy := *options
 	pager = &BareMetalServerNetworkAttachmentsPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -184025,7 +185124,7 @@ func (vpc *VpcV1) NewBareMetalServerNetworkInterfacesPager(options *ListBareMeta
 		return
 	}
 
-	var optionsCopy ListBareMetalServerNetworkInterfacesOptions = *options
+	optionsCopy := *options
 	pager = &BareMetalServerNetworkInterfacesPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -184117,7 +185216,7 @@ func (vpc *VpcV1) NewClusterNetworkProfilesPager(options *ListClusterNetworkProf
 		return
 	}
 
-	var optionsCopy ListClusterNetworkProfilesOptions = *options
+	optionsCopy := *options
 	pager = &ClusterNetworkProfilesPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -184209,7 +185308,7 @@ func (vpc *VpcV1) NewClusterNetworksPager(options *ListClusterNetworksOptions) (
 		return
 	}
 
-	var optionsCopy ListClusterNetworksOptions = *options
+	optionsCopy := *options
 	pager = &ClusterNetworksPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -184301,7 +185400,7 @@ func (vpc *VpcV1) NewClusterNetworkInterfacesPager(options *ListClusterNetworkIn
 		return
 	}
 
-	var optionsCopy ListClusterNetworkInterfacesOptions = *options
+	optionsCopy := *options
 	pager = &ClusterNetworkInterfacesPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -184393,7 +185492,7 @@ func (vpc *VpcV1) NewClusterNetworkSubnetsPager(options *ListClusterNetworkSubne
 		return
 	}
 
-	var optionsCopy ListClusterNetworkSubnetsOptions = *options
+	optionsCopy := *options
 	pager = &ClusterNetworkSubnetsPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -184485,7 +185584,7 @@ func (vpc *VpcV1) NewClusterNetworkSubnetReservedIpsPager(options *ListClusterNe
 		return
 	}
 
-	var optionsCopy ListClusterNetworkSubnetReservedIpsOptions = *options
+	optionsCopy := *options
 	pager = &ClusterNetworkSubnetReservedIpsPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -184577,7 +185676,7 @@ func (vpc *VpcV1) NewDedicatedHostGroupsPager(options *ListDedicatedHostGroupsOp
 		return
 	}
 
-	var optionsCopy ListDedicatedHostGroupsOptions = *options
+	optionsCopy := *options
 	pager = &DedicatedHostGroupsPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -184669,7 +185768,7 @@ func (vpc *VpcV1) NewDedicatedHostProfilesPager(options *ListDedicatedHostProfil
 		return
 	}
 
-	var optionsCopy ListDedicatedHostProfilesOptions = *options
+	optionsCopy := *options
 	pager = &DedicatedHostProfilesPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -184761,7 +185860,7 @@ func (vpc *VpcV1) NewDedicatedHostsPager(options *ListDedicatedHostsOptions) (pa
 		return
 	}
 
-	var optionsCopy ListDedicatedHostsOptions = *options
+	optionsCopy := *options
 	pager = &DedicatedHostsPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -184853,7 +185952,7 @@ func (vpc *VpcV1) NewEndpointGatewaysPager(options *ListEndpointGatewaysOptions)
 		return
 	}
 
-	var optionsCopy ListEndpointGatewaysOptions = *options
+	optionsCopy := *options
 	pager = &EndpointGatewaysPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -184945,7 +186044,7 @@ func (vpc *VpcV1) NewEndpointGatewayIpsPager(options *ListEndpointGatewayIpsOpti
 		return
 	}
 
-	var optionsCopy ListEndpointGatewayIpsOptions = *options
+	optionsCopy := *options
 	pager = &EndpointGatewayIpsPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -185037,7 +186136,7 @@ func (vpc *VpcV1) NewEndpointGatewayResourceBindingsPager(options *ListEndpointG
 		return
 	}
 
-	var optionsCopy ListEndpointGatewayResourceBindingsOptions = *options
+	optionsCopy := *options
 	pager = &EndpointGatewayResourceBindingsPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -185129,7 +186228,7 @@ func (vpc *VpcV1) NewFloatingIpsPager(options *ListFloatingIpsOptions) (pager *F
 		return
 	}
 
-	var optionsCopy ListFloatingIpsOptions = *options
+	optionsCopy := *options
 	pager = &FloatingIpsPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -185221,7 +186320,7 @@ func (vpc *VpcV1) NewFlowLogCollectorsPager(options *ListFlowLogCollectorsOption
 		return
 	}
 
-	var optionsCopy ListFlowLogCollectorsOptions = *options
+	optionsCopy := *options
 	pager = &FlowLogCollectorsPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -185313,7 +186412,7 @@ func (vpc *VpcV1) NewImageJobsPager(options *ListImageJobsOptions) (pager *Image
 		return
 	}
 
-	var optionsCopy ListImageJobsOptions = *options
+	optionsCopy := *options
 	pager = &ImageJobsPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -185405,7 +186504,7 @@ func (vpc *VpcV1) NewImagesPager(options *ListImagesOptions) (pager *ImagesPager
 		return
 	}
 
-	var optionsCopy ListImagesOptions = *options
+	optionsCopy := *options
 	pager = &ImagesPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -185497,7 +186596,7 @@ func (vpc *VpcV1) NewImageBareMetalServerProfilesPager(options *ListImageBareMet
 		return
 	}
 
-	var optionsCopy ListImageBareMetalServerProfilesOptions = *options
+	optionsCopy := *options
 	pager = &ImageBareMetalServerProfilesPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -185589,7 +186688,7 @@ func (vpc *VpcV1) NewImageImageComponentsPager(options *ListImageImageComponents
 		return
 	}
 
-	var optionsCopy ListImageImageComponentsOptions = *options
+	optionsCopy := *options
 	pager = &ImageImageComponentsPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -185604,7 +186703,7 @@ func (pager *ImageImageComponentsPager) HasNext() bool {
 }
 
 // GetNextWithContext returns the next page of results using the specified Context.
-func (pager *ImageImageComponentsPager) GetNextWithContext(ctx context.Context) (page []ImageComponent, err error) {
+func (pager *ImageImageComponentsPager) GetNextWithContext(ctx context.Context) (page []ImageComponentReference, err error) {
 	if !pager.HasNext() {
 		return nil, fmt.Errorf("no more results available")
 	}
@@ -185637,9 +186736,9 @@ func (pager *ImageImageComponentsPager) GetNextWithContext(ctx context.Context) 
 
 // GetAllWithContext returns all results by invoking GetNextWithContext() repeatedly
 // until all pages of results have been retrieved.
-func (pager *ImageImageComponentsPager) GetAllWithContext(ctx context.Context) (allItems []ImageComponent, err error) {
+func (pager *ImageImageComponentsPager) GetAllWithContext(ctx context.Context) (allItems []ImageComponentReference, err error) {
 	for pager.HasNext() {
-		var nextPage []ImageComponent
+		var nextPage []ImageComponentReference
 		nextPage, err = pager.GetNextWithContext(ctx)
 		if err != nil {
 			err = core.RepurposeSDKProblem(err, "error-getting-next-page")
@@ -185651,14 +186750,14 @@ func (pager *ImageImageComponentsPager) GetAllWithContext(ctx context.Context) (
 }
 
 // GetNext invokes GetNextWithContext() using context.Background() as the Context parameter.
-func (pager *ImageImageComponentsPager) GetNext() (page []ImageComponent, err error) {
+func (pager *ImageImageComponentsPager) GetNext() (page []ImageComponentReference, err error) {
 	page, err = pager.GetNextWithContext(context.Background())
 	err = core.RepurposeSDKProblem(err, "")
 	return
 }
 
 // GetAll invokes GetAllWithContext() using context.Background() as the Context parameter.
-func (pager *ImageImageComponentsPager) GetAll() (allItems []ImageComponent, err error) {
+func (pager *ImageImageComponentsPager) GetAll() (allItems []ImageComponentReference, err error) {
 	allItems, err = pager.GetAllWithContext(context.Background())
 	err = core.RepurposeSDKProblem(err, "")
 	return
@@ -185681,7 +186780,7 @@ func (vpc *VpcV1) NewImageInstanceProfilesPager(options *ListImageInstanceProfil
 		return
 	}
 
-	var optionsCopy ListImageInstanceProfilesOptions = *options
+	optionsCopy := *options
 	pager = &ImageInstanceProfilesPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -185756,6 +186855,98 @@ func (pager *ImageInstanceProfilesPager) GetAll() (allItems []InstanceProfileRef
 	return
 }
 
+// ImagePackagesPager can be used to simplify the use of the "ListImagePackages" method.
+type ImagePackagesPager struct {
+	hasNext     bool
+	options     *ListImagePackagesOptions
+	client      *VpcV1
+	pageContext struct {
+		next *string
+	}
+}
+
+// NewImagePackagesPager returns a new ImagePackagesPager instance.
+func (vpc *VpcV1) NewImagePackagesPager(options *ListImagePackagesOptions) (pager *ImagePackagesPager, err error) {
+	if options.Start != nil && *options.Start != "" {
+		err = core.SDKErrorf(nil, "the 'options.Start' field should not be set", "no-query-setting", common.GetComponentInfo())
+		return
+	}
+
+	optionsCopy := *options
+	pager = &ImagePackagesPager{
+		hasNext: true,
+		options: &optionsCopy,
+		client:  vpc,
+	}
+	return
+}
+
+// HasNext returns true if there are potentially more results to be retrieved.
+func (pager *ImagePackagesPager) HasNext() bool {
+	return pager.hasNext
+}
+
+// GetNextWithContext returns the next page of results using the specified Context.
+func (pager *ImagePackagesPager) GetNextWithContext(ctx context.Context) (page []ImagePackage, err error) {
+	if !pager.HasNext() {
+		return nil, fmt.Errorf("no more results available")
+	}
+
+	pager.options.Start = pager.pageContext.next
+
+	result, _, err := pager.client.ListImagePackagesWithContext(ctx, pager.options)
+	if err != nil {
+		err = core.RepurposeSDKProblem(err, "error-getting-next-page")
+		return
+	}
+
+	var next *string
+	if result.Next != nil {
+		var start *string
+		start, err = core.GetQueryParam(result.Next.Href, "start")
+		if err != nil {
+			errMsg := fmt.Sprintf("error retrieving 'start' query parameter from URL '%s': %s", *result.Next.Href, err.Error())
+			err = core.SDKErrorf(err, errMsg, "get-query-error", common.GetComponentInfo())
+			return
+		}
+		next = start
+	}
+	pager.pageContext.next = next
+	pager.hasNext = (pager.pageContext.next != nil)
+	page = result.Packages
+
+	return
+}
+
+// GetAllWithContext returns all results by invoking GetNextWithContext() repeatedly
+// until all pages of results have been retrieved.
+func (pager *ImagePackagesPager) GetAllWithContext(ctx context.Context) (allItems []ImagePackage, err error) {
+	for pager.HasNext() {
+		var nextPage []ImagePackage
+		nextPage, err = pager.GetNextWithContext(ctx)
+		if err != nil {
+			err = core.RepurposeSDKProblem(err, "error-getting-next-page")
+			return
+		}
+		allItems = append(allItems, nextPage...)
+	}
+	return
+}
+
+// GetNext invokes GetNextWithContext() using context.Background() as the Context parameter.
+func (pager *ImagePackagesPager) GetNext() (page []ImagePackage, err error) {
+	page, err = pager.GetNextWithContext(context.Background())
+	err = core.RepurposeSDKProblem(err, "")
+	return
+}
+
+// GetAll invokes GetAllWithContext() using context.Background() as the Context parameter.
+func (pager *ImagePackagesPager) GetAll() (allItems []ImagePackage, err error) {
+	allItems, err = pager.GetAllWithContext(context.Background())
+	err = core.RepurposeSDKProblem(err, "")
+	return
+}
+
 // OperatingSystemsPager can be used to simplify the use of the "ListOperatingSystems" method.
 type OperatingSystemsPager struct {
 	hasNext     bool
@@ -185773,7 +186964,7 @@ func (vpc *VpcV1) NewOperatingSystemsPager(options *ListOperatingSystemsOptions)
 		return
 	}
 
-	var optionsCopy ListOperatingSystemsOptions = *options
+	optionsCopy := *options
 	pager = &OperatingSystemsPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -185865,7 +187056,7 @@ func (vpc *VpcV1) NewImageComponentsPager(options *ListImageComponentsOptions) (
 		return
 	}
 
-	var optionsCopy ListImageComponentsOptions = *options
+	optionsCopy := *options
 	pager = &ImageComponentsPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -185957,7 +187148,7 @@ func (vpc *VpcV1) NewImageRecipesPager(options *ListImageRecipesOptions) (pager 
 		return
 	}
 
-	var optionsCopy ListImageRecipesOptions = *options
+	optionsCopy := *options
 	pager = &ImageRecipesPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -186049,7 +187240,7 @@ func (vpc *VpcV1) NewImageRecipeHistoryPager(options *ListImageRecipeHistoryOpti
 		return
 	}
 
-	var optionsCopy ListImageRecipeHistoryOptions = *options
+	optionsCopy := *options
 	pager = &ImageRecipeHistoryPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -186141,7 +187332,7 @@ func (vpc *VpcV1) NewInstanceGroupsPager(options *ListInstanceGroupsOptions) (pa
 		return
 	}
 
-	var optionsCopy ListInstanceGroupsOptions = *options
+	optionsCopy := *options
 	pager = &InstanceGroupsPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -186233,7 +187424,7 @@ func (vpc *VpcV1) NewInstanceGroupManagersPager(options *ListInstanceGroupManage
 		return
 	}
 
-	var optionsCopy ListInstanceGroupManagersOptions = *options
+	optionsCopy := *options
 	pager = &InstanceGroupManagersPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -186325,7 +187516,7 @@ func (vpc *VpcV1) NewInstanceGroupManagerActionsPager(options *ListInstanceGroup
 		return
 	}
 
-	var optionsCopy ListInstanceGroupManagerActionsOptions = *options
+	optionsCopy := *options
 	pager = &InstanceGroupManagerActionsPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -186417,7 +187608,7 @@ func (vpc *VpcV1) NewInstanceGroupManagerPoliciesPager(options *ListInstanceGrou
 		return
 	}
 
-	var optionsCopy ListInstanceGroupManagerPoliciesOptions = *options
+	optionsCopy := *options
 	pager = &InstanceGroupManagerPoliciesPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -186509,7 +187700,7 @@ func (vpc *VpcV1) NewInstanceGroupMembershipsPager(options *ListInstanceGroupMem
 		return
 	}
 
-	var optionsCopy ListInstanceGroupMembershipsOptions = *options
+	optionsCopy := *options
 	pager = &InstanceGroupMembershipsPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -186601,7 +187792,7 @@ func (vpc *VpcV1) NewInstanceProfilesPager(options *ListInstanceProfilesOptions)
 		return
 	}
 
-	var optionsCopy ListInstanceProfilesOptions = *options
+	optionsCopy := *options
 	pager = &InstanceProfilesPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -186693,7 +187884,7 @@ func (vpc *VpcV1) NewInstancesPager(options *ListInstancesOptions) (pager *Insta
 		return
 	}
 
-	var optionsCopy ListInstancesOptions = *options
+	optionsCopy := *options
 	pager = &InstancesPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -186785,7 +187976,7 @@ func (vpc *VpcV1) NewInstanceClusterNetworkAttachmentsPager(options *ListInstanc
 		return
 	}
 
-	var optionsCopy ListInstanceClusterNetworkAttachmentsOptions = *options
+	optionsCopy := *options
 	pager = &InstanceClusterNetworkAttachmentsPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -186877,7 +188068,7 @@ func (vpc *VpcV1) NewInstanceNetworkInterfaceIpsPager(options *ListInstanceNetwo
 		return
 	}
 
-	var optionsCopy ListInstanceNetworkInterfaceIpsOptions = *options
+	optionsCopy := *options
 	pager = &InstanceNetworkInterfaceIpsPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -186969,7 +188160,7 @@ func (vpc *VpcV1) NewKeysPager(options *ListKeysOptions) (pager *KeysPager, err 
 		return
 	}
 
-	var optionsCopy ListKeysOptions = *options
+	optionsCopy := *options
 	pager = &KeysPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -187061,7 +188252,7 @@ func (vpc *VpcV1) NewLoadBalancerProfilesPager(options *ListLoadBalancerProfiles
 		return
 	}
 
-	var optionsCopy ListLoadBalancerProfilesOptions = *options
+	optionsCopy := *options
 	pager = &LoadBalancerProfilesPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -187153,7 +188344,7 @@ func (vpc *VpcV1) NewLoadBalancersPager(options *ListLoadBalancersOptions) (page
 		return
 	}
 
-	var optionsCopy ListLoadBalancersOptions = *options
+	optionsCopy := *options
 	pager = &LoadBalancersPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -187245,7 +188436,7 @@ func (vpc *VpcV1) NewNetworkAclsPager(options *ListNetworkAclsOptions) (pager *N
 		return
 	}
 
-	var optionsCopy ListNetworkAclsOptions = *options
+	optionsCopy := *options
 	pager = &NetworkAclsPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -187337,7 +188528,7 @@ func (vpc *VpcV1) NewNetworkACLRulesPager(options *ListNetworkACLRulesOptions) (
 		return
 	}
 
-	var optionsCopy ListNetworkACLRulesOptions = *options
+	optionsCopy := *options
 	pager = &NetworkACLRulesPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -187429,7 +188620,7 @@ func (vpc *VpcV1) NewPlacementGroupsPager(options *ListPlacementGroupsOptions) (
 		return
 	}
 
-	var optionsCopy ListPlacementGroupsOptions = *options
+	optionsCopy := *options
 	pager = &PlacementGroupsPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -187521,7 +188712,7 @@ func (vpc *VpcV1) NewPrivatePathServiceGatewaysPager(options *ListPrivatePathSer
 		return
 	}
 
-	var optionsCopy ListPrivatePathServiceGatewaysOptions = *options
+	optionsCopy := *options
 	pager = &PrivatePathServiceGatewaysPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -187613,7 +188804,7 @@ func (vpc *VpcV1) NewPrivatePathServiceGatewayAccountPoliciesPager(options *List
 		return
 	}
 
-	var optionsCopy ListPrivatePathServiceGatewayAccountPoliciesOptions = *options
+	optionsCopy := *options
 	pager = &PrivatePathServiceGatewayAccountPoliciesPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -187705,7 +188896,7 @@ func (vpc *VpcV1) NewPrivatePathServiceGatewayEndpointGatewayBindingsPager(optio
 		return
 	}
 
-	var optionsCopy ListPrivatePathServiceGatewayEndpointGatewayBindingsOptions = *options
+	optionsCopy := *options
 	pager = &PrivatePathServiceGatewayEndpointGatewayBindingsPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -187797,7 +188988,7 @@ func (vpc *VpcV1) NewPublicAddressRangesPager(options *ListPublicAddressRangesOp
 		return
 	}
 
-	var optionsCopy ListPublicAddressRangesOptions = *options
+	optionsCopy := *options
 	pager = &PublicAddressRangesPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -187889,7 +189080,7 @@ func (vpc *VpcV1) NewPublicGatewaysPager(options *ListPublicGatewaysOptions) (pa
 		return
 	}
 
-	var optionsCopy ListPublicGatewaysOptions = *options
+	optionsCopy := *options
 	pager = &PublicGatewaysPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -187981,7 +189172,7 @@ func (vpc *VpcV1) NewReservationsPager(options *ListReservationsOptions) (pager 
 		return
 	}
 
-	var optionsCopy ListReservationsOptions = *options
+	optionsCopy := *options
 	pager = &ReservationsPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -188073,7 +189264,7 @@ func (vpc *VpcV1) NewSecurityGroupsPager(options *ListSecurityGroupsOptions) (pa
 		return
 	}
 
-	var optionsCopy ListSecurityGroupsOptions = *options
+	optionsCopy := *options
 	pager = &SecurityGroupsPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -188165,7 +189356,7 @@ func (vpc *VpcV1) NewSecurityGroupTargetsPager(options *ListSecurityGroupTargets
 		return
 	}
 
-	var optionsCopy ListSecurityGroupTargetsOptions = *options
+	optionsCopy := *options
 	pager = &SecurityGroupTargetsPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -188257,7 +189448,7 @@ func (vpc *VpcV1) NewShareProfilesPager(options *ListShareProfilesOptions) (page
 		return
 	}
 
-	var optionsCopy ListShareProfilesOptions = *options
+	optionsCopy := *options
 	pager = &ShareProfilesPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -188349,7 +189540,7 @@ func (vpc *VpcV1) NewSharesPager(options *ListSharesOptions) (pager *SharesPager
 		return
 	}
 
-	var optionsCopy ListSharesOptions = *options
+	optionsCopy := *options
 	pager = &SharesPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -188441,7 +189632,7 @@ func (vpc *VpcV1) NewShareAccessorBindingsPager(options *ListShareAccessorBindin
 		return
 	}
 
-	var optionsCopy ListShareAccessorBindingsOptions = *options
+	optionsCopy := *options
 	pager = &ShareAccessorBindingsPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -188533,7 +189724,7 @@ func (vpc *VpcV1) NewShareMountTargetsPager(options *ListShareMountTargetsOption
 		return
 	}
 
-	var optionsCopy ListShareMountTargetsOptions = *options
+	optionsCopy := *options
 	pager = &ShareMountTargetsPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -188625,7 +189816,7 @@ func (vpc *VpcV1) NewShareSnapshotsPager(options *ListShareSnapshotsOptions) (pa
 		return
 	}
 
-	var optionsCopy ListShareSnapshotsOptions = *options
+	optionsCopy := *options
 	pager = &ShareSnapshotsPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -188717,7 +189908,7 @@ func (vpc *VpcV1) NewSnapshotConsistencyGroupsPager(options *ListSnapshotConsist
 		return
 	}
 
-	var optionsCopy ListSnapshotConsistencyGroupsOptions = *options
+	optionsCopy := *options
 	pager = &SnapshotConsistencyGroupsPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -188809,7 +190000,7 @@ func (vpc *VpcV1) NewSnapshotsPager(options *ListSnapshotsOptions) (pager *Snaps
 		return
 	}
 
-	var optionsCopy ListSnapshotsOptions = *options
+	optionsCopy := *options
 	pager = &SnapshotsPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -188901,7 +190092,7 @@ func (vpc *VpcV1) NewSnapshotInstanceProfilesPager(options *ListSnapshotInstance
 		return
 	}
 
-	var optionsCopy ListSnapshotInstanceProfilesOptions = *options
+	optionsCopy := *options
 	pager = &SnapshotInstanceProfilesPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -188993,7 +190184,7 @@ func (vpc *VpcV1) NewSubnetsPager(options *ListSubnetsOptions) (pager *SubnetsPa
 		return
 	}
 
-	var optionsCopy ListSubnetsOptions = *options
+	optionsCopy := *options
 	pager = &SubnetsPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -189085,7 +190276,7 @@ func (vpc *VpcV1) NewSubnetReservedIpsPager(options *ListSubnetReservedIpsOption
 		return
 	}
 
-	var optionsCopy ListSubnetReservedIpsOptions = *options
+	optionsCopy := *options
 	pager = &SubnetReservedIpsPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -189177,7 +190368,7 @@ func (vpc *VpcV1) NewVirtualNetworkInterfacesPager(options *ListVirtualNetworkIn
 		return
 	}
 
-	var optionsCopy ListVirtualNetworkInterfacesOptions = *options
+	optionsCopy := *options
 	pager = &VirtualNetworkInterfacesPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -189269,7 +190460,7 @@ func (vpc *VpcV1) NewNetworkInterfaceFloatingIpsPager(options *ListNetworkInterf
 		return
 	}
 
-	var optionsCopy ListNetworkInterfaceFloatingIpsOptions = *options
+	optionsCopy := *options
 	pager = &NetworkInterfaceFloatingIpsPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -189361,7 +190552,7 @@ func (vpc *VpcV1) NewVirtualNetworkInterfaceIpsPager(options *ListVirtualNetwork
 		return
 	}
 
-	var optionsCopy ListVirtualNetworkInterfaceIpsOptions = *options
+	optionsCopy := *options
 	pager = &VirtualNetworkInterfaceIpsPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -189453,7 +190644,7 @@ func (vpc *VpcV1) NewVolumeProfilesPager(options *ListVolumeProfilesOptions) (pa
 		return
 	}
 
-	var optionsCopy ListVolumeProfilesOptions = *options
+	optionsCopy := *options
 	pager = &VolumeProfilesPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -189545,7 +190736,7 @@ func (vpc *VpcV1) NewVolumesPager(options *ListVolumesOptions) (pager *VolumesPa
 		return
 	}
 
-	var optionsCopy ListVolumesOptions = *options
+	optionsCopy := *options
 	pager = &VolumesPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -189637,7 +190828,7 @@ func (vpc *VpcV1) NewVolumeInstanceProfilesPager(options *ListVolumeInstanceProf
 		return
 	}
 
-	var optionsCopy ListVolumeInstanceProfilesOptions = *options
+	optionsCopy := *options
 	pager = &VolumeInstanceProfilesPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -189729,7 +190920,7 @@ func (vpc *VpcV1) NewVolumeJobsPager(options *ListVolumeJobsOptions) (pager *Vol
 		return
 	}
 
-	var optionsCopy ListVolumeJobsOptions = *options
+	optionsCopy := *options
 	pager = &VolumeJobsPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -189821,7 +191012,7 @@ func (vpc *VpcV1) NewVpcsPager(options *ListVpcsOptions) (pager *VpcsPager, err 
 		return
 	}
 
-	var optionsCopy ListVpcsOptions = *options
+	optionsCopy := *options
 	pager = &VpcsPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -189913,7 +191104,7 @@ func (vpc *VpcV1) NewVPCAddressPrefixesPager(options *ListVPCAddressPrefixesOpti
 		return
 	}
 
-	var optionsCopy ListVPCAddressPrefixesOptions = *options
+	optionsCopy := *options
 	pager = &VPCAddressPrefixesPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -190005,7 +191196,7 @@ func (vpc *VpcV1) NewVPCDnsResolutionBindingsPager(options *ListVPCDnsResolution
 		return
 	}
 
-	var optionsCopy ListVPCDnsResolutionBindingsOptions = *options
+	optionsCopy := *options
 	pager = &VPCDnsResolutionBindingsPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -190097,7 +191288,7 @@ func (vpc *VpcV1) NewVPCRoutesPager(options *ListVPCRoutesOptions) (pager *VPCRo
 		return
 	}
 
-	var optionsCopy ListVPCRoutesOptions = *options
+	optionsCopy := *options
 	pager = &VPCRoutesPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -190189,7 +191380,7 @@ func (vpc *VpcV1) NewVPCRoutingTablesPager(options *ListVPCRoutingTablesOptions)
 		return
 	}
 
-	var optionsCopy ListVPCRoutingTablesOptions = *options
+	optionsCopy := *options
 	pager = &VPCRoutingTablesPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -190281,7 +191472,7 @@ func (vpc *VpcV1) NewVPCRoutingTableRoutesPager(options *ListVPCRoutingTableRout
 		return
 	}
 
-	var optionsCopy ListVPCRoutingTableRoutesOptions = *options
+	optionsCopy := *options
 	pager = &VPCRoutingTableRoutesPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -190373,7 +191564,7 @@ func (vpc *VpcV1) NewIkePoliciesPager(options *ListIkePoliciesOptions) (pager *I
 		return
 	}
 
-	var optionsCopy ListIkePoliciesOptions = *options
+	optionsCopy := *options
 	pager = &IkePoliciesPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -190465,7 +191656,7 @@ func (vpc *VpcV1) NewIkePolicyConnectionsPager(options *ListIkePolicyConnections
 		return
 	}
 
-	var optionsCopy ListIkePolicyConnectionsOptions = *options
+	optionsCopy := *options
 	pager = &IkePolicyConnectionsPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -190557,7 +191748,7 @@ func (vpc *VpcV1) NewIpsecPoliciesPager(options *ListIpsecPoliciesOptions) (page
 		return
 	}
 
-	var optionsCopy ListIpsecPoliciesOptions = *options
+	optionsCopy := *options
 	pager = &IpsecPoliciesPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -190649,7 +191840,7 @@ func (vpc *VpcV1) NewIpsecPolicyConnectionsPager(options *ListIpsecPolicyConnect
 		return
 	}
 
-	var optionsCopy ListIpsecPolicyConnectionsOptions = *options
+	optionsCopy := *options
 	pager = &IpsecPolicyConnectionsPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -190741,7 +191932,7 @@ func (vpc *VpcV1) NewVPNGatewaysPager(options *ListVPNGatewaysOptions) (pager *V
 		return
 	}
 
-	var optionsCopy ListVPNGatewaysOptions = *options
+	optionsCopy := *options
 	pager = &VPNGatewaysPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -190833,7 +192024,7 @@ func (vpc *VpcV1) NewVPNGatewayConnectionsPager(options *ListVPNGatewayConnectio
 		return
 	}
 
-	var optionsCopy ListVPNGatewayConnectionsOptions = *options
+	optionsCopy := *options
 	pager = &VPNGatewayConnectionsPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -190925,7 +192116,7 @@ func (vpc *VpcV1) NewVPNGatewayServiceConnectionsPager(options *ListVPNGatewaySe
 		return
 	}
 
-	var optionsCopy ListVPNGatewayServiceConnectionsOptions = *options
+	optionsCopy := *options
 	pager = &VPNGatewayServiceConnectionsPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -191017,7 +192208,7 @@ func (vpc *VpcV1) NewVPNServersPager(options *ListVPNServersOptions) (pager *VPN
 		return
 	}
 
-	var optionsCopy ListVPNServersOptions = *options
+	optionsCopy := *options
 	pager = &VPNServersPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -191109,7 +192300,7 @@ func (vpc *VpcV1) NewVPNServerClientsPager(options *ListVPNServerClientsOptions)
 		return
 	}
 
-	var optionsCopy ListVPNServerClientsOptions = *options
+	optionsCopy := *options
 	pager = &VPNServerClientsPager{
 		hasNext: true,
 		options: &optionsCopy,
@@ -191201,7 +192392,7 @@ func (vpc *VpcV1) NewVPNServerRoutesPager(options *ListVPNServerRoutesOptions) (
 		return
 	}
 
-	var optionsCopy ListVPNServerRoutesOptions = *options
+	optionsCopy := *options
 	pager = &VPNServerRoutesPager{
 		hasNext: true,
 		options: &optionsCopy,

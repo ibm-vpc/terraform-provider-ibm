@@ -3,7 +3,7 @@
 
 /*
  * IBM OpenAPI Terraform Generator Version: 3.117.0-7f07c563-20260915-094553
-*/
+ */
 
 package vpc
 
@@ -18,6 +18,7 @@ import (
 
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/conns"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
+	"github.com/IBM/go-sdk-core/v5/core"
 	"github.com/IBM/vpc-go-sdk/vpcv1"
 )
 
@@ -26,7 +27,7 @@ func DataSourceIBMIsImageRecipeHistory() *schema.Resource {
 		ReadContext: dataSourceIBMIsImageRecipeHistoryRead,
 
 		Schema: map[string]*schema.Schema{
-			"is_image_recipe_history_id": &schema.Schema{
+			"image_recipe_id": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "The image recipe identifier.",
@@ -309,8 +310,7 @@ func dataSourceIBMIsImageRecipeHistoryRead(context context.Context, d *schema.Re
 	}
 
 	listImageRecipeHistoryOptions := &vpcv1.ListImageRecipeHistoryOptions{}
-
-	listImageRecipeHistoryOptions.SetID(d.Get("is_image_recipe_history_id").(string))
+	listImageRecipeHistoryOptions.SetID(d.Get("image_recipe_id").(string))
 
 	var pager *vpcv1.ImageRecipeHistoryPager
 	pager, err = vpcClient.NewImageRecipeHistoryPager(listImageRecipeHistoryOptions)
@@ -357,10 +357,10 @@ func DataSourceIBMIsImageRecipeHistoryImageRecipeHistoryToMap(model *vpcv1.Image
 		return modelMap, err
 	}
 	modelMap["base_image"] = []map[string]interface{}{baseImageMap}
-	modelMap["created_at"] = model.CreatedAt.String()
+	modelMap["created_at"] = flex.DateTimeToString(model.CreatedAt)
 	modelMap["crn"] = *model.CRN
-	if model.DeprecationAt != nil {
-		modelMap["deprecation_at"] = model.DeprecationAt.String()
+	if !core.IsNil(model.DeprecationAt) {
+		modelMap["deprecation_at"] = flex.DateTimeToString(model.DeprecationAt)
 	}
 	modelMap["href"] = *model.Href
 	modelMap["id"] = *model.ID
@@ -374,8 +374,8 @@ func DataSourceIBMIsImageRecipeHistoryImageRecipeHistoryToMap(model *vpcv1.Image
 	}
 	modelMap["image_components"] = imageComponents
 	modelMap["name"] = *model.Name
-	if model.ObsolescenceAt != nil {
-		modelMap["obsolescence_at"] = model.ObsolescenceAt.String()
+	if !core.IsNil(model.ObsolescenceAt) {
+		modelMap["obsolescence_at"] = flex.DateTimeToString(model.ObsolescenceAt)
 	}
 	resourceGroupMap, err := DataSourceIBMIsImageRecipeHistoryImageRecipeResourceGroupToMap(model.ResourceGroup)
 	if err != nil {
@@ -393,10 +393,10 @@ func DataSourceIBMIsImageRecipeHistoryImageRecipeHistoryToMap(model *vpcv1.Image
 		statusReasons = append(statusReasons, statusReasonsItemMap)
 	}
 	modelMap["status_reasons"] = statusReasons
-	if model.SupersededAt != nil {
-		modelMap["superseded_at"] = model.SupersededAt.String()
+	if !core.IsNil(model.SupersededAt) {
+		modelMap["superseded_at"] = flex.DateTimeToString(model.SupersededAt)
 	}
-	modelMap["updated_at"] = model.UpdatedAt.String()
+	modelMap["updated_at"] = flex.DateTimeToString(model.UpdatedAt)
 	modelMap["version"] = *model.Version
 	modelMap["visibility"] = *model.Visibility
 	return modelMap, nil

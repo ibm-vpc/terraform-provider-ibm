@@ -3,7 +3,7 @@
 
 /*
  * IBM OpenAPI Terraform Generator Version: 3.117.0-7f07c563-20260915-094553
-*/
+ */
 
 package vpc
 
@@ -26,14 +26,22 @@ func DataSourceIBMIsImageComponent() *schema.Resource {
 		ReadContext: dataSourceIBMIsImageComponentRead,
 
 		Schema: map[string]*schema.Schema{
-			"is_image_component_id": &schema.Schema{
-				Type:        schema.TypeString,
-				Required:    true,
-				Description: "The image component identifier.",
+			"image_component": &schema.Schema{
+				Type:         schema.TypeString,
+				Optional:     true,
+				ExactlyOneOf: []string{"image_component", "name"},
+				Description:  "The image component identifier.",
+			},
+			"name": &schema.Schema{
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ExactlyOneOf: []string{"image_component", "name"},
+				Description:  "The unique name for this image component.",
 			},
 			"allowed_use": &schema.Schema{
-				Type:        schema.TypeList,
-				Computed:    true,
+				Type:     schema.TypeList,
+				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"api_version": &schema.Schema{
@@ -117,11 +125,6 @@ func DataSourceIBMIsImageComponent() *schema.Resource {
 				Computed:    true,
 				Description: "The URL for this component.",
 			},
-			"name": &schema.Schema{
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: "The unique name for this image component.",
-			},
 			"obsolescence_at": &schema.Schema{
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -157,8 +160,8 @@ func DataSourceIBMIsImageComponent() *schema.Resource {
 				Description: "The resource type.",
 			},
 			"software": &schema.Schema{
-				Type:        schema.TypeList,
-				Computed:    true,
+				Type:     schema.TypeList,
+				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": &schema.Schema{
@@ -227,7 +230,40 @@ func dataSourceIBMIsImageComponentRead(context context.Context, d *schema.Resour
 
 	getImageComponentsOptions := &vpcv1.GetImageComponentsOptions{}
 
-	getImageComponentsOptions.SetID(d.Get("is_image_component_id").(string))
+	imageComponentID := d.Get("image_component").(string)
+	name := d.Get("name").(string)
+
+	if imageComponentID != "" {
+		getImageComponentsOptions.SetID(imageComponentID)
+	} else {
+		listImageComponentsOptions := &vpcv1.ListImageComponentsOptions{}
+		pager, pagerErr := vpcClient.NewImageComponentsPager(listImageComponentsOptions)
+		if pagerErr != nil {
+			tfErr := flex.TerraformErrorf(pagerErr, pagerErr.Error(), "(Data) ibm_is_image_component", "read")
+			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+			return tfErr.GetDiag()
+		}
+		allItems, pagerErr := pager.GetAll()
+		if pagerErr != nil {
+			tfErr := flex.TerraformErrorf(pagerErr, fmt.Sprintf("ImageComponentsPager.GetAll() failed: %s", pagerErr), "(Data) ibm_is_image_component", "read")
+			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+			return tfErr.GetDiag()
+		}
+		var found *vpcv1.ImageComponent
+		for i := range allItems {
+			if *allItems[i].Name == name {
+				found = &allItems[i]
+				break
+			}
+		}
+		if found == nil {
+			tfErr := flex.TerraformErrorf(fmt.Errorf("no image component found with name: %s", name), fmt.Sprintf("no image component found with name: %s", name), "(Data) ibm_is_image_component", "read")
+			log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
+			return tfErr.GetDiag()
+		}
+		d.SetId(*found.ID)
+		getImageComponentsOptions.SetID(*found.ID)
+	}
 
 	imageComponent, _, err := vpcClient.GetImageComponentsWithContext(context, getImageComponentsOptions)
 	if err != nil {

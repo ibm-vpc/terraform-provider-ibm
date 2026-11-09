@@ -14,8 +14,8 @@ Provides a read-only data source to retrieve information about an ImageRecipeHis
 
 ```hcl
 data "ibm_is_image_recipe_version" "is_image_recipe_version" {
-	is_image_recipe_version_id = "is_image_recipe_version_id"
-	version = "a3f8c2d1"
+	image_recipe_id = "r006-72b27b5c-f4b0-48bb-b954-5becc7f1acb8"
+	version         = "a3f8c2d1"
 }
 ```
 
@@ -23,7 +23,7 @@ data "ibm_is_image_recipe_version" "is_image_recipe_version" {
 
 You can specify the following arguments for this data source.
 
-* `is_image_recipe_version_id` - (Required, Forces new resource, String) The image recipe identifier.
+* `image_recipe_id` - (Required, String) The image recipe identifier.
   * Constraints: The maximum length is `64` characters. The minimum length is `1` character. The value must match regular expression `/^[-0-9a-z_]+$/`.
 * `version` - (Required, Forces new resource, String) Filters the collection to image recipes with a `version` property matching the specified value.
   * Constraints: The maximum length is `64` characters. The minimum length is `8` characters. The value must match regular expression `/^[0-9a-f]+$/`.
