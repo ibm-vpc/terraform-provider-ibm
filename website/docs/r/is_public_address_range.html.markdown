@@ -84,7 +84,9 @@ resource "ibm_is_virtual_network_interface" "example_vni" {
 }
 
 resource "ibm_is_public_address_range" "public_address_range_ipv6" {
-  authorized_cidr       = ibm_is_public_address_range_authorized_cidr.example_authorized_cidr.id
+  authorized_cidr {
+    id = ibm_is_public_address_range_authorized_cidr.example_authorized_cidr.id
+  }
   network_prefix_length = 64
   name                  = "example-public-address-range-ipv6"
   resource_group {

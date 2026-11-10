@@ -306,7 +306,7 @@ func resourceIBMISSubnetNetworkACLAttachmentRead(context context.Context, d *sch
 					if rulex.Code != nil && rulex.Type != nil {
 						icmp[0] = map[string]int{
 							isNetworkACLRuleICMPCode: int(*rulex.Code),
-							isNetworkACLRuleICMPType: int(*rulex.Code),
+							isNetworkACLRuleICMPType: int(*rulex.Type),
 						}
 					}
 					rule[isNetworkACLRuleICMP] = icmp
@@ -408,7 +408,7 @@ func resourceIBMISSubnetNetworkACLAttachmentRead(context context.Context, d *sch
 					if rulex.Code != nil && rulex.Type != nil {
 						icmp[0] = map[string]int{
 							isNetworkACLRuleICMPCode: int(*rulex.Code),
-							isNetworkACLRuleICMPType: int(*rulex.Code),
+							isNetworkACLRuleICMPType: int(*rulex.Type),
 						}
 					}
 					rule[isNetworkACLRuleICMP] = icmp

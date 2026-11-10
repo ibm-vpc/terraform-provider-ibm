@@ -1810,6 +1810,11 @@ func createInlineRules(d *schema.ResourceData, nwaclC *vpcv1.VpcV1, nwaclid stri
 				ruleTemplate.IPVersion = &str
 			}
 		}
+		// ipv6_* protocols always imply ip_version ipv6
+		if strings.HasPrefix(protocol, "ipv6_") {
+			ipv6 := "ipv6"
+			ruleTemplate.IPVersion = &ipv6
+		}
 		if before != "" {
 			ruleTemplate.Before = &vpcv1.NetworkACLRuleBeforePrototype{
 				ID: &before,
@@ -2152,6 +2157,11 @@ func createSingleNwaclRuleForUpdateLegacy(d *schema.ResourceData, nwaclC *vpcv1.
 			ruleTemplate.IPVersion = &str
 		}
 	}
+	// ipv6_* protocols always imply ip_version ipv6
+	if strings.HasPrefix(protocol, "ipv6_") {
+		ipv6 := "ipv6"
+		ruleTemplate.IPVersion = &ipv6
+	}
 
 	switch protocol {
 	case "icmp":
@@ -2349,6 +2359,11 @@ func createSingleNwaclRuleForUpdate(d *schema.ResourceData, nwaclC *vpcv1.VpcV1,
 		if str, ok := v.(string); ok && str != "" {
 			ruleTemplate.IPVersion = &str
 		}
+	}
+	// ipv6_* protocols always imply ip_version ipv6
+	if strings.HasPrefix(protocol, "ipv6_") {
+		ipv6 := "ipv6"
+		ruleTemplate.IPVersion = &ipv6
 	}
 	if before != "" {
 		ruleTemplate.Before = &vpcv1.NetworkACLRuleBeforePrototype{

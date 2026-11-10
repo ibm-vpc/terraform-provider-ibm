@@ -1523,6 +1523,12 @@ func parseIBMISSecurityGroupRuleDictionary(d *schema.ResourceData, tag string, s
 	}
 	sgTemplate.Protocol = &parsed.protocol
 
+	// ipv6_* protocols (e.g. ipv6_icmp) always imply ip_version ipv6.
+	// ipversion pointer is shared with sgTemplate and securityGroupRulePatchModel.
+	if strings.HasPrefix(parsed.protocol, "ipv6_") {
+		parsed.ipversion = "ipv6"
+	}
+
 	//Local
 	parsed.local = ""
 	if pl, ok := d.GetOk(isSecurityGroupRuleLocal); ok {

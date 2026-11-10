@@ -169,7 +169,7 @@ func ResourceIBMISNetworkACLRule() *schema.Resource {
 				Required:     true,
 				ForceNew:     false,
 				ValidateFunc: validate.InvokeValidator("ibm_is_network_acl_rule", isNetworkACLRuleDestination),
-				Description:  "The destination CIDR block. The CIDR block 0.0.0.0/0 (or ::/0 if ip_version is ipv6) will match all source addresses.",
+				Description:  "The destination CIDR block. The CIDR block 0.0.0.0/0 (or ::/0 if ip_version is ipv6) will match all destination addresses.",
 			},
 			isNetworkACLRuleDirection: {
 				Type:         schema.TypeString,
@@ -527,6 +527,11 @@ func nwaclRuleCreate(context context.Context, d *schema.ResourceData, meta inter
 	if v, ok := d.GetOk(isNetworkACLRuleIPVersion); ok {
 		ipVersion := v.(string)
 		ruleTemplate.IPVersion = &ipVersion
+	}
+	// ipv6_* protocols always imply ip_version ipv6
+	if strings.HasPrefix(protocol, "ipv6_") {
+		ipv6 := "ipv6"
+		ruleTemplate.IPVersion = &ipv6
 	}
 
 	if before, ok := d.GetOk(isNwACLRuleBefore); ok {
