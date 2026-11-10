@@ -60,6 +60,7 @@ func ResourceIBMPublicAddressRange() *schema.Resource {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				Computed:     true,
+				ForceNew:     true,
 				ExactlyOneOf: []string{"ipv4_address_count", "cidr"},
 				Description:  "The number of IPv4 addresses in this public address range. Must be a power of 2.",
 			},
@@ -556,13 +557,13 @@ func resourceIBMPublicAddressRangeRead(context context.Context, d *schema.Resour
 	if publicAddressRange.IPVersion != nil {
 		if err = d.Set("ip_version", publicAddressRange.IPVersion); err != nil {
 			err = fmt.Errorf("Error setting ip_version: %s", err)
-			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_public_address_range", "read", "set-ip_version").GetDiag()
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_public_address_range", "read", "set-ip_version").GetDiag()
 		}
 	}
 	if publicAddressRange.NetworkPrefixLength != nil {
 		if err = d.Set("network_prefix_length", flex.IntValue(publicAddressRange.NetworkPrefixLength)); err != nil {
 			err = fmt.Errorf("Error setting network_prefix_length: %s", err)
-			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_public_address_range", "read", "set-network_prefix_length").GetDiag()
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_public_address_range", "read", "set-network_prefix_length").GetDiag()
 		}
 	}
 	if publicAddressRange.AuthorizedCIDR != nil {
@@ -585,13 +586,13 @@ func resourceIBMPublicAddressRangeRead(context context.Context, d *schema.Resour
 		if publicAddressRange.AuthorizedCIDR.Zone != nil {
 			zoneMap, err := ResourceIBMPublicAddressRangeZoneReferenceToMap(publicAddressRange.AuthorizedCIDR.Zone)
 			if err != nil {
-				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_public_address_range", "read", "set-authorized_cidr_zone").GetDiag()
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_public_address_range", "read", "set-authorized_cidr_zone").GetDiag()
 			}
 			authorizedCIDRMap["zone"] = []map[string]interface{}{zoneMap}
 		}
 		if err = d.Set("authorized_cidr", []map[string]interface{}{authorizedCIDRMap}); err != nil {
 			err = fmt.Errorf("Error setting authorized_cidr: %s", err)
-			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_public_address_range", "read", "set-authorized_cidr").GetDiag()
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_public_address_range", "read", "set-authorized_cidr").GetDiag()
 		}
 	}
 	if publicAddressRange.Profile != nil {
@@ -607,7 +608,7 @@ func resourceIBMPublicAddressRangeRead(context context.Context, d *schema.Resour
 		}
 		if err = d.Set("profile", []map[string]interface{}{profileMap}); err != nil {
 			err = fmt.Errorf("Error setting profile: %s", err)
-			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_public_address_range", "read", "set-profile").GetDiag()
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_public_address_range", "read", "set-profile").GetDiag()
 		}
 	}
 
