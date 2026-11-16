@@ -319,7 +319,7 @@ func floatingIPGet(ctx context.Context, d *schema.ResourceData, meta interface{}
 
 			if floatingIP.ResourceType != nil {
 				if err = d.Set(isFloatingIPResourceType, *floatingIP.ResourceType); err != nil {
-					return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting resource_type: %s", err), "(Data) ibm_ibm_is_floating_ip", "read", "set-resource_type").GetDiag()
+					return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting resource_type: %s", err), "(Data) ibm_is_floating_ip", "read", "set-resource_type").GetDiag()
 				}
 			}
 			if floatingIP.AuthorizedCIDR != nil {

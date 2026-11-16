@@ -476,11 +476,13 @@ func DataSourceIBMIsPublicAddressRangeResourceGroupReferenceToMap(model *vpcv1.R
 
 func DataSourceIBMIsPublicAddressRangePublicAddressRangeTargetToMap(model *vpcv1.PublicAddressRangeTarget) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
-	vpcMap, err := DataSourceIBMIsPublicAddressRangeVPCReferenceToMap(model.VPC)
-	if err != nil {
-		return modelMap, err
+	if model.VPC != nil {
+		vpcMap, err := DataSourceIBMIsPublicAddressRangeVPCReferenceToMap(model.VPC)
+		if err != nil {
+			return modelMap, err
+		}
+		modelMap["vpc"] = []map[string]interface{}{vpcMap}
 	}
-	modelMap["vpc"] = []map[string]interface{}{vpcMap}
 	zoneMap, err := DataSourceIBMIsPublicAddressRangeZoneReferenceToMap(model.Zone)
 	if err != nil {
 		return modelMap, err

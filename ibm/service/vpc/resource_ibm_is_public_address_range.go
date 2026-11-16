@@ -907,11 +907,13 @@ func ResourceIBMPublicAddressRangeResourceGroupReferenceToMap(model *vpcv1.Resou
 
 func ResourceIBMPublicAddressRangePublicAddressRangeTargetToMap(model *vpcv1.PublicAddressRangeTarget) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
-	vpcMap, err := ResourceIBMPublicAddressRangeVPCReferenceToMap(model.VPC)
-	if err != nil {
-		return modelMap, err
+	if model.VPC != nil {
+		vpcMap, err := ResourceIBMPublicAddressRangeVPCReferenceToMap(model.VPC)
+		if err != nil {
+			return modelMap, err
+		}
+		modelMap["vpc"] = []map[string]interface{}{vpcMap}
 	}
-	modelMap["vpc"] = []map[string]interface{}{vpcMap}
 	zoneMap, err := ResourceIBMPublicAddressRangeZoneReferenceToMap(model.Zone)
 	if err != nil {
 		return modelMap, err
