@@ -1202,7 +1202,9 @@ func dataSourceIBMISInstanceTemplatesRead(context context.Context, d *schema.Res
 					template["cluster_network_attachments"] = clusterNetworkAttachments
 				}
 				template["enable_secure_boot"] = instance.EnableSecureBoot
-				template["boot_firmware_selection_mode"] = instance.BootFirmwareSelectionMode
+				if instance.BootFirmwareSelectionMode != nil {
+					template["boot_firmware_selection_mode"] = *instance.BootFirmwareSelectionMode
+				}
 
 				if instance.MetadataService != nil {
 					template[isInstanceTemplateMetadataServiceEnabled] = *instance.MetadataService.Enabled
@@ -1580,7 +1582,9 @@ func dataSourceIBMISInstanceTemplatesRead(context context.Context, d *schema.Res
 					template["cluster_network_attachments"] = clusterNetworkAttachments
 				}
 				template["enable_secure_boot"] = instance.EnableSecureBoot
-				template["boot_firmware_selection_mode"] = instance.BootFirmwareSelectionMode
+				if instance.BootFirmwareSelectionMode != nil {
+					template["boot_firmware_selection_mode"] = *instance.BootFirmwareSelectionMode
+				}
 
 				if instance.MetadataService != nil {
 					template[isInstanceTemplateMetadataServiceEnabled] = *instance.MetadataService.Enabled
