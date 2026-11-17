@@ -90,11 +90,12 @@ func ResourceIBMISFloatingIP() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			isFloatingIPAddress: {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Computed:    true,
-				ForceNew:    true,
-				Description: "The IP address to request for this floating IP. Must be an unallocated address in a public address range authorized CIDR.",
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
+				ForceNew:     true,
+				AtLeastOneOf: []string{isFloatingIPZone, isFloatingIPTarget, isFloatingIPAddress},
+				Description:  "The IP address to request for this floating IP. Must be an unallocated address in a public address range authorized CIDR.",
 			},
 
 			isFloatingIPResourceType: {
@@ -183,6 +184,7 @@ func ResourceIBMISFloatingIP() *schema.Resource {
 				Optional:      true,
 				Computed:      true,
 				ConflictsWith: []string{isFloatingIPTarget},
+				AtLeastOneOf:  []string{isFloatingIPZone, isFloatingIPTarget, isFloatingIPAddress},
 				Description:   "Zone name",
 			},
 
@@ -191,6 +193,7 @@ func ResourceIBMISFloatingIP() *schema.Resource {
 				Optional:      true,
 				Computed:      true,
 				ConflictsWith: []string{isFloatingIPZone},
+				AtLeastOneOf:  []string{isFloatingIPZone, isFloatingIPTarget, isFloatingIPAddress},
 				Description:   "Target info",
 			},
 			floatingIPTargets: {
