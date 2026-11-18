@@ -48,6 +48,7 @@ Review the attribute references that you can access after you retrieve your data
 	- `availability` - (String) The availability of this load balancer
 	- `id` - (String) The unique identifier of the load balancer.
 	- `instance_groups_supported` - (Boolean) Indicates whether this load balancer supports instance groups.
+	- `ipv6_enabled` - (Boolean) Indicates whether IPv6 is enabled for this load balancer. Only supported for public application load balancers with a profile that has `ipv6_supported` set to `true`.
 	- `created_at` - (String) The date and time this load balancer was created.
 	- `crn` - (String) The load balancer's CRN.
 	- `dns` - (List) The DNS configuration for this load balancer.
@@ -107,6 +108,7 @@ Review the attribute references that you can access after you retrieve your data
 
 		Nested scheme for `public_ip`:
 		- `address` - (String) The globally unique IP address. This property may expand to support IPv6 addresses in the future.
+		- `cidr` - (String) The public IP address block for this public address range, expressed in CIDR format. Present only when the public IP is a public address range.
 		- `crn` - (String) The CRN for this floating IP. Present only when the public IP is a floating IP.
 		- `deleted` - (List) If present, this property indicates the referenced resource has been deleted and provides some supplementary information.
 
@@ -115,6 +117,21 @@ Review the attribute references that you can access after you retrieve your data
 		- `href` - (String) The URL for this floating IP. Present only when the public IP is a floating IP.
 		- `id` - (String) The unique identifier for this floating IP. Present only when the public IP is a floating IP.
 		- `name` - (String) The name for this floating IP. The name is unique across all floating IPs in the region. Present only when the public IP is a floating IP.
+		- `resource_type` - (String) The resource type. Value is `floating_ip` or `public_address_range`.
+	- `public_ranges` - (List of String) The IDs of the IPv6 public address ranges assigned to this load balancer. Will be empty if `is_public` is `false` or `ipv6_enabled` is `false`.
+	- `public_range` - (List) The detailed IPv6 public address ranges assigned to this load balancer. Will be empty if `is_public` is `false` or `ipv6_enabled` is `false`.
+
+		Nested scheme for `public_range`:
+		- `cidr` - (String) The public IP address block for this public address range, expressed in CIDR format.
+		- `crn` - (String) The CRN for this public address range.
+		- `deleted` - (List) If present, this property indicates the referenced resource has been deleted.
+
+			Nested scheme for `deleted`:
+			- `more_info` - (String) Link to documentation about deleted resources.
+		- `href` - (String) The URL for this public address range.
+		- `id` - (String) The unique identifier for this public address range.
+		- `name` - (String) The name for this public address range.
+		- `resource_type` - (String) The resource type. Value is `public_address_range`.
 	- `resource_group` - (String) The resource group id, where the load balancer is created.
 	- `route_mode` - (Bool) Indicates whether route mode is enabled for this load balancer.
 	- `source_ip_session_persistence_supported` - (Boolean) Indicates whether this load balancer supports source IP session persistence.

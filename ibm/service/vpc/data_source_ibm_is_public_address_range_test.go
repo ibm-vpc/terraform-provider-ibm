@@ -35,6 +35,9 @@ func TestAccIBMIsPublicAddressRangeDataSourceBasic(t *testing.T) {
 					resource.TestCheckResourceAttrSet("data.ibm_is_public_address_range.is_public_address_range_instance", "name"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_public_address_range.is_public_address_range_instance", "resource_group.#"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_public_address_range.is_public_address_range_instance", "resource_type"),
+					// bound to a vpc/zone, not a load balancer
+					resource.TestCheckResourceAttrSet("data.ibm_is_public_address_range.is_public_address_range_instance", "target.0.vpc.0.id"),
+					resource.TestCheckResourceAttr("data.ibm_is_public_address_range.is_public_address_range_instance", "target.0.load_balancer.#", "0"),
 				),
 			},
 		},

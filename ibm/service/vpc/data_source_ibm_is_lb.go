@@ -119,6 +119,11 @@ func DataSourceIBMISLB() *schema.Resource {
 				Description: "Indicates whether this load balancer supports UDP.",
 			},
 
+			isLBIpv6Enabled: {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: "Indicates whether this load balancer supports public IPv6 addresses.",
+			},
 			"asymmetric_routing_supported": {
 				Type:        schema.TypeBool,
 				Computed:    true,
@@ -180,6 +185,11 @@ func DataSourceIBMISLB() *schema.Resource {
 							Computed:    true,
 							Description: "The name for this floating IP. The name is unique across all floating IPs in the region.",
 						},
+						"resource_type": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The resource type.",
+						},
 						"id": {
 							Type:        schema.TypeString,
 							Computed:    true,
@@ -189,6 +199,11 @@ func DataSourceIBMISLB() *schema.Resource {
 							Type:        schema.TypeString,
 							Computed:    true,
 							Description: "The CRN for this floating IP.",
+						},
+						"cidr": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The public IP address block for this public address range, expressed in CIDR format. Present only when the public IP is a public address range.",
 						},
 						"deleted": {
 							Type:        schema.TypeList,
@@ -203,6 +218,65 @@ func DataSourceIBMISLB() *schema.Resource {
 									},
 								},
 							},
+						},
+					},
+				},
+			},
+			isLBPublicRanges: {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: "The IDs of the IPv6 public address ranges assigned to this load balancer. Will be empty if `is_public` is `false` or `ipv6_enabled` is `false`.",
+			},
+			isLBPublicRangeDetail: {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "The IPv6 public address ranges assigned to this load balancer. Will be empty if `is_public` is `false` or `ipv6_enabled` is `false`.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						isLBPublicIpCIDR: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The public IP address block for this public address range, expressed in CIDR format.",
+						},
+						isLBPublicIpCRN: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The CRN for this public address range.",
+						},
+						isLBPublicIpDeleted: {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "If present, this property indicates the referenced resource has been deleted.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"more_info": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "Link to documentation about deleted resources.",
+									},
+								},
+							},
+						},
+						isLBPublicIpHref: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The URL for this public address range.",
+						},
+						isLBPublicIpID: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The unique identifier for this public address range.",
+						},
+						isLBPublicIpName: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The name for this public address range.",
+						},
+						isLBPublicIpResourceType: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The resource type.",
 						},
 					},
 				},
@@ -584,6 +658,11 @@ func lbGetByName(context context.Context, d *schema.ResourceData, meta interface
 			if err = d.Set("operating_status", loadBalancer.OperatingStatus); err != nil {
 				return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting operating_status: %s", err), "(Data) ibm_is_lb", "read", "set-operating_status").GetDiag()
 			}
+			if loadBalancer.Ipv6Enabled != nil {
+				if err = d.Set(isLBIpv6Enabled, *loadBalancer.Ipv6Enabled); err != nil {
+					return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting ipv6_enabled: %s", err), "(Data) ibm_is_lb", "read", "set-ipv6_enabled").GetDiag()
+				}
+			}
 			publicIpList := make([]string, 0)
 			publicIpDetailList := make([]map[string]interface{}, 0)
 			if loadBalancer.PublicIps != nil {
@@ -597,6 +676,9 @@ func lbGetByName(context context.Context, d *schema.ResourceData, meta interface
 						publicIpList = append(publicIpList, *ip.Address)
 						currentPubIp["address"] = *ip.Address
 					}
+					if ip.CIDR != nil {
+						currentPubIp["cidr"] = *ip.CIDR
+					}
 					if ip.CRN != nil {
 						currentPubIp["crn"] = *ip.CRN
 					}
@@ -608,6 +690,9 @@ func lbGetByName(context context.Context, d *schema.ResourceData, meta interface
 					}
 					if ip.Name != nil {
 						currentPubIp["name"] = *ip.Name
+					}
+					if ip.ResourceType != nil {
+						currentPubIp["resource_type"] = *ip.ResourceType
 					}
 					if ip.Deleted != nil {
 						deletedMap := map[string]interface{}{}
@@ -624,6 +709,13 @@ func lbGetByName(context context.Context, d *schema.ResourceData, meta interface
 			}
 			if err = d.Set(isLBPublicIPDetail, publicIpDetailList); err != nil {
 				return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting public_ip: %s", err), "(Data) ibm_is_lb", "read", "set-public_ip").GetDiag()
+			}
+			publicRangeList, publicRangeDetailList := lbFlattenPublicRanges(loadBalancer.PublicRanges)
+			if err = d.Set(isLBPublicRanges, publicRangeList); err != nil {
+				return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting public_ranges: %s", err), "(Data) ibm_is_lb", "read", "set-public_ranges").GetDiag()
+			}
+			if err = d.Set(isLBPublicRangeDetail, publicRangeDetailList); err != nil {
+				return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting public_range: %s", err), "(Data) ibm_is_lb", "read", "set-public_range").GetDiag()
 			}
 			privateIpList := make([]string, 0)
 			privateIpDetailList := make([]map[string]interface{}, 0)

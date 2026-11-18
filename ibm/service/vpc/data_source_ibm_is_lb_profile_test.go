@@ -29,6 +29,8 @@ func TestAccIBMISLBProfileDatasource_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet("data.ibm_is_lb_profile.test_profile", "udp_supported"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_lb_profile.test_profile", "access_modes.0.values.#"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_lb_profile.test_profile", "targetable_load_balancer_profiles.#"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_lb_profile.test_profile", "ipv6_supported"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_lb_profile.test_profile", "ipv6_supported_type"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_lb_profile.test_profile", "asymmetric_routing_supported"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_lb_profile.test_profile", "asymmetric_routing_supported_type"),
 					resource.TestCheckResourceAttrSet("data.ibm_is_lb_profile.test_profile", "mtls_supported"),
@@ -132,4 +134,36 @@ func testDSCheckIBMISLBProfileApplicationConfig() string {
 	data "ibm_is_lb_profile" "test_alb_profile" {
 		name = "application"
 	} `
+}
+
+func testDSCheckIBMISLBProfileIPv6Config(name string) string {
+	return fmt.Sprintf(`
+	data "ibm_is_lb_profile" "test_profile" {
+		name = "%s"
+	} `, name)
+}
+
+func TestAccIBMISLBProfileDatasource_ipv6(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { acc.TestAccPreCheck(t) },
+		Providers: acc.TestAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testDSCheckIBMISLBProfileIPv6Config("dynamic"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("data.ibm_is_lb_profile.test_profile", "name", "dynamic"),
+					resource.TestCheckResourceAttr("data.ibm_is_lb_profile.test_profile", "ipv6_supported_type", "fixed"),
+					resource.TestCheckResourceAttr("data.ibm_is_lb_profile.test_profile", "ipv6_supported", "true"),
+				),
+			},
+			{
+				Config: testDSCheckIBMISLBProfileIPv6Config("network-fixed"),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("data.ibm_is_lb_profile.test_profile", "name", "network-fixed"),
+					resource.TestCheckResourceAttr("data.ibm_is_lb_profile.test_profile", "ipv6_supported_type", "fixed"),
+					resource.TestCheckResourceAttr("data.ibm_is_lb_profile.test_profile", "ipv6_supported", "false"),
+				),
+			},
+		},
+	})
 }
