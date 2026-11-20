@@ -96,6 +96,41 @@ func TestAccIBMISFlowLog_vni(t *testing.T) {
 	)
 }
 
+func TestAccIBMISFlowLog_bareMetalServer(t *testing.T) {
+	var instance string
+	vpcname := fmt.Sprintf("flowlog-vpc-%d", acctest.RandIntRange(10, 100))
+	name := fmt.Sprintf("resource-bms-%d", acctest.RandIntRange(10, 100))
+	flowlogname := fmt.Sprintf("flowlog-bms-%d", acctest.RandIntRange(10, 100))
+	subnetname := fmt.Sprintf("flowlog-subnet-%d", acctest.RandIntRange(10, 100))
+	publicKey := strings.TrimSpace(`
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCKVmnMOlHKcZK8tpt3MP1lqOLAcqcJzhsvJcjscgVERRN7/9484SOBJ3HSKxxNG5JN8owAjy5f9yYwcUg+JaUVuytn5Pv3aeYROHGGg+5G346xaq3DAwX6Y5ykr2fvjObgncQBnuU5KHWCECO/4h8uWuwh/kfniXPVjFToc+gnkqA+3RKpAecZhFXwfalQ9mMuYGFxn+fwn8cYEApsJbsEmb0iJwPiZ5hjFC8wREuiTlhPHDgkBLOiycd20op2nXzDbHfCHInquEe/gYxEitALONxm0swBOwJZwlTDOB7C6y2dzlrtxr1L59m7pCkWI4EtTRLvleehBoj3u7jB4usR
+`)
+	sshname := fmt.Sprintf("tf-ssh-%d", acctest.RandIntRange(10, 100))
+
+	serviceName := fmt.Sprintf("terraform_%d", acctest.RandIntRange(10, 100))
+	bucketName := fmt.Sprintf("terraform%d", acctest.RandIntRange(10, 100))
+	bucketRegion := "us-south"
+	bucketClass := "standard"
+	bucketRegionType := "cross_region_location"
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acc.TestAccPreCheck(t) },
+		Providers:    acc.TestAccProviders,
+		CheckDestroy: testAccCheckIBMISFlowLogDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckIBMISFlowLogBareMetalServerConfig(vpcname, name, flowlogname, sshname, publicKey, subnetname, serviceName, bucketName, bucketRegionType, bucketRegion, bucketClass, true),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckIBMISFlowLogExists("ibm_is_flow_log.test_flow_log", instance),
+					resource.TestCheckResourceAttr("ibm_is_flow_log.test_flow_log", "name", flowlogname),
+					resource.TestCheckResourceAttr("data.ibm_is_flow_log.is_flow_log_name", "target.0.resource_type", "bare_metal_server"),
+				),
+			},
+		},
+	},
+	)
+}
+
 func testAccCheckIBMISFlowLogConfig(vpcname, name, flowlogname, sshname, publicKey, subnetname, serviceName, bucketName, bucketRegionType, bucketRegion, bucketClass string, isActive bool) string {
 	return fmt.Sprintf(`	  	
 	
@@ -197,6 +232,69 @@ func testAccCheckIBMISFlowLogVniConfig(vpcname, vniname, flowlogname, subnetname
 	  `, vpcname, subnetname, acc.ISZoneName, vniname, bucketName, acc.ISResourceCrn, bucketRegion, bucketClass, flowlogname, isActive)
 
 }
+
+func testAccCheckIBMISFlowLogBareMetalServerConfig(vpcname, name, flowlogname, sshname, publicKey, subnetname, serviceName, bucketName, bucketRegionType, bucketRegion, bucketClass string, isActive bool) string {
+	return fmt.Sprintf(`
+	resource "ibm_is_vpc" "testacc_vpc" {
+		name = "%s"
+	}
+
+	resource "ibm_is_subnet" "testacc_subnet" {
+		name            = "%s"
+		vpc             = ibm_is_vpc.testacc_vpc.id
+		zone            = "%s"
+		ipv4_cidr_block = "%s"
+	}
+
+	resource "ibm_is_ssh_key" "testacc_sshkey" {
+		name       = "%s"
+		public_key = "%s"
+	}
+
+	resource "ibm_is_bare_metal_server" "testacc_bms" {
+		name    = "%s"
+		image   = "%s"
+		profile = "%s"
+		primary_network_interface {
+			subnet = ibm_is_subnet.testacc_subnet.id
+		}
+		vpc     = ibm_is_vpc.testacc_vpc.id
+		keys    = [ibm_is_ssh_key.testacc_sshkey.id]
+		zone    = "%s"
+	}
+
+	data "ibm_resource_group" "cos_group" {
+		is_default = true
+	}
+
+	resource "ibm_resource_instance" "instance2" {
+		name              = "%s"
+		resource_group_id = data.ibm_resource_group.cos_group.id
+		service           = "cloud-object-storage"
+		plan              = "standard"
+		location          = "global"
+	}
+
+	resource "ibm_cos_bucket" "bucket2" {
+		bucket_name          = "%s"
+		resource_instance_id = ibm_resource_instance.instance2.id
+		region_location      = "%s"
+		storage_class        = "%s"
+	}
+
+	resource "ibm_is_flow_log" "test_flow_log" {
+		name           = "%s"
+		target         = ibm_is_bare_metal_server.testacc_bms.id
+		storage_bucket = ibm_cos_bucket.bucket2.bucket_name
+		active         = %v
+	}
+
+	data "ibm_is_flow_log" "is_flow_log_name" {
+		name = ibm_is_flow_log.test_flow_log.name
+	}
+	`, vpcname, subnetname, acc.ISZoneName, acc.ISCIDR, sshname, publicKey, name, acc.IsBareMetalServerImage, acc.IsBareMetalServerProfileName, acc.ISZoneName, serviceName, bucketName, bucketRegion, bucketClass, flowlogname, isActive)
+}
+
 func vpcClient(meta interface{}) (*vpcv1.VpcV1, error) {
 	sess, err := meta.(conns.ClientSession).VpcV1API()
 	return sess, err
