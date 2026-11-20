@@ -82,6 +82,111 @@ func TestAccIBMISLB_basic_udp(t *testing.T) {
 	})
 }
 
+func TestAccIBMISLB_static_address_mode(t *testing.T) {
+	var lb string
+	vpcname := fmt.Sprintf("tflb-vpc-%d", acctest.RandIntRange(10, 100))
+	subnetname := fmt.Sprintf("tflb-subnet-name-%d", acctest.RandIntRange(10, 100))
+	name := fmt.Sprintf("tfcreate%d", acctest.RandIntRange(10, 100))
+	floatingipname := fmt.Sprintf("tflb-fip-%d", acctest.RandIntRange(10, 100))
+	floatingipname2 := fmt.Sprintf("tflb-fip2-%d", acctest.RandIntRange(10, 100))
+	floatingipname3 := fmt.Sprintf("tflb-fip3-%d", acctest.RandIntRange(10, 100))
+	reservedipname := fmt.Sprintf("tflb-rip-%d", acctest.RandIntRange(10, 100))
+	reservedipname2 := fmt.Sprintf("tflb-rip2-%d", acctest.RandIntRange(10, 100))
+	reservedipname3 := fmt.Sprintf("tflb-rip3-%d", acctest.RandIntRange(10, 100))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acc.TestAccPreCheck(t) },
+		Providers:    acc.TestAccProviders,
+		CheckDestroy: testAccCheckIBMISLBDestroy,
+		Steps: []resource.TestStep{
+			// Create with 3 public IPs and 3 private IPs
+			{
+				Config: testAccCheckIBMISLBStaticAddressModeConfig(vpcname, subnetname, acc.ISZoneName, acc.ISCIDR, name, floatingipname, floatingipname2, floatingipname3, reservedipname, reservedipname2, reservedipname3),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckIBMISLBExists("ibm_is_lb.testacc_LB", lb),
+					resource.TestCheckResourceAttr(
+						"ibm_is_lb.testacc_LB", "name", name),
+					resource.TestCheckResourceAttr(
+						"ibm_is_lb.testacc_LB", "address_mode", "static"),
+					resource.TestCheckResourceAttr(
+						"ibm_is_lb.testacc_LB", "public_ip_ids.#", "3"),
+					resource.TestCheckResourceAttrSet(
+						"ibm_is_lb.testacc_LB", "public_ip.#"),
+					resource.TestCheckResourceAttrSet(
+						"ibm_is_lb.testacc_LB", "public_ip.0.address"),
+					resource.TestCheckResourceAttrSet(
+						"ibm_is_lb.testacc_LB", "public_ip.0.resource_type"),
+					resource.TestCheckResourceAttr(
+						"ibm_is_lb.testacc_LB", "private_ip_ids.#", "3"),
+					resource.TestCheckResourceAttrSet(
+						"ibm_is_lb.testacc_LB", "private_ip.#"),
+					resource.TestCheckResourceAttrSet(
+						"ibm_is_lb.testacc_LB", "private_ip.0.address"),
+					resource.TestCheckResourceAttrSet(
+						"ibm_is_lb.testacc_LB", "private_ip.0.href"),
+					resource.TestCheckResourceAttrSet(
+						"ibm_is_lb.testacc_LB", "private_ip.0.name"),
+					resource.TestCheckResourceAttrSet(
+						"ibm_is_lb.testacc_LB", "private_ip.0.reserved_ip"),
+					resource.TestCheckResourceAttrSet(
+						"ibm_is_lb.testacc_LB", "private_ip.0.resource_type"),
+				),
+			},
+			// Update: 3 public IPs and 3 private IPs (different set)
+			{
+				Config: testAccCheckIBMISLBStaticAddressModeUpdateConfig(vpcname, subnetname, acc.ISZoneName, acc.ISCIDR, name, floatingipname, floatingipname2, floatingipname3, reservedipname, reservedipname2, reservedipname3),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckIBMISLBExists("ibm_is_lb.testacc_LB", lb),
+					resource.TestCheckResourceAttr(
+						"ibm_is_lb.testacc_LB", "name", name),
+					resource.TestCheckResourceAttr(
+						"ibm_is_lb.testacc_LB", "address_mode", "static"),
+					resource.TestCheckResourceAttr(
+						"ibm_is_lb.testacc_LB", "public_ip_ids.#", "3"),
+					resource.TestCheckResourceAttrSet(
+						"ibm_is_lb.testacc_LB", "public_ip.#"),
+					resource.TestCheckResourceAttrSet(
+						"ibm_is_lb.testacc_LB", "public_ip.0.address"),
+					resource.TestCheckResourceAttrSet(
+						"ibm_is_lb.testacc_LB", "public_ip.0.resource_type"),
+					resource.TestCheckResourceAttr(
+						"ibm_is_lb.testacc_LB", "private_ip_ids.#", "3"),
+					resource.TestCheckResourceAttrSet(
+						"ibm_is_lb.testacc_LB", "private_ip.#"),
+					resource.TestCheckResourceAttrSet(
+						"ibm_is_lb.testacc_LB", "private_ip.0.address"),
+					resource.TestCheckResourceAttr(
+						"ibm_is_lb.testacc_LB", "public_range.#", "0"),
+					resource.TestCheckResourceAttrSet(
+						"ibm_is_lb.testacc_LB", "private_ip.0.href"),
+					resource.TestCheckResourceAttrSet(
+						"ibm_is_lb.testacc_LB", "private_ip.0.name"),
+					resource.TestCheckResourceAttrSet(
+						"ibm_is_lb.testacc_LB", "private_ip.0.reserved_ip"),
+					resource.TestCheckResourceAttrSet(
+						"ibm_is_lb.testacc_LB", "private_ip.0.resource_type"),
+				),
+			},
+			// Update: switch to dynamic address_mode, remove public and private IP IDs from LB
+			// FIP/RIP resources are kept in config so they are not destroyed mid-apply
+			{
+				Config: testAccCheckIBMISLBDynamicAddressModeConfig(vpcname, subnetname, acc.ISZoneName, acc.ISCIDR, name, floatingipname, floatingipname2, floatingipname3, reservedipname, reservedipname2, reservedipname3),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckIBMISLBExists("ibm_is_lb.testacc_LB", lb),
+					resource.TestCheckResourceAttr(
+						"ibm_is_lb.testacc_LB", "name", name),
+					resource.TestCheckResourceAttr(
+						"ibm_is_lb.testacc_LB", "address_mode", "dynamic"),
+					resource.TestCheckResourceAttr(
+						"ibm_is_lb.testacc_LB", "public_ip_ids.#", "0"),
+					resource.TestCheckResourceAttr(
+						"ibm_is_lb.testacc_LB", "private_ip_ids.#", "0"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccIBMISLB_basic(t *testing.T) {
 	var lb string
 	vpcname := fmt.Sprintf("tflb-vpc-%d", acctest.RandIntRange(10, 100))
@@ -848,6 +953,308 @@ func TestAccIBMISLB_advanced_health_checks(t *testing.T) {
 					resource.TestCheckResourceAttr("ibm_is_lb.testacc_LB", "name", name),
 					resource.TestCheckResourceAttrSet("ibm_is_lb.testacc_LB", "advanced_health_checks_supported"),
 					resource.TestCheckResourceAttrSet("ibm_is_lb.testacc_LB", "fqdn_pool_members_supported"),
+				),
+			},
+		},
+	})
+}
+
+func testAccCheckIBMISLBStaticAddressModeConfig(vpcname, subnetname, zone, cidr, name, fipname, fipname2, fipname3, ripname, ripname2, ripname3 string) string {
+	return fmt.Sprintf(`
+	resource "ibm_is_vpc" "testacc_vpc" {
+		name = "%s"
+	}
+
+	resource "ibm_is_subnet" "testacc_subnet" {
+		name            = "%s"
+		vpc             = ibm_is_vpc.testacc_vpc.id
+		zone            = "%s"
+		ipv4_cidr_block = "%s"
+	}
+
+	resource "ibm_is_floating_ip" "testacc_fip1" {
+		name   = "%s"
+		zone   = "%s"
+	}
+
+	resource "ibm_is_floating_ip" "testacc_fip2" {
+		name   = "%s"
+		zone   = "%s"
+	}
+
+	resource "ibm_is_floating_ip" "testacc_fip3" {
+		name   = "%s"
+		zone   = "%s"
+	}
+
+	resource "ibm_is_subnet_reserved_ip" "testacc_rip1" {
+		name   = "%s"
+		subnet = ibm_is_subnet.testacc_subnet.id
+	}
+
+	resource "ibm_is_subnet_reserved_ip" "testacc_rip2" {
+		name   = "%s"
+		subnet = ibm_is_subnet.testacc_subnet.id
+	}
+
+	resource "ibm_is_subnet_reserved_ip" "testacc_rip3" {
+		name   = "%s"
+		subnet = ibm_is_subnet.testacc_subnet.id
+	}
+
+	resource "ibm_is_lb" "testacc_LB" {
+		name           = "%s"
+		subnets        = [ibm_is_subnet.testacc_subnet.id]
+		type           = "public"
+		address_mode   = "static"
+		public_ip_ids  = [ibm_is_floating_ip.testacc_fip1.id, ibm_is_floating_ip.testacc_fip2.id, ibm_is_floating_ip.testacc_fip3.id]
+		private_ip_ids = [ibm_is_subnet_reserved_ip.testacc_rip1.reserved_ip, ibm_is_subnet_reserved_ip.testacc_rip2.reserved_ip, ibm_is_subnet_reserved_ip.testacc_rip3.reserved_ip]
+	}`, vpcname, subnetname, zone, cidr, fipname, zone, fipname2, zone, fipname3, zone, ripname, ripname2, ripname3, name)
+}
+
+func testAccCheckIBMISLBStaticAddressModeUpdateConfig(vpcname, subnetname, zone, cidr, name, fipname, fipname2, fipname3, ripname, ripname2, ripname3 string) string {
+	return fmt.Sprintf(`
+	resource "ibm_is_vpc" "testacc_vpc" {
+		name = "%s"
+	}
+
+	resource "ibm_is_subnet" "testacc_subnet" {
+		name            = "%s"
+		vpc             = ibm_is_vpc.testacc_vpc.id
+		zone            = "%s"
+		ipv4_cidr_block = "%s"
+	}
+
+	resource "ibm_is_floating_ip" "testacc_fip1" {
+		name   = "%s"
+		zone   = "%s"
+	}
+
+	resource "ibm_is_floating_ip" "testacc_fip2" {
+		name   = "%s"
+		zone   = "%s"
+	}
+
+	resource "ibm_is_floating_ip" "testacc_fip3" {
+		name   = "%s"
+		zone   = "%s"
+	}
+
+	resource "ibm_is_subnet_reserved_ip" "testacc_rip1" {
+		name   = "%s"
+		subnet = ibm_is_subnet.testacc_subnet.id
+	}
+
+	resource "ibm_is_subnet_reserved_ip" "testacc_rip2" {
+		name   = "%s"
+		subnet = ibm_is_subnet.testacc_subnet.id
+	}
+
+	resource "ibm_is_subnet_reserved_ip" "testacc_rip3" {
+		name   = "%s"
+		subnet = ibm_is_subnet.testacc_subnet.id
+	}
+
+	resource "ibm_is_lb" "testacc_LB" {
+		name           = "%s"
+		subnets        = [ibm_is_subnet.testacc_subnet.id]
+		type           = "public"
+		address_mode   = "static"
+		public_ip_ids  = [ibm_is_floating_ip.testacc_fip1.id, ibm_is_floating_ip.testacc_fip2.id, ibm_is_floating_ip.testacc_fip3.id]
+		private_ip_ids = [ibm_is_subnet_reserved_ip.testacc_rip1.reserved_ip, ibm_is_subnet_reserved_ip.testacc_rip2.reserved_ip, ibm_is_subnet_reserved_ip.testacc_rip3.reserved_ip]
+	}`, vpcname, subnetname, zone, cidr, fipname, zone, fipname2, zone, fipname3, zone, ripname, ripname2, ripname3, name)
+}
+
+func testAccCheckIBMISLBDynamicAddressModeConfig(vpcname, subnetname, zone, cidr, name, fipname, fipname2, fipname3, ripname, ripname2, ripname3 string) string {
+	return fmt.Sprintf(`
+	resource "ibm_is_vpc" "testacc_vpc" {
+		name = "%s"
+	}
+
+	resource "ibm_is_subnet" "testacc_subnet" {
+		name            = "%s"
+		vpc             = ibm_is_vpc.testacc_vpc.id
+		zone            = "%s"
+		ipv4_cidr_block = "%s"
+	}
+
+	resource "ibm_is_floating_ip" "testacc_fip1" {
+		name   = "%s"
+		zone   = "%s"
+	}
+
+	resource "ibm_is_floating_ip" "testacc_fip2" {
+		name   = "%s"
+		zone   = "%s"
+	}
+
+	resource "ibm_is_floating_ip" "testacc_fip3" {
+		name   = "%s"
+		zone   = "%s"
+	}
+
+	resource "ibm_is_subnet_reserved_ip" "testacc_rip1" {
+		name   = "%s"
+		subnet = ibm_is_subnet.testacc_subnet.id
+	}
+
+	resource "ibm_is_subnet_reserved_ip" "testacc_rip2" {
+		name   = "%s"
+		subnet = ibm_is_subnet.testacc_subnet.id
+	}
+
+	resource "ibm_is_subnet_reserved_ip" "testacc_rip3" {
+		name   = "%s"
+		subnet = ibm_is_subnet.testacc_subnet.id
+	}
+
+	resource "ibm_is_lb" "testacc_LB" {
+		name         = "%s"
+		subnets      = [ibm_is_subnet.testacc_subnet.id]
+		type         = "public"
+		address_mode = "dynamic"
+	}`, vpcname, subnetname, zone, cidr, fipname, zone, fipname2, zone, fipname3, zone, ripname, ripname2, ripname3, name)
+}
+
+func testAccCheckIBMISLBIPv6Config(vpcname, subnetname, zone, cidr, name string, ipv6Enabled bool) string {
+	return fmt.Sprintf(`
+	resource "ibm_is_vpc" "testacc_vpc" {
+		name = "%s"
+	}
+	resource "ibm_is_subnet" "testacc_subnet" {
+		name            = "%s"
+		vpc             = ibm_is_vpc.testacc_vpc.id
+		zone            = "%s"
+		ipv4_cidr_block = "%s"
+	}
+	resource "ibm_is_lb" "testacc_LB" {
+		name         = "%s"
+		type         = "public"
+		profile      = "dynamic"
+		ipv6_enabled = %t
+		subnets      = [ibm_is_subnet.testacc_subnet.id]
+	}`, vpcname, subnetname, zone, cidr, name, ipv6Enabled)
+}
+
+func TestAccIBMISLB_ipv6_dynamic(t *testing.T) {
+	var lb string
+	vpcname := fmt.Sprintf("tflb-vpc-%d", acctest.RandIntRange(10, 100))
+	subnetname := fmt.Sprintf("tflb-subnet-name-%d", acctest.RandIntRange(10, 100))
+	name := fmt.Sprintf("tflb-ipv6-%d", acctest.RandIntRange(10, 100))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acc.TestAccPreCheck(t) },
+		Providers:    acc.TestAccProviders,
+		CheckDestroy: testAccCheckIBMISLBDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckIBMISLBIPv6Config(vpcname, subnetname, acc.ISZoneName, acc.ISCIDR, name, true),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckIBMISLBExists("ibm_is_lb.testacc_LB", lb),
+					resource.TestCheckResourceAttr("ibm_is_lb.testacc_LB", "name", name),
+					resource.TestCheckResourceAttr("ibm_is_lb.testacc_LB", "ipv6_enabled", "true"),
+					resource.TestCheckResourceAttrSet("ibm_is_lb.testacc_LB", "ipv6_enabled"),
+					resource.TestCheckResourceAttrSet("ibm_is_lb.testacc_LB", "hostname"),
+				),
+			},
+			{
+				Config: testAccCheckIBMISLBIPv6Config(vpcname, subnetname, acc.ISZoneName, acc.ISCIDR, name, false),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckIBMISLBExists("ibm_is_lb.testacc_LB", lb),
+					resource.TestCheckResourceAttr("ibm_is_lb.testacc_LB", "ipv6_enabled", "false"),
+					resource.TestCheckResourceAttrSet("ibm_is_lb.testacc_LB", "ipv6_enabled"),
+				),
+			},
+		},
+	})
+}
+
+func testAccCheckIBMISLBIPv6WithPARConfig(vpcname, subnetname, zone, cidr, parName, lbName string) string {
+	return fmt.Sprintf(`
+	resource "ibm_is_vpc" "testacc_vpc" {
+		name = "%s"
+	}
+	resource "ibm_is_subnet" "testacc_subnet" {
+		name            = "%s"
+		vpc             = ibm_is_vpc.testacc_vpc.id
+		zone            = "%s"
+		ipv4_cidr_block = "%s"
+	}
+	resource "ibm_is_subnet_reserved_ip" "testacc_rip1" {
+		subnet = ibm_is_subnet.testacc_subnet.id
+	}
+	resource "ibm_is_public_address_range" "testacc_par" {
+		name               = "%s"
+		ipv4_address_count = 16
+		target {
+			vpc {
+				id = ibm_is_vpc.testacc_vpc.id
+			}
+			zone {
+				name = "%s"
+			}
+		}
+	}
+	resource "ibm_is_lb" "testacc_LB" {
+		name           = "%s"
+		type           = "public"
+		profile        = "dynamic"
+		address_mode   = "static"
+		ipv6_enabled   = true
+		subnets        = [ibm_is_subnet.testacc_subnet.id]
+		public_ranges  = [ibm_is_public_address_range.testacc_par.id]
+		private_ip_ids = [ibm_is_subnet_reserved_ip.testacc_rip1.reserved_ip]
+	}`, vpcname, subnetname, zone, cidr, parName, zone, lbName)
+}
+
+func TestAccIBMISLB_ipv6_with_par(t *testing.T) {
+	var lb string
+	vpcname := fmt.Sprintf("tflb-vpc-%d", acctest.RandIntRange(10, 100))
+	subnetname := fmt.Sprintf("tflb-subnet-%d", acctest.RandIntRange(10, 100))
+	parName := fmt.Sprintf("tflb-par-%d", acctest.RandIntRange(10, 100))
+	lbName := fmt.Sprintf("tflb-ipv6-par-%d", acctest.RandIntRange(10, 100))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acc.TestAccPreCheck(t) },
+		Providers:    acc.TestAccProviders,
+		CheckDestroy: testAccCheckIBMISLBDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckIBMISLBIPv6WithPARConfig(vpcname, subnetname, acc.ISZoneName, acc.ISCIDR, parName, lbName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckIBMISLBExists("ibm_is_lb.testacc_LB", lb),
+					resource.TestCheckResourceAttr("ibm_is_lb.testacc_LB", "name", lbName),
+					resource.TestCheckResourceAttr("ibm_is_lb.testacc_LB", "ipv6_enabled", "true"),
+					resource.TestCheckResourceAttr("ibm_is_lb.testacc_LB", "address_mode", "static"),
+					resource.TestCheckResourceAttr("ibm_is_lb.testacc_LB", "public_ranges.#", "1"),
+					resource.TestCheckResourceAttrPair("ibm_is_lb.testacc_LB", "public_ranges.0", "ibm_is_public_address_range.testacc_par", "id"),
+					resource.TestCheckResourceAttr("ibm_is_lb.testacc_LB", "public_range.#", "1"),
+					resource.TestCheckResourceAttrSet("ibm_is_lb.testacc_LB", "public_range.0.cidr"),
+					resource.TestCheckResourceAttrSet("ibm_is_lb.testacc_LB", "public_range.0.crn"),
+					resource.TestCheckResourceAttr("ibm_is_lb.testacc_LB", "public_range.0.resource_type", "public_address_range"),
+					// a public address range assigned to the LB is also reported in public_ip with its cidr
+					resource.TestCheckResourceAttrSet("ibm_is_lb.testacc_LB", "public_ip.0.cidr"),
+					resource.TestCheckResourceAttr("ibm_is_lb.testacc_LB", "public_ip.0.resource_type", "public_address_range"),
+				),
+			},
+			{
+				// public_ranges holds IDs, so a second plan must be empty
+				Config:   testAccCheckIBMISLBIPv6WithPARConfig(vpcname, subnetname, acc.ISZoneName, acc.ISCIDR, parName, lbName),
+				PlanOnly: true,
+			},
+			{
+				// the range is now bound to the LB, so target.load_balancer is populated
+				Config: testAccCheckIBMISLBIPv6WithPARConfig(vpcname, subnetname, acc.ISZoneName, acc.ISCIDR, parName, lbName) + `
+	data "ibm_is_public_address_range" "par_ds" {
+		identifier = ibm_is_public_address_range.testacc_par.id
+		depends_on = [ibm_is_lb.testacc_LB]
+	}`,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttrPair("ibm_is_public_address_range.testacc_par", "target.0.load_balancer.0.id", "ibm_is_lb.testacc_LB", "id"),
+					resource.TestCheckResourceAttrPair("ibm_is_public_address_range.testacc_par", "target.0.load_balancer.0.crn", "ibm_is_lb.testacc_LB", "crn"),
+					resource.TestCheckResourceAttr("ibm_is_public_address_range.testacc_par", "target.0.load_balancer.0.name", lbName),
+					resource.TestCheckResourceAttrPair("data.ibm_is_public_address_range.par_ds", "target.0.load_balancer.0.id", "ibm_is_lb.testacc_LB", "id"),
+					resource.TestCheckResourceAttr("data.ibm_is_public_address_range.par_ds", "target.0.load_balancer.0.name", lbName),
 				),
 			},
 		},

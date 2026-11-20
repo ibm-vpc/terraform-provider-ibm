@@ -51,6 +51,12 @@ You can access the following attribute references after your data source is crea
 		- `default` - (String) The default failsafe policy action for this profile. Allowable values are: `fail`, `forward`.
 		- `type` - (String) The type for this profile field.
 		- `values` - (List) The supported failsafe policy actions. Allowable list items are: `fail`, `forward`.
+	- `supported_address_modes` - (List) The address mode configuration for a load balancer with this profile.
+
+		Nested schema for `supported_address_modes`:
+		- `default` - (String) The default address mode for this profile. One of `dynamic`, `static`.
+		- `type` - (String) The type for this profile field (e.g. `enum`).
+		- `values` - (List of String) The supported address modes. Allowable values are: `dynamic`, `static`.
 	- `access_modes` - (List) The instance groups support for a load balancer with this profile
 
 		Nested scheme for `access_modes`:
@@ -77,6 +83,8 @@ You can access the following attribute references after your data source is crea
 		Nested scheme for `instance_groups_supported`:
 		- `type` - (String) The instance groups support type.  One of **fixed**, **dependent**
 		- `value` - (String) Indicated whether instance groups is supported. Applicable only if `type` is **fixed**
+	- `ipv6_supported` - (Bool) The IPv6 support for a load balancer with this profile.
+	- `ipv6_supported_type` - (String) The IPv6 support type for this load balancer profile, one of [fixed, dependent].
 	- `source_ip_session_persistence_supported` - (List) The source IP session persistence support for a load balancer with this profile
 
 		Nested scheme for `source_ip_session_persistence_supported`:

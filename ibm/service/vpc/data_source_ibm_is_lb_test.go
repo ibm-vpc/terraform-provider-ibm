@@ -60,6 +60,39 @@ func TestAccIBMISLBDatasource_failsafe_policy(t *testing.T) {
 		},
 	})
 }
+func TestAccIBMISLBDatasource_address_mode(t *testing.T) {
+	name := fmt.Sprintf("tflb-name-%d", acctest.RandIntRange(10, 100))
+	vpcname := fmt.Sprintf("tflb-vpc-%d", acctest.RandIntRange(10, 100))
+	subnetname := fmt.Sprintf("tflb-subnet-name-%d", acctest.RandIntRange(10, 100))
+	floatingipname := fmt.Sprintf("tflb-fip-%d", acctest.RandIntRange(10, 100))
+	floatingipname2 := fmt.Sprintf("tflb-fip2-%d", acctest.RandIntRange(10, 100))
+	floatingipname3 := fmt.Sprintf("tflb-fip3-%d", acctest.RandIntRange(10, 100))
+	reservedipname := fmt.Sprintf("tflb-rip-%d", acctest.RandIntRange(10, 100))
+	reservedipname2 := fmt.Sprintf("tflb-rip2-%d", acctest.RandIntRange(10, 100))
+	reservedipname3 := fmt.Sprintf("tflb-rip3-%d", acctest.RandIntRange(10, 100))
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { acc.TestAccPreCheck(t) },
+		Providers: acc.TestAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testDSCheckIBMISLBAddressModeConfig(vpcname, subnetname, acc.ISZoneName, acc.ISCIDR, name, floatingipname, floatingipname2, floatingipname3, reservedipname, reservedipname2, reservedipname3),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(
+						"data.ibm_is_lb.ds_lb", "name", name),
+					resource.TestCheckResourceAttrSet("data.ibm_is_lb.ds_lb", "address_mode"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_lb.ds_lb", "public_ips.#"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_lb.ds_lb", "public_ip.#"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_lb.ds_lb", "public_ip.0.resource_type"),
+					resource.TestCheckResourceAttr("data.ibm_is_lb.ds_lb", "public_range.#", "0"),
+					resource.TestCheckResourceAttr("data.ibm_is_lb.ds_lb", "public_ranges.#", "0"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_lb.ds_lb", "private_ips.#"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_lb.ds_lb", "private_ip.#"),
+				),
+			},
+		},
+	})
+}
+
 func TestAccIBMISLBDatasource_ReservedIp(t *testing.T) {
 	name := fmt.Sprintf("tflb-name-%d", acctest.RandIntRange(10, 100))
 	vpcname := fmt.Sprintf("tflb-vpc-%d", acctest.RandIntRange(10, 100))
@@ -144,6 +177,14 @@ func TestAccIBMISLBDatasource_mTLS(t *testing.T) {
 	})
 }
 
+func testDSCheckIBMISLBAddressModeConfig(vpcname, subnetname, zone, cidr, name, fipname, fipname2, fipname3, ripname, ripname2, ripname3 string) string {
+	return testAccCheckIBMISLBStaticAddressModeConfig(vpcname, subnetname, zone, cidr, name, fipname, fipname2, fipname3, ripname, ripname2, ripname3) + `
+data "ibm_is_lb" "ds_lb" {
+	name       = ibm_is_lb.testacc_LB.name
+	depends_on = [ibm_is_lb.testacc_LB]
+}`
+}
+
 func testDSCheckIBMISLBConfig(vpcname, subnetname, zone, cidr, name string) string {
 	return fmt.Sprintf(`
 resource "ibm_is_vpc" "testacc_vpc" {
@@ -163,6 +204,68 @@ resource "ibm_is_lb" "testacc_lb" {
 data "ibm_is_lb" "ds_lb" {
   name = ibm_is_lb.testacc_lb.name
 }`, vpcname, subnetname, zone, cidr, name)
+}
+
+func testDSCheckIBMISLBIPv6Config(vpcname, subnetname, zone, cidr, name string) string {
+	return testAccCheckIBMISLBIPv6Config(vpcname, subnetname, zone, cidr, name, true) + fmt.Sprintf(`
+data "ibm_is_lb" "ds_lb" {
+  name = ibm_is_lb.testacc_LB.name
+}`)
+}
+
+func TestAccIBMISLBDatasource_ipv6(t *testing.T) {
+	name := fmt.Sprintf("tflb-ipv6-%d", acctest.RandIntRange(10, 100))
+	vpcname := fmt.Sprintf("tflb-vpc-%d", acctest.RandIntRange(10, 100))
+	subnetname := fmt.Sprintf("tflb-subnet-name-%d", acctest.RandIntRange(10, 100))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { acc.TestAccPreCheck(t) },
+		Providers: acc.TestAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testDSCheckIBMISLBIPv6Config(vpcname, subnetname, acc.ISZoneName, acc.ISCIDR, name),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("data.ibm_is_lb.ds_lb", "name", name),
+					resource.TestCheckResourceAttr("data.ibm_is_lb.ds_lb", "ipv6_enabled", "true"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_lb.ds_lb", "public_ranges.#"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_lb.ds_lb", "public_range.#"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccIBMISLBDatasource_ipv6_with_par(t *testing.T) {
+	vpcname := fmt.Sprintf("tflb-vpc-%d", acctest.RandIntRange(10, 100))
+	subnetname := fmt.Sprintf("tflb-subnet-name-%d", acctest.RandIntRange(10, 100))
+	parName := fmt.Sprintf("tflb-par-%d", acctest.RandIntRange(10, 100))
+	lbName := fmt.Sprintf("tflb-ipv6-par-%d", acctest.RandIntRange(10, 100))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:  func() { acc.TestAccPreCheck(t) },
+		Providers: acc.TestAccProviders,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckIBMISLBIPv6WithPARConfig(vpcname, subnetname, acc.ISZoneName, acc.ISCIDR, parName, lbName) + `
+	data "ibm_is_lb" "ds_lb" {
+		name = ibm_is_lb.testacc_LB.name
+	}
+	data "ibm_is_lbs" "ds_lbs" {
+		depends_on = [ibm_is_lb.testacc_LB]
+	}`,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("data.ibm_is_lb.ds_lb", "ipv6_enabled", "true"),
+					resource.TestCheckResourceAttr("data.ibm_is_lb.ds_lb", "public_ranges.#", "1"),
+					resource.TestCheckResourceAttr("data.ibm_is_lb.ds_lb", "public_range.#", "1"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_lb.ds_lb", "public_range.0.cidr"),
+					resource.TestCheckResourceAttr("data.ibm_is_lb.ds_lb", "public_range.0.resource_type", "public_address_range"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_lb.ds_lb", "public_ip.0.cidr"),
+					resource.TestCheckResourceAttr("data.ibm_is_lb.ds_lb", "public_ip.0.resource_type", "public_address_range"),
+					resource.TestCheckResourceAttrSet("data.ibm_is_lbs.ds_lbs", "load_balancers.#"),
+				),
+			},
+		},
+	})
 }
 
 func testAccCheckIBMISDSLBDNS(vpcname, subnetname, name string) string {

@@ -162,7 +162,16 @@ func DataSourceIBMISLBS() *schema.Resource {
 							Computed:    true,
 							Description: "Load Balancer route mode",
 						},
-
+						isLBAddressMode: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The address mode of this load balancer",
+						},
+						isLBIpv6Enabled: {
+							Type:        schema.TypeBool,
+							Computed:    true,
+							Description: "Indicates whether this load balancer supports public IPv6 addresses.",
+						},
 						isLBType: {
 							Type:        schema.TypeString,
 							Computed:    true,
@@ -187,7 +196,123 @@ func DataSourceIBMISLBS() *schema.Resource {
 							Elem:        &schema.Schema{Type: schema.TypeString},
 							Description: "Load Balancer Public IPs",
 						},
-
+						isLBPublicIPDetail: {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "The public IP addresses assigned to this load balancer.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"address": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The globally unique IP address.",
+									},
+									"href": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The URL for this floating IP",
+									},
+									"name": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The name for this floating IP. The name is unique across all floating IPs in the region.",
+									},
+									"resource_type": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The resource type.",
+									},
+									"id": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The unique identifier for this floating IP.",
+									},
+									"crn": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The CRN for this floating IP.",
+									},
+									"cidr": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The public IP address block for this public address range, expressed in CIDR format. Present only when the public IP is a public address range.",
+									},
+									"deleted": {
+										Type:        schema.TypeList,
+										Computed:    true,
+										Description: "If present, this property indicates the referenced resource has been deleted and provides some supplementary information.",
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"more_info": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "A link to documentation about deleted resources.",
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+						isLBPublicRanges: {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Elem:        &schema.Schema{Type: schema.TypeString},
+							Description: "The IDs of the IPv6 public address ranges assigned to this load balancer. Will be empty if `is_public` is `false` or `ipv6_enabled` is `false`.",
+						},
+						isLBPublicRangeDetail: {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "The IPv6 public address ranges assigned to this load balancer. Will be empty if `is_public` is `false` or `ipv6_enabled` is `false`.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									isLBPublicIpCIDR: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The public IP address block for this public address range, expressed in CIDR format.",
+									},
+									isLBPublicIpCRN: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The CRN for this public address range.",
+									},
+									isLBPublicIpDeleted: {
+										Type:        schema.TypeList,
+										Computed:    true,
+										Description: "If present, this property indicates the referenced resource has been deleted.",
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"more_info": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "Link to documentation about deleted resources.",
+												},
+											},
+										},
+									},
+									isLBPublicIpHref: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The URL for this public address range.",
+									},
+									isLBPublicIpID: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The unique identifier for this public address range.",
+									},
+									isLBPublicIpName: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The name for this public address range.",
+									},
+									isLBPublicIpResourceType: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The resource type.",
+									},
+								},
+							},
+						},
 						isLBPrivateIPs: {
 							Type:        schema.TypeList,
 							Computed:    true,
@@ -448,6 +573,12 @@ func getLbs(context context.Context, d *schema.ResourceData, meta interface{}) d
 		if lb.AsymmetricRoutingSupported != nil {
 			lbInfo["asymmetric_routing_supported"] = *lb.AsymmetricRoutingSupported
 		}
+		if lb.AddressMode != nil {
+			lbInfo[isLBAddressMode] = *lb.AddressMode
+		}
+		if lb.Ipv6Enabled != nil {
+			lbInfo[isLBIpv6Enabled] = *lb.Ipv6Enabled
+		}
 		lbInfo[CRN] = *lb.CRN
 		lbInfo[ProvisioningStatus] = *lb.ProvisioningStatus
 
@@ -462,16 +593,52 @@ func getLbs(context context.Context, d *schema.ResourceData, meta interface{}) d
 		lbInfo[isLBStatus] = *lb.ProvisioningStatus
 		lbInfo[isLBOperatingStatus] = *lb.OperatingStatus
 		publicIpList := make([]string, 0)
+		publicIpDetailList := make([]map[string]interface{}, 0)
 		if lb.PublicIps != nil {
-			for _, ip := range lb.PublicIps {
-				if ip.Address != nil {
-					pubip := *ip.Address
-					publicIpList = append(publicIpList, pubip)
+			for _, ipIntf := range lb.PublicIps {
+				ip, ok := ipIntf.(*vpcv1.LoadBalancerPublicIP)
+				if !ok {
+					continue
 				}
+				currentPubIp := map[string]interface{}{}
+				if ip.Address != nil {
+					publicIpList = append(publicIpList, *ip.Address)
+					currentPubIp["address"] = *ip.Address
+				}
+				if ip.CIDR != nil {
+					currentPubIp["cidr"] = *ip.CIDR
+				}
+				if ip.CRN != nil {
+					currentPubIp["crn"] = *ip.CRN
+				}
+				if ip.Href != nil {
+					currentPubIp["href"] = *ip.Href
+				}
+				if ip.ID != nil {
+					currentPubIp["id"] = *ip.ID
+				}
+				if ip.Name != nil {
+					currentPubIp["name"] = *ip.Name
+				}
+				if ip.ResourceType != nil {
+					currentPubIp["resource_type"] = *ip.ResourceType
+				}
+				if ip.Deleted != nil {
+					deletedMap := map[string]interface{}{}
+					if ip.Deleted.MoreInfo != nil {
+						deletedMap["more_info"] = *ip.Deleted.MoreInfo
+					}
+					currentPubIp["deleted"] = []map[string]interface{}{deletedMap}
+				}
+				publicIpDetailList = append(publicIpDetailList, currentPubIp)
 			}
 		}
 
 		lbInfo[isLBPublicIPs] = publicIpList
+		lbInfo[isLBPublicIPDetail] = publicIpDetailList
+		publicRangeList, publicRangeDetailList := lbFlattenPublicRanges(lb.PublicRanges)
+		lbInfo[isLBPublicRanges] = publicRangeList
+		lbInfo[isLBPublicRangeDetail] = publicRangeDetailList
 		privateIpList := make([]string, 0)
 		privateIpDetailList := make([]map[string]interface{}, 0)
 		if lb.PrivateIps != nil {

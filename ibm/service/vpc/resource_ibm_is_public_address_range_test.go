@@ -75,6 +75,31 @@ func testAccCheckIBMPublicAddressRangeConfigBasic(vpcName, name, ipv4AddressCoun
 	`, vpcName, name, ipv4AddressCount, acc.ISZoneName)
 }
 
+func TestAccIBMPublicAddressRangeLBTargetReadOnly(t *testing.T) {
+	var conf vpcv1.PublicAddressRange
+	ipv4AddressCount := "16"
+	name := fmt.Sprintf("tf-name-par%d", acctest.RandIntRange(10, 100))
+	vpcName := fmt.Sprintf("tf-name-vpc%d", acctest.RandIntRange(10, 100))
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acc.TestAccPreCheck(t) },
+		Providers:    acc.TestAccProviders,
+		CheckDestroy: testAccCheckIBMPublicAddressRangeDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckIBMPublicAddressRangeConfigBasic(vpcName, name, ipv4AddressCount),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					testAccCheckIBMPublicAddressRangeExists("ibm_is_public_address_range.public_address_range_instance", conf),
+					resource.TestCheckResourceAttr("ibm_is_public_address_range.public_address_range_instance", "ipv4_address_count", ipv4AddressCount),
+					// target.load_balancer is read-only and should be absent when bound to a vpc/zone
+					resource.TestCheckResourceAttr("ibm_is_public_address_range.public_address_range_instance", "target.0.load_balancer.#", "0"),
+					resource.TestCheckResourceAttrSet("ibm_is_public_address_range.public_address_range_instance", "target.0.vpc.0.id"),
+					resource.TestCheckResourceAttrSet("ibm_is_public_address_range.public_address_range_instance", "target.0.zone.0.name"),
+				),
+			},
+		},
+	})
+}
+
 func testAccCheckIBMPublicAddressRangeExists(n string, obj vpcv1.PublicAddressRange) resource.TestCheckFunc {
 
 	return func(s *terraform.State) error {

@@ -127,6 +127,31 @@ func DataSourceIBMISLbProfile() *schema.Resource {
 				Computed:    true,
 				Description: "The UDP support type for a load balancer with this profile",
 			},
+			"supported_address_modes": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "The address mode configuration for a load balancer with this profile",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"default": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The default address mode for this profile",
+						},
+						"type": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The type for this profile field",
+						},
+						"values": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "The supported address modes",
+							Elem:        &schema.Schema{Type: schema.TypeString},
+						},
+					},
+				},
+			},
 			"failsafe_policy_actions": &schema.Schema{
 				Type:     schema.TypeList,
 				Computed: true,
@@ -199,6 +224,16 @@ func DataSourceIBMISLbProfile() *schema.Resource {
 						},
 					},
 				},
+			},
+			"ipv6_supported": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: "The IPv6 support for a load balancer with this profile",
+			},
+			"ipv6_supported_type": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "The IPv6 support type for this load balancer profile, one of [fixed, dependent]",
 			},
 			"mtls_supported": {
 				Type:        schema.TypeBool,
@@ -336,6 +371,34 @@ func dataSourceIBMISLbProfileRead(context context.Context, d *schema.ResourceDat
 	if err = d.Set("failsafe_policy_actions", failsafePolicyActions); err != nil {
 		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting failsafe_policy_actions: %s", err), "(Data) ibm_is_lb_profile", "read", "set-failsafe_policy_actions").GetDiag()
 	}
+	if loadBalancerProfile.SupportedAddressModes != nil {
+		supportedAddressModesMap := map[string]interface{}{}
+		switch v := loadBalancerProfile.SupportedAddressModes.(type) {
+		case *vpcv1.LoadBalancerProfileSupportedAddressModesEnum:
+			if v.Default != nil {
+				supportedAddressModesMap["default"] = *v.Default
+			}
+			if v.Type != nil {
+				supportedAddressModesMap["type"] = *v.Type
+			}
+			if v.Values != nil {
+				supportedAddressModesMap["values"] = v.Values
+			}
+		case *vpcv1.LoadBalancerProfileSupportedAddressModes:
+			if v.Default != nil {
+				supportedAddressModesMap["default"] = *v.Default
+			}
+			if v.Type != nil {
+				supportedAddressModesMap["type"] = *v.Type
+			}
+			if v.Values != nil {
+				supportedAddressModesMap["values"] = v.Values
+			}
+		}
+		if err = d.Set("supported_address_modes", []map[string]interface{}{supportedAddressModesMap}); err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting supported_address_modes: %s", err), "(Data) ibm_is_lb_profile", "read", "set-supported_address_modes").GetDiag()
+		}
+	}
 	if loadBalancerProfile.RouteModeSupported != nil {
 		routeMode := loadBalancerProfile.RouteModeSupported
 		switch reflect.TypeOf(routeMode).String() {
@@ -374,6 +437,49 @@ func dataSourceIBMISLbProfileRead(context context.Context, d *schema.ResourceDat
 			}
 		}
 	}
+	if loadBalancerProfile.Ipv6Supported != nil {
+		ipv6Support := loadBalancerProfile.Ipv6Supported
+		switch reflect.TypeOf(ipv6Support).String() {
+		case "*vpcv1.LoadBalancerProfileIPv6SupportedFixed":
+			{
+				ipv6 := ipv6Support.(*vpcv1.LoadBalancerProfileIPv6SupportedFixed)
+				if ipv6.Value != nil {
+					if err = d.Set("ipv6_supported", *ipv6.Value); err != nil {
+						return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting ipv6_supported: %s", err), "(Data) ibm_is_lb_profile", "read", "set-ipv6_supported").GetDiag()
+					}
+				}
+				if ipv6.Type != nil {
+					if err = d.Set("ipv6_supported_type", *ipv6.Type); err != nil {
+						return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting ipv6_supported_type: %s", err), "(Data) ibm_is_lb_profile", "read", "set-ipv6_supported_type").GetDiag()
+					}
+				}
+			}
+		case "*vpcv1.LoadBalancerProfileIPv6SupportedDependent":
+			{
+				ipv6 := ipv6Support.(*vpcv1.LoadBalancerProfileIPv6SupportedDependent)
+				if ipv6.Type != nil {
+					if err = d.Set("ipv6_supported_type", *ipv6.Type); err != nil {
+						return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting ipv6_supported_type: %s", err), "(Data) ibm_is_lb_profile", "read", "set-ipv6_supported_type").GetDiag()
+					}
+				}
+			}
+		case "*vpcv1.LoadBalancerProfileIPv6Supported":
+			{
+				ipv6 := ipv6Support.(*vpcv1.LoadBalancerProfileIPv6Supported)
+				if ipv6.Type != nil {
+					if err = d.Set("ipv6_supported_type", *ipv6.Type); err != nil {
+						return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting ipv6_supported_type: %s", err), "(Data) ibm_is_lb_profile", "read", "set-ipv6_supported_type").GetDiag()
+					}
+				}
+				if ipv6.Value != nil {
+					if err = d.Set("ipv6_supported", *ipv6.Value); err != nil {
+						return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting ipv6_supported: %s", err), "(Data) ibm_is_lb_profile", "read", "set-ipv6_supported").GetDiag()
+					}
+				}
+			}
+		}
+	}
+
 	if loadBalancerProfile.MtlsSupported != nil {
 		mtlsSupport := loadBalancerProfile.MtlsSupported
 		switch reflect.TypeOf(mtlsSupport).String() {
