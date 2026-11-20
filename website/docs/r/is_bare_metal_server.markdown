@@ -57,6 +57,42 @@ resource "ibm_is_bare_metal_server" "example" {
   vpc   = ibm_is_vpc.example.id
 }
 ```
+### Catalog Offering Example
+```terraform
+data "ibm_is_images" "example" {
+  catalog_managed = true
+}
+
+resource "ibm_is_vpc" "example" {
+  name = "example-vpc"
+}
+
+resource "ibm_is_subnet" "example" {
+  name            = "example-subnet"
+  vpc             = ibm_is_vpc.example.id
+  zone            = "us-south-3"
+  ipv4_cidr_block = "10.240.129.0/24"
+}
+
+resource "ibm_is_ssh_key" "example" {
+  name       = "example-ssh"
+  public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCKVmnMOlHKcZK8tpt3MP1lqOLAcqcJzhsvJcjscgVERRN7/9484SOBJ3HSKxxNG5JN8owAjy5f9yYwcUg+JaUVuytn5Pv3aeYROHGGg+5G346xaq3DAwX6Y5ykr2fvjObgncQBnuU5KHWCECO/4h8uWuwh/kfniXPVjFToc+gnkqA+3RKpAecZhFXwfalQ9mMuYGFxn+fwn8cYEApsJbsEmb0iJwPiZ5hjFC8wREuiTlhPHDgkBLOiycd20op2nXzDbHfCHInquEe/gYxEitALONxm0swBOwJZwlTDOB7C6y2dzlrtxr1L59m7pCkWI4EtTRLvleehBoj3u7jB4usR"
+}
+
+resource "ibm_is_bare_metal_server" "example" {
+  profile = "mx2d-metal-32x192"
+  name    = "example-bms-catalog"
+  zone    = "us-south-3"
+  keys    = [ibm_is_ssh_key.example.id]
+  primary_network_interface {
+    subnet = ibm_is_subnet.example.id
+  }
+  catalog_offering {
+    version_crn = data.ibm_is_images.example.images.0.catalog_offering.0.version.0.crn
+  }
+  vpc = ibm_is_vpc.example.id
+}
+```
 ### Reservation Example
 ```terraform
 resource "ibm_is_reservation" "example" {
@@ -236,7 +272,18 @@ Review the argument references that you can specify for your resource.
     - `message` - (String) An explanation of the reason for this health state.
     - `more_info` - (String) Link to documentation about the reason for this health state.
 - `health_state` - (String) The health of this resource.
-- `image` - (Required, String) ID of the image. ( On update of `image`, server will be [reinitialized](https://cloud.ibm.com/apidocs/vpc/latest#replace-bare-metal-server-initialization) if server is in stopped state, else server will be stopped and restarted during update )
+- `image` - (Optional, String) ID of the image. One of `image` or `catalog_offering` must be specified. Conflicts with `catalog_offering`. ( On update of `image`, server will be [reinitialized](https://cloud.ibm.com/apidocs/vpc/latest#replace-bare-metal-server-initialization) if server is in stopped state, else server will be stopped and restarted during update )
+- `catalog_offering` - (Optional, List) The [catalog](https://cloud.ibm.com/docs/account?topic=account-restrict-by-user&interface=ui) offering or offering version to use when provisioning this bare metal server. If an offering is specified, the latest version of that offering will be used. The specified offering or offering version may be in a different account in the same [enterprise](https://cloud.ibm.com/docs/account?topic=account-what-is-enterprise), subject to IAM policies. One of `image` or `catalog_offering` must be specified. Conflicts with `image`.
+    Nested scheme for `catalog_offering`:
+    - `offering_crn` - (Optional, String) Identifies a catalog offering by a unique CRN property. Conflicts with `version_crn`.
+    - `version_crn` - (Optional, String) Identifies a version of a catalog offering by a unique CRN property. Conflicts with `offering_crn`.
+    - `plan_crn` - (Optional, String) The CRN for this catalog offering version's billing plan. If unspecified, no billing plan will be used (free). Must be specified for catalog offering versions that require a billing plan to be used.
+    - `deleted` - (List) If present, this property indicates the referenced resource has been deleted and provides some supplementary information.
+        Nested scheme for `deleted`:
+        - `more_info` - (String) Link to documentation about deleted resources.
+
+    ~> **Note:**
+    `offering_crn` conflicts with `version_crn`, both are mutually exclusive. `catalog_offering` and `image` are mutually exclusive.
 
   -> **NOTE:**
     To reinitialize a bare metal server, the server status must be stopped, or have failed a previous reinitialization. For more information, see [Managing Bare Metal Servers for VPC](https://cloud.ibm.com/docs/vpc?topic=vpc-managing-bare-metal-servers&interface=api#reinitialize-bare-metal-servers-api).
@@ -463,6 +510,14 @@ In addition to all argument reference list, you can access the following attribu
     - `name` - (String) The user-defined name for this disk
     - `resource_type` - (String) The resource type
     - `size` - (Integer) The size of the disk in GB (gigabytes)
+- `catalog_offering` - (List) The catalog offering or offering version this bare metal server was provisioned from.
+    Nested scheme for `catalog_offering`:
+    - `offering_crn` - (String) Identifies a catalog offering by a unique CRN property.
+    - `version_crn` - (String) Identifies a version of a catalog offering by a unique CRN property.
+    - `plan_crn` - (String) The CRN for this catalog offering version's billing plan.
+    - `deleted` - (List) If present, this property indicates the referenced resource has been deleted and provides some supplementary information.
+        Nested scheme for `deleted`:
+        - `more_info` - (String) Link to documentation about deleted resources.
 - `href` - (String) The URL for this bare metal server
 - `id` - (String) The unique identifier for this bare metal server
 - `memory` - (Integer) The amount of memory, truncated to whole gibibytes

@@ -1763,6 +1763,24 @@ resource "ibm_is_bare_metal_server" "bare-metal-vni" {
   vpc = ibm_is_vpc.vpc-secondary-2.id
 }
 
+// Bare metal server using Catalog Offering
+resource "ibm_is_bare_metal_server" "bare-metal-catalog" {
+  profile = "bx2-metal-192x768"
+  name    = "bare-metal-catalog"
+  zone    = "us-south-3"
+  keys    = [ibm_is_ssh_key.ssh-key-1.id]
+
+  primary_network_interface {
+    subnet = ibm_is_subnet.subnet-primary-1.id
+  }
+
+  catalog_offering {
+    version_crn = data.ibm_is_images.catalog-images.images.0.catalog_offering.0.version.0.crn
+  }
+
+  vpc = ibm_is_vpc.vpc-primary.id
+}
+
 # =====================================================================================
 # Bare Metal Server Actions
 # =====================================================================================

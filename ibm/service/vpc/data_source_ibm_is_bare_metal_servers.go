@@ -759,6 +759,45 @@ func DataSourceIBMIsBareMetalServers() *schema.Resource {
 							Computed:    true,
 							Description: "image id",
 						},
+
+						isBareMetalServerCatalogOffering: {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "The catalog offering or offering version this bare metal server was provisioned from.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									isBareMetalServerCatalogOfferingOfferingCrn: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "Identifies a catalog offering by a unique CRN property",
+									},
+									isBareMetalServerCatalogOfferingVersionCrn: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "Identifies a version of a catalog offering by a unique CRN property",
+									},
+									isBareMetalServerCatalogOfferingPlanCrn: {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The CRN for this catalog offering version's billing plan",
+									},
+									"deleted": {
+										Type:        schema.TypeList,
+										Computed:    true,
+										Description: "If present, this property indicates the referenced resource has been deleted and provides some supplementary information.",
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"more_info": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "Link to documentation about deleted resources.",
+												},
+											},
+										},
+									},
+								},
+							},
+						},
 						isBareMetalServerFirmwareUpdateTypeAvailable: {
 							Type:        schema.TypeString,
 							Computed:    true,
@@ -1343,7 +1382,27 @@ func dataSourceIBMISBareMetalServersRead(context context.Context, d *schema.Reso
 			log.Printf("[ERROR] Error getting Bare Metal Server (%s) initialization : %s\n%s", *bms.ID, err, response)
 		}
 
-		l[isBareMetalServerImage] = *initialization.Image.ID
+		if initialization != nil && initialization.Image != nil && initialization.Image.ID != nil {
+			l[isBareMetalServerImage] = *initialization.Image.ID
+		}
+		if initialization != nil && initialization.CatalogOffering != nil {
+			catalogList := make([]map[string]interface{}, 0)
+			catalogMap := map[string]interface{}{}
+			if initialization.CatalogOffering.Version != nil && initialization.CatalogOffering.Version.CRN != nil {
+				catalogMap[isBareMetalServerCatalogOfferingVersionCrn] = *initialization.CatalogOffering.Version.CRN
+			}
+			if initialization.CatalogOffering.Plan != nil {
+				if initialization.CatalogOffering.Plan.CRN != nil && *initialization.CatalogOffering.Plan.CRN != "" {
+					catalogMap[isBareMetalServerCatalogOfferingPlanCrn] = *initialization.CatalogOffering.Plan.CRN
+				}
+				if initialization.CatalogOffering.Plan.Deleted != nil {
+					deletedMap := resourceIbmIsBareMetalServerCatalogOfferingVersionPlanReferenceDeletedToMap(*initialization.CatalogOffering.Plan.Deleted)
+					catalogMap["deleted"] = []map[string]interface{}{deletedMap}
+				}
+			}
+			catalogList = append(catalogList, catalogMap)
+			l[isBareMetalServerCatalogOffering] = catalogList
+		}
 		if bms.Firmware != nil && bms.Firmware.Update != nil {
 			l[isBareMetalServerFirmwareUpdateTypeAvailable] = *bms.Firmware.Update
 		}

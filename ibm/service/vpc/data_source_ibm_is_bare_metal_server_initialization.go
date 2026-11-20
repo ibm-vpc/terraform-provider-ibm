@@ -96,6 +96,40 @@ func DataSourceIBMIsBareMetalServerInitialization() *schema.Resource {
 				Description: "The unique identifier of the image the bare metal server was provisioned from",
 			},
 
+			isBareMetalServerCatalogOffering: {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Description: "The catalog offering or offering version this bare metal server was provisioned from.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						isBareMetalServerCatalogOfferingVersionCrn: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Identifies a version of a catalog offering by a unique CRN property",
+						},
+						isBareMetalServerCatalogOfferingPlanCrn: {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The CRN for this catalog offering version's billing plan",
+						},
+						"deleted": {
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "If present, this property indicates the referenced resource has been deleted and provides some supplementary information.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"more_info": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "Link to documentation about deleted resources.",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+
 			isBareMetalServerImageName: {
 				Type:        schema.TypeString,
 				Computed:    true,
@@ -177,6 +211,28 @@ func dataSourceIBMISBareMetalServerInitializationRead(context context.Context, d
 
 		if err = d.Set(isBareMetalServerImageName, initialization.Image.Name); err != nil {
 			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting image_name: %s", err), "(Data) ibm_is_bare_metal_server_initialization", "read", "set-image_name").GetDiag()
+		}
+	}
+
+	if initialization.CatalogOffering != nil {
+		catalogList := make([]map[string]interface{}, 0)
+		catalogMap := map[string]interface{}{}
+		if initialization.CatalogOffering.Version != nil && initialization.CatalogOffering.Version.CRN != nil {
+			catalogMap[isBareMetalServerCatalogOfferingVersionCrn] = *initialization.CatalogOffering.Version.CRN
+		}
+		if initialization.CatalogOffering.Plan != nil {
+			if initialization.CatalogOffering.Plan.CRN != nil && *initialization.CatalogOffering.Plan.CRN != "" {
+				catalogMap[isBareMetalServerCatalogOfferingPlanCrn] = *initialization.CatalogOffering.Plan.CRN
+			}
+			if initialization.CatalogOffering.Plan.Deleted != nil {
+				deletedMap := resourceIbmIsBareMetalServerCatalogOfferingVersionPlanReferenceDeletedToMap(*initialization.CatalogOffering.Plan.Deleted)
+				catalogMap["deleted"] = []map[string]interface{}{deletedMap}
+			}
+		}
+		catalogList = append(catalogList, catalogMap)
+		if err = d.Set(isBareMetalServerCatalogOffering, catalogList); err != nil {
+			err = fmt.Errorf("Error setting catalog_offering: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_bare_metal_server_initialization", "read", "set-catalog_offering").GetDiag()
 		}
 	}
 
