@@ -958,3 +958,186 @@ func testAccCheckIBMISNetworkACLRuleICMPZeroValues(vpcName, ruleName string) str
     }
     `, vpcName, ruleName)
 }
+
+// ---------------------------------------------------------------------------
+// IPv6 NACL rule tests
+// ---------------------------------------------------------------------------
+
+func TestNetworkACLRule_IPv6ICMP(t *testing.T) {
+	var nwACLRule string
+	vpcName := fmt.Sprintf("tf-nacl-vpc-ipv6-%d", acctest.RandIntRange(10, 100))
+	ruleName := fmt.Sprintf("tf-nacl-ipv6-icmp-%d", acctest.RandIntRange(10, 100))
+	updatedRuleName := fmt.Sprintf("%s-update", ruleName)
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acc.TestAccPreCheck(t) },
+		Providers:    acc.TestAccProviders,
+		CheckDestroy: checkNetworkACLRuleDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckIBMISNetworkACLRuleIPv6ICMPConfig(vpcName, ruleName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckIBMISNetworkACLRuleExists("ibm_is_network_acl_rule.testacc_nacl_ipv6", nwACLRule),
+					resource.TestCheckResourceAttr(
+						"ibm_is_network_acl_rule.testacc_nacl_ipv6", "name", ruleName),
+					resource.TestCheckResourceAttr(
+						"ibm_is_network_acl_rule.testacc_nacl_ipv6", "protocol", "ipv6_icmp"),
+					resource.TestCheckResourceAttr(
+						"ibm_is_network_acl_rule.testacc_nacl_ipv6", "ip_version", "ipv6"),
+					resource.TestCheckResourceAttr(
+						"ibm_is_network_acl_rule.testacc_nacl_ipv6", "icmp.0.type", "128"),
+					resource.TestCheckResourceAttr(
+						"ibm_is_network_acl_rule.testacc_nacl_ipv6", "icmp.0.code", "0"),
+				),
+			},
+			{
+				Config: testAccCheckIBMISNetworkACLRuleIPv6ICMPUpdateConfig(vpcName, updatedRuleName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckIBMISNetworkACLRuleExists("ibm_is_network_acl_rule.testacc_nacl_ipv6", nwACLRule),
+					resource.TestCheckResourceAttr(
+						"ibm_is_network_acl_rule.testacc_nacl_ipv6", "name", updatedRuleName),
+					resource.TestCheckResourceAttr(
+						"ibm_is_network_acl_rule.testacc_nacl_ipv6", "icmp.0.type", "129"),
+				),
+			},
+		},
+	})
+}
+
+func TestNetworkACLRule_IPv6IPVersion(t *testing.T) {
+	var nwACLRule string
+	vpcName := fmt.Sprintf("tf-nacl-vpc-ipver-%d", acctest.RandIntRange(10, 100))
+	ruleName := fmt.Sprintf("tf-nacl-ipver-%d", acctest.RandIntRange(10, 100))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acc.TestAccPreCheck(t) },
+		Providers:    acc.TestAccProviders,
+		CheckDestroy: checkNetworkACLRuleDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckIBMISNetworkACLRuleIPv6VersionConfig(vpcName, ruleName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckIBMISNetworkACLRuleExists("ibm_is_network_acl_rule.testacc_nacl_ipver", nwACLRule),
+					resource.TestCheckResourceAttr(
+						"ibm_is_network_acl_rule.testacc_nacl_ipver", "name", ruleName),
+					resource.TestCheckResourceAttr(
+						"ibm_is_network_acl_rule.testacc_nacl_ipver", "ip_version", "ipv6"),
+					resource.TestCheckResourceAttr(
+						"ibm_is_network_acl_rule.testacc_nacl_ipver", "protocol", "tcp"),
+				),
+			},
+		},
+	})
+}
+
+func TestNetworkACLRule_IPv6IndividualProtocol(t *testing.T) {
+	var nwACLRule string
+	vpcName := fmt.Sprintf("tf-nacl-vpc-frag-%d", acctest.RandIntRange(10, 100))
+	ruleName := fmt.Sprintf("tf-nacl-frag-%d", acctest.RandIntRange(10, 100))
+
+	resource.Test(t, resource.TestCase{
+		PreCheck:     func() { acc.TestAccPreCheck(t) },
+		Providers:    acc.TestAccProviders,
+		CheckDestroy: checkNetworkACLRuleDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccCheckIBMISNetworkACLRuleIPv6FragConfig(vpcName, ruleName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckIBMISNetworkACLRuleExists("ibm_is_network_acl_rule.testacc_nacl_frag", nwACLRule),
+					resource.TestCheckResourceAttr(
+						"ibm_is_network_acl_rule.testacc_nacl_frag", "name", ruleName),
+					resource.TestCheckResourceAttr(
+						"ibm_is_network_acl_rule.testacc_nacl_frag", "protocol", "ipv6_frag"),
+				),
+			},
+		},
+	})
+}
+
+// --- IPv6 config helpers ---
+
+func testAccCheckIBMISNetworkACLRuleIPv6ICMPConfig(vpcName, name string) string {
+	return fmt.Sprintf(`
+resource "ibm_is_vpc" "testacc_vpc" {
+  name = "%s"
+}
+resource "ibm_is_network_acl_rule" "testacc_nacl_ipv6" {
+  network_acl = ibm_is_vpc.testacc_vpc.default_network_acl
+  name        = "%s"
+  action      = "allow"
+  source      = "::/0"
+  destination = "::/0"
+  direction   = "outbound"
+  ip_version  = "ipv6"
+  protocol    = "ipv6_icmp"
+  icmp {
+    type = 128
+    code = 0
+  }
+}
+`, vpcName, name)
+}
+
+func testAccCheckIBMISNetworkACLRuleIPv6ICMPUpdateConfig(vpcName, name string) string {
+	return fmt.Sprintf(`
+resource "ibm_is_vpc" "testacc_vpc" {
+  name = "%s"
+}
+resource "ibm_is_network_acl_rule" "testacc_nacl_ipv6" {
+  network_acl = ibm_is_vpc.testacc_vpc.default_network_acl
+  name        = "%s"
+  action      = "allow"
+  source      = "::/0"
+  destination = "::/0"
+  direction   = "outbound"
+  ip_version  = "ipv6"
+  protocol    = "ipv6_icmp"
+  icmp {
+    type = 129
+    code = 0
+  }
+}
+`, vpcName, name)
+}
+
+func testAccCheckIBMISNetworkACLRuleIPv6VersionConfig(vpcName, name string) string {
+	return fmt.Sprintf(`
+resource "ibm_is_vpc" "testacc_vpc" {
+  name = "%s"
+}
+resource "ibm_is_network_acl_rule" "testacc_nacl_ipver" {
+  network_acl = ibm_is_vpc.testacc_vpc.default_network_acl
+  name        = "%s"
+  action      = "allow"
+  source      = "::/0"
+  destination = "::/0"
+  direction   = "outbound"
+  ip_version  = "ipv6"
+  protocol    = "tcp"
+  tcp {
+    port_min        = 80
+    port_max        = 80
+    source_port_min = 1024
+    source_port_max = 65535
+  }
+}
+`, vpcName, name)
+}
+
+func testAccCheckIBMISNetworkACLRuleIPv6FragConfig(vpcName, name string) string {
+	return fmt.Sprintf(`
+resource "ibm_is_vpc" "testacc_vpc" {
+  name = "%s"
+}
+resource "ibm_is_network_acl_rule" "testacc_nacl_frag" {
+  network_acl = ibm_is_vpc.testacc_vpc.default_network_acl
+  name        = "%s"
+  action      = "deny"
+  source      = "::/0"
+  destination = "::/0"
+  direction   = "inbound"
+  ip_version  = "ipv6"
+  protocol    = "ipv6_frag"
+}
+`, vpcName, name)
+}

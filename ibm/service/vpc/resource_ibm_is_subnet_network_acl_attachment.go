@@ -306,7 +306,7 @@ func resourceIBMISSubnetNetworkACLAttachmentRead(context context.Context, d *sch
 					if rulex.Code != nil && rulex.Type != nil {
 						icmp[0] = map[string]int{
 							isNetworkACLRuleICMPCode: int(*rulex.Code),
-							isNetworkACLRuleICMPType: int(*rulex.Code),
+							isNetworkACLRuleICMPType: int(*rulex.Type),
 						}
 					}
 					rule[isNetworkACLRuleICMP] = icmp
@@ -379,6 +379,43 @@ func resourceIBMISSubnetNetworkACLAttachmentRead(context context.Context, d *sch
 			case "*vpcv1.NetworkACLRuleItemNetworkACLRuleProtocolIcmptcpudp":
 				{
 					rulex := rulex.(*vpcv1.NetworkACLRuleItemNetworkACLRuleProtocolIcmptcpudp)
+					rule[isNetworkACLRuleID] = *rulex.ID
+					rule[isNetworkACLRuleName] = *rulex.Name
+					rule[isNetworkACLRuleAction] = *rulex.Action
+					rule[isNetworkACLRuleIPVersion] = *rulex.IPVersion
+					rule[isNetworkACLRuleProtocol] = *rulex.Protocol
+					rule[isNetworkACLRuleSource] = *rulex.Source
+					rule[isNetworkACLRuleDestination] = *rulex.Destination
+					rule[isNetworkACLRuleDirection] = *rulex.Direction
+					rule[isNetworkACLRuleICMP] = make([]map[string]int, 0, 0)
+					rule[isNetworkACLRuleTCP] = make([]map[string]int, 0, 0)
+					rule[isNetworkACLRuleUDP] = make([]map[string]int, 0, 0)
+				}
+			case "*vpcv1.NetworkACLRuleItemNetworkACLRuleProtocolIPv6Icmp":
+				{
+					rulex := rulex.(*vpcv1.NetworkACLRuleItemNetworkACLRuleProtocolIPv6Icmp)
+					rule[isNetworkACLRuleID] = *rulex.ID
+					rule[isNetworkACLRuleName] = *rulex.Name
+					rule[isNetworkACLRuleAction] = *rulex.Action
+					rule[isNetworkACLRuleIPVersion] = *rulex.IPVersion
+					rule[isNetworkACLRuleSource] = *rulex.Source
+					rule[isNetworkACLRuleProtocol] = *rulex.Protocol
+					rule[isNetworkACLRuleDestination] = *rulex.Destination
+					rule[isNetworkACLRuleDirection] = *rulex.Direction
+					rule[isNetworkACLRuleTCP] = make([]map[string]int, 0, 0)
+					rule[isNetworkACLRuleUDP] = make([]map[string]int, 0, 0)
+					icmp := make([]map[string]int, 1, 1)
+					if rulex.Code != nil && rulex.Type != nil {
+						icmp[0] = map[string]int{
+							isNetworkACLRuleICMPCode: int(*rulex.Code),
+							isNetworkACLRuleICMPType: int(*rulex.Type),
+						}
+					}
+					rule[isNetworkACLRuleICMP] = icmp
+				}
+			case "*vpcv1.NetworkACLRuleItemNetworkACLRuleProtocolIndividualIPv6":
+				{
+					rulex := rulex.(*vpcv1.NetworkACLRuleItemNetworkACLRuleProtocolIndividualIPv6)
 					rule[isNetworkACLRuleID] = *rulex.ID
 					rule[isNetworkACLRuleName] = *rulex.Name
 					rule[isNetworkACLRuleAction] = *rulex.Action

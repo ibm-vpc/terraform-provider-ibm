@@ -61,8 +61,82 @@ func ResourceIBMPublicAddressRange() *schema.Resource {
 				Optional:     true,
 				Computed:     true,
 				ForceNew:     true,
-				ExactlyOneOf: []string{"ipv4_address_count", "cidr"},
-				Description:  "The number of IPv4 addresses in this public address range. Must be a power of 2.",
+				ExactlyOneOf: []string{"ipv4_address_count", "cidr", "authorized_cidr"},
+				Description:  "The number of IPv4 addresses in this public address range.",
+			},
+			"authorized_cidr": &schema.Schema{
+				Type:         schema.TypeList,
+				MaxItems:     1,
+				Optional:     true,
+				Computed:     true,
+				ForceNew:     true,
+				ExactlyOneOf: []string{"ipv4_address_count", "cidr", "authorized_cidr"},
+				RequiredWith: []string{"network_prefix_length"},
+				Description:  "The authorized CIDR this public address range is allocated from.",
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"id": &schema.Schema{
+							Type:        schema.TypeString,
+							Optional:    true,
+							Computed:    true,
+							ForceNew:    true,
+							Description: "The unique identifier for this public address range authorized CIDR.",
+						},
+						"cidr": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The public IP address block for the authorized CIDR, expressed in CIDR format.",
+						},
+						"crn": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The CRN for this public address range authorized CIDR.",
+						},
+						"href": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The URL for this public address range authorized CIDR.",
+						},
+						"name": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The name for this public address range authorized CIDR.",
+						},
+						"resource_type": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "The resource type.",
+						},
+						"zone": &schema.Schema{
+							Type:        schema.TypeList,
+							Computed:    true,
+							Description: "The zone for this public address range authorized CIDR. Resources allocated from this authorized CIDR must reside in this zone.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"href": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The URL for this zone.",
+									},
+									"name": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The globally unique name for this zone.",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			"network_prefix_length": &schema.Schema{
+				Type:          schema.TypeInt,
+				Optional:      true,
+				Computed:      true,
+				ForceNew:      true,
+				ConflictsWith: []string{"cidr", "ipv4_address_count"},
+				RequiredWith:  []string{"authorized_cidr"},
+				Description:   "The network prefix length for this public address range.",
 			},
 			"name": &schema.Schema{
 				Type:     schema.TypeString,
@@ -113,11 +187,46 @@ func ResourceIBMPublicAddressRange() *schema.Resource {
 				Description: "The target this public address range is bound to.If absent, this pubic address range is not bound to a target.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
+						"virtual_network_interface": &schema.Schema{
+							Type:        schema.TypeList,
+							MaxItems:    1,
+							Optional:    true,
+							Description: "The virtual network interface to bind this public address range to.",
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"id": &schema.Schema{
+										Type:        schema.TypeString,
+										Optional:    true,
+										Computed:    true,
+										Description: "The unique identifier for this virtual network interface.",
+									},
+									"crn": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The CRN for this virtual network interface.",
+									},
+									"href": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The URL for this virtual network interface.",
+									},
+									"name": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The name for this virtual network interface.",
+									},
+									"resource_type": &schema.Schema{
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The resource type.",
+									},
+								},
+							},
+						},
 						"vpc": &schema.Schema{
 							Type:        schema.TypeList,
-							MinItems:    1,
 							MaxItems:    1,
-							Required:    true,
+							Optional:    true,
 							Description: "The VPC this public address range is bound to.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -168,9 +277,9 @@ func ResourceIBMPublicAddressRange() *schema.Resource {
 						},
 						"zone": &schema.Schema{
 							Type:        schema.TypeList,
-							MinItems:    1,
 							MaxItems:    1,
-							Required:    true,
+							Optional:    true,
+							Computed:    true,
 							Description: "The zone this public address range resides in.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
@@ -193,12 +302,12 @@ func ResourceIBMPublicAddressRange() *schema.Resource {
 				},
 			},
 			"cidr": &schema.Schema{
-				Type:         schema.TypeString,
-				Optional:     true,
-				Computed:     true,
-				ForceNew:     true,
-				ExactlyOneOf: []string{"ipv4_address_count", "cidr"},
-				Description:  "The public IPv4 range, expressed in CIDR format. If specified, used to allocate this public address range from a specific authorized CIDR.",
+				Type:          schema.TypeString,
+				Optional:      true,
+				Computed:      true,
+				ForceNew:      true,
+				ExactlyOneOf: []string{"ipv4_address_count", "cidr", "authorized_cidr"},
+				Description:   "The public IPv4 range, expressed in CIDR format. If specified, used to allocate this public address range from a specific authorized CIDR.",
 			},
 			"created_at": &schema.Schema{
 				Type:        schema.TypeString,
@@ -229,64 +338,6 @@ func ResourceIBMPublicAddressRange() *schema.Resource {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: "The IP version for this public address range.",
-			},
-			"network_prefix_length": &schema.Schema{
-				Type:        schema.TypeInt,
-				Computed:    true,
-				Description: "The network prefix length for this public address range.",
-			},
-			"authorized_cidr": &schema.Schema{
-				Type:        schema.TypeList,
-				Computed:    true,
-				Description: "The public address range authorized CIDR this public address range is allocated from.",
-				Elem: &schema.Resource{
-					Schema: map[string]*schema.Schema{
-						"cidr": &schema.Schema{
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: "The public IP address block, expressed in CIDR format.",
-						},
-						"href": &schema.Schema{
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: "The URL for this public address range authorized CIDR.",
-						},
-						"id": &schema.Schema{
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: "The unique identifier for this public address range authorized CIDR.",
-						},
-						"name": &schema.Schema{
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: "The name for this public address range authorized CIDR.",
-						},
-						"resource_type": &schema.Schema{
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: "The resource type.",
-						},
-						"zone": &schema.Schema{
-							Type:        schema.TypeList,
-							Computed:    true,
-							Description: "The zone for this public address range authorized CIDR. Resources allocated from this authorized CIDR must reside in this zone.",
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"href": &schema.Schema{
-										Type:        schema.TypeString,
-										Computed:    true,
-										Description: "The URL for this zone.",
-									},
-									"name": &schema.Schema{
-										Type:        schema.TypeString,
-										Computed:    true,
-										Description: "The globally unique name for this zone.",
-									},
-								},
-							},
-						},
-					},
-				},
 			},
 			"profile": &schema.Schema{
 				Type:        schema.TypeList,
@@ -399,6 +450,15 @@ func resourceIBMPublicAddressRangeCreate(context context.Context, d *schema.Reso
 		}
 		publicAddressRangePrototype.Target = targetModel
 	}
+	if _, ok := d.GetOk("authorized_cidr"); ok {
+		authorizedCIDRMap := d.Get("authorized_cidr.0").(map[string]interface{})
+		authorizedCIDRIdentity := &vpcv1.PublicAddressRangeAuthorizedCIDRIdentity{}
+		if v, ok := authorizedCIDRMap["id"].(string); ok && v != "" {
+			authorizedCIDRIdentity.ID = core.StringPtr(v)
+		}
+		publicAddressRangePrototype.AuthorizedCIDR = authorizedCIDRIdentity
+		publicAddressRangePrototype.NetworkPrefixLength = core.Int64Ptr(int64(d.Get("network_prefix_length").(int)))
+	}
 	if cidrIntf, ok := d.GetOk("cidr"); ok {
 		publicAddressRangePrototype.CIDR = core.StringPtr(cidrIntf.(string))
 	}
@@ -499,11 +559,14 @@ func resourceIBMPublicAddressRangeRead(context context.Context, d *schema.Resour
 		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
 		return tfErr.GetDiag()
 	}
+	if !core.IsNil(publicAddressRange.Ipv4AddressCount) {
 
-	if err = d.Set("ipv4_address_count", flex.IntValue(publicAddressRange.Ipv4AddressCount)); err != nil {
-		err = fmt.Errorf("Error setting ipv4_address_count: %s", err)
-		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_public_address_range", "read", "set-ipv4_address_count").GetDiag()
+		if err = d.Set("ipv4_address_count", flex.IntValue(publicAddressRange.Ipv4AddressCount)); err != nil {
+			err = fmt.Errorf("Error setting ipv4_address_count: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_public_address_range", "read", "set-ipv4_address_count").GetDiag()
+		}
 	}
+
 	if !core.IsNil(publicAddressRange.Name) {
 		if err = d.Set("name", publicAddressRange.Name); err != nil {
 			err = fmt.Errorf("Error setting name: %s", err)
@@ -518,6 +581,16 @@ func resourceIBMPublicAddressRangeRead(context context.Context, d *schema.Resour
 		if err = d.Set("resource_group", []map[string]interface{}{resourceGroupMap}); err != nil {
 			err = fmt.Errorf("Error setting resource_group: %s", err)
 			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_public_address_range", "read", "set-resource_group").GetDiag()
+		}
+	}
+	if !core.IsNil(publicAddressRange.Profile) {
+		profileMap, err := ResourceIBMPublicAddressRangeProfileReferenceToMap(publicAddressRange.Profile)
+		if err != nil {
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_public_address_range", "read", "profile-to-map").GetDiag()
+		}
+		if err = d.Set("profile", []map[string]interface{}{profileMap}); err != nil {
+			err = fmt.Errorf("Error setting profile: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_public_address_range", "read", "set-profile").GetDiag()
 		}
 	}
 	if !core.IsNil(publicAddressRange.Target) {
@@ -554,13 +627,13 @@ func resourceIBMPublicAddressRangeRead(context context.Context, d *schema.Resour
 		err = fmt.Errorf("Error setting resource_type: %s", err)
 		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_public_address_range", "read", "set-resource_type").GetDiag()
 	}
-	if publicAddressRange.IPVersion != nil {
+	if !core.IsNil(publicAddressRange.IPVersion) {
 		if err = d.Set("ip_version", publicAddressRange.IPVersion); err != nil {
 			err = fmt.Errorf("Error setting ip_version: %s", err)
 			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_public_address_range", "read", "set-ip_version").GetDiag()
 		}
 	}
-	if publicAddressRange.NetworkPrefixLength != nil {
+	if !core.IsNil(publicAddressRange.NetworkPrefixLength) {
 		if err = d.Set("network_prefix_length", flex.IntValue(publicAddressRange.NetworkPrefixLength)); err != nil {
 			err = fmt.Errorf("Error setting network_prefix_length: %s", err)
 			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_public_address_range", "read", "set-network_prefix_length").GetDiag()
@@ -810,18 +883,40 @@ func ResourceIBMPublicAddressRangeMapToResourceGroupIdentity(modelMap map[string
 	return model, nil
 }
 
-func ResourceIBMPublicAddressRangeMapToPublicAddressRangeTargetPrototype(modelMap map[string]interface{}) (*vpcv1.PublicAddressRangeTargetPrototype, error) {
+func ResourceIBMPublicAddressRangeMapToPublicAddressRangeTargetPrototype(modelMap map[string]interface{}) (vpcv1.PublicAddressRangeTargetPrototypeIntf, error) {
+	// VNI target takes priority when virtual_network_interface is specified
 	model := &vpcv1.PublicAddressRangeTargetPrototype{}
-	VPCModel, err := ResourceIBMPublicAddressRangeMapToVPCIdentity(modelMap["vpc"].([]interface{})[0].(map[string]interface{}))
-	if err != nil {
-		return model, err
+	if vniList, ok := modelMap["virtual_network_interface"].([]interface{}); ok && len(vniList) > 0 {
+		vniModel, err := ResourceIBMPublicAddressRangeMapToVirtualNetworkInterfaceIdentity(vniList[0].(map[string]interface{}))
+		if err != nil {
+			return nil, err
+		}
+		model.VirtualNetworkInterface = vniModel
+		return model, nil
 	}
-	model.VPC = VPCModel
-	ZoneModel, err := ResourceIBMPublicAddressRangeMapToZoneIdentity(modelMap["zone"].([]interface{})[0].(map[string]interface{}))
-	if err != nil {
-		return model, err
+	// VPC + Zone target
+	if vpcList, ok := modelMap["vpc"].([]interface{}); ok && len(vpcList) > 0 {
+		VPCModel, err := ResourceIBMPublicAddressRangeMapToVPCIdentity(vpcList[0].(map[string]interface{}))
+		if err != nil {
+			return model, err
+		}
+		model.VPC = VPCModel
 	}
-	model.Zone = ZoneModel
+	if zoneList, ok := modelMap["zone"].([]interface{}); ok && len(zoneList) > 0 {
+		ZoneModel, err := ResourceIBMPublicAddressRangeMapToZoneIdentity(zoneList[0].(map[string]interface{}))
+		if err != nil {
+			return model, err
+		}
+		model.Zone = ZoneModel
+	}
+	return model, nil
+}
+
+func ResourceIBMPublicAddressRangeMapToVirtualNetworkInterfaceIdentity(modelMap map[string]interface{}) (vpcv1.VirtualNetworkInterfaceIdentityIntf, error) {
+	model := &vpcv1.VirtualNetworkInterfaceIdentityByID{}
+	if modelMap["id"] != nil && modelMap["id"].(string) != "" {
+		model.ID = core.StringPtr(modelMap["id"].(string))
+	}
 	return model, nil
 }
 
@@ -884,6 +979,13 @@ func ResourceIBMPublicAddressRangeMapToZoneIdentityPatch(modelMap map[string]int
 
 func ResourceIBMPublicAddressRangeMapToPublicAddressRangeTargetPatch(modelMap map[string]interface{}, d *schema.ResourceData) (*vpcv1.PublicAddressRangeTargetPatch, error) {
 	model := &vpcv1.PublicAddressRangeTargetPatch{}
+	if d.HasChange("target.0.virtual_network_interface") && modelMap["virtual_network_interface"] != nil && len(modelMap["virtual_network_interface"].([]interface{})) > 0 {
+		vniModel, err := ResourceIBMPublicAddressRangeMapToVirtualNetworkInterfaceIdentity(modelMap["virtual_network_interface"].([]interface{})[0].(map[string]interface{}))
+		if err != nil {
+			return model, err
+		}
+		model.VirtualNetworkInterface = vniModel
+	}
 	if d.HasChange("target.0.vpc") && modelMap["vpc"] != nil && len(modelMap["vpc"].([]interface{})) > 0 {
 		VPCModel, err := ResourceIBMPublicAddressRangeMapToVPCIdentityPatch(modelMap["vpc"].([]interface{})[0].(map[string]interface{}), d)
 		if err != nil {
@@ -911,6 +1013,13 @@ func ResourceIBMPublicAddressRangeResourceGroupReferenceToMap(model *vpcv1.Resou
 
 func ResourceIBMPublicAddressRangePublicAddressRangeTargetToMap(model *vpcv1.PublicAddressRangeTarget) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
+	if model.VirtualNetworkInterface != nil {
+		vniMap, err := ResourceIBMPublicAddressRangeVirtualNetworkInterfaceReferenceToMap(model.VirtualNetworkInterface)
+		if err != nil {
+			return modelMap, err
+		}
+		modelMap["virtual_network_interface"] = []map[string]interface{}{vniMap}
+	}
 	if model.VPC != nil {
 		vpcMap, err := ResourceIBMPublicAddressRangeVPCReferenceToMap(model.VPC)
 		if err != nil {
@@ -918,11 +1027,49 @@ func ResourceIBMPublicAddressRangePublicAddressRangeTargetToMap(model *vpcv1.Pub
 		}
 		modelMap["vpc"] = []map[string]interface{}{vpcMap}
 	}
-	zoneMap, err := ResourceIBMPublicAddressRangeZoneReferenceToMap(model.Zone)
-	if err != nil {
-		return modelMap, err
+	if model.Zone != nil {
+		zoneMap, err := ResourceIBMPublicAddressRangeZoneReferenceToMap(model.Zone)
+		if err != nil {
+			return modelMap, err
+		}
+		modelMap["zone"] = []map[string]interface{}{zoneMap}
 	}
-	modelMap["zone"] = []map[string]interface{}{zoneMap}
+	return modelMap, nil
+}
+
+func ResourceIBMPublicAddressRangeVirtualNetworkInterfaceReferenceToMap(model *vpcv1.VirtualNetworkInterfaceReference) (map[string]interface{}, error) {
+	modelMap := make(map[string]interface{})
+	modelMap["crn"] = *model.CRN
+	modelMap["href"] = *model.Href
+	modelMap["id"] = *model.ID
+	modelMap["name"] = *model.Name
+	modelMap["resource_type"] = *model.ResourceType
+	return modelMap, nil
+}
+
+func ResourceIBMPublicAddressRangeAuthorizedCIDRReferenceToMap(model *vpcv1.PublicAddressRangeAuthorizedCIDRReference) (map[string]interface{}, error) {
+	modelMap := make(map[string]interface{})
+	modelMap["cidr"] = *model.CIDR
+	modelMap["crn"] = *model.CRN
+	modelMap["href"] = *model.Href
+	modelMap["id"] = *model.ID
+	modelMap["name"] = *model.Name
+	modelMap["resource_type"] = *model.ResourceType
+	if model.Zone != nil {
+		zoneMap, err := ResourceIBMPublicAddressRangeZoneReferenceToMap(model.Zone)
+		if err != nil {
+			return modelMap, err
+		}
+		modelMap["zone"] = []map[string]interface{}{zoneMap}
+	}
+	return modelMap, nil
+}
+
+func ResourceIBMPublicAddressRangeProfileReferenceToMap(model *vpcv1.PublicAddressRangeProfileReference) (map[string]interface{}, error) {
+	modelMap := make(map[string]interface{})
+	modelMap["href"] = *model.Href
+	modelMap["name"] = *model.Name
+	modelMap["resource_type"] = *model.ResourceType
 	return modelMap, nil
 }
 

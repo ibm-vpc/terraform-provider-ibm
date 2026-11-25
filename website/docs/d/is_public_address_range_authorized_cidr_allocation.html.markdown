@@ -35,7 +35,7 @@ After your data source is created, you can read values from the following attrib
 * `id` - The unique identifier of the PublicAddressRangeAuthorizedCIDRAllocation.
 * `address` - (String) The globally unique IP address. Present when the allocation `resource_type` is `floating_ip`.
   * Constraints: The maximum length is `15` characters. The minimum length is `7` characters. The value must match regular expression `/^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$/`.
-* `cidr` - (String) The public IP address block for this public address range, expressed in CIDR format. Present when the allocation `resource_type` is `public_address_range`. This property may [expand](https://cloud.ibm.com/apidocs/vpc#property-value-expansion) to support IPv6 address blocks in the future.
+* `cidr` - (String) The public IP address block for this public address range, expressed in CIDR format. Present when the allocation `resource_type` is `public_address_range`.
 * `crn` - (String) The CRN for this allocation.
   * Constraints: The maximum length is `512` characters. The minimum length is `17` characters. The value must match regular expression `/^crn:v[0-9]+:[a-z0-9-]+:[a-z0-9-]+:[a-z0-9-]+:[a-z0-9-]*:([a-z]\/[a-z0-9-]+)?:[a-z0-9-]*:[a-z0-9-]*:[a-zA-Z0-9-_\.\/]*$/`.
 * `deleted` - (List) If present, this property indicates the referenced resource has been deleted, and provides some supplementary information.

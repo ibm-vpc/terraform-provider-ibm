@@ -199,6 +199,40 @@ func DataSourceIBMIsPublicAddressRanges() *schema.Resource {
 							Description: "The target this public address range is bound to.If absent, this pubic address range is not bound to a target.",
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
+									"virtual_network_interface": &schema.Schema{
+										Type:        schema.TypeList,
+										Computed:    true,
+										Description: "The virtual network interface this public address range is bound to.",
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"crn": &schema.Schema{
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "The CRN for this virtual network interface.",
+												},
+												"href": &schema.Schema{
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "The URL for this virtual network interface.",
+												},
+												"id": &schema.Schema{
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "The unique identifier for this virtual network interface.",
+												},
+												"name": &schema.Schema{
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "The name for this virtual network interface.",
+												},
+												"resource_type": &schema.Schema{
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "The resource type.",
+												},
+											},
+										},
+									},
 									"vpc": &schema.Schema{
 										Type:        schema.TypeList,
 										Computed:    true,
@@ -451,6 +485,13 @@ func DataSourceIBMIsPublicAddressRangesResourceGroupReferenceToMap(model *vpcv1.
 
 func DataSourceIBMIsPublicAddressRangesPublicAddressRangeTargetToMap(model *vpcv1.PublicAddressRangeTarget) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
+	if model.VirtualNetworkInterface != nil {
+		vniMap, err := DataSourceIBMIsPublicAddressRangesVirtualNetworkInterfaceReferenceToMap(model.VirtualNetworkInterface)
+		if err != nil {
+			return modelMap, err
+		}
+		modelMap["virtual_network_interface"] = []map[string]interface{}{vniMap}
+	}
 	if model.VPC != nil {
 		vpcMap, err := DataSourceIBMIsPublicAddressRangesVPCReferenceToMap(model.VPC)
 		if err != nil {
@@ -458,11 +499,13 @@ func DataSourceIBMIsPublicAddressRangesPublicAddressRangeTargetToMap(model *vpcv
 		}
 		modelMap["vpc"] = []map[string]interface{}{vpcMap}
 	}
-	zoneMap, err := DataSourceIBMIsPublicAddressRangesZoneReferenceToMap(model.Zone)
-	if err != nil {
-		return modelMap, err
+	if model.Zone != nil {
+		zoneMap, err := DataSourceIBMIsPublicAddressRangesZoneReferenceToMap(model.Zone)
+		if err != nil {
+			return modelMap, err
+		}
+		modelMap["zone"] = []map[string]interface{}{zoneMap}
 	}
-	modelMap["zone"] = []map[string]interface{}{zoneMap}
 	return modelMap, nil
 }
 
@@ -493,5 +536,15 @@ func DataSourceIBMIsPublicAddressRangesZoneReferenceToMap(model *vpcv1.ZoneRefer
 	modelMap := make(map[string]interface{})
 	modelMap["href"] = *model.Href
 	modelMap["name"] = *model.Name
+	return modelMap, nil
+}
+
+func DataSourceIBMIsPublicAddressRangesVirtualNetworkInterfaceReferenceToMap(model *vpcv1.VirtualNetworkInterfaceReference) (map[string]interface{}, error) {
+	modelMap := make(map[string]interface{})
+	modelMap["crn"] = *model.CRN
+	modelMap["href"] = *model.Href
+	modelMap["id"] = *model.ID
+	modelMap["name"] = *model.Name
+	modelMap["resource_type"] = *model.ResourceType
 	return modelMap, nil
 }

@@ -108,17 +108,17 @@ In addition to all argument reference list, you can access the following attribu
 - `rules` - (List of Objects) The rules associated with security group. Each rule has following attributes.
 
   Nested scheme for `rules`:
-  - `rule_id`-  (String) ID of the rule.
-  - `direction` - (String) Direction of traffic to enforce, either inbound or outbound.
-  - `local` - (String) 	The local IP address or range of local IP addresses to which this rule will allow inbound traffic (or from which, for outbound traffic). A CIDR block of 0.0.0.0/0 allows traffic to all local IP addresses (or from all local IP addresses, for outbound rules). an IP address, a `CIDR` block.
-  - `ip_version` - (String) IP version: IPv4
-  - `protocol` - (String) The type of the protocol `icmp_tcp_udp`, `icmp`, `tcp`, `udp`.
-  - `type` - (String) The traffic type to allow.
+  - `rule_id` - (String) ID of the rule.
+  - `direction` - (String) Direction of traffic to enforce, either `inbound` or `outbound`.
+  - `local` - (String) The local IP address or range of local IP addresses to which this rule will allow inbound traffic (or from which, for outbound traffic). A CIDR block of `0.0.0.0/0` allows traffic to all local IPv4 addresses; `::/0` allows traffic to all local IPv6 addresses. Accepts an IP address or a CIDR block (IPv4 or IPv6).
+  - `ip_version` - (String) The IP version to enforce. Supported values are `ipv4` and `ipv6`.
+  - `protocol` - (String) The protocol to enforce. Supported values for IPv4 rules: `icmp`, `tcp`, `udp`, `any`, `icmp_tcp_udp`, and others. Supported additional values for IPv6 rules: `ipv6_icmp` (protocol 58), `ipv6_hop_opt` (protocol 0), `ipv6_route` (protocol 43), `ipv6_frag` (protocol 44), `ipv6_no_next` (protocol 59), `ipv6_dest_opts` (protocol 60), `ipv6_mobility` (protocol 135).
+  - `type` - (String) The ICMP traffic type to allow.
   - `name` - (String) The name for this security group rule. The name must not be used by another rule in the security group.
-  - `code` - (String) The traffic code to allow.
-  - `port_max`- (Integer) The TCP/UDP port range that includes the maximum bound.
-  - `port_min`- (Integer) The TCP/UDP port range that includes the minimum bound.
-  - `remote`- (Integer)  Security group ID, an IP address, a CIDR block, or a single security group identifier.
+  - `code` - (String) The ICMP traffic code to allow. Also used for `ipv6_icmp`.
+  - `port_max` - (Integer) The TCP/UDP port range that includes the maximum bound.
+  - `port_min` - (Integer) The TCP/UDP port range that includes the minimum bound.
+  - `remote` - (String) Security group ID, an IP address, a CIDR block (IPv4 or IPv6), or a single security group identifier.
 - `tags` - Tags associated with the security group.
   
 

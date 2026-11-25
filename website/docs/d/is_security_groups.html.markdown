@@ -84,44 +84,49 @@ In addition to all argument references listed, you can access the following attr
 		- `href` - (String) The URL for this security group rule.
 		- `id` - (String) The unique identifier for this security group rule.
 		- `name` - (String) The name for this security group rule. The name must not be used by another rule in the security group.
-		- `ip_version` - (String) The IP version to enforce. The format of `remote.address` or `remote.cidr_block` must match this property, if they are used. Alternatively, if `remote` references a security group, then this rule only applies to IP addresses (network interfaces) in that group matching this IP version.
-		- `local` - (List) The local IP address or range of local IP addresses to which this rule will allow inbound traffic (or from which, for outbound traffic). A CIDR block of 0.0.0.0/0 allows traffic to all local IP addresses (or from all local IP addresses, for outbound rules).
-			
+		- `ip_version` - (String) The IP version to enforce. The format of `local.address`, `local.cidr_block`, `remote.address`, or `remote.cidr_block` must match this property, if they are used. Alternatively, if `remote` references a security group, then this rule only applies to IP addresses in that group matching this IP version. Supported values are `ipv4` and `ipv6`.
+		- `local` - (List) The local IP address or range of local IP addresses to which this rule will allow inbound traffic (or from which, for outbound traffic). A CIDR block of `0.0.0.0/0` allows traffic to all local IPv4 addresses; `::/0` allows traffic to all local IPv6 addresses.
+
 			Nested scheme for `local`:
-			- `address` - (String) The IP address.This property may add support for IPv6 addresses in the future. When processing a value in this property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the error, or bypass the resource on which the unexpected IP address format was encountered.
-			- `cidr_block` - (String) The CIDR block. This property may add support for IPv6 CIDR blocks in the future. When processing a value in this property, verify that the CIDR block is in an expected format. If it is not, log an error. Optionally halt processing and surface the error, or bypass the resource on which the unexpected CIDR block format was encountered.
+			- `address` - (String) The IP address.
+			- `cidr_block` - (String) The CIDR block.
 		- `port_max` - (Integer) The inclusive upper bound of TCP/UDP port range.
 		- `port_min` - (Integer) The inclusive lower bound of TCP/UDP port range.
-		- `protocol` - (String) The protocol to enforce.
-		- `remote` - (List) The IP addresses or security groups from which this rule allows traffic (or to which,for outbound rules). Can be specified as an IP address, a CIDR block, or a securitygroup. A CIDR block of `0.0.0.0/0` allows traffic from any source (or to any source,for outbound rules).
-			
+		- `protocol` - (String) The protocol to enforce. Supported values for IPv4 rules: `icmp`, `tcp`, `udp`, `any`, `icmp_tcp_udp`, and others. Supported additional values for IPv6 rules: `ipv6_icmp` (protocol 58), `ipv6_hop_opt` (protocol 0), `ipv6_route` (protocol 43), `ipv6_frag` (protocol 44), `ipv6_no_next` (protocol 59), `ipv6_dest_opts` (protocol 60), `ipv6_mobility` (protocol 135).
+		- `remote` - (List) The IP addresses or security groups from which this rule allows traffic (or to which, for outbound rules). Can be specified as an IP address, a CIDR block, or a security group. A CIDR block of `0.0.0.0/0` allows traffic from any IPv4 source; `::/0` allows traffic from any IPv6 source.
+
 			Nested scheme for `remote`:
-			- `address` - (String) The IP address.This property may add support for IPv6 addresses in the future. When processing a value in this property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the error, or bypass the resource on which the unexpected IP address format was encountered.
-			- `cidr_block` - (String) The CIDR block. This property may add support for IPv6 CIDR blocks in the future. When processing a value in this property, verify that the CIDR block is in an expected format. If it is not, log an error. Optionally halt processing and surface the error, or bypass the resource on which the unexpected CIDR block format was encountered.
+			- `address` - (String) The IP address.
+			- `cidr_block` - (String) The CIDR block.
 			- `crn` - (String) The security group's CRN.
-			- `deleted` - (List) If present, this property indicates the referenced resource has been deleted and providessome supplementary information.
+			- `deleted` - (List) If present, this property indicates the referenced resource has been deleted and provides some supplementary information.
+
 			Nested scheme for `deleted`:
-				- `more_info` - (String) Link to documentation about deleted resources.
+			- `more_info` - (String) Link to documentation about deleted resources.
 			- `href` - (String) The security group's canonical URL.
 			- `id` - (String) The unique identifier for this security group.
 			- `name` - (String) The user-defined name for this security group. Names must be unique within the VPC the security group resides in.
 		- `type` - (Integer) The ICMP traffic type to allow.
 	- `targets` - (List) The targets for this security group.
+
 	Nested scheme for `targets`:
 		- `crn` - (String) The load balancer's CRN.
-		- `deleted` - (List) If present, this property indicates the referenced resource has been deleted and providessome supplementary information.
-		Nested scheme for `deleted`:
-			- `more_info` - (String) Link to documentation about deleted resources.
+		- `deleted` - (List) If present, this property indicates the referenced resource has been deleted and provides some supplementary information.
+
+	Nested scheme for `deleted`:
+		- `more_info` - (String) Link to documentation about deleted resources.
 		- `href` - (String) The URL for this network interface.
 		- `id` - (String) The unique identifier for this network interface.
 		- `name` - (String) The user-defined name for this network interface.
 		- `resource_type` - (String) The resource type.
 	- `vpc` - (List) The VPC this security group is a part of.
+
 	Nested scheme for `vpc`:
 		- `crn` - (String) The CRN for this VPC.
-		- `deleted` - (List) If present, this property indicates the referenced resource has been deleted and providessome supplementary information.
-		Nested scheme for `deleted`:
-			- `more_info` - (String) Link to documentation about deleted resources.
+		- `deleted` - (List) If present, this property indicates the referenced resource has been deleted and provides some supplementary information.
+
+	Nested scheme for `deleted`:
+		- `more_info` - (String) Link to documentation about deleted resources.
 		- `href` - (String) The URL for this VPC.
 		- `id` - (String) The unique identifier for this VPC.
 		- `name` - (String) The unique user-defined name for this VPC.
