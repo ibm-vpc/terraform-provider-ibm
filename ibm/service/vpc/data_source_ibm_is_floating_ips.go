@@ -451,6 +451,7 @@ func dataSourceFloatingIPCollectionFloatingIpsToMap(floatingIpsItem vpcv1.Floati
 	if floatingIpsItem.ResourceType != nil {
 		floatingIpsMap[isFloatingIPsResourceType] = *floatingIpsItem.ResourceType
 	}
+	authorizedCIDRList := make([]map[string]interface{}, 0)
 	if floatingIpsItem.AuthorizedCIDR != nil {
 		authorizedCIDRMap := map[string]interface{}{}
 		if floatingIpsItem.AuthorizedCIDR.ID != nil {
@@ -468,8 +469,10 @@ func dataSourceFloatingIPCollectionFloatingIpsToMap(floatingIpsItem vpcv1.Floati
 		if floatingIpsItem.AuthorizedCIDR.ResourceType != nil {
 			authorizedCIDRMap[isFloatingIPsAuthorizedCIDRResType] = *floatingIpsItem.AuthorizedCIDR.ResourceType
 		}
-		floatingIpsMap[isFloatingIPsAuthorizedCIDR] = []map[string]interface{}{authorizedCIDRMap}
+		authorizedCIDRList = append(authorizedCIDRList, authorizedCIDRMap)
 	}
+	floatingIpsMap[isFloatingIPsAuthorizedCIDR] = authorizedCIDRList
+	profileList := make([]map[string]interface{}, 0)
 	if floatingIpsItem.Profile != nil {
 		profileMap := map[string]interface{}{}
 		if floatingIpsItem.Profile.Name != nil {
@@ -481,8 +484,9 @@ func dataSourceFloatingIPCollectionFloatingIpsToMap(floatingIpsItem vpcv1.Floati
 		if floatingIpsItem.Profile.ResourceType != nil {
 			profileMap[isFloatingIPsResourceType] = *floatingIpsItem.Profile.ResourceType
 		}
-		floatingIpsMap[isFloatingIPsProfile] = []map[string]interface{}{profileMap}
+		profileList = append(profileList, profileMap)
 	}
+	floatingIpsMap[isFloatingIPsProfile] = profileList
 
 	return floatingIpsMap
 }

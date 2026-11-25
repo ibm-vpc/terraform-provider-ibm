@@ -49,16 +49,14 @@ resource "ibm_is_floating_ip" "example" {
 
 ### Example: Create a floating IP from a BYOIP authorized CIDR
 
-To request a specific IP address from a public address range authorized CIDR (BYOIP), specify the `address` argument. The address must be an unallocated address within an authorized CIDR.
+To request a specific IP address from a public address range authorized CIDR, specify the `address` argument.
 
 ```terraform
 resource "ibm_is_floating_ip" "from_byoip" {
   name    = "my-fip-byoip"
-  address = "46.16.188.26"
+  address = "203.0.113.10"
 }
 ```
-
-  -> **Note:** When `address` is specified, do not specify `zone` or `target`. The zone is determined by the authorized CIDR the address belongs to. The `address` argument is `ForceNew` — changing it destroys and recreates the floating IP.
 
 ## Timeouts
 The `ibm_is_instance` provides the following [Timeouts](https://www.terraform.io/docs/language/resources/syntax.html) configuration options:
@@ -79,13 +77,18 @@ Review the argument references that you can specify for your resource.
   **&#x2022;** `access_tags` must be in the format `key:value`.
 - `name` - (Required, String) Enter a name for the floating IP address. 
 - `resource_group` - (Optional, String) The resource group ID where you want to create the floating IP.
-- `target` - (Optional, String) Enter the ID of the network interface that you want to use to allocate the IP address. If you specify this option, do not specify `zone` at the same time. 
+- `target` - (Optional, String) Enter the ID of the network interface that you want to use to allocate the IP address. If you specify this option, do not specify `zone` at the same time.
 
   ~> **Note:** `target` conflicts with `zone`. A change in `target` which is in a different `zone` will show a change to replace current floating ip with a new one.
 - `tags` (Optional, Array of Strings) Enter any tags that you want to associate with your VPC. Tags might help you find your VPC more easily after it is created. Separate multiple tags with a comma (`,`).
-- `address` - (Optional, Force New Resource, String) The IP address to request for this floating IP. Must be an unallocated address in a public address range authorized CIDR (BYOIP). Conflicts with `zone` and `target`.
+- `address` - (Optional, Force New Resource, String) The address for this floating IP. Required if neither `target` nor `zone` is specified. The address must be an unallocated address in a public address range authorized CIDR. If unspecified, a random address will be selected from IBM's public IP address pool for the zone.
+
+  ~> **Note:**
+  **&#x2022;** If the authorized CIDR's `availability_mode` is `regional`, then `target` or `zone` is required.</br>
+  **&#x2022;** If the authorized CIDR's `availability_mode` is `zonal`, then the floating IP and its `target` (if any) must reside in the same zone as the authorized CIDR.</br>
+  **&#x2022;** If `address` is specified and the floating IP will be allocated from a public address range authorized CIDR, the target cannot be an instance network interface or a bare metal server network interface.
 - `zone` - (Optional, Force New Resource, String) Enter the name of the zone where you want to create the floating IP address. To list available zones, run `ibmcloud is zones`. If you specify this option, do not specify `target` at the same time.
-  
+
   ~> **Note:** Conflicts with `target` and one of `target`, `zone`, or `address` is mandatory.
 
   ~> **Note**  `target` cannot be used in conjunction with the `floating_ip` argument of `ibm_is_instance_network_interface` resource and might cause cyclic dependency/unexpected issues if used used both ways.
@@ -93,14 +96,14 @@ Review the argument references that you can specify for your resource.
 ## Attribute reference
 In addition to all argument reference list, you can access the following attribute reference after your resource is created.
 
-- `address` - (String) The floating IP address that was created.
-- `authorized_cidr` - (List) The authorized CIDR block associated with this floating IP.
+- `address` - (String) The globally unique IP address.
+- `authorized_cidr` - (List) The public address range authorized CIDR this floating IP is allocated from.
 
   Nested scheme for `authorized_cidr`:
-  - `cidr` - (String) The CIDR block.
-  - `href` - (String) The URL for this authorized CIDR.
-  - `id` - (String) The unique identifier for this authorized CIDR.
-  - `name` - (String) The name for this authorized CIDR.
+  - `cidr` - (String) The public IPv4 address block for the public address range authorized CIDR, expressed in CIDR format.
+  - `href` - (String) The URL for this public address range authorized CIDR.
+  - `id` - (String) The unique identifier for this public address range authorized CIDR.
+  - `name` - (String) The name for this public address range authorized CIDR. The name is unique across all public address range authorized CIDRs in the region.
   - `resource_type` - (String) The resource type.
 - `crn` - (String) The CRN for this floating IP.
 - `id` - (String) The unique identifier of the floating IP address.
@@ -111,7 +114,7 @@ In addition to all argument reference list, you can access the following attribu
   - `name` - (String) The globally unique name for this floating IP profile.
   - `resource_type` - (String) The resource type.
 - `resource_type` - (String) The resource type.
-- `status` - (String) The provisioning status of the floating IP address.
+- `status` - (String) The status of the floating IP.
 - `target_list` - (List) The target of this floating IP.
 
   Nested scheme for **target_list**:
@@ -127,10 +130,10 @@ In addition to all argument reference list, you can access the following attribu
 
     Nested scheme for **primary_ip**:
     - `address` - (String) The IP address. If the address has not yet been selected, the value will be 0.0.0.0. This property may add support for IPv6 addresses in the future. When processing a value in this property, verify that the address is in an expected format. If it is not, log an error. Optionally halt processing and surface the error, or bypass the resource on which the unexpected IP address format was encountered.
-    - `href`- (String) The URL for this reserved IP
-    - `name`- (String) The user-defined or system-provided name for this reserved IP
-    - `reserved_ip`- (String) The unique identifier for this reserved IP
-    - `resource_type`- (String) The resource type.
+    - `href` - (String) The URL for this reserved IP.
+    - `name` - (String) The user-defined or system-provided name for this reserved IP.
+    - `reserved_ip` - (String) The unique identifier for this reserved IP.
+    - `resource_type` - (String) The resource type.
 
 ## Import
 

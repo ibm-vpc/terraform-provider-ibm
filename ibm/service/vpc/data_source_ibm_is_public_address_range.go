@@ -418,14 +418,15 @@ func dataSourceIBMIsPublicAddressRangeRead(context context.Context, d *schema.Re
 	}
 	if publicAddressRange.IPVersion != nil {
 		if err = d.Set("ip_version", publicAddressRange.IPVersion); err != nil {
-			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting ip_version: %s", err), "(Data) ibm_public_address_range", "read", "set-ip_version").GetDiag()
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting ip_version: %s", err), "(Data) ibm_is_public_address_range", "read", "set-ip_version").GetDiag()
 		}
 	}
 	if publicAddressRange.NetworkPrefixLength != nil {
 		if err = d.Set("network_prefix_length", flex.IntValue(publicAddressRange.NetworkPrefixLength)); err != nil {
-			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting network_prefix_length: %s", err), "(Data) ibm_public_address_range", "read", "set-network_prefix_length").GetDiag()
+			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting network_prefix_length: %s", err), "(Data) ibm_is_public_address_range", "read", "set-network_prefix_length").GetDiag()
 		}
 	}
+	authorizedCIDRList := make([]map[string]interface{}, 0)
 	if publicAddressRange.AuthorizedCIDR != nil {
 		authorizedCIDRMap := map[string]interface{}{}
 		if publicAddressRange.AuthorizedCIDR.CIDR != nil {
@@ -446,14 +447,16 @@ func dataSourceIBMIsPublicAddressRangeRead(context context.Context, d *schema.Re
 		if publicAddressRange.AuthorizedCIDR.Zone != nil {
 			zoneMap, err := DataSourceIBMIsPublicAddressRangeZoneReferenceToMap(publicAddressRange.AuthorizedCIDR.Zone)
 			if err != nil {
-				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_public_address_range", "read", "set-authorized_cidr_zone").GetDiag()
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "(Data) ibm_is_public_address_range", "read", "set-authorized_cidr_zone").GetDiag()
 			}
 			authorizedCIDRMap["zone"] = []map[string]interface{}{zoneMap}
 		}
-		if err = d.Set("authorized_cidr", []map[string]interface{}{authorizedCIDRMap}); err != nil {
-			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting authorized_cidr: %s", err), "(Data) ibm_public_address_range", "read", "set-authorized_cidr").GetDiag()
-		}
+		authorizedCIDRList = append(authorizedCIDRList, authorizedCIDRMap)
 	}
+	if err = d.Set("authorized_cidr", authorizedCIDRList); err != nil {
+		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting authorized_cidr: %s", err), "(Data) ibm_is_public_address_range", "read", "set-authorized_cidr").GetDiag()
+	}
+	profileList := make([]map[string]interface{}, 0)
 	if publicAddressRange.Profile != nil {
 		profileMap := map[string]interface{}{}
 		if publicAddressRange.Profile.Href != nil {
@@ -465,9 +468,10 @@ func dataSourceIBMIsPublicAddressRangeRead(context context.Context, d *schema.Re
 		if publicAddressRange.Profile.ResourceType != nil {
 			profileMap["resource_type"] = *publicAddressRange.Profile.ResourceType
 		}
-		if err = d.Set("profile", []map[string]interface{}{profileMap}); err != nil {
-			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting profile: %s", err), "(Data) ibm_public_address_range", "read", "set-profile").GetDiag()
-		}
+		profileList = append(profileList, profileMap)
+	}
+	if err = d.Set("profile", profileList); err != nil {
+		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting profile: %s", err), "(Data) ibm_is_public_address_range", "read", "set-profile").GetDiag()
 	}
 
 	target := []map[string]interface{}{}

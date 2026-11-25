@@ -22,7 +22,7 @@ data "ibm_is_floating_ip_profile" "is_floating_ip_profile" {
 
 You can specify the following arguments for this data source.
 
-* `name` - (Required, Forces new resource, String) The floating IP profile name.
+* `name` - (Required, String) The floating IP profile name.
   * Constraints: The maximum length is `63` characters. The minimum length is `1` character. The value must match regular expression `/^([a-z]|[a-z][-a-z0-9]*[a-z0-9]|[0-9][-a-z0-9]*([a-z]|[-a-z][-a-z0-9]*[a-z0-9]))$/`.
 
 ## Attribute Reference

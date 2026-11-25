@@ -195,6 +195,7 @@ func dataSourceIBMISBareMetalServerNetworkInterfaceFloatingIPRead(context contex
 			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting resource_type: %s", err), "(Data) ibm_is_bare_metal_server_network_interface_floating_ip", "read", "set-resource_type").GetDiag()
 		}
 	}
+	authorizedCIDRList := make([]map[string]interface{}, 0)
 	if ip.AuthorizedCIDR != nil {
 		authorizedCIDRMap := map[string]interface{}{}
 		if ip.AuthorizedCIDR.ID != nil {
@@ -212,10 +213,12 @@ func dataSourceIBMISBareMetalServerNetworkInterfaceFloatingIPRead(context contex
 		if ip.AuthorizedCIDR.ResourceType != nil {
 			authorizedCIDRMap[isBMSNicFIPAuthorizedCIDRResType] = *ip.AuthorizedCIDR.ResourceType
 		}
-		if err = d.Set(isBMSNicFIPAuthorizedCIDR, []map[string]interface{}{authorizedCIDRMap}); err != nil {
-			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting authorized_cidr: %s", err), "(Data) ibm_is_bare_metal_server_network_interface_floating_ip", "read", "set-authorized_cidr").GetDiag()
-		}
+		authorizedCIDRList = append(authorizedCIDRList, authorizedCIDRMap)
 	}
+	if err = d.Set(isBMSNicFIPAuthorizedCIDR, authorizedCIDRList); err != nil {
+		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting authorized_cidr: %s", err), "(Data) ibm_is_bare_metal_server_network_interface_floating_ip", "read", "set-authorized_cidr").GetDiag()
+	}
+	profileList := make([]map[string]interface{}, 0)
 	if ip.Profile != nil {
 		profileMap := map[string]interface{}{}
 		if ip.Profile.Name != nil {
@@ -227,9 +230,10 @@ func dataSourceIBMISBareMetalServerNetworkInterfaceFloatingIPRead(context contex
 		if ip.Profile.ResourceType != nil {
 			profileMap[isBMSNicFIPResourceType] = *ip.Profile.ResourceType
 		}
-		if err = d.Set(isBMSNicFIPProfile, []map[string]interface{}{profileMap}); err != nil {
-			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting profile: %s", err), "(Data) ibm_is_bare_metal_server_network_interface_floating_ip", "read", "set-profile").GetDiag()
-		}
+		profileList = append(profileList, profileMap)
+	}
+	if err = d.Set(isBMSNicFIPProfile, profileList); err != nil {
+		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting profile: %s", err), "(Data) ibm_is_bare_metal_server_network_interface_floating_ip", "read", "set-profile").GetDiag()
 	}
 
 	d.SetId(*ip.ID)
