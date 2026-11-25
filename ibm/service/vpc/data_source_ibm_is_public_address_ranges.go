@@ -375,6 +375,7 @@ func DataSourceIBMIsPublicAddressRangesPublicAddressRangeToMap(model *vpcv1.Publ
 	if model.NetworkPrefixLength != nil {
 		modelMap["network_prefix_length"] = flex.IntValue(model.NetworkPrefixLength)
 	}
+	authorizedCIDRList := make([]map[string]interface{}, 0)
 	if model.AuthorizedCIDR != nil {
 		authorizedCIDRMap := map[string]interface{}{}
 		if model.AuthorizedCIDR.CIDR != nil {
@@ -399,8 +400,10 @@ func DataSourceIBMIsPublicAddressRangesPublicAddressRangeToMap(model *vpcv1.Publ
 			}
 			authorizedCIDRMap["zone"] = []map[string]interface{}{zoneMap}
 		}
-		modelMap["authorized_cidr"] = []map[string]interface{}{authorizedCIDRMap}
+		authorizedCIDRList = append(authorizedCIDRList, authorizedCIDRMap)
 	}
+	modelMap["authorized_cidr"] = authorizedCIDRList
+	profileList := make([]map[string]interface{}, 0)
 	if model.Profile != nil {
 		profileMap := map[string]interface{}{}
 		if model.Profile.Href != nil {
@@ -412,8 +415,9 @@ func DataSourceIBMIsPublicAddressRangesPublicAddressRangeToMap(model *vpcv1.Publ
 		if model.Profile.ResourceType != nil {
 			profileMap["resource_type"] = *model.Profile.ResourceType
 		}
-		modelMap["profile"] = []map[string]interface{}{profileMap}
+		profileList = append(profileList, profileMap)
 	}
+	modelMap["profile"] = profileList
 	modelMap["resource_type"] = *model.ResourceType
 	if model.Target != nil {
 		targetMap, err := DataSourceIBMIsPublicAddressRangesPublicAddressRangeTargetToMap(model.Target)

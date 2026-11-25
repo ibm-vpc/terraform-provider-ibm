@@ -207,6 +207,7 @@ func dataSourceIBMISBareMetalServerNetworkInterfaceFloatingIPsRead(context conte
 		if ip.ResourceType != nil {
 			l[isBMSNicFIPResourceType] = *ip.ResourceType
 		}
+		authorizedCIDRList := make([]map[string]interface{}, 0)
 		if ip.AuthorizedCIDR != nil {
 			authorizedCIDRMap := map[string]interface{}{}
 			if ip.AuthorizedCIDR.ID != nil {
@@ -224,8 +225,10 @@ func dataSourceIBMISBareMetalServerNetworkInterfaceFloatingIPsRead(context conte
 			if ip.AuthorizedCIDR.ResourceType != nil {
 				authorizedCIDRMap[isBMSNicFIPAuthorizedCIDRResType] = *ip.AuthorizedCIDR.ResourceType
 			}
-			l[isBMSNicFIPAuthorizedCIDR] = []map[string]interface{}{authorizedCIDRMap}
+			authorizedCIDRList = append(authorizedCIDRList, authorizedCIDRMap)
 		}
+		l[isBMSNicFIPAuthorizedCIDR] = authorizedCIDRList
+		profileList := make([]map[string]interface{}, 0)
 		if ip.Profile != nil {
 			profileMap := map[string]interface{}{}
 			if ip.Profile.Name != nil {
@@ -237,8 +240,9 @@ func dataSourceIBMISBareMetalServerNetworkInterfaceFloatingIPsRead(context conte
 			if ip.Profile.ResourceType != nil {
 				profileMap[isBMSNicFIPResourceType] = *ip.Profile.ResourceType
 			}
-			l[isBMSNicFIPProfile] = []map[string]interface{}{profileMap}
+			profileList = append(profileList, profileMap)
 		}
+		l[isBMSNicFIPProfile] = profileList
 
 		fipInfo = append(fipInfo, l)
 	}

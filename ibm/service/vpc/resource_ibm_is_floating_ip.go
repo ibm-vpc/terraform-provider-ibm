@@ -598,6 +598,7 @@ func fipGet(context context.Context, d *schema.ResourceData, meta interface{}, i
 			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_floating_ip", "read", "set-resource_type").GetDiag()
 		}
 	}
+	authorizedCIDRList := make([]map[string]interface{}, 0)
 	if floatingip.AuthorizedCIDR != nil {
 		authorizedCIDRMap := map[string]interface{}{}
 		if floatingip.AuthorizedCIDR.ID != nil {
@@ -615,11 +616,13 @@ func fipGet(context context.Context, d *schema.ResourceData, meta interface{}, i
 		if floatingip.AuthorizedCIDR.ResourceType != nil {
 			authorizedCIDRMap[isFloatingIPAuthorizedCIDRResType] = *floatingip.AuthorizedCIDR.ResourceType
 		}
-		if err = d.Set(isFloatingIPAuthorizedCIDR, []map[string]interface{}{authorizedCIDRMap}); err != nil {
-			err = fmt.Errorf("Error setting authorized_cidr: %s", err)
-			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_floating_ip", "read", "set-authorized_cidr").GetDiag()
-		}
+		authorizedCIDRList = append(authorizedCIDRList, authorizedCIDRMap)
 	}
+	if err = d.Set(isFloatingIPAuthorizedCIDR, authorizedCIDRList); err != nil {
+		err = fmt.Errorf("Error setting authorized_cidr: %s", err)
+		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_floating_ip", "read", "set-authorized_cidr").GetDiag()
+	}
+	profileList := make([]map[string]interface{}, 0)
 	if floatingip.Profile != nil {
 		profileMap := map[string]interface{}{}
 		if floatingip.Profile.Name != nil {
@@ -631,10 +634,11 @@ func fipGet(context context.Context, d *schema.ResourceData, meta interface{}, i
 		if floatingip.Profile.ResourceType != nil {
 			profileMap[isFloatingIPResourceType] = *floatingip.Profile.ResourceType
 		}
-		if err = d.Set(isFloatingIPProfile, []map[string]interface{}{profileMap}); err != nil {
-			err = fmt.Errorf("Error setting profile: %s", err)
-			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_floating_ip", "read", "set-profile").GetDiag()
-		}
+		profileList = append(profileList, profileMap)
+	}
+	if err = d.Set(isFloatingIPProfile, profileList); err != nil {
+		err = fmt.Errorf("Error setting profile: %s", err)
+		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_floating_ip", "read", "set-profile").GetDiag()
 	}
 	return nil
 }

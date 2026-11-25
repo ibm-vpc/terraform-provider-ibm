@@ -273,6 +273,7 @@ func instanceNICFipGet(context context.Context, d *schema.ResourceData, fip *vpc
 			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_instance_network_interface_floating_ip", "read", "set-resource_type").GetDiag()
 		}
 	}
+	authorizedCIDRList := make([]map[string]interface{}, 0)
 	if fip.AuthorizedCIDR != nil {
 		authorizedCIDRMap := map[string]interface{}{}
 		if fip.AuthorizedCIDR.ID != nil {
@@ -290,10 +291,12 @@ func instanceNICFipGet(context context.Context, d *schema.ResourceData, fip *vpc
 		if fip.AuthorizedCIDR.ResourceType != nil {
 			authorizedCIDRMap[isFloatingIPAuthorizedCIDRResType] = *fip.AuthorizedCIDR.ResourceType
 		}
-		if err = d.Set(isFloatingIPAuthorizedCIDR, []map[string]interface{}{authorizedCIDRMap}); err != nil {
-			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_instance_network_interface_floating_ip", "read", "set-authorized_cidr").GetDiag()
-		}
+		authorizedCIDRList = append(authorizedCIDRList, authorizedCIDRMap)
 	}
+	if err = d.Set(isFloatingIPAuthorizedCIDR, authorizedCIDRList); err != nil {
+		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_instance_network_interface_floating_ip", "read", "set-authorized_cidr").GetDiag()
+	}
+	profileList := make([]map[string]interface{}, 0)
 	if fip.Profile != nil {
 		profileMap := map[string]interface{}{}
 		if fip.Profile.Name != nil {
@@ -305,9 +308,10 @@ func instanceNICFipGet(context context.Context, d *schema.ResourceData, fip *vpc
 		if fip.Profile.ResourceType != nil {
 			profileMap[isFloatingIPResourceType] = *fip.Profile.ResourceType
 		}
-		if err = d.Set(isFloatingIPProfile, []map[string]interface{}{profileMap}); err != nil {
-			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_instance_network_interface_floating_ip", "read", "set-profile").GetDiag()
-		}
+		profileList = append(profileList, profileMap)
+	}
+	if err = d.Set(isFloatingIPProfile, profileList); err != nil {
+		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_is_instance_network_interface_floating_ip", "read", "set-profile").GetDiag()
 	}
 	return nil
 }

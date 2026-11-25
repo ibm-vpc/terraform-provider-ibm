@@ -392,6 +392,7 @@ func dataSourceIBMIsPublicAddressRangeRead(context context.Context, d *schema.Re
 			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting network_prefix_length: %s", err), "(Data) ibm_is_public_address_range", "read", "set-network_prefix_length").GetDiag()
 		}
 	}
+	authorizedCIDRList := make([]map[string]interface{}, 0)
 	if publicAddressRange.AuthorizedCIDR != nil {
 		authorizedCIDRMap := map[string]interface{}{}
 		if publicAddressRange.AuthorizedCIDR.CIDR != nil {
@@ -416,10 +417,12 @@ func dataSourceIBMIsPublicAddressRangeRead(context context.Context, d *schema.Re
 			}
 			authorizedCIDRMap["zone"] = []map[string]interface{}{zoneMap}
 		}
-		if err = d.Set("authorized_cidr", []map[string]interface{}{authorizedCIDRMap}); err != nil {
-			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting authorized_cidr: %s", err), "(Data) ibm_is_public_address_range", "read", "set-authorized_cidr").GetDiag()
-		}
+		authorizedCIDRList = append(authorizedCIDRList, authorizedCIDRMap)
 	}
+	if err = d.Set("authorized_cidr", authorizedCIDRList); err != nil {
+		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting authorized_cidr: %s", err), "(Data) ibm_is_public_address_range", "read", "set-authorized_cidr").GetDiag()
+	}
+	profileList := make([]map[string]interface{}, 0)
 	if publicAddressRange.Profile != nil {
 		profileMap := map[string]interface{}{}
 		if publicAddressRange.Profile.Href != nil {
@@ -431,9 +434,10 @@ func dataSourceIBMIsPublicAddressRangeRead(context context.Context, d *schema.Re
 		if publicAddressRange.Profile.ResourceType != nil {
 			profileMap["resource_type"] = *publicAddressRange.Profile.ResourceType
 		}
-		if err = d.Set("profile", []map[string]interface{}{profileMap}); err != nil {
-			return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting profile: %s", err), "(Data) ibm_is_public_address_range", "read", "set-profile").GetDiag()
-		}
+		profileList = append(profileList, profileMap)
+	}
+	if err = d.Set("profile", profileList); err != nil {
+		return flex.DiscriminatedTerraformErrorf(err, fmt.Sprintf("Error setting profile: %s", err), "(Data) ibm_is_public_address_range", "read", "set-profile").GetDiag()
 	}
 
 	target := []map[string]interface{}{}
